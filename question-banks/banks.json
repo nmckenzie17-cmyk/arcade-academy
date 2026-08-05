@@ -1,0 +1,34 @@
+{
+  "93bf": {
+    "subject": "biology",
+    "bank": "year9-full"
+  },
+  "112mm": {
+    "subject": "chemistry",
+    "bank": "year11-molar-mass"
+  },
+  "112cf": {
+    "subject": "chemistry",
+    "bank": "year11-chemistry-full"
+  },
+  "11-13dg": {
+    "subject": "dance",
+    "bank": "genres"
+  },
+  "11-13dc": {
+    "subject": "dance",
+    "bank": "choreography"
+  },
+  "elfdef": {
+    "subject": "english",
+    "bank": "language-definitions"
+  },
+  "elfex": {
+    "subject": "english",
+    "bank": "language-examples"
+  },
+  "chef": {
+    "subject": "foodtech",
+    "bank": "cooking"
+  }
+}
