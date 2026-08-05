@@ -1,0 +1,137 @@
+{
+  "name": "Language Features",
+  "cards": [
+    {
+      "term": "Emotive Language",
+      "definition": "Words chosen specifically to trigger an emotional response."
+    },
+    {
+      "term": "Rule of Three (Tricolon)",
+      "definition": "Grouping three words, phrases, or ideas for impact."
+    },
+    {
+      "term": "Inclusive Language",
+      "definition": "Words that aim to make the audience feel part of a group."
+    },
+    {
+      "term": "Imperative Language",
+      "definition": "Command verbs used to demand or encourage action."
+    },
+    {
+      "term": "Jargon",
+      "definition": "Specialized terms used by a specific field or profession."
+    },
+    {
+      "term": "Euphemism",
+      "definition": "A polite or mild phrase used in place of a harsh one."
+    },
+    {
+      "term": "Dysphemism",
+      "definition": "A harsh or derogatory term used instead of a neutral one."
+    },
+    {
+      "term": "Modality",
+      "definition": "Words expressing degrees of certainty or obligation."
+    },
+    {
+      "term": "Foreshadowing",
+      "definition": "Hints or clues about events that will happen later."
+    },
+    {
+      "term": "Flashback (Analepsis)",
+      "definition": "Interrupting the timeline to show a past event."
+    },
+    {
+      "term": "Motif",
+      "definition": "A recurring symbol or idea that reinforces the central theme."
+    },
+    {
+      "term": "Allusion",
+      "definition": "A brief reference to a well-known person, place, or work."
+    },
+    {
+      "term": "Alliteration",
+      "definition": "Repetition of initial consonant sounds in nearby words."
+    },
+    {
+      "term": "Assonance",
+      "definition": "Repetition of similar vowel sounds within nearby words."
+    },
+    {
+      "term": "Consonance",
+      "definition": "Repetition of consonant sounds anywhere in nearby words."
+    },
+    {
+      "term": "Sibilance",
+      "definition": "Repetition of 's', 'z', or soft 'c' sounds to create a hissing effect."
+    },
+    {
+      "term": "Juxtaposition",
+      "definition": "Placing two contrasting ideas side-by-side for contrast."
+    },
+    {
+      "term": "Parallelism",
+      "definition": "Repeating a grammatical structure to create rhythm or balance."
+    },
+    {
+      "term": "Anaphora",
+      "definition": "Repetition of a word or phrase at the beginning of clauses."
+    },
+    {
+      "term": "Epistrophe",
+      "definition": "Repetition of a word or phrase at the end of clauses."
+    },
+    {
+      "term": "Rhetorical Question",
+      "definition": "A question asked to make a point rather than get an answer."
+    },
+    {
+      "term": "Hypophora",
+      "definition": "Asking a question and immediately answering it yourself."
+    },
+    {
+      "term": "Polysyndeton",
+      "definition": "Overusing conjunctions (and, or, but) in quick succession."
+    },
+    {
+      "term": "Asyndeton",
+      "definition": "Deliberately leaving out conjunctions between phrases."
+    },
+    {
+      "term": "Simile",
+      "definition": "Compares two unlike things using like or as."
+    },
+    {
+      "term": "Metaphor",
+      "definition": "Compares two things directly by stating one is the other."
+    },
+    {
+      "term": "Personification",
+      "definition": "Gives human qualities, feelings, or actions to non-human things."
+    },
+    {
+      "term": "Hyperbole",
+      "definition": "An extreme exaggeration used for emphasis or effect."
+    },
+    {
+      "term": "Onomatopoeia",
+      "definition": "Words that imitate the sound they represent."
+    },
+    {
+      "term": "Oxymoron",
+      "definition": "Combines two contradictory terms side-by-side."
+    },
+    {
+      "term": "Idiom",
+      "definition": "A phrase whose meaning isn't obvious from its individual words."
+    },
+    {
+      "term": "Symbolism",
+      "definition": "Using an object or action to represent a deeper, abstract idea."
+    },
+    {
+      "term": "Irony (Verbal)",
+      "definition": "Stating the opposite of what is actually meant."
+    }
+  ]
+}

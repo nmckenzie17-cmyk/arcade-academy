@@ -1,0 +1,253 @@
+{
+  "name": "Common Cookery Terms",
+  "cards": [
+    {
+      "term": "Bake",
+      "definition": "To cook food using dry heat in an oven."
+    },
+    {
+      "term": "Barbecue (BBQ)",
+      "definition": "To cook food over direct heat, usually on a grill."
+    },
+    {
+      "term": "Baste",
+      "definition": "To spoon or brush liquid or fat over food while it cooks to keep it moist."
+    },
+    {
+      "term": "Beat",
+      "definition": "To mix ingredients rapidly to incorporate air and create a smooth texture."
+    },
+    {
+      "term": "Blanch",
+      "definition": "To briefly cook food in boiling water, then cool it quickly in ice water."
+    },
+    {
+      "term": "Blend",
+      "definition": "To combine ingredients until smooth and evenly mixed."
+    },
+    {
+      "term": "Boil",
+      "definition": "To cook food in liquid at 100°C until bubbles continuously rise to the surface."
+    },
+    {
+      "term": "Bone",
+      "definition": "To remove bones from meat, poultry, or fish."
+    },
+    {
+      "term": "Braise",
+      "definition": "To slowly cook food in a small amount of liquid after browning it."
+    },
+    {
+      "term": "Bread (Crumb)",
+      "definition": "To coat food with flour, egg, and breadcrumbs before cooking."
+    },
+    {
+      "term": "Broil/Grill",
+      "definition": "To cook food using intense heat from above or below."
+    },
+    {
+      "term": "Brown",
+      "definition": "To cook food until its surface develops a golden-brown colour."
+    },
+    {
+      "term": "Caramelise",
+      "definition": "To heat sugar until it melts and turns golden brown, or to slowly brown vegetables to develop sweetness."
+    },
+    {
+      "term": "Chop",
+      "definition": "To cut food into roughly even-sized pieces."
+    },
+    {
+      "term": "Clarify",
+      "definition": "To make a liquid clear by removing impurities, or to separate butterfat from milk solids."
+    },
+    {
+      "term": "Coat",
+      "definition": "To evenly cover food with a sauce, flour, crumbs, or other ingredient."
+    },
+    {
+      "term": "Combine",
+      "definition": "To mix two or more ingredients together."
+    },
+    {
+      "term": "Core",
+      "definition": "To remove the center of fruits such as apples or pears."
+    },
+    {
+      "term": "Cream",
+      "definition": "To beat butter and sugar together until light and fluffy."
+    },
+    {
+      "term": "Cube",
+      "definition": "To cut food into evenly sized square pieces."
+    },
+    {
+      "term": "Deglaze",
+      "definition": "To add liquid to a hot pan to dissolve browned food particles for a sauce."
+    },
+    {
+      "term": "Dice",
+      "definition": "To cut food into small, even cubes."
+    },
+    {
+      "term": "Drain",
+      "definition": "To remove excess liquid from food."
+    },
+    {
+      "term": "Dust",
+      "definition": "To lightly sprinkle food with flour, icing sugar, or another dry ingredient."
+    },
+    {
+      "term": "Fillet",
+      "definition": "To remove bones from fish or slice meat into boneless portions."
+    },
+    {
+      "term": "Fold",
+      "definition": "To gently combine ingredients while keeping as much air as possible in the mixture."
+    },
+    {
+      "term": "Fry",
+      "definition": "To cook food in hot oil or fat."
+    },
+    {
+      "term": "Garnish",
+      "definition": "To decorate food to improve its appearance and sometimes add flavor."
+    },
+    {
+      "term": "Glaze",
+      "definition": "To coat food with a shiny finish using egg wash, syrup, or sauce."
+    },
+    {
+      "term": "Grate",
+      "definition": "To shred food into fine pieces using a grater."
+    },
+    {
+      "term": "Grease",
+      "definition": "To coat a pan or tray with fat to prevent sticking."
+    },
+    {
+      "term": "Julienne",
+      "definition": "To cut food into thin, matchstick-sized strips."
+    },
+    {
+      "term": "Knead",
+      "definition": "To work dough by pressing, folding, and stretching to develop gluten."
+    },
+    {
+      "term": "Marinate",
+      "definition": "To soak food in a seasoned liquid to add flavor and tenderness."
+    },
+    {
+      "term": "Mash",
+      "definition": "To crush cooked food into a smooth or coarse consistency."
+    },
+    {
+      "term": "Measure",
+      "definition": "To accurately determine the amount of an ingredient using scales or measuring tools."
+    },
+    {
+      "term": "Mince",
+      "definition": "To cut food into very small pieces or grind it finely."
+    },
+    {
+      "term": "Mix",
+      "definition": "To combine ingredients until evenly distributed."
+    },
+    {
+      "term": "Peel",
+      "definition": "To remove the outer skin of fruits or vegetables."
+    },
+    {
+      "term": "Poach",
+      "definition": "To gently cook food in liquid below boiling point (approximately 70–85°C)."
+    },
+    {
+      "term": "Preheat",
+      "definition": "To bring an oven or cooking equipment to the required temperature before use."
+    },
+    {
+      "term": "Purée",
+      "definition": "To blend food until completely smooth."
+    },
+    {
+      "term": "Reduce",
+      "definition": "To simmer a liquid until it thickens."
+    },
+    {
+      "term": "Roast",
+      "definition": "To cook food using dry heat in an oven, often uncovered."
+    },
+    {
+      "term": "Sauté",
+      "definition": "To cook food quickly in a small amount of fat over high heat."
+    },
+    {
+      "term": "Score",
+      "definition": "To make shallow cuts on the surface of food to assist cooking or presentation."
+    },
+    {
+      "term": "Sear",
+      "definition": "To cook the outside of food quickly over high heat to develop color and flavor."
+    },
+    {
+      "term": "Season",
+      "definition": "To add salt, pepper, herbs, spices, or other flavorings to food."
+    },
+    {
+      "term": "Shred",
+      "definition": "To cut or tear food into long, thin strips."
+    },
+    {
+      "term": "Sift",
+      "definition": "To pass dry ingredients through a sieve to remove lumps and add air."
+    },
+    {
+      "term": "Simmer",
+      "definition": "To cook food gently in liquid just below boiling point (approximately 85–95°C)."
+    },
+    {
+      "term": "Slice",
+      "definition": "To cut food into thin, even pieces."
+    },
+    {
+      "term": "Steam",
+      "definition": "To cook food using steam from boiling water without the food touching the water."
+    },
+    {
+      "term": "Stew",
+      "definition": "To cook food slowly in liquid over low heat."
+    },
+    {
+      "term": "Stir",
+      "definition": "To move ingredients around with a spoon or spatula to combine or prevent sticking."
+    },
+    {
+      "term": "Tenderize",
+      "definition": "To make meat softer by mechanical or chemical methods."
+    },
+    {
+      "term": "Toast",
+      "definition": "To brown food using dry heat."
+    },
+    {
+      "term": "Toss",
+      "definition": "To gently mix ingredients, often salads, without crushing them."
+    },
+    {
+      "term": "Trim",
+      "definition": "To remove unwanted fat, skin, or damaged portions from food."
+    },
+    {
+      "term": "Whip",
+      "definition": "To beat ingredients rapidly to incorporate air and increase volume."
+    },
+    {
+      "term": "Whisk",
+      "definition": "To beat ingredients using a whisk to blend or add air."
+    },
+    {
+      "term": "Zest",
+      "definition": "To remove the coloured outer skin of citrus fruit without the bitter white pith."
+    }
+  ]
+}

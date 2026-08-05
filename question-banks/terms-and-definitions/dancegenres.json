@@ -1,0 +1,105 @@
+{
+  "name": "Dance Styles and Disciplines",
+  "cards": [
+    {
+      "term": "Hip Hop",
+      "definition": "A street dance style focused on rhythm, grooves, freestyle, and personal expression. Includes elements like popping, locking, breaking, and house influences."
+    },
+    {
+      "term": "Contemporary",
+      "definition": "Combines ballet, modern, and jazz techniques to emphasize emotion, storytelling, fluid movement, and floor work."
+    },
+    {
+      "term": "Ballet",
+      "definition": "A highly technical and disciplined style originating in Europe, characterized by grace, turnout, precise footwork, and formal positions."
+    },
+    {
+      "term": "Jazz",
+      "definition": "An energetic style featuring strong technique, sharp movements, turns, kicks, and expressive performance quality."
+    },
+    {
+      "term": "Tap",
+      "definition": "Dancers wear shoes with metal plates to create rhythmic sounds, turning movement into percussion."
+    },
+    {
+      "term": "Modern",
+      "definition": "A rebellion against classical ballet traditions that emphasizes natural movement, contraction, release, and emotional expression."
+    },
+    {
+      "term": "Lyrical",
+      "definition": "A fusion of ballet and jazz that focuses on interpreting song lyrics and conveying emotion through movement."
+    },
+    {
+      "term": "Breaking (Breakdance)",
+      "definition": "An original element of hip hop culture featuring power moves, freezes, footwork, and athletic acrobatics."
+    },
+    {
+      "term": "Popping",
+      "definition": "A funk style where dancers rapidly contract and relax muscles to create sharp \"pops\" and robotic effects."
+    },
+    {
+      "term": "Locking",
+      "definition": "A playful funk dance involving exaggerated movements, freezes, points, and expressive performance."
+    },
+    {
+      "term": "House Dance",
+      "definition": "Originating in club culture, house emphasizes fast footwork, grooves, improvisation, and musicality to electronic music."
+    },
+    {
+      "term": "Krump",
+      "definition": "An intense, high-energy street dance focused on raw emotion, powerful movements, and freestyle battles."
+    },
+    {
+      "term": "Waacking",
+      "definition": "A disco-era dance characterized by rapid arm movements, poses, musical interpretation, and dramatic performance."
+    },
+    {
+      "term": "Vogue (Voguing)",
+      "definition": "Developed within ballroom culture, featuring model-like poses, angular movements, floor work, and storytelling."
+    },
+    {
+      "term": "Ballroom",
+      "definition": "A collection of partner dances such as the waltz, foxtrot, and quickstep, emphasizing elegance and connection."
+    },
+    {
+      "term": "Latin Dance",
+      "definition": "Includes styles like salsa, cha-cha, rumba, and samba, known for rhythmic footwork, hip action, and partner work."
+    },
+    {
+      "term": "Salsa",
+      "definition": "A vibrant social dance from Latin America featuring fast footwork, spins, and strong musical connection."
+    },
+    {
+      "term": "Tango",
+      "definition": "An intimate partner dance originating in Argentina, characterized by dramatic expression and precise movements."
+    },
+    {
+      "term": "Flamenco",
+      "definition": "A Spanish dance form combining intricate footwork, hand movements, singing, and guitar accompaniment to express deep emotion."
+    },
+    {
+      "term": "Irish Dance",
+      "definition": "Known for rapid, precise footwork while maintaining a relatively still upper body, popularized worldwide through stage productions."
+    },
+    {
+      "term": "K-Pop Dance",
+      "definition": "A modern style focused on synchronization, performance quality, clean execution, and choreography inspired by multiple genres."
+    },
+    {
+      "term": "Musical Theatre",
+      "definition": "Dance designed to tell stories on stage, blending acting, singing, jazz, tap, ballet, and character work."
+    },
+    {
+      "term": "Cheer Dance",
+      "definition": "Combines dance, jumps, stunts, and pom routines with an emphasis on energy, precision, and teamwork."
+    },
+    {
+      "term": "Commercial Dance",
+      "definition": "The style seen in music videos, concerts, and television, drawing heavily from hip hop, jazz, and contemporary influences."
+    },
+    {
+      "term": "Cultural/Folk Dance",
+      "definition": "Traditional dances that represent the history, values, and customs of specific communities and countries, such as Māori haka, Scottish Highland dancing, or Indian Bharatanatyam."
+    }
+  ]
+}

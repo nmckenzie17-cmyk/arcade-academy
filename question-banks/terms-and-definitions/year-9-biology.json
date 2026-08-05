@@ -1,0 +1,177 @@
+{
+  "name": "Biology and Genetics Vocabulary",
+  "cards": [
+    {
+      "term": "Abiotic",
+      "definition": "Non-living parts of an ecosystem that shape its environment, such as temperature, light, and water."
+    },
+    {
+      "term": "Active Transport",
+      "definition": "The use of energy (ATP) to move substances against the concentration gradient (low → high)."
+    },
+    {
+      "term": "Amino Acids",
+      "definition": "Tiny molecules that act as building blocks for proteins."
+    },
+    {
+      "term": "Bases",
+      "definition": "Molecules within DNA that code for proteins; arranged in complementary pairs: A with T, C with G."
+    },
+    {
+      "term": "Biotic",
+      "definition": "Living organisms that shape an ecosystem, including plants, animals, fungi, and microbes."
+    },
+    {
+      "term": "Carbon Cycle",
+      "definition": "The movement of carbon through air, water, soil, plants, and animals in ecosystems."
+    },
+    {
+      "term": "Chromosome",
+      "definition": "Packages of DNA that contain thousands of genes; humans have 46 chromosomes in 23 pairs."
+    },
+    {
+      "term": "Continuous Variation",
+      "definition": "Variation in traits that can have any value within a range (e.g., height, weight)."
+    },
+    {
+      "term": "Deoxyribonucleic Acid (DNA)",
+      "definition": "The carrier of genetic information, found in the nucleus of cells; double-stranded helix."
+    },
+    {
+      "term": "Discontinuous Variation",
+      "definition": "Variation in traits that fit into distinct categories (e.g., blood type, flower color)."
+    },
+    {
+      "term": "Diffusion",
+      "definition": "Passive movement of particles from high to low concentration."
+    },
+    {
+      "term": "DNA Bases",
+      "definition": "Adenine (A), Thymine (T), Cytosine (C), Guanine (G) – the building blocks of DNA."
+    },
+    {
+      "term": "Ecosystem",
+      "definition": "A community of living organisms plus the non-living environment interacting together."
+    },
+    {
+      "term": "Gene",
+      "definition": "A section of DNA that contains instructions for making a protein or part of a protein."
+    },
+    {
+      "term": "Gene Expression",
+      "definition": "The process where information in a gene is used to create a functional product, usually a protein."
+    },
+    {
+      "term": "Genetics",
+      "definition": "The study of how DNA is passed from parents to offspring and how traits are inherited."
+    },
+    {
+      "term": "Genome",
+      "definition": "The complete set of genetic material (all genes) present in a cell or organism."
+    },
+    {
+      "term": "Genotype",
+      "definition": "The genetic makeup of an organism; the set of genes it carries."
+    },
+    {
+      "term": "Hormones",
+      "definition": "Chemical messengers produced by glands that regulate body processes by traveling through the blood."
+    },
+    {
+      "term": "Nucleotides",
+      "definition": "The basic building blocks of DNA and RNA, consisting of a nitrogenous base, a sugar, and a phosphate group."
+    },
+    {
+      "term": "Nucleus",
+      "definition": "The control center of a cell where DNA is stored."
+    },
+    {
+      "term": "Osmosis",
+      "definition": "Passive movement of water through a semi-permeable membrane from low to high solute concentration."
+    },
+    {
+      "term": "Phenotype",
+      "definition": "The observable characteristics or traits of an organism, influenced by genes and environment."
+    },
+    {
+      "term": "Protein",
+      "definition": "Large molecules made of amino acid chains that build structures and carry out cellular tasks."
+    },
+    {
+      "term": "RNA",
+      "definition": "Ribonucleic acid, similar to DNA but single-stranded and contains Uracil (U) instead of Thymine (T)."
+    },
+    {
+      "term": "Transcription Factors",
+      "definition": "Special proteins that attach to DNA to turn genes on or off by starting gene expression."
+    },
+    {
+      "term": "Variation",
+      "definition": "Differences in traits among individuals of a species."
+    },
+    {
+      "term": "Xylem",
+      "definition": "Plant tissue that transports water and minerals from roots upwards."
+    },
+    {
+      "term": "Phloem",
+      "definition": "Plant tissue that transports sugars from leaves to other parts of the plant."
+    },
+    {
+      "term": "Arteries",
+      "definition": "Blood vessels that carry blood away from the heart, usually oxygen-rich."
+    },
+    {
+      "term": "Capillaries",
+      "definition": "Tiny blood vessels where exchange of oxygen, nutrients, and waste occurs between blood and cells."
+    },
+    {
+      "term": "Veins",
+      "definition": "Blood vessels that carry blood back to the heart, usually oxygen-poor."
+    },
+    {
+      "term": "Blood Plasma",
+      "definition": "The liquid part of blood that carries nutrients, hormones, water, and waste."
+    },
+    {
+      "term": "Red Blood Cells",
+      "definition": "Blood cells that carry oxygen to body cells."
+    },
+    {
+      "term": "White Blood Cells",
+      "definition": "Blood cells that fight infections and pathogens."
+    },
+    {
+      "term": "Platelets",
+      "definition": "Blood components that help with clotting to stop bleeding."
+    },
+    {
+      "term": "Photosynthesis",
+      "definition": "The process by which plants use light energy to make glucose from carbon dioxide and water."
+    },
+    {
+      "term": "Stomata",
+      "definition": "Pores on the surface of leaves that allow gas exchange (CO₂ in, O₂ out)."
+    },
+    {
+      "term": "Guard Cells",
+      "definition": "Cells that surround stomata and control their opening and closing."
+    },
+    {
+      "term": "Maramataka",
+      "definition": "Māori lunar calendar based on natural signs used to guide planting, harvesting, and fishing."
+    },
+    {
+      "term": "Ngā Tohu o te Taiao",
+      "definition": "Natural environmental signs used by Māori to monitor seasons and ecosystem health."
+    },
+    {
+      "term": "Kaitiaki",
+      "definition": "A guardian or protector, often referring to people or beings who care for the environment."
+    },
+    {
+      "term": "Tāonga",
+      "definition": "Something treasured or valued, including possessions, resources, ideas, or customs."
+    }
+  ]
+}

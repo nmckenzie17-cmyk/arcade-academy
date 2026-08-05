@@ -1,0 +1,201 @@
+{
+  "name": "Chemistry Terms and Definitions",
+  "cards": [
+    {
+      "term": "Atom",
+      "definition": "The smallest, fundamental unit of ordinary matter that forms chemical elements."
+    },
+    {
+      "term": "Element",
+      "definition": "A substance consisting of atoms which all have the same number of protons; neutral overall charge."
+    },
+    {
+      "term": "Ion",
+      "definition": "An atom or molecule with a net electric charge due to loss or gain of electrons."
+    },
+    {
+      "term": "Cation",
+      "definition": "A positively charged ion (loses electrons)."
+    },
+    {
+      "term": "Anion",
+      "definition": "A negatively charged ion (gains electrons)."
+    },
+    {
+      "term": "Ionic Compound",
+      "definition": "A compound made of metal cations and non-metal anions held together by ionic bonds."
+    },
+    {
+      "term": "Electrostatic Force of Attraction",
+      "definition": "The force that attracts oppositely charged particles (ions) and repels like charges."
+    },
+    {
+      "term": "Ionic Bond",
+      "definition": "Strong electrostatic attraction between oppositely charged ions formed by electron transfer."
+    },
+    {
+      "term": "3D Lattice",
+      "definition": "An ordered, repeating three-dimensional arrangement of ions in an ionic compound."
+    },
+    {
+      "term": "Metallic Compound",
+      "definition": "A compound made of metal cations surrounded by a 'sea' of delocalised electrons."
+    },
+    {
+      "term": "Metallic Bond",
+      "definition": "Electrostatic attraction between metal cations and delocalised electrons."
+    },
+    {
+      "term": "Non-directional Bonding",
+      "definition": "Bonds where attraction extends uniformly in all directions, e.g., ionic and metallic bonds."
+    },
+    {
+      "term": "Molecular Compound",
+      "definition": "A compound made of molecules held together by covalent bonds and intermolecular forces."
+    },
+    {
+      "term": "Covalent Bond",
+      "definition": "Intramolecular bond formed by sharing pairs of valence electrons between atoms."
+    },
+    {
+      "term": "Intermolecular Forces",
+      "definition": "Weak forces of attraction between molecules, including temporary dipoles, permanent dipoles, and hydrogen bonding."
+    },
+    {
+      "term": "Lone Pair",
+      "definition": "A pair of valence electrons not involved in bonding (non-bonding electrons)."
+    },
+    {
+      "term": "Octet Rule",
+      "definition": "Chemical principle that atoms tend to bond to have eight electrons in their valence shell for stability."
+    },
+    {
+      "term": "Lewis Diagram",
+      "definition": "A 2D representation showing valence electrons as dots and covalent bonds as lines."
+    },
+    {
+      "term": "VSEPR Theory",
+      "definition": "Valence Shell Electron Pair Repulsion theory predicting 3D molecular shapes by repulsion of electron pairs."
+    },
+    {
+      "term": "Hydrocarbon",
+      "definition": "Organic compounds made only of carbon and hydrogen atoms."
+    },
+    {
+      "term": "Alkane",
+      "definition": "Saturated hydrocarbon with only single bonds; general formula CₙH₂ₙ₊₂."
+    },
+    {
+      "term": "Alkene",
+      "definition": "Unsaturated hydrocarbon with at least one carbon-carbon double bond; general formula CₙH₂ₙ."
+    },
+    {
+      "term": "Alkyne",
+      "definition": "Unsaturated hydrocarbon with at least one carbon-carbon triple bond; general formula CₙH₂ₙ₋₂."
+    },
+    {
+      "term": "Functional Group",
+      "definition": "Specific group of atoms responsible for characteristic reactions of a compound (e.g., -OH in alcohols)."
+    },
+    {
+      "term": "Prefix (Organic Naming)",
+      "definition": "Part of the name indicating the number of carbon atoms in the main chain (meth-, eth-, prop-, etc.)."
+    },
+    {
+      "term": "Suffix (Organic Naming)",
+      "definition": "Part of the name indicating the type of hydrocarbon or functional group (-ane, -ene, -yne, -ol)."
+    },
+    {
+      "term": "Alkyl Side Chain",
+      "definition": "Hydrocarbon branch attached to the main carbon chain but not part of it (e.g., methyl, ethyl)."
+    },
+    {
+      "term": "Molecular Formula",
+      "definition": "Shows the exact number and types of atoms in a molecule (e.g., C₆H₁₄)."
+    },
+    {
+      "term": "Structural Formula",
+      "definition": "Graphic representation showing how atoms are bonded in a molecule."
+    },
+    {
+      "term": "Condensed Formula",
+      "definition": "Shorthand notation listing atoms in order bonded, grouping hydrogens next to carbons."
+    },
+    {
+      "term": "Skeletal Formula",
+      "definition": "Simplified organic formula where carbon atoms are vertices/ends of lines and hydrogens are implied."
+    },
+    {
+      "term": "Structural Isomers",
+      "definition": "Compounds with the same molecular formula but different connectivity of atoms."
+    },
+    {
+      "term": "Aromatic",
+      "definition": "Ring-shaped hydrocarbons with alternating single and double bonds (e.g., benzene)."
+    },
+    {
+      "term": "Cracking",
+      "definition": "Process of breaking long-chain hydrocarbons into shorter, more useful molecules using heat and catalysts."
+    },
+    {
+      "term": "Fractional Distillation",
+      "definition": "Separation technique that separates mixtures based on different boiling points."
+    },
+    {
+      "term": "Reflux",
+      "definition": "Laboratory technique to heat reactions at constant temperature without loss of solvent by condensation."
+    },
+    {
+      "term": "Saturation",
+      "definition": "Refers to the number of hydrogens attached to carbons; saturated hydrocarbons have maximum hydrogens."
+    },
+    {
+      "term": "Addition Reaction",
+      "definition": "Reaction where atoms or groups are added to an unsaturated molecule, breaking double or triple bonds."
+    },
+    {
+      "term": "Elimination Reaction",
+      "definition": "Reaction where atoms or groups are removed from a molecule, forming double bonds."
+    },
+    {
+      "term": "Markovnikov’s Rule",
+      "definition": "In addition reactions, the hydrogen attaches to the carbon with more hydrogens already attached."
+    },
+    {
+      "term": "Saytzeff's Rule",
+      "definition": "In elimination reactions, the double bond forms at the carbon with fewer hydrogens (least saturated)."
+    },
+    {
+      "term": "Haloalkane",
+      "definition": "Organic compounds containing carbon, hydrogen, and at least one halogen atom (F, Cl, Br, I)."
+    },
+    {
+      "term": "Alcohol",
+      "definition": "Organic compounds with at least one hydroxyl (-OH) group attached to a carbon."
+    },
+    {
+      "term": "Carboxylic Acid",
+      "definition": "Organic compounds containing a carboxyl group (-COOH)."
+    },
+    {
+      "term": "Combustion Reaction",
+      "definition": "Exothermic reaction where a fuel reacts with oxygen to produce carbon dioxide, water, and energy."
+    },
+    {
+      "term": "Enthalpy (ΔH)",
+      "definition": "Heat content of a system; change in enthalpy is heat absorbed or released during a reaction."
+    },
+    {
+      "term": "Exothermic Reaction",
+      "definition": "Reaction that releases heat; ΔH is negative."
+    },
+    {
+      "term": "Complete Combustion",
+      "definition": "Combustion with sufficient oxygen producing CO₂ and H₂O."
+    },
+    {
+      "term": "Incomplete Combustion",
+      "definition": "Combustion with limited oxygen producing CO, C (soot), and H₂O."
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "name": "Elements and Molar Masses",
+  "cards": [
+    {
+      "term": "Hydrogen",
+      "definition": "Molar Mass: 1.0 g/mol"
+    },
+    {
+      "term": "Helium",
+      "definition": "Molar Mass: 4.0 g/mol"
+    },
+    {
+      "term": "Lithium",
+      "definition": "Molar Mass: 6.9 g/mol"
+    },
+    {
+      "term": "Beryllium",
+      "definition": "Molar Mass: 9.0 g/mol"
+    },
+    {
+      "term": "Boron",
+      "definition": "Molar Mass: 10.8 g/mol"
+    },
+    {
+      "term": "Carbon",
+      "definition": "Molar Mass: 12.0 g/mol"
+    },
+    {
+      "term": "Nitrogen",
+      "definition": "Molar Mass: 14.0 g/mol"
+    },
+    {
+      "term": "Oxygen",
+      "definition": "Molar Mass: 16.0 g/mol"
+    },
+    {
+      "term": "Fluorine",
+      "definition": "Molar Mass: 19.0 g/mol"
+    },
+    {
+      "term": "Neon",
+      "definition": "Molar Mass: 20.2 g/mol"
+    },
+    {
+      "term": "Sodium",
+      "definition": "olar Mass: 23.0 g/mol"
+    },
+    {
+      "term": "Magnesium",
+      "definition": "Molar Mass: 24.3 g/mol"
+    },
+    {
+      "term": "Aluminium",
+      "definition": "Molar Mass: 27.0 g/mol"
+    },
+    {
+      "term": "Silicon",
+      "definition": "Molar Mass: 28.1 g/mol"
+    },
+    {
+      "term": "Phosphorus",
+      "definition": "Molar Mass: 31.0 g/mol"
+    },
+    {
+      "term": "Sulfur",
+      "definition": "Molar Mass: 32.1 g/mol"
+    },
+    {
+      "term": "Chlorine",
+      "definition": "Molar Mass: 35.5 g/mol"
+    },
+    {
+      "term": "Argon",
+      "definition": "Molar Mass: 40.0 g/mol"
+    },
+    {
+      "term": "Potassium",
+      "definition": "Molar Mass: 39.1 g/mol"
+    },
+    {
+      "term": "Calcium",
+      "definition": "Molar Mass: 40.1 g/mol"
+    },
+    {
+      "term": "Iron",
+      "definition": "Molar Mass: 55.8 g/mol"
+    },
+    {
+      "term": "Copper",
+      "definition": "Molar Mass: 63.5 g/mol"
+    },
+    {
+      "term": "Zinc",
+      "definition": "Molar Mass: 65.4 g/mol"
+    },
+    {
+      "term": "Silver",
+      "definition": "Molar Mass: 107.9 g/mol"
+    },
+    {
+      "term": "Tin",
+      "definition": "Molar Mass: 118.7 g/mol"
+    },
+    {
+      "term": "Gold",
+      "definition": "Molar Mass: 197.0 g/mol"
+    },
+    {
+      "term": "Mercury",
+      "definition": "Molar Mass: 200.6 g/mol"
+    },
+    {
+      "term": "Lead",
+      "definition": "Molar Mass: 207.2 g/mol"
+    }
+  ]
+}
