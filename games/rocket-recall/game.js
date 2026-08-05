@@ -175,28 +175,28 @@
         let quizQuestions = null;
         let currentSubjectName = null;
 
-        // Teacher setup: secret session codes mapped to separate JSON files.
-        // Add a line here (and drop the matching JSON file in the question-banks folder)
-        // to add a new subject - no other code changes needed.
-        // Suggested naming: '<year><term><subject initial><extra letter>'
-        // e.g. Year 9 Biology Term 3 full = '93bf', Year 9 Physics Speed = '92ps'.
-        //
+        // Change this value if Rocket Recall ever supports another question type.
+        const QUESTION_BANK_TYPE = 'multichoice';
+        const QUESTION_BANK_ROOT = '../../question-banks';
+        const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
+
         // JSON FORMAT (must match across all games for consistency):
         // A plain top-level array of question objects, each shaped like:
         //   { "q": "question text", "o": ["option A", "option B", ...], "a": 0 }
         // where "a" is the index (0-based) into "o" of the correct option.
-        const QUESTION_BANK_FILES = {
-    '93bf':'../../question-banks/multichoice/year-9-biology-full.json',
-    '92ps':'../../question-banks/multichoice/year-9-physics-speed.json',
-    '92pf':'../../question-banks/multichoice/year-9-physics-force.json',
-    'test':'../../question-banks/multichoice/devtestquestions.json',
-    '112cf':'../../question-banks/multichoice/year-11-chemistry-full.json',
-    '11-13dc':'../../question-banks/multichoice/senior-dance-choreography.json',
-    '11-13dg':'../../question-banks/multichoice/senior-dance-genres.json',
-    'science':'../../question-banks/multichoice/year-9-science-full.json',
-    'chef':'../../question-banks/multichoice/cooking.json',
-    'elfdef':'../../question-banks/multichoice/englishlanguagedef.json',
-    'elfex':'../../question-banks/multichoice/englishlanguageex.json',
+        // Resolves a teacher code in the shared registry, then loads this
+        // game's configured question type from that subject/bank directory.
+        async function loadBankFromCode(code) {
+            const registryResponse = await fetch(QUESTION_BANK_REGISTRY_PATH, {cache:'no-store'});
+            if (!registryResponse.ok) return null;
+            const registry = await registryResponse.json();
+            const bank = registry[code];
+            if (!bank || !bank.subject || !bank.bank) return null;
+
+            const questionFile = `${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
+            const response = await fetch(questionFile, {cache:'no-store'});
+            if (!response.ok) return null;
+            return response.json();
         }
 
         // Question banks are a plain top-level array of { q, o, a } objects:
@@ -245,22 +245,11 @@
                 return false;
             }
 
-            const file = QUESTION_BANK_FILES[code];
-            if (!file) {
-                quizQuestions = null;
-                setActiveSubject(null);
-                statusDiv.innerHTML = `❌ Code "${code}" not recognized — enter a valid code to play`;
-                statusDiv.style.color = 'var(--red-damage)';
-                return false;
-            }
-
             statusDiv.textContent = 'Loading...';
             statusDiv.style.color = 'var(--blue-highlight)';
 
             try {
-                const response = await fetch(file);
-                if (!response.ok) throw new Error(`fetch failed with status ${response.status}`);
-                const data = await response.json();
+                const data = await loadBankFromCode(code);
 
                 if (!validateQuestionBank(data)) {
                     throw new Error('question bank JSON failed validation');

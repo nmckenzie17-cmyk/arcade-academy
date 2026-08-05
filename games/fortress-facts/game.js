@@ -621,6 +621,11 @@ let questions = null;
 let currentBankName = '';
 let currentBankCode = '';
 
+// Change this value if Fortress Facts ever supports another question type.
+const QUESTION_BANK_TYPE = 'multichoice';
+const QUESTION_BANK_ROOT = '../../question-banks';
+const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
+
 // Picks a question weighted by q.weight — questions answered wrong recently
 // are proportionally more likely to come up again, questions answered right
 // recently are proportionally less likely, so practice naturally concentrates
@@ -652,27 +657,26 @@ function adjustQuestionWeight(q, wasCorrect){
     q.weight = wasCorrect ? Math.max(0.1, w*0.5) : Math.min(16, w*2);
 }
 
-// ── Teacher setup ──────────────────────────────────────────────────────────
-// These are the codes students/teachers type on the title screen, mapped to a
-// JSON file in the question-banks/ folder.
-// To add a new subject: 1) drop a new JSON file (same format as the existing
-// ones) into question-banks/, 2) add one line below. No other code changes needed.
-// Suggested code format: <year><term><subject initial><detail>, e.g. Year 9
-// biology, term 3, full bank = "93bf"; Year 9 physics, speed topic = "92ps".
-const QUESTION_BANK_FILES = {
-    '93bf':'../../question-banks/multichoice/year-9-biology-full.json',
-    '92ps':'../../question-banks/multichoice/year-9-physics-speed.json',
-    '92pf':'../../question-banks/multichoice/year-9-physics-force.json',
-    'test':'../../question-banks/multichoice/devtestquestions.json',
-    '112cf':'../../question-banks/multichoice/year-11-chemistry-full.json',
-    '11-13dc':'../../question-banks/multichoice/senior-dance-choreography.json',
-    '11-13dg':'../../question-banks/multichoice/senior-dance-genres.json',
-    'science':'../../question-banks/multichoice/year-9-science-full.json',
-    'chef':'../../question-banks/multichoice/cooking.json',
-    'elfdef':'../../question-banks/multichoice/englishlanguagedef.json',
-    'elfex':'../../question-banks/multichoice/englishlanguageex.json',
-};
-// ────────────────────────────────────────────────────────────────────────────
+// Resolves a teacher code with the shared registry, then loads this game's type
+// of question file from the subject and bank stored in that registry entry.
+async function loadBankFromCode(code) {
+    try {
+        const registryRes = await fetch(QUESTION_BANK_REGISTRY_PATH, {cache:'no-store'});
+        if(!registryRes.ok) return {error:'fetch-failed'};
+        const registry = await registryRes.json();
+        const bank = registry[code];
+        if(!bank || !bank.subject || !bank.bank) return {error:'code-not-found'};
+
+        const questionFile = `${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
+        const bankRes = await fetch(questionFile, {cache:'no-store'});
+        if(!bankRes.ok) return {error:'fetch-failed'};
+        const data = await bankRes.json();
+        return Array.isArray(data) && data.length ? {data} : {error:'fetch-failed'};
+    } catch(err) {
+        console.error('Failed to load question bank:', err);
+        return {error:'fetch-failed'};
+    }
+}
 
 // Loads a question bank by teacher/subject code, e.g. "93bf" -> Year 9 Biology.
 // A valid code is REQUIRED — there is no general-knowledge fallback, so an
@@ -681,21 +685,12 @@ const QUESTION_BANK_FILES = {
 async function loadQuestionBank(code) {
     code = (code||'').trim().toLowerCase();
     if(!code) return { ok:false, error:'code-required' };
-    const file = QUESTION_BANK_FILES[code];
-    if(!file) return { ok:false, error:'code-not-found' };
-    try {
-        const bankRes = await fetch(file, {cache:'no-store'});
-        if(!bankRes.ok) throw new Error('bank fetch failed');
-        const bankData = await bankRes.json();
-        if(!Array.isArray(bankData) || bankData.length===0) throw new Error('empty bank');
-        questions = bankData.map(item => ({ q:item.q, a:item.o, c:item.a, weight:1 }));
-        currentBankName = code.toUpperCase();
-        currentBankCode = code;
-        return { ok:true, name: currentBankName };
-    } catch(err) {
-        console.error('Failed to load question bank:', err);
-        return { ok:false, error:'fetch-failed' };
-    }
+    const loaded = await loadBankFromCode(code);
+    if(!loaded.data) return {ok:false, error:loaded.error};
+    questions = loaded.data.map(item => ({ q:item.q, a:item.o, c:item.a, weight:1 }));
+    currentBankName = code.toUpperCase();
+    currentBankCode = code;
+    return {ok:true, name:currentBankName};
 }
 
 // 10 unique boss types. Each has flavor visuals + one or more abilities.

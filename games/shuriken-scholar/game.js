@@ -4,6 +4,12 @@
       enemy_name: "enemies"
     };
 
+    // Change this value if this game is ever updated to use a different bank type.
+    // Shuriken Scholar currently supports only multiple-choice question banks.
+    const QUESTION_BANK_TYPE = 'multichoice';
+    const QUESTION_BANK_ROOT = '../../question-banks';
+    const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
+
     let ctx;
     const canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
@@ -374,24 +380,6 @@
 
     
     let questions = [];
-// Teacher setup: these are secret session codes mapped to separate JSON files.
-// Add more entries here when you create a new question bank file.
-// data names follow the format '<year><term><Subject initial><Extra letter if full, or specific content>
-// Example Year 9 biology in term 3 full is '93bf'  and year 9 physics speed is '92ps'.  The JSON files are stored in the 'question-banks' folder.
-const QUESTION_BANK_FILES = {
-    '93bf':'../../question-banks/multichoice/year-9-biology-full.json',
-    '92ps':'../../question-banks/multichoice/year-9-physics-speed.json',
-    '92pf':'../../question-banks/multichoice/year-9-physics-force.json',
-    'test':'../../question-banks/multichoice/devtestquestions.json',
-    '112cf':'../../question-banks/multichoice/year-11-chemistry-full.json',
-    '11-13dc':'../../question-banks/multichoice/senior-dance-choreography.json',
-    '11-13dg':'../../question-banks/multichoice/senior-dance-genres.json',
-    'science':'../../question-banks/multichoice/year-9-science-full.json',
-    'chef':'../../question-banks/multichoice/cooking.json',
-    'elfdef':'../../question-banks/multichoice/englishlanguagedef.json',
-    'elfex':'../../question-banks/multichoice/englishlanguageex.json',
-
-}
     // Helper functions
     function norm(dx, dy) {
       const d = Math.hypot(dx, dy);
@@ -1200,24 +1188,37 @@ const QUESTION_BANK_FILES = {
 
     const DEV_CHEAT_CODE = 'devtest';
 
+    // Looks up a teacher code in the shared registry, then builds this game's
+    // question-file path from the registry subject, bank, and configured type.
+    async function loadBankFromCode(code) {
+      try {
+        const registryResponse = await fetch(QUESTION_BANK_REGISTRY_PATH, { cache: 'no-store' });
+        if (!registryResponse.ok) return null;
+
+        const registry = await registryResponse.json();
+        const bankDetails = registry[code];
+        if (!bankDetails || !bankDetails.subject || !bankDetails.bank) return null;
+
+        const questionFile = `${QUESTION_BANK_ROOT}/${bankDetails.subject}/${bankDetails.bank}/${QUESTION_BANK_TYPE}.json`;
+        const questionsResponse = await fetch(questionFile, { cache: 'no-store' });
+        if (!questionsResponse.ok) return null;
+
+        const loadedQuestions = await questionsResponse.json();
+        return Array.isArray(loadedQuestions) && loadedQuestions.length > 0 ? loadedQuestions : null;
+      } catch (error) {
+        console.error('Unable to load question bank:', error);
+        return null;
+      }
+    }
+
     async function loadQuestionBank(code){
+    const devMode = code === DEV_CHEAT_CODE;
+    const lookupCode = devMode ? 'test' : code;
+    const loadedQuestions = await loadBankFromCode(lookupCode);
 
-    let devMode = false;
-    let lookupCode = code;
-    if (code === DEV_CHEAT_CODE) {
-        devMode = true;
-        lookupCode = 'test';
-    }
+    if (!loadedQuestions) return false;
 
-    const file = QUESTION_BANK_FILES[lookupCode];
-
-    if(!file){
-        return false;
-    }
-
-    const response = await fetch(file);
-
-    questions = await response.json();
+    questions = loadedQuestions;
 
     if (!devMode && !progress.playedCodes.includes(code)) {
       progress.playedCodes.push(code);

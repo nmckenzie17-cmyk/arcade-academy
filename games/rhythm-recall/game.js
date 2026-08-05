@@ -1,38 +1,43 @@
     // ===== Teacher question banks =====
-    // Each code maps to a separate JSON file the teacher never has to touch this code to use.
-    // Add a new line here whenever a new subject file is created; give the code to the class.
-    // JSON files live in a 'question-banks' folder next to this index.html and look like:
+    // Category files use this shape:
     //   { "subject": "Year 9 Biology", "categories": [
     //       { "prompt": "Cell Structures", "correct": ["Nucleus","Mitochondria","Ribosome","Cell membrane"],
     //         "distractors": ["Bone","Muscle","Skin","Blood vessel", ... at least 12 wrong options] }
     //   ] }
     // Each chorus shows a category's "correct" words mixed with random distractors.
     // A valid code is required to play — there is no built-in question bank.
-    const QUESTION_BANK_FILES = {
-    '93bf':  '../../question-banks/category/year-9-biology-full.json',
-    '92ps':  '../../question-banks/category/year-9-physics-speed.json',
-    '92pf':  '../../question-banks/category/year-9-physics-force.json',
-    '112cf': '../../question-banks/category/year-11-chemistry-full.json',
-    '11-13dc': '../../question-banks/category/senior-dance-choreography.json',
-    '11-13dg': '../../question-banks/category/senior-dance-genres.json',
-    'science': '../../question-banks/category/year-9-science-full.json',
-    'chef': '../../question-banks/category/cooking.json',
-    'elfdef':'../../question-banks/category/englishlanguagedef.json',
-    'elfex':'../../question-banks/category/englishlanguageex.json',
-    };
+    // Change this value if Rhythm Recall ever supports another question type.
+    const QUESTION_BANK_TYPE = 'category';
+    const QUESTION_BANK_ROOT = '../../question-banks';
+    const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
 
     let loadedCategories = null;  // array of {prompt,correct,distractors} once a valid class code is entered
     let loadedBankCode = '';
     let loadedBankName = '';
     let selectedBankCode = '';
 
-    async function loadQuestionBank(code) {
-      const file = QUESTION_BANK_FILES[code];
-      if (!file) return false;
+    // Resolves a class code through the shared registry before loading the
+    // category JSON for the mapped subject and bank.
+    async function loadBankFromCode(code) {
       try {
-        const res = await fetch(file);
-        if (!res.ok) return false;
-        const data = await res.json();
+        const registryRes = await fetch(QUESTION_BANK_REGISTRY_PATH, {cache:'no-store'});
+        if (!registryRes.ok) return null;
+        const registry = await registryRes.json();
+        const bank = registry[code];
+        if (!bank || !bank.subject || !bank.bank) return null;
+        const questionFile = `${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
+        const res = await fetch(questionFile, {cache:'no-store'});
+        return res.ok ? res.json() : null;
+      } catch (e) {
+        console.error('Failed to load question bank', e);
+        return null;
+      }
+    }
+
+    async function loadQuestionBank(code) {
+      const data = await loadBankFromCode(code);
+      if (!data) return false;
+      try {
         const list = Array.isArray(data) ? data : data.categories;
         if (!Array.isArray(list) || list.length === 0) return false;
         const valid = list.every(c => c && typeof c.prompt === 'string' && Array.isArray(c.correct) && Array.isArray(c.distractors) && c.correct.length > 0);

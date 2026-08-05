@@ -1,5 +1,9 @@
 (function(){
 "use strict";
+// Change this value if Jetpack Journey ever supports another question type.
+const QUESTION_BANK_TYPE='matching';
+const QUESTION_BANK_ROOT='../../question-banks';
+const QUESTION_BANK_REGISTRY_PATH=`${QUESTION_BANK_ROOT}/banks.json`;
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
 
@@ -490,19 +494,6 @@ renderShop();
 });
 }
 
-// Class codes map to the Terms & Definitions files. Paths are relative to this game folder.
-const QUESTION_BANK_FILES={
-'93bf':'../../question-banks/terms-and-definitions/year-9-biology.json',
-'112cf':'../../question-banks/terms-and-definitions/year-11-chemistryall.json',
-'112mm':'../../question-banks/terms-and-definitions/year-11-chemistrymolmass.json',
-'11-13dg':'../../question-banks/terms-and-definitions/dancegenres.json',
-'123p':'../../question-banks/terms-and-definitions/pacificagenres.json',
-'92pf':'../../question-banks/terms-and-definitions/year-10-physics.json',
-'science':'../../question-banks/terms-and-definitions/year-9-science-all.json',
-'chef':'../../question-banks/terms-and-definitions/cooking.json',
-'elfdef':'../../question-banks/terms-and-definitions/englishlanguagedef.json',
-'elfex':'../../question-banks/terms-and-definitions/englishlanguageex.json'
-};
 let activeQuestionPack=null;
 let selectedSessionCode='';
 let codeEntryVisible=false;
@@ -2474,9 +2465,13 @@ function validateQuestionPack(pack){
 return pack&&typeof pack.name==='string'&&Array.isArray(pack.cards)&&pack.cards.length>=4&&pack.cards.every(function(card){return typeof card.term==='string'&&typeof card.definition==='string'&&card.term&&card.definition;});
 }
 async function loadQuestionPackForCode(code){
-const file=QUESTION_BANK_FILES[code];
-if(!file)throw new Error('That session code is not active.');
-const response=await fetch(file,{cache:'no-store'});
+const registryResponse=await fetch(QUESTION_BANK_REGISTRY_PATH,{cache:'no-store'});
+if(!registryResponse.ok)throw new Error('Question bank registry could not be loaded.');
+const registry=await registryResponse.json();
+const bank=registry[code];
+if(!bank||!bank.subject||!bank.bank)throw new Error('That session code is not active.');
+const questionFile=`${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
+const response=await fetch(questionFile,{cache:'no-store'});
 if(!response.ok)throw new Error('Question bank file could not be loaded.');
 const pack=await response.json();
 if(!validateQuestionPack(pack))throw new Error('Question bank needs a name and at least 4 term/definition cards.');
@@ -2497,7 +2492,7 @@ return;
 }
 if(parts.indexOf('dinosaur')!==-1)devMode='dinosaur';else if(parts.indexOf('desert')!==-1)devMode='desert';else if(parts.indexOf('space')!==-1)devMode='space';else if(parts.indexOf('horror')!==-1)devMode='horror';else if(parts.indexOf('snow')!==-1)devMode='snow';else if(parts.indexOf('rainbow')!==-1)devMode='rainbow';else devMode=null;
 damagelessMode=(parts.indexOf('damageless')!==-1);
-const sessionCode=parts.find(function(part){return QUESTION_BANK_FILES[part];})||normaliseCode(code);
+const sessionCode=parts.find(function(part){return DEV_CODE_WORDS.indexOf(part)===-1;})||normaliseCode(code);
 try{
 sessionLoading=true;startBtn.disabled=true;setSessionMessage('LOADING SESSION...',false);
 activeQuestionPack=await loadQuestionPackForCode(sessionCode);
