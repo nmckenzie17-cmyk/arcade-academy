@@ -2,7 +2,7 @@
 <html lang="en">
  <head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260803-03-c990d82","C":{"Abril Fatface":"YACgEZbkUVE,0","Alfa Slab One":"YACgEYS9sJU,0","Anton":"YACgEcYqQ-A,0","Archivo":"YAHO2-t-jNE,0","Arial":"YAGyDvJ_4Ts,0","Bebas Neue":"YACgESME5ew,0","Broken Glyph":"YADZ-exUkv0,0","Canva Sans":"YAFdJjTk5UU,0","Caveat":"YALBs2ploWQ,0","Comic Sans MS":"YAHO2VMiyZo,0","Cormorant Garamond":"YAFdJhX-538,0","Courier New":"YAGzXiGs0_8,0","DM Sans":"YAD1aU3sLnI,0","DM Serif Display":"YAD1aYG82rc,0","Forum":"YACgEcnnqB4,0","Fraunces":"YAEul-FRQw4,0","Georgia":"YAGzXkO0pEM,0","Ghost Mono":"YAHO2EIdDP0,0","Helvetica Neue":"YAFcf6CtJfI,0","Impact":"YAFcfnjI7Vk,0","Inter":"YAFdJvSyp_k,3","Iowan Old Style":"YAGNIFa8j9o,0","Jacques Francois":"YAHO2a5g66Q,0","JetBrains Mono":"YADy3sAhvXQ,0","Oleo Script":"YACgEQQ14jI,0","Playfair Display":"YAFdJhem5V8,1","Poppins":"YAE5fPSY9qM,0","Press Start 2P":"YAFyGr-8pmQ,0","Source Sans 3":"YAG4lO1Mj10,0","Space Grotesk":"YAHO2sjPCSM,0","Times New Roman":"YAGzXW3gftg,0","Times":"YAGzXW3gftg,0","Trebuchet MS":"YAFcfrglpVA,0","Verdana":"YAGzXTctYtQ,0","Work Sans":"YAGXhLOKv44,0","Yellowtail":"YACgEYG4kG4,0"}}');</script><script src="/_sdk/7949ff62d67710d5.telemetry_sdk.js" integrity="sha512-KIvXA82Di44YY/RH9/63A9MuTuavYgDFG8PfErJn7Wli4K0LAOk+coo/aPXk3+ZNL96nHh9VYD4PE+fLes+laQ=="></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
   <title>Rhythym Recall</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;family=Press+Start+2P&amp;family=VT323&amp;family=Lexend:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -22,7 +22,15 @@
       --accent-violet: #a855f7;
     }
     * { image-rendering: pixelated; box-sizing: border-box; font-family: 'Lexend', sans-serif; }
-    html, body { background: var(--bg-primary); }
+    html, body {
+      background: var(--bg-primary);
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
+    }
     .desc-font { font-family: 'Lexend', sans-serif; }
     .canva-text { color: var(--accent-blue); }
     .title-font, #menu-screen h1 {
@@ -71,6 +79,9 @@
     [data-template-id="start-btn"] { color: var(--accent-blue) !important; text-shadow: 0 0 8px rgba(0,212,255,0.6), 0 0 18px rgba(0,212,255,0.25); }
     :root { --vh: 1vh; }
     .game-height { height: calc(100 * min(var(--vh, 1vh), 1vh)); }
+    @supports (height: 100dvh) {
+      .game-height { height: 100dvh; }
+    }
     @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     .pulse { animation: pulse 0.6s ease-in-out infinite; }
     @keyframes pixelBurst { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
@@ -105,7 +116,7 @@
 
     /* ===== HUD — always top corners, never moves ===== */
     .hud-left, .hud-right {
-      position: absolute; top: 14px; z-index: 40;
+      position: absolute; top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)); z-index: 40;
       background: linear-gradient(135deg, rgba(26,10,46,0.75) 0%, rgba(18,8,32,0.75) 100%);
       border: 1px solid var(--border-purple);
       border-radius: 10px;
@@ -250,7 +261,7 @@
    <div class="hud-right">
     <div class="hud-stat" title="Coins"><span class="hud-icon">🪙</span><span id="coin-display" class="hud-value">0</span></div>
    </div>
-   <div id="phase-display" class="title-font font-bold text-center absolute z-40" style="top:14px;left:50%;transform:translateX(-50%);font-size:clamp(14px,3vw,20px);"></div>
+   <div id="phase-display" class="title-font font-bold text-center absolute z-40" style="top:max(14px, calc(env(safe-area-inset-top, 0px) + 10px));left:50%;transform:translateX(-50%);font-size:clamp(14px,3vw,20px);"></div>
    <div id="lanes-container" class="flex-1 flex relative overflow-hidden">
     <div class="lane flex-1 relative border-r border-gray-700/50" data-lane="0"></div>
     <div class="lane flex-1 relative border-r border-gray-700/50" data-lane="1"></div>
@@ -541,6 +552,22 @@
     function initBg(){bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;stars=Array.from({length:60},()=>({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,s:Math.random()*2+1,sp:Math.random()*0.5+0.2}));}
     function drawBg(){bgCtx.fillStyle='#0a0a1a';bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);bgCtx.fillStyle='#fff';stars.forEach(s=>{s.y+=s.sp;if(s.y>bgCanvas.height){s.y=0;s.x=Math.random()*bgCanvas.width;}bgCtx.fillRect(Math.floor(s.x),Math.floor(s.y),s.s,s.s);});}
     initBg();window.addEventListener('resize',initBg);
+
+    // --- iPad/mobile Safari viewport fix ---
+    // Keeps the HUD/category text from being pushed off the top of the
+    // screen when Safari's address bar shows/hides or the page rubber-bands.
+    function setVh(){
+      const h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
+      window.scrollTo(0,0);
+    }
+    setVh();
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', setVh);
+    document.addEventListener('touchmove', function(e){
+      if (e.scale !== 1) e.preventDefault();
+    }, { passive:false });
 
     // --- SONG GENERATORS ---
     function initSongState(){
