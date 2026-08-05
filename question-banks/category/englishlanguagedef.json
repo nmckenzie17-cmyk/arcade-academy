@@ -1,0 +1,235 @@
+{
+  "subject": "English — Language Features & Literary Devices",
+  "categories": [
+    {
+      "prompt": "Sound Devices",
+      "correct": [
+        "Alliteration",
+        "Assonance",
+        "Consonance",
+        "Sibilance"
+      ],
+      "distractors": [
+        "Metaphor",
+        "Simile",
+        "Hyperbole",
+        "Symbolism",
+        "Anaphora",
+        "Juxtaposition",
+        "Flashback",
+        "Inclusive Language",
+        "Motif",
+        "Euphemism",
+        "Irony (Verbal)",
+        "Oxymoron"
+      ]
+    },
+    {
+      "prompt": "Figurative Language",
+      "correct": [
+        "Simile",
+        "Metaphor",
+        "Personification",
+        "Hyperbole"
+      ],
+      "distractors": [
+        "Assonance",
+        "Alliteration",
+        "Anaphora",
+        "Jargon",
+        "Foreshadowing",
+        "Rhetorical Question",
+        "Polysyndeton",
+        "Modality",
+        "Inclusive Language",
+        "Epistrophe",
+        "Motif",
+        "Asyndeton"
+      ]
+    },
+    {
+      "prompt": "Persuasive Language",
+      "correct": [
+        "Emotive Language",
+        "Inclusive Language",
+        "Imperative Language",
+        "Modality"
+      ],
+      "distractors": [
+        "Metaphor",
+        "Symbolism",
+        "Flashback",
+        "Consonance",
+        "Oxymoron",
+        "Idiom",
+        "Simile",
+        "Juxtaposition",
+        "Assonance",
+        "Motif",
+        "Irony (Verbal)",
+        "Onomatopoeia"
+      ]
+    },
+    {
+      "prompt": "Repetition & Structure",
+      "correct": [
+        "Anaphora",
+        "Epistrophe",
+        "Parallelism",
+        "Rule of Three (Tricolon)"
+      ],
+      "distractors": [
+        "Hyperbole",
+        "Simile",
+        "Euphemism",
+        "Dysphemism",
+        "Personification",
+        "Flashback",
+        "Jargon",
+        "Symbolism",
+        "Sibilance",
+        "Irony (Verbal)",
+        "Hypophora",
+        "Foreshadowing"
+      ]
+    },
+    {
+      "prompt": "Questions & Answers",
+      "correct": [
+        "Rhetorical Question",
+        "Hypophora",
+        "Imperative Language",
+        "Modality"
+      ],
+      "distractors": [
+        "Alliteration",
+        "Juxtaposition",
+        "Motif",
+        "Symbolism",
+        "Flashback",
+        "Consonance",
+        "Simile",
+        "Euphemism",
+        "Asyndeton",
+        "Onomatopoeia",
+        "Personification",
+        "Idiom"
+      ]
+    },
+    {
+      "prompt": "Narrative Techniques",
+      "correct": [
+        "Foreshadowing",
+        "Flashback (Analepsis)",
+        "Motif",
+        "Symbolism"
+      ],
+      "distractors": [
+        "Inclusive Language",
+        "Hyperbole",
+        "Jargon",
+        "Rule of Three (Tricolon)",
+        "Simile",
+        "Irony (Verbal)",
+        "Oxymoron",
+        "Assonance",
+        "Sibilance",
+        "Epistrophe",
+        "Dysphemism",
+        "Polysyndeton"
+      ]
+    },
+    {
+      "prompt": "Word Choice",
+      "correct": [
+        "Euphemism",
+        "Dysphemism",
+        "Jargon",
+        "Idiom"
+      ],
+      "distractors": [
+        "Metaphor",
+        "Flashback",
+        "Foreshadowing",
+        "Personification",
+        "Consonance",
+        "Symbolism",
+        "Parallelism",
+        "Rhetorical Question",
+        "Hypophora",
+        "Assonance",
+        "Polysyndeton",
+        "Oxymoron"
+      ]
+    },
+    {
+      "prompt": "Sentence Construction",
+      "correct": [
+        "Polysyndeton",
+        "Asyndeton",
+        "Parallelism",
+        "Rule of Three (Tricolon)"
+      ],
+      "distractors": [
+        "Hyperbole",
+        "Irony (Verbal)",
+        "Inclusive Language",
+        "Motif",
+        "Simile",
+        "Symbolism",
+        "Foreshadowing",
+        "Onomatopoeia",
+        "Idiom",
+        "Emotive Language",
+        "Personification",
+        "Allusion"
+      ]
+    },
+    {
+      "prompt": "Comparison & Contrast",
+      "correct": [
+        "Juxtaposition",
+        "Oxymoron",
+        "Irony (Verbal)",
+        "Allusion"
+      ],
+      "distractors": [
+        "Inclusive Language",
+        "Sibilance",
+        "Epistrophe",
+        "Flashback",
+        "Assonance",
+        "Jargon",
+        "Symbolism",
+        "Onomatopoeia",
+        "Polysyndeton",
+        "Euphemism",
+        "Rule of Three (Tricolon)",
+        "Hyperbole"
+      ]
+    },
+    {
+      "prompt": "Meaning & Imagery",
+      "correct": [
+        "Symbolism",
+        "Onomatopoeia",
+        "Allusion",
+        "Personification"
+      ],
+      "distractors": [
+        "Parallelism",
+        "Modality",
+        "Inclusive Language",
+        "Consonance",
+        "Idiom",
+        "Anaphora",
+        "Dysphemism",
+        "Hypophora",
+        "Simile",
+        "Flashback",
+        "Emotive Language",
+        "Polysyndeton"
+      ]
+    }
+  ]
+}

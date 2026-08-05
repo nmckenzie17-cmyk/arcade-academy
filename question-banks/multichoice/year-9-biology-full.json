@@ -1,0 +1,1302 @@
+[
+  {
+    "q": "What is DNA?",
+    "o": [
+      "A type of cell",
+      "A molecule that contains genetic instructions",
+      "A protein",
+      "A chromosome"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Where is DNA found in most human cells?",
+    "o": [
+      "Cell membrane",
+      "Cytoplasm",
+      "Nucleus",
+      "Ribosome"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is a gene?",
+    "o": [
+      "A complete chromosome",
+      "A type of protein",
+      "A section of DNA that codes for a protein",
+      "A cell organelle"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Humans normally have how many chromosomes in each body cell?",
+    "o": [
+      "23",
+      "44",
+      "46",
+      "92"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Chromosomes are made mainly of:",
+    "o": [
+      "DNA",
+      "Protein only",
+      "RNA",
+      "Sugar"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which molecule carries genetic information?",
+    "o": [
+      "Water",
+      "Glucose",
+      "Protein",
+      "DNA"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which base pairs with Adenine (A) in DNA?",
+    "o": [
+      "Cytosine",
+      "Thymine",
+      "Guanine",
+      "Uracil"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which base pairs with Cytosine (C)?",
+    "o": [
+      "Adenine",
+      "Thymine",
+      "Guanine",
+      "Uracil"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A different version of a gene is called a:",
+    "o": [
+      "Protein",
+      "Chromosome",
+      "Allele",
+      "Genome"
+    ],
+    "a": 2
+  },
+  {
+    "q": "The observable characteristics of an organism are its:",
+    "o": [
+      "Genome",
+      "Genotype",
+      "Phenotype",
+      "Chromosomes"
+    ],
+    "a": 2
+  },
+  {
+    "q": "The complete set of genetic material in an organism is called the:",
+    "o": [
+      "Gene",
+      "Genome",
+      "Protein",
+      "Trait"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which shape best describes DNA?",
+    "o": [
+      "Spiral staircase with one strand",
+      "Double helix",
+      "Flat sheet",
+      "Circle"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Proteins are made from chains of:",
+    "o": [
+      "Sugars",
+      "Amino acids",
+      "Bases",
+      "Lipids"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which is an example of a protein's job?",
+    "o": [
+      "Making sunlight",
+      "Producing soil",
+      "Building muscles",
+      "Making chromosomes"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which process uses information in DNA to make a protein?",
+    "o": [
+      "Diffusion",
+      "Gene expression",
+      "Photosynthesis",
+      "Respiration"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which organelle stores chromosomes?",
+    "o": [
+      "Cell membrane",
+      "Nucleus",
+      "Cytoplasm",
+      "Vacuole"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which trait is mainly controlled by genes?",
+    "o": [
+      "Suntan",
+      "Blood type",
+      "Fitness level",
+      "Body weight"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which is an example of continuous variation?",
+    "o": [
+      "Height",
+      "Blood group",
+      "Eye colour category",
+      "Tongue rolling"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which is an example of discontinuous variation?",
+    "o": [
+      "Mass",
+      "Height",
+      "Hand span",
+      "Blood type"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Large multicellular organisms need transport systems because:",
+    "o": [
+      "Their cells are larger",
+      "Materials must travel long distances",
+      "They have less DNA",
+      "They have fewer cells"
+    ],
+    "a": 1
+  },
+  {
+    "q": "DNA is packaged into chromosomes because:",
+    "o": [
+      "It needs to become stronger",
+      "It changes into protein",
+      "It is too long to fit loosely inside the nucleus",
+      "It becomes easier to digest"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which sequence is correct?",
+    "o": [
+      "Chromosome → Gene → DNA",
+      "DNA → Gene → Chromosome",
+      "Gene → DNA → Chromosome",
+      "Gene → Chromosome → DNA"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A mutation is best described as:",
+    "o": [
+      "A damaged chromosome disappearing",
+      "A change in the DNA sequence",
+      "A protein folding incorrectly only",
+      "Cells dividing too quickly"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Sickle cell anaemia results from:",
+    "o": [
+      "A missing chromosome",
+      "Too many genes",
+      "A mutation in DNA",
+      "Too much oxygen"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which scientist first discovered DNA (then called nuclein)?",
+    "o": [
+      "Watson",
+      "Chargaff",
+      "Franklin",
+      "Friedrich Miescher"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Who demonstrated that DNA carries genetic information?",
+    "o": [
+      "Rosalind Franklin",
+      "Oswald Avery",
+      "James Watson",
+      "Albrecht Kossel"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Chargaff's work showed that:",
+    "o": [
+      "DNA contains proteins",
+      "DNA is found in blood",
+      "A pairs with T and C pairs with G",
+      "RNA is double stranded"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Rosalind Franklin's X-ray images helped reveal DNA's:",
+    "o": [
+      "Helical structure",
+      "Protein sequence",
+      "Chromosome number",
+      "Mutation rate"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Watson and Crick are best known for:",
+    "o": [
+      "Discovering genes",
+      "Finding amino acids",
+      "Naming chromosomes",
+      "Building the first DNA double helix model"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Around how many genes does the human genome contain according to the course?",
+    "o": [
+      "2,500",
+      "10,000",
+      "About 25,000",
+      "250,000"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which molecule carries genetic instructions from DNA to make proteins?",
+    "o": [
+      "ATP",
+      "mRNA",
+      "Glucose",
+      "Lipid"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Gene activity is controlled when:",
+    "o": [
+      "DNA leaves the nucleus",
+      "Transcription factors bind to DNA",
+      "Proteins become chromosomes",
+      "RNA becomes DNA"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A gene is \"turned on\" when:",
+    "o": [
+      "DNA is copied into chromosomes",
+      "The cell needs the protein that gene codes for",
+      "The cell divides",
+      "The organism grows taller"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which trait is most strongly affected by both genes and the environment?",
+    "o": [
+      "Blood type",
+      "Height",
+      "Eye colour category",
+      "Natural chromosome number"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Sunlight mainly changes which trait?",
+    "o": [
+      "Blood group",
+      "DNA sequence",
+      "Skin colour (through tanning)",
+      "Chromosome number"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which transport process requires ATP?",
+    "o": [
+      "Osmosis",
+      "Simple diffusion",
+      "Facilitated diffusion",
+      "Active transport"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Oxygen enters cells mainly by:",
+    "o": [
+      "Simple diffusion",
+      "Active transport",
+      "Endocytosis",
+      "Facilitated diffusion"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Glucose commonly enters cells using:",
+    "o": [
+      "Simple diffusion",
+      "Facilitated diffusion",
+      "Active transport only",
+      "Osmosis"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which blood component transports oxygen?",
+    "o": [
+      "Plasma",
+      "White blood cells",
+      "Platelets",
+      "Red blood cells"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which blood vessel is specialised for exchange between blood and body cells?",
+    "o": [
+      "Vein",
+      "Artery",
+      "Capillary",
+      "Aorta"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement best explains why multicellular organisms require transport systems?",
+    "o": [
+      "They have larger cells than unicellular organisms.",
+      "Many cells are too far from the environment for diffusion alone.",
+      "They have more DNA to transport.",
+      "They contain more proteins than unicellular organisms."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which gas is removed from the body by the lungs?",
+    "o": [
+      "Oxygen",
+      "Nitrogen",
+      "Carbon dioxide",
+      "Hydrogen"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which waste product is removed by the kidneys?",
+    "o": [
+      "Oxygen",
+      "Urea",
+      "Glucose",
+      "Carbon monoxide"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Hormones travel around the body mainly in the:",
+    "o": [
+      "Digestive system",
+      "Bloodstream",
+      "Nervous system",
+      "Lymph nodes"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which blood vessel carries blood away from the heart?",
+    "o": [
+      "Artery",
+      "Vein",
+      "Capillary",
+      "Venule"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Veins differ from arteries because veins:",
+    "o": [
+      "Carry only oxygen-rich blood",
+      "Have valves to prevent backflow",
+      "Always have thicker walls",
+      "Carry blood away from the heart"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which blood component fights pathogens?",
+    "o": [
+      "Platelets",
+      "Plasma",
+      "White blood cells",
+      "Red blood cells"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Platelets mainly function to:",
+    "o": [
+      "Form blood clots",
+      "Carry oxygen",
+      "Destroy bacteria directly",
+      "Transport hormones"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which sequence correctly describes blood flow?",
+    "o": [
+      "Heart → Body → Heart → Lungs",
+      "Body → Right heart → Lungs → Left heart → Body",
+      "Lungs → Body → Right heart → Left heart",
+      "Left heart → Right heart → Lungs → Body"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Diffusion occurs because particles naturally move from:",
+    "o": [
+      "High concentration to low concentration",
+      "Low concentration to high concentration",
+      "Low pressure to high pressure only",
+      "Equal concentration to higher concentration"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which transport process requires a protein channel but no ATP?",
+    "o": [
+      "Simple diffusion",
+      "Facilitated diffusion",
+      "Active transport",
+      "Osmosis"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement describes active transport?",
+    "o": [
+      "Movement from high to low concentration without energy",
+      "Water movement only",
+      "Movement against the concentration gradient using ATP",
+      "Movement through pores only"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Calcium ions entering muscle storage using ATP is an example of:",
+    "o": [
+      "Diffusion",
+      "Facilitated diffusion",
+      "Active transport",
+      "Osmosis"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which plant tissue transports water upward from the roots?",
+    "o": [
+      "Xylem",
+      "Phloem",
+      "Epidermis",
+      "Cortex"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which plant tissue transports sugars?",
+    "o": [
+      "Xylem",
+      "Phloem",
+      "Stomata",
+      "Root hairs"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Photosynthesis occurs mainly in the:",
+    "o": [
+      "Roots",
+      "Chloroplasts",
+      "Xylem",
+      "Stomata"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Carbon dioxide enters a plant mainly through the:",
+    "o": [
+      "Roots",
+      "Xylem",
+      "Stomata",
+      "Phloem"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Guard cells control the:",
+    "o": [
+      "Colour of leaves",
+      "Flow of sugar",
+      "Opening and closing of stomata",
+      "Production of chlorophyll"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Glucose produced during photosynthesis contains carbon obtained from:",
+    "o": [
+      "Soil minerals",
+      "Water",
+      "Carbon dioxide",
+      "Oxygen gas"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Photosynthesis requires:",
+    "o": [
+      "Oxygen, glucose and minerals",
+      "Light, water and carbon dioxide",
+      "Carbon monoxide and sunlight",
+      "Nitrogen and oxygen"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best describes the relationship between DNA, genes and chromosomes?",
+    "o": [
+      "Genes contain chromosomes, which contain DNA.",
+      "DNA is made of chromosomes.",
+      "Genes are sections of DNA packaged into chromosomes.",
+      "Chromosomes are sections of genes."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which change would most likely alter the amino acid sequence of a protein?",
+    "o": [
+      "A mutation in the DNA bases of a gene",
+      "An increase in body temperature",
+      "Extra water entering a cell",
+      "More chromosomes forming"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which scientist's work directly supported Watson and Crick's model?",
+    "o": [
+      "Avery only",
+      "Franklin and Chargaff",
+      "Kossel and Miescher",
+      "Mendel and Darwin"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement about genotype and phenotype is most accurate?",
+    "o": [
+      "They always mean the same thing.",
+      "Phenotype determines genotype.",
+      "Genotype provides the instructions that contribute to phenotype.",
+      "Genotype can be directly observed."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Two people have identical genes affecting height but different adult heights. The most likely explanation is:",
+    "o": [
+      "Their chromosomes disappeared.",
+      "Environmental influences such as nutrition affected growth.",
+      "One person lost their DNA.",
+      "Their blood type changed."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which characteristic is most likely to show discontinuous variation?",
+    "o": [
+      "Arm span",
+      "Weight",
+      "Blood group",
+      "Height"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which graph is most appropriate for blood groups?",
+    "o": [
+      "Scatter graph",
+      "Line graph",
+      "Bar graph",
+      "Dot plot with trend line"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Why do capillaries have very thin walls?",
+    "o": [
+      "To increase blood pressure",
+      "To allow efficient exchange of substances",
+      "To store oxygen",
+      "To prevent diffusion"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which substance is mainly transported by plasma?",
+    "o": [
+      "Oxygen only",
+      "Nutrients, hormones and wastes",
+      "Carbon dioxide only",
+      "Platelets"
+    ],
+    "a": 1
+  },
+  {
+    "q": "During exercise, muscle cells produce extra carbon dioxide. It leaves the cell by:",
+    "o": [
+      "Simple diffusion",
+      "Facilitated diffusion",
+      "Active transport",
+      "Endocytosis"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which characteristic of oxygen allows it to cross membranes by simple diffusion?",
+    "o": [
+      "It requires ATP.",
+      "It is small and non-charged.",
+      "It uses carrier proteins.",
+      "It is a large molecule."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which transport process moves glucose into many cells?",
+    "o": [
+      "Active transport only",
+      "Facilitated diffusion",
+      "Simple diffusion",
+      "Osmosis"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Osmosis specifically refers to the movement of:",
+    "o": [
+      "Proteins",
+      "Glucose",
+      "Water",
+      "Oxygen"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which plant structure absorbs sunlight?",
+    "o": [
+      "Stomata",
+      "Chloroplasts",
+      "Xylem",
+      "Root hairs"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best describes an ecosystem?",
+    "o": [
+      "All plants in one area",
+      "All animals in one area",
+      "Living organisms and their non-living environment interacting together",
+      "One population only"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which is an abiotic factor?",
+    "o": [
+      "Predator",
+      "Fungus",
+      "Temperature",
+      "Grass"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which is a biotic factor?",
+    "o": [
+      "Algae",
+      "Rainfall",
+      "Salinity",
+      "Wind"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A population consists of:",
+    "o": [
+      "Different species living together",
+      "Members of one species living in the same area",
+      "Every organism on Earth",
+      "All abiotic factors"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A community includes:",
+    "o": [
+      "One organism only",
+      "One species only",
+      "All interacting populations in an area",
+      "Only producers"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which level of organisation includes both living and non-living components?",
+    "o": [
+      "Individual",
+      "Population",
+      "Community",
+      "Ecosystem"
+    ],
+    "a": 3
+  },
+  {
+    "q": "A cell contains 46 chromosomes. How many versions of most genes does it usually contain?",
+    "o": [
+      "1",
+      "2",
+      "23",
+      "46"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best explains why a mutation can affect phenotype?",
+    "o": [
+      "Mutations always add chromosomes.",
+      "Mutations always kill cells.",
+      "A mutation may change the protein produced by a gene.",
+      "Mutations always change blood type."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which scientist correctly matches their contribution?",
+    "o": [
+      "Avery – discovered the double helix",
+      "Chargaff – discovered A pairs with T and C pairs with G",
+      "Franklin – discovered nuclein",
+      "Miescher – proved DNA carries genetic information"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which discovery provided the strongest evidence that DNA has a repeating paired structure?",
+    "o": [
+      "Avery's experiment",
+      "Chargaff's ratios of bases",
+      "Kossel's identification of bases",
+      "Miescher's nuclein"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A gene codes for a protein. Which step occurs immediately after amino acids are joined together?",
+    "o": [
+      "DNA is copied",
+      "The chain folds into a specific shape",
+      "Chromosomes divide",
+      "The nucleus disappears"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why can different cell types in the same body perform different functions despite having the same DNA?",
+    "o": [
+      "They have different chromosomes.",
+      "They contain different bases.",
+      "Different genes are switched on and off.",
+      "Their DNA is shorter."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement about phenotype is most accurate?",
+    "o": [
+      "It is controlled only by genes.",
+      "It is controlled only by the environment.",
+      "It results from genes, environment, and random variation.",
+      "It is identical to genotype."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which trait would most likely show the strongest environmental influence?",
+    "o": [
+      "Blood group",
+      "Natural eye colour category",
+      "Body weight",
+      "Chromosome number"
+    ],
+    "a": 2
+  },
+  {
+    "q": "If a cell stops producing a protein, the most direct explanation is that:",
+    "o": [
+      "The DNA left the nucleus.",
+      "The chromosome disappeared.",
+      "The relevant gene is no longer active.",
+      "The genome became smaller."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement about RNA is correct?",
+    "o": [
+      "RNA contains thymine instead of uracil.",
+      "RNA is usually double-stranded.",
+      "RNA helps carry genetic information used to make proteins.",
+      "RNA remains permanently stored in chromosomes."
+    ],
+    "a": 2
+  },
+  {
+    "q": "A molecule moves from high concentration to low concentration through a protein channel. Which process is occurring?",
+    "o": [
+      "Osmosis",
+      "Active transport",
+      "Facilitated diffusion",
+      "Endocytosis"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which transport process would stop immediately if ATP became unavailable?",
+    "o": [
+      "Diffusion",
+      "Facilitated diffusion",
+      "Osmosis",
+      "Active transport"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Why is active transport compared to climbing up a slide?",
+    "o": [
+      "It is faster than diffusion.",
+      "It requires energy to move against the concentration gradient.",
+      "It occurs only in muscle cells.",
+      "It uses water as fuel."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best describes a concentration gradient?",
+    "o": [
+      "The amount of ATP in a cell",
+      "The difference in concentration between two areas",
+      "The pressure inside a cell",
+      "The speed of diffusion"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which process is responsible for oxygen entering body cells from the blood?",
+    "o": [
+      "Simple diffusion",
+      "Facilitated diffusion",
+      "Active transport",
+      "Osmosis"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature of capillaries makes them effective exchange surfaces?",
+    "o": [
+      "Thick muscular walls",
+      "Valves",
+      "Extremely thin walls",
+      "High protein content"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which blood component would be most directly affected by iron deficiency?",
+    "o": [
+      "Plasma",
+      "Platelets",
+      "Red blood cells",
+      "White blood cells"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Blood returning from the body first enters the:",
+    "o": [
+      "Left side of the heart",
+      "Right side of the heart",
+      "Aorta",
+      "Left ventricle"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which sequence correctly describes oxygen transport?",
+    "o": [
+      "Body → Heart → Body → Lungs",
+      "Heart → Body → Lungs → Heart",
+      "Lungs → Left heart → Body cells",
+      "Lungs → Right heart → Body cells"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement best explains why diffusion alone is insufficient in large organisms?",
+    "o": [
+      "Large organisms have different DNA.",
+      "Distances inside the body are too great for diffusion to be efficient.",
+      "Diffusion requires ATP.",
+      "Diffusion cannot occur in multicellular organisms."
+    ],
+    "a": 1
+  },
+  {
+    "q": "A plant exposed to prolonged darkness would most directly struggle to:",
+    "o": [
+      "Absorb water",
+      "Absorb minerals",
+      "Produce glucose by photosynthesis",
+      "Open stomata"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which structure is most directly responsible for gas exchange in leaves?",
+    "o": [
+      "Xylem",
+      "Phloem",
+      "Stomata",
+      "Chloroplasts"
+    ],
+    "a": 2
+  },
+  {
+    "q": "When guard cells become turgid, they usually:",
+    "o": [
+      "Close the stomata",
+      "Open the stomata",
+      "Stop photosynthesis",
+      "Produce glucose"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best explains the role of chloroplasts?",
+    "o": [
+      "They transport water.",
+      "They store DNA.",
+      "They absorb light energy for photosynthesis.",
+      "They regulate stomata."
+    ],
+    "a": 2
+  },
+  {
+    "q": "A forest, all animals living there, the soil, sunlight, and water together form a:",
+    "o": [
+      "Population",
+      "Community",
+      "Ecosystem",
+      "Species"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which pair contains only abiotic factors?",
+    "o": [
+      "Algae and sunlight",
+      "Bacteria and pH",
+      "Temperature and salinity",
+      "Predators and rainfall"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which situation would most directly reduce organism abundance?",
+    "o": [
+      "Increased reproductive success",
+      "Reduced survival and reproduction",
+      "Increased food availability",
+      "Increased habitat quality"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which factor would most likely influence the distribution of saltwater crocodiles?",
+    "o": [
+      "School locations",
+      "Blood groups",
+      "Water availability and temperature",
+      "Photosynthesis rate"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement best describes nitrogen fixation?",
+    "o": [
+      "Turning nitrates into nitrogen gas",
+      "Converting atmospheric nitrogen into forms plants can use",
+      "Producing proteins from glucose",
+      "Converting oxygen into nitrogen"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which outcome is most likely from eutrophication caused by excess nitrogen?",
+    "o": [
+      "Increased oxygen levels in water",
+      "Increased biodiversity",
+      "Algal blooms followed by oxygen depletion",
+      "Reduced plant growth everywhere"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement is the MOST accurate description of a gene?",
+    "o": [
+      "A gene is a chromosome that contains DNA.",
+      "A gene is a complete set of DNA inside a nucleus.",
+      "A gene is a section of DNA that contains instructions for producing a protein.",
+      "A gene is a protein that controls a characteristic."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement BEST explains why chromosomes exist?",
+    "o": [
+      "They increase the amount of DNA in a cell.",
+      "They package DNA so it fits inside the nucleus and can be organised.",
+      "They stop mutations from occurring.",
+      "They produce proteins directly."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which does NOT belong with the others?",
+    "o": [
+      "Gene",
+      "Chromosome",
+      "Ribosome",
+      "DNA"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement about phenotype is MOST correct?",
+    "o": [
+      "It depends entirely on inherited genes.",
+      "It is controlled entirely by the environment.",
+      "It is determined only by proteins.",
+      "It reflects interactions between genes, the environment, and random variation."
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which characteristic would provide the STRONGEST evidence that a trait shows continuous variation?",
+    "o": [
+      "Individuals fit into four categories.",
+      "Measurements form a complete range of values.",
+      "Every individual has identical values.",
+      "Only two forms exist."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which pair BOTH represent discontinuous variation?",
+    "o": [
+      "Height and weight",
+      "Blood group and eye colour categories",
+      "Arm span and shoe size",
+      "Weight and skin colour from tanning"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement about mutations is MOST correct?",
+    "o": [
+      "Every mutation causes disease.",
+      "Some mutations change proteins, while others have little or no effect.",
+      "Mutations only occur in adults.",
+      "Mutations always change the number of chromosomes."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which scientist is LEAST associated with discovering the structure of DNA?",
+    "o": [
+      "Rosalind Franklin",
+      "Erwin Chargaff",
+      "Oswald Avery",
+      "James Watson"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which event would happen FIRST during gene expression?",
+    "o": [
+      "Amino acids fold into a protein.",
+      "The gene is switched on and read.",
+      "Proteins begin carrying out their function.",
+      "The phenotype changes."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement BEST explains why two muscle cells and two skin cells behave differently?",
+    "o": [
+      "Their DNA sequences are completely different.",
+      "Different genes are active in each cell type.",
+      "Muscle cells have extra chromosomes.",
+      "Skin cells contain fewer genes."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which transport process would still occur if every ATP molecule in a cell disappeared?",
+    "o": [
+      "Active transport only",
+      "Simple diffusion and facilitated diffusion",
+      "Active transport and osmosis only",
+      "None of them"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which feature BEST distinguishes facilitated diffusion from simple diffusion?",
+    "o": [
+      "It moves against the concentration gradient.",
+      "It requires membrane proteins.",
+      "It always transports water.",
+      "It requires ATP."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement about capillaries is the MOST complete?",
+    "o": [
+      "They carry blood away from the heart.",
+      "They carry blood back to the heart.",
+      "They connect arteries and veins while allowing exchange of substances.",
+      "They transport hormones only."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which component of blood would be MOST directly affected if clotting could no longer occur?",
+    "o": [
+      "Plasma",
+      "Platelets",
+      "White blood cells",
+      "Red blood cells"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement BEST compares xylem and phloem?",
+    "o": [
+      "Both mainly transport oxygen.",
+      "Both transport sugars only.",
+      "Xylem mainly carries water and minerals, while phloem transports sugars.",
+      "Xylem carries glucose upward while phloem carries water downward."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which change would MOST reduce the rate of photosynthesis?",
+    "o": [
+      "More oxygen around the leaf.",
+      "More minerals in the soil.",
+      "No light reaching the chloroplasts.",
+      "More carbon dioxide entering the stomata."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which grouping contains ONLY abiotic factors?",
+    "o": [
+      "Temperature, fungi, rainfall",
+      "Water, algae, sunlight",
+      "Soil, bacteria, salinity",
+      "Light, temperature, salinity"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which ecosystem change would MOST directly reduce biodiversity?",
+    "o": [
+      "Slight increase in rainfall after a drought.",
+      "Introduction of a highly successful new predator.",
+      "Small increase in plant growth.",
+      "Seasonal migration of birds."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement BEST explains why forests are important in the carbon cycle?",
+    "o": [
+      "Forests create carbon atoms.",
+      "Forests store carbon and remove carbon dioxide through photosynthesis.",
+      "Forests destroy carbon dioxide permanently.",
+      "Forests prevent respiration."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement is the MOST scientifically accurate overall?",
+    "o": [
+      "DNA determines every characteristic without environmental influence.",
+      "Environmental factors completely override genetics.",
+      "Genes only affect physical appearance.",
+      "Genes provide instructions for proteins, while environmental factors can influence how traits are expressed."
+    ],
+    "a": 3
+  }
+]

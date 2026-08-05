@@ -1,0 +1,402 @@
+[
+  {
+    "q": "\"Save our innocent children before it's too late!\"",
+    "o": [
+      "Inclusive Language",
+      "Emotive Language",
+      "Hyperbole",
+      "Modality"
+    ],
+    "a": 1
+  },
+  {
+    "q": "\"Faith, hope, and love.\"",
+    "o": [
+      "Rule of Three (Tricolon)",
+      "Parallelism",
+      "Polysyndeton",
+      "Motif"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Together, we can make a difference.\"",
+    "o": [
+      "Inclusive Language",
+      "Jargon",
+      "Euphemism",
+      "Modality"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Vote today!\"",
+    "o": [
+      "Imperative Language",
+      "Rhetorical Question",
+      "Hyperbole",
+      "Simile"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"The patient's ECG indicates ventricular fibrillation.\"",
+    "o": [
+      "Jargon",
+      "Euphemism",
+      "Irony",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"She has been let go from her job.\"",
+    "o": [
+      "Euphemism",
+      "Dysphemism",
+      "Irony",
+      "Hyperbole"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"That rust bucket belongs in a junkyard.\"",
+    "o": [
+      "Dysphemism",
+      "Euphemism",
+      "Symbolism",
+      "Idiom"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"You absolutely must wear a helmet.\"",
+    "o": [
+      "Modality",
+      "Inclusive Language",
+      "Imperative Language",
+      "Hyperbole"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"The old clock stopped ticking just before the accident.\"",
+    "o": [
+      "Foreshadowing",
+      "Symbolism",
+      "Flashback",
+      "Motif"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Looking at the old photo, she remembered her first day at school.\"",
+    "o": [
+      "Flashback",
+      "Foreshadowing",
+      "Motif",
+      "Irony"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A novel repeatedly mentions broken mirrors throughout the story.",
+    "o": [
+      "Motif",
+      "Symbolism",
+      "Juxtaposition",
+      "Allusion"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"He met his Waterloo during the debate.\"",
+    "o": [
+      "Allusion",
+      "Idiom",
+      "Metaphor",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Busy bees buzzed beneath blue branches.\"",
+    "o": [
+      "Alliteration",
+      "Assonance",
+      "Consonance",
+      "Sibilance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Go slow over the road.\"",
+    "o": [
+      "Assonance",
+      "Alliteration",
+      "Consonance",
+      "Sibilance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Blank and think.\"",
+    "o": [
+      "Consonance",
+      "Assonance",
+      "Hyperbole",
+      "Simile"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Seven slippery snakes slid silently.\"",
+    "o": [
+      "Sibilance",
+      "Alliteration",
+      "Assonance",
+      "Onomatopoeia"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"The tiny puppy stood beside the enormous wolf.\"",
+    "o": [
+      "Juxtaposition",
+      "Oxymoron",
+      "Symbolism",
+      "Metaphor"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"She likes reading, writing, and painting.\"",
+    "o": [
+      "Parallelism",
+      "Rule of Three",
+      "Asyndeton",
+      "Polysyndeton"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Every day we learn. Every day we grow. Every day we improve.\"",
+    "o": [
+      "Anaphora",
+      "Epistrophe",
+      "Hypophora",
+      "Rule of Three"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"For freedom we fight. For justice we fight. For hope we fight.\"",
+    "o": [
+      "Epistrophe",
+      "Anaphora",
+      "Parallelism",
+      "Hyperbole"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Who wouldn't want free chocolate?\"",
+    "o": [
+      "Rhetorical Question",
+      "Hypophora",
+      "Irony",
+      "Modality"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Why is recycling important? Because it protects our planet.\"",
+    "o": [
+      "Hypophora",
+      "Rhetorical Question",
+      "Foreshadowing",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"We brought food and water and blankets and medicine.\"",
+    "o": [
+      "Polysyndeton",
+      "Asyndeton",
+      "Parallelism",
+      "Rule of Three"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Run, jump, win.\"",
+    "o": [
+      "Asyndeton",
+      "Polysyndeton",
+      "Parallelism",
+      "Hyperbole"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Her smile was like sunshine.\"",
+    "o": [
+      "Simile",
+      "Metaphor",
+      "Personification",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Her smile was sunshine.\"",
+    "o": [
+      "Metaphor",
+      "Simile",
+      "Hyperbole",
+      "Irony"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"The angry storm pounded on the windows.\"",
+    "o": [
+      "Personification",
+      "Hyperbole",
+      "Metaphor",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"I've waited forever!\"",
+    "o": [
+      "Hyperbole",
+      "Irony",
+      "Modality",
+      "Euphemism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Bang! The fireworks exploded.\"",
+    "o": [
+      "Onomatopoeia",
+      "Sibilance",
+      "Consonance",
+      "Alliteration"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Living dead.\"",
+    "o": [
+      "Oxymoron",
+      "Juxtaposition",
+      "Irony",
+      "Metaphor"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Break the ice.\"",
+    "o": [
+      "Idiom",
+      "Euphemism",
+      "Symbolism",
+      "Allusion"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A red poppy representing remembrance.",
+    "o": [
+      "Symbolism",
+      "Motif",
+      "Metaphor",
+      "Juxtaposition"
+    ],
+    "a": 0
+  },
+  {
+    "q": "During a flood someone says, \"Lovely weather we're having!\"",
+    "o": [
+      "Irony (Verbal)",
+      "Hyperbole",
+      "Euphemism",
+      "Simile"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"We can do this together.\"",
+    "o": [
+      "Inclusive Language",
+      "Emotive Language",
+      "Imperative Language",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Crash! Boom! Smash!\"",
+    "o": [
+      "Onomatopoeia",
+      "Sibilance",
+      "Alliteration",
+      "Consonance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"The stars danced across the sky.\"",
+    "o": [
+      "Personification",
+      "Metaphor",
+      "Simile",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Life is a journey.\"",
+    "o": [
+      "Metaphor",
+      "Simile",
+      "Idiom",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Stronger together, stronger forever.\"",
+    "o": [
+      "Parallelism",
+      "Anaphora",
+      "Epistrophe",
+      "Rule of Three"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"Failure is not an option.\"",
+    "o": [
+      "High Modality",
+      "Hyperbole",
+      "Irony",
+      "Euphemism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "\"The crown decided to raise taxes.\"",
+    "o": [
+      "Symbolism",
+      "Allusion",
+      "Metaphor",
+      "Motif"
+    ],
+    "a": 0
+  }
+]

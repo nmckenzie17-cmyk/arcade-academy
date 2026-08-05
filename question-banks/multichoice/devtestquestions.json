@@ -1,0 +1,57 @@
+[
+  {
+    "q": "What is the capital city of New Zealand?",
+    "o": ["Auckland", "Christchurch", "Wellington", "Hamilton"],
+    "a": 2
+  },
+  {
+    "q": "What bird is a national symbol of New Zealand?",
+    "o": ["Eagle", "Kiwi", "Penguin", "Falcon"],
+    "a": 1
+  },
+  {
+    "q": "What are the two main islands of New Zealand called?",
+    "o": [
+      "North Island and South Island",
+      "East Island and West Island",
+      "Big Island and Small Island",
+      "Upper Island and Lower Island"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What ocean surrounds New Zealand?",
+    "o": ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"],
+    "a": 2
+  },
+  {
+    "q": "Which sport is New Zealand most famous for?",
+    "o": ["Baseball", "Rugby", "Basketball", "Cricket"],
+    "a": 1
+  },
+  {
+    "q": "What is the largest city in New Zealand?",
+    "o": ["Wellington", "Christchurch", "Dunedin", "Auckland"],
+    "a": 3
+  },
+  {
+    "q": "What colour are the stars on the New Zealand flag?",
+    "o": ["Green", "White", "Red", "Yellow"],
+    "a": 2
+  },
+  {
+    "q": "What is the indigenous Māori greeting that means \"hello\"?",
+    "o": ["Bonjour", "Kia ora", "Aloha", "Namaste"],
+    "a": 1
+  },
+  {
+    "q": "Which animal cannot naturally be found living in the wild in New Zealand?",
+    "o": ["Kiwi", "Kakapo", "Kangaroo", "Penguin"],
+    "a": 2
+  },
+  {
+    "q": "Which season is it in New Zealand during December?",
+    "o": ["Spring", "Summer", "Autumn", "Winter"],
+    "a": 1
+  }
+]

@@ -1,0 +1,172 @@
+[
+  {
+    "q": "What is the SI unit of speed?",
+    "o": ["N", "m/s", "kg", "s"],
+    "a": 1
+  },
+  {
+    "q": "Which formula is used to calculate speed?",
+    "o": [
+      "Speed = Distance × Time",
+      "Speed = Time ÷ Distance",
+      "Speed = Distance ÷ Time",
+      "Speed = Distance − Time"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is measured in metres (m)?",
+    "o": ["Speed", "Distance", "Time", "Acceleration"],
+    "a": 1
+  },
+  {
+    "q": "A runner travels 100 m in 20 s. What is their speed?",
+    "o": ["5 m/s", "2 m/s", "80 m/s", "120 m/s"],
+    "a": 0
+  },
+  {
+    "q": "If an object travels further in the same amount of time, its speed:",
+    "o": ["Decreases", "Increases", "Stays the same", "Becomes zero"],
+    "a": 1
+  },
+  {
+    "q": "Which instrument is best used to measure time?",
+    "o": ["Ruler", "Stopwatch", "Spring balance", "Thermometer"],
+    "a": 1
+  },
+  {
+    "q": "A cyclist rides 90 m in 15 s. What is their speed?",
+    "o": ["5 m/s", "6 m/s", "15 m/s", "105 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which unit is commonly used for the speed of a car?",
+    "o": ["kg", "km/h", "m", "N"],
+    "a": 1
+  },
+  {
+    "q": "A car travels at 25 m/s for 4 s. How far does it travel?",
+    "o": ["100 m", "21 m", "29 m", "6.25 m"],
+    "a": 0
+  },
+  {
+    "q": "If speed stays the same but time doubles, distance will:",
+    "o": ["Halve", "Double", "Stay the same", "Become zero"],
+    "a": 1
+  },
+  {
+    "q": "A train travels 600 m in 30 s. What is its speed?",
+    "o": ["18 m/s", "20 m/s", "30 m/s", "570 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which formula correctly calculates distance?",
+    "o": [
+      "Distance = Speed × Time",
+      "Distance = Time ÷ Speed",
+      "Distance = Speed ÷ Time",
+      "Distance = Speed + Time"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A swimmer completes 75 m in 25 s. What is their speed?",
+    "o": ["1 m/s", "3 m/s", "2 m/s", "50 m/s"],
+    "a": 1
+  },
+  {
+    "q": "If the distance stays the same but the time decreases, speed will:",
+    "o": ["Increase", "Decrease", "Stay the same", "Become zero"],
+    "a": 0
+  },
+  {
+    "q": "A bus travels 300 m in 15 s. What is its speed?",
+    "o": ["15 m/s", "20 m/s", "30 m/s", "285 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which of these is NOT a unit of speed?",
+    "o": ["mph", "km/h", "m/s", "m²"],
+    "a": 3
+  },
+  {
+    "q": "A person walks 240 m in 60 s. What is their speed?",
+    "o": ["2 m/s", "6 m/s", "4 m/s", "300 m/s"],
+    "a": 2
+  },
+  {
+    "q": "A boat moves at 12 m/s for 25 s. How far does it travel?",
+    "o": ["37 m", "300 m", "13 m", "288 m"],
+    "a": 1
+  },
+  {
+    "q": "Which formula correctly calculates time?",
+    "o": [
+      "Time = Speed × Distance",
+      "Time = Distance ÷ Speed",
+      "Time = Speed ÷ Distance",
+      "Time = Distance × Speed"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A plane flies 1,200 m in 40 s. What is its speed?",
+    "o": ["30 m/s", "40 m/s", "48 m/s", "1,160 m/s"],
+    "a": 0
+  },
+  {
+    "q": "If an object has a speed of 0 m/s, it is:",
+    "o": ["Accelerating", "Stationary", "Falling", "Turning"],
+    "a": 1
+  },
+  {
+    "q": "A truck travels 450 m in 15 s. What is its speed?",
+    "o": ["35 m/s", "30 m/s", "15 m/s", "435 m/s"],
+    "a": 1
+  },
+  {
+    "q": "A cyclist rides at 8 m/s for 50 s. How far do they travel?",
+    "o": ["58 m", "400 m", "42 m", "6.25 m"],
+    "a": 1
+  },
+  {
+    "q": "A runner covers 360 m in 45 s. What is their speed?",
+    "o": ["9 m/s", "8 m/s", "7 m/s", "315 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which journey has the greatest speed?",
+    "o": ["100 m in 20 s", "300 m in 30 s", "240 m in 40 s", "180 m in 15 s"],
+    "a": 3
+  },
+  {
+    "q": "A car travels at 18 m/s for 15 s. What distance does it travel?",
+    "o": ["120 m", "270 m", "33 m", "3 m"],
+    "a": 1
+  },
+  {
+    "q": "A person travels 150 m at 5 m/s. How long does the journey take?",
+    "o": ["25 s", "30 s", "35 s", "750 s"],
+    "a": 1
+  },
+  {
+    "q": "A train moves at 40 m/s for 12 s. What distance does it cover?",
+    "o": ["52 m", "480 m", "28 m", "3,360 m"],
+    "a": 1
+  },
+  {
+    "q": "A runner covers 500 m in 50 s. What is their speed?",
+    "o": ["50 m/s", "10 m/s", "5 m/s", "450 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which statement is true?",
+    "o": [
+      "Speed is measured in kilograms.",
+      "Distance is measured in seconds.",
+      "Speed tells you how quickly distance is travelled.",
+      "Time is measured in metres."
+    ],
+    "a": 2
+  }
+]

@@ -1,0 +1,402 @@
+[
+  {
+    "q": "Words chosen specifically to trigger an emotional response are called:",
+    "o": [
+      "Inclusive Language",
+      "Emotive Language",
+      "Jargon",
+      "Symbolism"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Grouping three words, phrases, or ideas together for impact is known as:",
+    "o": [
+      "Rule of Three (Tricolon)",
+      "Parallelism",
+      "Polysyndeton",
+      "Motif"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Language that makes the audience feel included in a group is:",
+    "o": [
+      "Inclusive Language",
+      "Modality",
+      "Euphemism",
+      "Personification"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Command verbs that encourage or demand action are:",
+    "o": [
+      "Hyperbole",
+      "Imperative Language",
+      "Hypophora",
+      "Irony"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Specialized vocabulary used by a particular profession or field is:",
+    "o": [
+      "Dysphemism",
+      "Jargon",
+      "Idiom",
+      "Motif"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A polite or softer expression replacing a harsh one is:",
+    "o": [
+      "Euphemism",
+      "Dysphemism",
+      "Symbolism",
+      "Irony"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A deliberately harsh or offensive replacement for a neutral word is:",
+    "o": [
+      "Euphemism",
+      "Dysphemism",
+      "Hyperbole",
+      "Modality"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Words that express certainty, possibility, or obligation demonstrate:",
+    "o": [
+      "Modality",
+      "Inclusive Language",
+      "Asyndeton",
+      "Assonance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Hints about future events in a story are called:",
+    "o": [
+      "Flashback",
+      "Foreshadowing",
+      "Motif",
+      "Allusion"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A break in the narrative to show an earlier event is:",
+    "o": [
+      "Parallelism",
+      "Flashback (Analepsis)",
+      "Epistrophe",
+      "Symbolism"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A recurring image, symbol, or idea throughout a text is a:",
+    "o": [
+      "Motif",
+      "Metaphor",
+      "Idiom",
+      "Oxymoron"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A brief reference to a famous person, event, or work is:",
+    "o": [
+      "Symbolism",
+      "Allusion",
+      "Hyperbole",
+      "Juxtaposition"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Repetition of initial consonant sounds is:",
+    "o": [
+      "Assonance",
+      "Consonance",
+      "Alliteration",
+      "Sibilance"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Repetition of similar vowel sounds is:",
+    "o": [
+      "Assonance",
+      "Alliteration",
+      "Consonance",
+      "Polysyndeton"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Repetition of consonant sounds within nearby words is:",
+    "o": [
+      "Consonance",
+      "Assonance",
+      "Parallelism",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Repetition of \"s\", \"z\", or soft \"c\" sounds is:",
+    "o": [
+      "Alliteration",
+      "Sibilance",
+      "Onomatopoeia",
+      "Oxymoron"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Placing contrasting ideas side by side is:",
+    "o": [
+      "Parallelism",
+      "Juxtaposition",
+      "Anaphora",
+      "Metaphor"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Repeating a grammatical structure for rhythm or balance is:",
+    "o": [
+      "Parallelism",
+      "Rule of Three",
+      "Polysyndeton",
+      "Modality"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Repeating a word or phrase at the beginning of successive clauses is:",
+    "o": [
+      "Epistrophe",
+      "Anaphora",
+      "Hypophora",
+      "Motif"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Repeating a word or phrase at the end of successive clauses is:",
+    "o": [
+      "Epistrophe",
+      "Anaphora",
+      "Sibilance",
+      "Consonance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A question asked to make a point rather than receive an answer is:",
+    "o": [
+      "Hypophora",
+      "Rhetorical Question",
+      "Irony",
+      "Symbolism"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Asking a question and immediately answering it is:",
+    "o": [
+      "Hypophora",
+      "Rhetorical Question",
+      "Flashback",
+      "Allusion"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Using many conjunctions in close succession is:",
+    "o": [
+      "Asyndeton",
+      "Polysyndeton",
+      "Parallelism",
+      "Assonance"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Deliberately omitting conjunctions between phrases is:",
+    "o": [
+      "Asyndeton",
+      "Polysyndeton",
+      "Juxtaposition",
+      "Motif"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Comparing two unlike things using \"like\" or \"as\" is:",
+    "o": [
+      "Metaphor",
+      "Simile",
+      "Symbolism",
+      "Hyperbole"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Comparing two things by stating one is the other is:",
+    "o": [
+      "Simile",
+      "Metaphor",
+      "Personification",
+      "Irony"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Giving human characteristics to non-human things is:",
+    "o": [
+      "Personification",
+      "Symbolism",
+      "Idiom",
+      "Assonance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "An extreme exaggeration for emphasis is:",
+    "o": [
+      "Hyperbole",
+      "Modality",
+      "Dysphemism",
+      "Irony"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Words that imitate real sounds are:",
+    "o": [
+      "Sibilance",
+      "Onomatopoeia",
+      "Consonance",
+      "Euphemism"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Combining contradictory words together is:",
+    "o": [
+      "Irony",
+      "Oxymoron",
+      "Juxtaposition",
+      "Metaphor"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A phrase whose meaning cannot be understood literally is:",
+    "o": [
+      "Idiom",
+      "Jargon",
+      "Symbolism",
+      "Allusion"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Using an object or action to represent a deeper meaning is:",
+    "o": [
+      "Symbolism",
+      "Motif",
+      "Simile",
+      "Hyperbole"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Saying the opposite of what is meant is:",
+    "o": [
+      "Irony (Verbal)",
+      "Euphemism",
+      "Oxymoron",
+      "Hypophora"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature usually creates emotional appeal?",
+    "o": [
+      "Emotive Language",
+      "Jargon",
+      "Assonance",
+      "Consonance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature often appears in speeches to persuade an audience?",
+    "o": [
+      "Inclusive Language",
+      "Flashback",
+      "Motif",
+      "Symbolism"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature is most commonly used in technical manuals?",
+    "o": [
+      "Jargon",
+      "Hyperbole",
+      "Irony",
+      "Personification"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature often builds suspense by hinting at future events?",
+    "o": [
+      "Foreshadowing",
+      "Flashback",
+      "Symbolism",
+      "Idiom"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature repeats sentence openings for emphasis?",
+    "o": [
+      "Anaphora",
+      "Epistrophe",
+      "Parallelism",
+      "Consonance"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature usually softens unpleasant topics?",
+    "o": [
+      "Euphemism",
+      "Dysphemism",
+      "Irony",
+      "Hyperbole"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature often creates memorable rhythm through repeated structure?",
+    "o": [
+      "Parallelism",
+      "Symbolism",
+      "Motif",
+      "Oxymoron"
+    ],
+    "a": 0
+  }
+]

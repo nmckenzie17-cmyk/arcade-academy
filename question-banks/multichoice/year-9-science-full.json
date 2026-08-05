@@ -1,0 +1,702 @@
+[
+  {
+    "q": "DNA is often described as an instruction manual for the body. Which analogy best explains how DNA, genes, and chromosomes relate to each other?",
+    "o": [
+      "DNA is a book, genes are letters, chromosomes are pages",
+      "DNA is the words, genes are sentences, chromosomes are paragraphs",
+      "DNA is the words, genes are sections of words, chromosomes are books",
+      "DNA is a chromosome, genes are books, chromosomes are libraries"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Why do identical twins have slight genetic differences even though they come from the same fertilized egg?",
+    "o": [
+      "Because they inherit DNA from different parents",
+      "Because environmental factors change their DNA sequences",
+      "Because mutations and gene expression can vary after fertilization",
+      "Because they have different numbers of chromosomes"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which of the following best explains why proteins have such diverse functions in the body?",
+    "o": [
+      "Proteins are made of different types of cells",
+      "The sequence and folding of amino acids determine protein shape and function",
+      "All proteins have the same amino acid sequence but different sizes",
+      "Proteins are coded by multiple genes simultaneously"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How does gene expression control the traits an organism shows?",
+    "o": [
+      "By switching genes on or off to produce specific proteins as needed",
+      "By changing the DNA sequence to create new proteins",
+      "By increasing the number of chromosomes in a cell",
+      "By removing genes that are not needed from the genome"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which scenario best illustrates the influence of the environment on phenotype?",
+    "o": [
+      "Two plants with identical genes grow to different heights because one receives more sunlight",
+      "Two animals with different genes have the same fur color",
+      "Identical twins have different blood types",
+      "A plant’s leaf shape is determined only by its genes"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Continuous variation differs from discontinuous variation because:",
+    "o": [
+      "Continuous variation involves traits with distinct categories, while discontinuous variation involves traits with a range of values",
+      "Continuous variation involves a range of values, while discontinuous variation involves distinct categories",
+      "Both involve distinct categories but differ in gene number",
+      "Both involve a range of values but differ in environmental influence"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why do multicellular organisms require transport systems, unlike unicellular organisms?",
+    "o": [
+      "Because they have fewer cells that need nutrients",
+      "Because simple diffusion is insufficient over larger distances and more cells",
+      "Because they do not have cell membranes",
+      "Because they rely solely on osmosis for transport"
+    ],
+    "a": 1
+  },
+  {
+    "q": "In the human circulatory system, which blood vessels carry oxygen-poor blood back to the heart?",
+    "o": [
+      "Arteries",
+      "Veins",
+      "Capillaries",
+      "Lymph vessels"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following best describes active transport across a cell membrane?",
+    "o": [
+      "Movement of particles from high to low concentration without energy",
+      "Movement of particles from low to high concentration using energy",
+      "Movement of water molecules through a semi-permeable membrane",
+      "Movement of particles through protein channels without energy"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How does the structure of the DNA double helix facilitate its function in heredity?",
+    "o": [
+      "The double helix allows DNA to be single-stranded for easy copying",
+      "The complementary base pairing allows DNA to replicate accurately",
+      "The twisted shape prevents DNA from interacting with proteins",
+      "The double helix structure stores proteins directly"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following best explains why some traits, like height, show continuous variation?",
+    "o": [
+      "They are controlled by a single gene with multiple alleles",
+      "They are influenced by many genes and environmental factors",
+      "They are inherited only from one parent",
+      "They are determined solely by the environment"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why is it important for cells to regulate which genes are turned on or off?",
+    "o": [
+      "To ensure all proteins are made at all times",
+      "To produce proteins only when needed, conserving energy and resources",
+      "To increase the number of chromosomes in each cell",
+      "To change the DNA sequence for adaptation"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following is NOT a correct pairing of a protein and its function?",
+    "o": [
+      "Keratin - structural protein in hair and nails",
+      "Chlorophyll - protein that captures light energy in plants",
+      "Hemoglobin - protein that carries oxygen in blood",
+      "Insulin - protein that transports nutrients in blood"
+    ],
+    "a": 3
+  },
+  {
+    "q": "How do environmental factors affect skin color in humans?",
+    "o": [
+      "Genes determine skin color completely, with no environmental influence",
+      "Sunlight exposure increases melanin production, darkening skin temporarily",
+      "Skin color changes permanently regardless of sun exposure",
+      "Skin color is only influenced by diet, not genes or sunlight"
+    ],
+    "a": 1
+  },
+  {
+    "q": "When graphing data for discontinuous variation, why is a bar graph more appropriate than a line graph?",
+    "o": [
+      "Because discontinuous traits have distinct categories without intermediate values",
+      "Because discontinuous traits show a smooth range of values",
+      "Because bar graphs can show continuous data better",
+      "Because line graphs cannot display any biological data"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which of the following best explains why the circulatory system works closely with the respiratory and digestive systems?",
+    "o": [
+      "To coordinate muscle movements for breathing and digestion",
+      "To transport oxygen and nutrients absorbed from food to cells throughout the body",
+      "To filter blood before it reaches the heart",
+      "To produce hormones that regulate breathing and digestion"
+    ],
+    "a": 1
+  },
+  {
+    "q": "In plants, why is the xylem essential for survival?",
+    "o": [
+      "It transports sugars from leaves to roots",
+      "It transports water and minerals from roots to leaves",
+      "It stores nutrients for later use",
+      "It controls gas exchange through the stomata"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How do Indigenous knowledge systems contribute to understanding environmental changes?",
+    "o": [
+      "By relying solely on modern scientific instruments",
+      "By observing long-term natural patterns and using signs from plants, animals, and weather",
+      "By ignoring seasonal changes and focusing on human activities",
+      "By predicting environmental changes without any observational evidence"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why might traditional environmental indicators (tohu) become less reliable due to climate change?",
+    "o": [
+      "Because climate change causes shifts in timing of natural events like flowering and animal migration",
+      "Because tohu are based only on human-made calendars",
+      "Because plants and animals no longer respond to environmental cues",
+      "Because climate change has no effect on ecosystems"
+    ],
+    "a": 0
+  },
+  {
+    "q": "How does the nitrogen cycle maintain ecosystem health, and what can happen if excess nitrogen accumulates in water bodies?",
+    "o": [
+      "Nitrogen is removed permanently from ecosystems; excess nitrogen causes drought",
+      "Nitrogen cycles through organisms and soil; excess nitrogen causes eutrophication, harming aquatic life",
+      "Nitrogen is only stored in plants; excess nitrogen improves water quality",
+      "Nitrogen cycles only in the atmosphere; excess nitrogen has no effect on ecosystems"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following best describes how mutations can affect an organism’s traits?",
+    "o": [
+      "Mutations always improve an organism’s survival chances",
+      "Mutations change the DNA sequence and can be beneficial, harmful, or neutral",
+      "Mutations only occur in response to environmental changes",
+      "Mutations are changes in protein shape caused by temperature"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How does sexual reproduction increase genetic diversity compared to asexual reproduction?",
+    "o": [
+      "Sexual reproduction produces identical offspring",
+      "Sexual reproduction combines genes from two parents, creating new gene combinations",
+      "Sexual reproduction copies DNA without any changes",
+      "Sexual reproduction removes harmful mutations from the gene pool"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why is it important for ecosystems to have high biodiversity?",
+    "o": [
+      "High biodiversity reduces competition among species",
+      "High biodiversity increases ecosystem stability and resilience to change",
+      "High biodiversity means fewer species are present",
+      "High biodiversity prevents any species from evolving"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following best explains why some genetic disorders are more common in certain populations?",
+    "o": [
+      "Because those populations have more mutations overall",
+      "Because of inherited genes that are more frequent due to historical mating patterns",
+      "Because environmental factors cause the disorders directly",
+      "Because those populations have fewer chromosomes"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How can selective breeding in agriculture affect genetic diversity?",
+    "o": [
+      "It increases genetic diversity by mixing many species",
+      "It decreases genetic diversity by choosing specific traits repeatedly",
+      "It has no effect on genetic diversity",
+      "It removes all harmful genes from crops"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best explains the role of enzymes in biological processes?",
+    "o": [
+      "Enzymes provide energy for reactions",
+      "Enzymes speed up chemical reactions without being consumed",
+      "Enzymes change the products of reactions permanently",
+      "Enzymes are only found in plants"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How can the study of fossils help scientists understand organism diversity over time?",
+    "o": [
+      "Fossils show the exact DNA sequence of ancient organisms",
+      "Fossils provide evidence of past life forms and evolutionary changes",
+      "Fossils prove that all species have remained unchanged",
+      "Fossils only show organisms that are still alive today"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why is the concept of “survival of the fittest” misleading when describing natural selection?",
+    "o": [
+      "Because only the strongest organisms survive",
+      "Because fitness refers to reproductive success, not just strength",
+      "Because natural selection always leads to perfect organisms",
+      "Because organisms choose their traits consciously"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following best explains how antibiotic resistance develops in bacteria?",
+    "o": [
+      "Bacteria mutate randomly, and resistant strains survive antibiotic treatment and reproduce",
+      "Bacteria intentionally change their DNA to resist antibiotics",
+      "Antibiotics cause bacteria to become resistant immediately",
+      "Resistance is inherited from viruses, not bacteria"
+    ],
+    "a": 0
+  },
+  {
+    "q": "How do gene mutations contribute to evolution?",
+    "o": [
+      "They provide new genetic variations that natural selection can act upon",
+      "They always cause harmful effects that reduce survival",
+      "They prevent organisms from reproducing",
+      "They remove existing genes from populations"
+    ],
+    "a": 0
+  },
+  {
+    "q": "How does genetic recombination during meiosis contribute to genetic diversity?",
+    "o": [
+      "By producing identical copies of chromosomes",
+      "By swapping segments of DNA between homologous chromosomes",
+      "By doubling the number of chromosomes in gametes",
+      "By removing mutations from the DNA sequence"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following best explains why some species are better adapted to survive in changing environments?",
+    "o": [
+      "They have more offspring regardless of traits",
+      "They possess genetic variations that provide advantages under new conditions",
+      "They can change their DNA sequence at will",
+      "They avoid competition by migrating constantly"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How does the structure of a cell membrane help regulate what enters and leaves the cell?",
+    "o": [
+      "The membrane is rigid and allows all substances to pass freely",
+      "The membrane is selectively permeable, controlling passage of substances",
+      "The membrane is made of DNA and proteins that absorb nutrients",
+      "The membrane dissolves to let substances in and out"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why is meiosis important for sexual reproduction?",
+    "o": [
+      "It produces cells with double the normal number of chromosomes",
+      "It creates genetically identical cells for growth",
+      "It reduces chromosome number by half to form gametes",
+      "It repairs damaged DNA in body cells"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which of the following best describes the role of RNA in protein synthesis?",
+    "o": [
+      "RNA stores genetic information permanently",
+      "RNA carries the genetic code from DNA to ribosomes to make proteins",
+      "RNA builds the cell membrane",
+      "RNA breaks down proteins after use"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How does natural selection act on variation within a population?",
+    "o": [
+      "It eliminates all variations except one",
+      "It favors individuals with traits that increase survival and reproduction",
+      "It causes all individuals to change their traits simultaneously",
+      "It creates new traits by altering DNA sequences directly"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why might a species with low genetic diversity be at greater risk of extinction?",
+    "o": [
+      "Because it can adapt quickly to environmental changes",
+      "Because it has fewer individuals overall",
+      "Because it has limited ability to adapt to new threats or conditions",
+      "Because it reproduces too rapidly"
+    ],
+    "a": 2
+  },
+  {
+    "q": "How can gene flow between populations affect genetic diversity?",
+    "o": [
+      "It decreases diversity by isolating populations",
+      "It increases diversity by introducing new alleles",
+      "It stops reproduction between populations",
+      "It removes mutations from populations"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following best explains why some traits are inherited in a Mendelian pattern?",
+    "o": [
+      "Because they are controlled by multiple genes",
+      "Because they are controlled by a single gene with dominant and recessive alleles",
+      "Because they depend only on environmental factors",
+      "Because they are not influenced by genes at all"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How does the concept of epigenetics challenge the idea that DNA sequence alone determines traits?",
+    "o": [
+      "Epigenetics shows that environmental factors can turn genes on or off without changing DNA sequence",
+      "Epigenetics proves that DNA sequence changes frequently",
+      "Epigenetics states that all traits are inherited unchanged",
+      "Epigenetics removes the role of proteins in gene expression"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is the unit of force?",
+    "o": ["J", "N", "kg", "m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which equation relates force, mass, and acceleration?",
+    "o": [
+      "Force = Mass ÷ Acceleration",
+      "Force = Mass + Acceleration",
+      "Force = Mass × Acceleration",
+      "Force = Acceleration ÷ Mass"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What does the symbol F represent?",
+    "o": ["Frequency", "Fuel", "Force", "Friction"],
+    "a": 2
+  },
+  {
+    "q": "What happens to an object's acceleration if the force acting on it increases but its mass stays the same?",
+    "o": ["It becomes zero.", "It decreases.", "It increases.", "It stays the same."],
+    "a": 2
+  },
+  {
+    "q": "A shopping trolley has a mass of 20 kg. If it accelerates at 3 m/s², what force is applied?",
+    "o": ["600 N", "60 N", "23 N", "17 N"],
+    "a": 1
+  },
+  {
+    "q": "If the same force is applied to two objects, which one accelerates more?",
+    "o": [
+      "Neither accelerates.",
+      "The object with the greater mass.",
+      "Both accelerate equally.",
+      "The object with the smaller mass."
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is the mass of an object if a force of 50 N causes it to accelerate at 5 m/s²?",
+    "o": ["25 kg", "250 kg", "10 kg", "55 kg"],
+    "a": 2
+  },
+  {
+    "q": "A force of 80 N acts on a 20 kg object. What is its acceleration?",
+    "o": ["4 m/s²", "0.25 m/s²", "100 m/s²", "2 m/s²"],
+    "a": 0
+  },
+  {
+    "q": "If the mass of an object doubles while the force stays the same, the acceleration will:",
+    "o": ["Stay the same.", "Halve.", "Double.", "Triple."],
+    "a": 1
+  },
+  {
+    "q": "Which statement is true?",
+    "o": [
+      "More force causes greater acceleration if mass stays constant.",
+      "Force and mass are measured in the same units.",
+      "Acceleration is measured in Newtons.",
+      "Heavier objects always accelerate faster."
+    ],
+    "a": 0
+  },
+  {
+    "q": "A force of 24 N is applied to a 6 kg object. What is the acceleration?",
+    "o": ["2 m/s²", "30 m/s²", "4 m/s²", "3 m/s²"],
+    "a": 2
+  },
+  {
+    "q": "An object accelerates at 8 m/s² when a force of 40 N is applied. What is its mass?",
+    "o": ["48 kg", "8 kg", "5 kg", "32 kg"],
+    "a": 2
+  },
+  {
+    "q": "Which of the following would require the greatest force to accelerate?",
+    "o": ["A 50 kg person", "A 500 g book", "A 5 kg backpack", "A 2 kg ball"],
+    "a": 0
+  },
+  {
+    "q": "A 10 kg object experiences a force of 100 N. If the force is increased to 200 N, the acceleration becomes:",
+    "o": ["40 m/s²", "20 m/s²", "5 m/s²", "10 m/s²"],
+    "a": 1
+  },
+  {
+    "q": "Which change would cause the greatest increase in acceleration?",
+    "o": [
+      "Doubling the mass.",
+      "Doubling the force.",
+      "Increasing both force and mass equally.",
+      "Halving the force."
+    ],
+    "a": 1
+  },
+  {
+    "q": "A rugby player pushes with a force of 600 N on a scrum. If the opposing force is also 600 N, what is the acceleration?",
+    "o": [
+      "Negative acceleration",
+      "Cannot be determined",
+      "Zero acceleration",
+      "Positive acceleration"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A force of 90 N acts on a box with a mass of 30 kg. What is the acceleration?",
+    "o": ["27 m/s²", "1 m/s²", "3 m/s²", "2 m/s²"],
+    "a": 2
+  },
+  {
+    "q": "A 12 kg object accelerates at 5 m/s². What is the applied force?",
+    "o": ["72 N", "17 N", "120 N", "60 N"],
+    "a": 3
+  },
+  {
+    "q": "A car's engine provides a greater driving force while its mass stays constant. The car will:",
+    "o": ["Lose mass.", "Accelerate faster.", "Maintain constant speed.", "Slow down."],
+    "a": 1
+  },
+  {
+    "q": "Two objects experience the same force. Object A has twice the mass of Object B. Compared with Object B, Object A will have:",
+    "o": [
+      "Four times the acceleration.",
+      "Half the acceleration.",
+      "The same acceleration.",
+      "Twice the acceleration."
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the SI unit of speed?",
+    "o": ["N", "m/s", "kg", "s"],
+    "a": 1
+  },
+  {
+    "q": "Which formula is used to calculate speed?",
+    "o": [
+      "Speed = Distance × Time",
+      "Speed = Time ÷ Distance",
+      "Speed = Distance ÷ Time",
+      "Speed = Distance − Time"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is measured in metres (m)?",
+    "o": ["Speed", "Distance", "Time", "Acceleration"],
+    "a": 1
+  },
+  {
+    "q": "A runner travels 100 m in 20 s. What is their speed?",
+    "o": ["5 m/s", "2 m/s", "80 m/s", "120 m/s"],
+    "a": 0
+  },
+  {
+    "q": "If an object travels further in the same amount of time, its speed:",
+    "o": ["Decreases", "Increases", "Stays the same", "Becomes zero"],
+    "a": 1
+  },
+  {
+    "q": "Which instrument is best used to measure time?",
+    "o": ["Ruler", "Stopwatch", "Spring balance", "Thermometer"],
+    "a": 1
+  },
+  {
+    "q": "A cyclist rides 90 m in 15 s. What is their speed?",
+    "o": ["5 m/s", "6 m/s", "15 m/s", "105 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which unit is commonly used for the speed of a car?",
+    "o": ["kg", "km/h", "m", "N"],
+    "a": 1
+  },
+  {
+    "q": "A car travels at 25 m/s for 4 s. How far does it travel?",
+    "o": ["100 m", "21 m", "29 m", "6.25 m"],
+    "a": 0
+  },
+  {
+    "q": "If speed stays the same but time doubles, distance will:",
+    "o": ["Halve", "Double", "Stay the same", "Become zero"],
+    "a": 1
+  },
+  {
+    "q": "A train travels 600 m in 30 s. What is its speed?",
+    "o": ["18 m/s", "20 m/s", "30 m/s", "570 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which formula correctly calculates distance?",
+    "o": [
+      "Distance = Speed × Time",
+      "Distance = Time ÷ Speed",
+      "Distance = Speed ÷ Time",
+      "Distance = Speed + Time"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A swimmer completes 75 m in 25 s. What is their speed?",
+    "o": ["1 m/s", "3 m/s", "2 m/s", "50 m/s"],
+    "a": 1
+  },
+  {
+    "q": "If the distance stays the same but the time decreases, speed will:",
+    "o": ["Increase", "Decrease", "Stay the same", "Become zero"],
+    "a": 0
+  },
+  {
+    "q": "A bus travels 300 m in 15 s. What is its speed?",
+    "o": ["15 m/s", "20 m/s", "30 m/s", "285 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which of these is NOT a unit of speed?",
+    "o": ["mph", "km/h", "m/s", "m²"],
+    "a": 3
+  },
+  {
+    "q": "A person walks 240 m in 60 s. What is their speed?",
+    "o": ["2 m/s", "6 m/s", "4 m/s", "300 m/s"],
+    "a": 2
+  },
+  {
+    "q": "A boat moves at 12 m/s for 25 s. How far does it travel?",
+    "o": ["37 m", "300 m", "13 m", "288 m"],
+    "a": 1
+  },
+  {
+    "q": "Which formula correctly calculates time?",
+    "o": [
+      "Time = Speed × Distance",
+      "Time = Distance ÷ Speed",
+      "Time = Speed ÷ Distance",
+      "Time = Distance × Speed"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A plane flies 1,200 m in 40 s. What is its speed?",
+    "o": ["30 m/s", "40 m/s", "48 m/s", "1,160 m/s"],
+    "a": 0
+  },
+  {
+    "q": "If an object has a speed of 0 m/s, it is:",
+    "o": ["Accelerating", "Stationary", "Falling", "Turning"],
+    "a": 1
+  },
+  {
+    "q": "A truck travels 450 m in 15 s. What is its speed?",
+    "o": ["35 m/s", "30 m/s", "15 m/s", "435 m/s"],
+    "a": 1
+  },
+  {
+    "q": "A cyclist rides at 8 m/s for 50 s. How far do they travel?",
+    "o": ["58 m", "400 m", "42 m", "6.25 m"],
+    "a": 1
+  },
+  {
+    "q": "A runner covers 360 m in 45 s. What is their speed?",
+    "o": ["9 m/s", "8 m/s", "7 m/s", "315 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which journey has the greatest speed?",
+    "o": ["100 m in 20 s", "300 m in 30 s", "240 m in 40 s", "180 m in 15 s"],
+    "a": 3
+  },
+  {
+    "q": "A car travels at 18 m/s for 15 s. What distance does it travel?",
+    "o": ["120 m", "270 m", "33 m", "3 m"],
+    "a": 1
+  },
+  {
+    "q": "A person travels 150 m at 5 m/s. How long does the journey take?",
+    "o": ["25 s", "30 s", "35 s", "750 s"],
+    "a": 1
+  },
+  {
+    "q": "A train moves at 40 m/s for 12 s. What distance does it cover?",
+    "o": ["52 m", "480 m", "28 m", "3,360 m"],
+    "a": 1
+  },
+  {
+    "q": "A runner covers 500 m in 50 s. What is their speed?",
+    "o": ["50 m/s", "10 m/s", "5 m/s", "450 m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which statement is true?",
+    "o": [
+      "Speed is measured in kilograms.",
+      "Distance is measured in seconds.",
+      "Speed tells you how quickly distance is travelled.",
+      "Time is measured in metres."
+    ],
+    "a": 2
+  }
+]

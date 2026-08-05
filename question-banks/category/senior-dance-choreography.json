@@ -1,0 +1,465 @@
+{
+  "subject": "Dance — Choreographic Devices & Elements",
+  "categories": [
+    {
+      "prompt": "Choreographic Devices – Repetition",
+      "correct": [
+        "Repeat a gesture",
+        "Repeat a phrase",
+        "Repeat a motif",
+        "Repeat a movement sequence"
+      ],
+      "distractors": [
+        "Canon",
+        "Retrograde",
+        "Fragmentation",
+        "Accumulation",
+        "Space",
+        "Time",
+        "Energy",
+        "Relationship",
+        "Level",
+        "Tempo",
+        "Direction",
+        "Focus"
+      ]
+    },
+    {
+      "prompt": "Choreographic Devices – Canon",
+      "correct": [
+        "Ripple effect",
+        "Delayed entry",
+        "Sequential timing",
+        "One dancer follows another"
+      ],
+      "distractors": [
+        "Simultaneous unison",
+        "Freeze",
+        "Tempo",
+        "Force",
+        "Pathway",
+        "Shape",
+        "Repetition",
+        "Contrast",
+        "Floor pattern",
+        "Level",
+        "Accent",
+        "Retrograde"
+      ]
+    },
+    {
+      "prompt": "Choreographic Devices – Contrast",
+      "correct": [
+        "Fast then slow",
+        "High then low",
+        "Sharp then smooth",
+        "Large then small movements"
+      ],
+      "distractors": [
+        "Repeat exactly",
+        "Canon",
+        "Retrograde",
+        "Accumulation",
+        "Direction",
+        "Balance",
+        "Weight",
+        "Focus",
+        "Body base",
+        "Tempo",
+        "Shape",
+        "Pathway"
+      ]
+    },
+    {
+      "prompt": "Choreographic Devices – Retrograde",
+      "correct": [
+        "Perform phrase backwards",
+        "Reverse movement order",
+        "End becomes beginning",
+        "Reverse choreography"
+      ],
+      "distractors": [
+        "Repeat movement",
+        "Canon",
+        "Fragmentation",
+        "Space",
+        "Time",
+        "Energy",
+        "Direction",
+        "Level",
+        "Tempo",
+        "Focus",
+        "Shape",
+        "Locomotor movement"
+      ]
+    },
+    {
+      "prompt": "Choreographic Devices – Fragmentation",
+      "correct": [
+        "Perform only one section",
+        "Isolate movement",
+        "Break phrase apart",
+        "Use small movement pieces"
+      ],
+      "distractors": [
+        "Canon",
+        "Repetition",
+        "Tempo",
+        "Pathway",
+        "Focus",
+        "Weight",
+        "Space",
+        "Direction",
+        "Force",
+        "Time",
+        "Shape",
+        "Retrograde"
+      ]
+    },
+    {
+      "prompt": "Choreographic Devices – Accumulation",
+      "correct": [
+        "Add one movement at a time",
+        "Build a sequence",
+        "Extend the phrase gradually",
+        "Layer movements progressively"
+      ],
+      "distractors": [
+        "Reverse sequence",
+        "Contrast",
+        "Canon",
+        "Tempo",
+        "Force",
+        "Direction",
+        "Shape",
+        "Level",
+        "Space",
+        "Time",
+        "Focus",
+        "Energy"
+      ]
+    },
+    {
+      "prompt": "Elements of Dance – Body",
+      "correct": [
+        "Body parts",
+        "Body bases",
+        "Body shapes",
+        "Body actions"
+      ],
+      "distractors": [
+        "Tempo",
+        "Pathway",
+        "Level",
+        "Direction",
+        "Canon",
+        "Contrast",
+        "Repetition",
+        "Force",
+        "Rhythm",
+        "Focus",
+        "Accumulation",
+        "Retrograde"
+      ]
+    },
+    {
+      "prompt": "Elements of Dance – Space",
+      "correct": [
+        "Level",
+        "Direction",
+        "Pathway",
+        "Personal space"
+      ],
+      "distractors": [
+        "Tempo",
+        "Rhythm",
+        "Force",
+        "Flow",
+        "Canon",
+        "Repetition",
+        "Contrast",
+        "Retrograde",
+        "Focus",
+        "Gesture",
+        "Body base",
+        "Fragmentation"
+      ]
+    },
+    {
+      "prompt": "Elements of Dance – Time",
+      "correct": [
+        "Tempo",
+        "Rhythm",
+        "Duration",
+        "Beat"
+      ],
+      "distractors": [
+        "Level",
+        "Pathway",
+        "Force",
+        "Weight",
+        "Canon",
+        "Contrast",
+        "Direction",
+        "Focus",
+        "Shape",
+        "Accumulation",
+        "Gesture",
+        "Space"
+      ]
+    },
+    {
+      "prompt": "Elements of Dance – Energy",
+      "correct": [
+        "Force",
+        "Flow",
+        "Weight",
+        "Tension"
+      ],
+      "distractors": [
+        "Tempo",
+        "Beat",
+        "Rhythm",
+        "Level",
+        "Pathway",
+        "Direction",
+        "Canon",
+        "Retrograde",
+        "Fragmentation",
+        "Shape",
+        "Personal space",
+        "Gesture"
+      ]
+    },
+    {
+      "prompt": "Elements of Dance – Relationships",
+      "correct": [
+        "Partnering",
+        "Unison",
+        "Mirroring",
+        "Separation"
+      ],
+      "distractors": [
+        "Tempo",
+        "Pathway",
+        "Force",
+        "Level",
+        "Body base",
+        "Gesture",
+        "Canon",
+        "Retrograde",
+        "Fragmentation",
+        "Weight",
+        "Beat",
+        "Direction"
+      ]
+    },
+    {
+      "prompt": "Body Actions",
+      "correct": [
+        "Jump",
+        "Turn",
+        "Travel",
+        "Balance"
+      ],
+      "distractors": [
+        "Tempo",
+        "Pathway",
+        "Level",
+        "Canon",
+        "Contrast",
+        "Rhythm",
+        "Force",
+        "Weight",
+        "Direction",
+        "Flow",
+        "Focus",
+        "Retrograde"
+      ]
+    },
+    {
+      "prompt": "Body Bases",
+      "correct": [
+        "Feet",
+        "Hands",
+        "Knees",
+        "Back"
+      ],
+      "distractors": [
+        "Tempo",
+        "Pathway",
+        "Rhythm",
+        "Force",
+        "Level",
+        "Canon",
+        "Gesture",
+        "Contrast",
+        "Direction",
+        "Beat",
+        "Shape",
+        "Flow"
+      ]
+    },
+    {
+      "prompt": "Body Shapes",
+      "correct": [
+        "Curved",
+        "Twisted",
+        "Symmetrical",
+        "Asymmetrical"
+      ],
+      "distractors": [
+        "Tempo",
+        "Beat",
+        "Pathway",
+        "Weight",
+        "Direction",
+        "Canon",
+        "Contrast",
+        "Retrograde",
+        "Rhythm",
+        "Force",
+        "Flow",
+        "Focus"
+      ]
+    },
+    {
+      "prompt": "Spatial Concepts",
+      "correct": [
+        "High level",
+        "Middle level",
+        "Low level",
+        "Pathway"
+      ],
+      "distractors": [
+        "Tempo",
+        "Rhythm",
+        "Beat",
+        "Force",
+        "Canon",
+        "Weight",
+        "Repetition",
+        "Contrast",
+        "Retrograde",
+        "Gesture",
+        "Body base",
+        "Tension"
+      ]
+    },
+    {
+      "prompt": "Time Concepts",
+      "correct": [
+        "Slow",
+        "Fast",
+        "Pause",
+        "Syncopation"
+      ],
+      "distractors": [
+        "Level",
+        "Pathway",
+        "Force",
+        "Weight",
+        "Direction",
+        "Canon",
+        "Contrast",
+        "Gesture",
+        "Shape",
+        "Space",
+        "Mirroring",
+        "Flow"
+      ]
+    },
+    {
+      "prompt": "Energy Qualities",
+      "correct": [
+        "Sustained",
+        "Sharp",
+        "Heavy",
+        "Light"
+      ],
+      "distractors": [
+        "Tempo",
+        "Rhythm",
+        "Beat",
+        "Pathway",
+        "Direction",
+        "Canon",
+        "Contrast",
+        "Retrograde",
+        "Shape",
+        "Level",
+        "Gesture",
+        "Personal space"
+      ]
+    },
+    {
+      "prompt": "Relationship Concepts",
+      "correct": [
+        "Lead and follow",
+        "Contact",
+        "Mirroring",
+        "Counterbalance"
+      ],
+      "distractors": [
+        "Tempo",
+        "Force",
+        "Beat",
+        "Level",
+        "Pathway",
+        "Direction",
+        "Canon",
+        "Contrast",
+        "Repetition",
+        "Flow",
+        "Weight",
+        "Shape"
+      ]
+    },
+    {
+      "prompt": "Choreographic Devices – Motif Development",
+      "correct": [
+        "Embellishment",
+        "Simplification",
+        "Inversion",
+        "Change of dynamics"
+      ],
+      "distractors": [
+        "Tempo",
+        "Pathway",
+        "Direction",
+        "Beat",
+        "Rhythm",
+        "Weight",
+        "Force",
+        "Level",
+        "Personal space",
+        "Canon",
+        "Freeze",
+        "Gesture"
+      ]
+    },
+    {
+      "prompt": "Elements of Dance – Focus",
+      "correct": [
+        "Eye line",
+        "Audience focus",
+        "Internal focus",
+        "Focus towards another dancer"
+      ],
+      "distractors": [
+        "Tempo",
+        "Rhythm",
+        "Force",
+        "Pathway",
+        "Direction",
+        "Level",
+        "Weight",
+        "Canon",
+        "Retrograde",
+        "Contrast",
+        "Shape",
+        "Repetition"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,465 @@
+{
+  "subject": "Dance Styles, Genres & Elements",
+  "categories": [
+    {
+      "prompt": "Ballet Terminology",
+      "correct": [
+        "Plié",
+        "Arabesque",
+        "Pirouette",
+        "Jeté"
+      ],
+      "distractors": [
+        "Headspin",
+        "Lock",
+        "Moonwalk",
+        "Krump",
+        "Wave",
+        "Six-step",
+        "Charleston",
+        "Twerk",
+        "Salsa Cross Body Lead",
+        "Haka",
+        "Popping Hit",
+        "Tut"
+      ]
+    },
+    {
+      "prompt": "Hip Hop Foundations",
+      "correct": [
+        "Bounce",
+        "Rock",
+        "Groove",
+        "Party Step"
+      ],
+      "distractors": [
+        "Relevé",
+        "Chassé",
+        "Spot Turn",
+        "Fan Kick",
+        "Plié",
+        "Pas de Bourrée",
+        "Body Roll (Jazz)",
+        "Waltz Box Step",
+        "Flamenco Braceo",
+        "Irish Treble Jig",
+        "Fouetté",
+        "Chaîné Turn"
+      ]
+    },
+    {
+      "prompt": "Breaking (Breakdance)",
+      "correct": [
+        "Toprock",
+        "Downrock",
+        "Freeze",
+        "Power Move"
+      ],
+      "distractors": [
+        "Pirouette",
+        "Pas de Chat",
+        "Jazz Square",
+        "Grapevine",
+        "Samba Bounce",
+        "Bhangra Shoulder Shrug",
+        "Moonwalk",
+        "Lock",
+        "Haka Stomp",
+        "Heel-Toe",
+        "Waltz Turn",
+        "Fan Veil Spin"
+      ]
+    },
+    {
+      "prompt": "Popping",
+      "correct": [
+        "Hit",
+        "Waving",
+        "Tutting",
+        "Dime Stop"
+      ],
+      "distractors": [
+        "Grand Jeté",
+        "Pencil Turn",
+        "Barrel Roll",
+        "Salsa Shine",
+        "Pas de Bourrée",
+        "Heel Click",
+        "Running Man",
+        "Six-step",
+        "Corkscrew Lift",
+        "Flamenco Zapateado",
+        "Charleston",
+        "Box Step"
+      ]
+    },
+    {
+      "prompt": "Locking",
+      "correct": [
+        "Lock",
+        "Point",
+        "Wrist Roll",
+        "Scooby Doo"
+      ],
+      "distractors": [
+        "Arabesque",
+        "Plié",
+        "Windmill",
+        "Headspin",
+        "Wave",
+        "C-Walk",
+        "Moonwalk",
+        "Chassé",
+        "Haka Wero",
+        "Samba Volta",
+        "Pirouette",
+        "Tour Jeté"
+      ]
+    },
+    {
+      "prompt": "Contemporary Dance",
+      "correct": [
+        "Release Technique",
+        "Floor Work",
+        "Fall and Recovery",
+        "Improvisation"
+      ],
+      "distractors": [
+        "Windmill",
+        "Lock",
+        "Six-step",
+        "Moonwalk",
+        "Haka Challenge",
+        "Flamenco Fan",
+        "Heel-Toe",
+        "Charleston",
+        "Waltz Box",
+        "B-Boy Freeze",
+        "Samba Bounce",
+        "Cabbage Patch"
+      ]
+    },
+    {
+      "prompt": "Jazz Dance",
+      "correct": [
+        "Jazz Square",
+        "Kick Ball Change",
+        "Chassé",
+        "Fan Kick"
+      ],
+      "distractors": [
+        "Halo",
+        "Windmill",
+        "Freeze",
+        "Waving",
+        "Arabesque",
+        "Haka Wero",
+        "Salsa Cross Body Lead",
+        "Lock",
+        "Glide",
+        "Bhangra Hop",
+        "Riverdance Treble",
+        "Popping Hit"
+      ]
+    },
+    {
+      "prompt": "Tap Dance",
+      "correct": [
+        "Shuffle",
+        "Flap",
+        "Time Step",
+        "Cramp Roll"
+      ],
+      "distractors": [
+        "Windmill",
+        "Headspin",
+        "Moonwalk",
+        "Body Roll",
+        "Arabesque",
+        "Lock",
+        "Six-step",
+        "Tut",
+        "Haka Pūkana",
+        "Salsa Spin",
+        "Samba Whisk",
+        "Pirouette"
+      ]
+    },
+    {
+      "prompt": "Ballroom",
+      "correct": [
+        "Waltz",
+        "Foxtrot",
+        "Tango",
+        "Viennese Waltz"
+      ],
+      "distractors": [
+        "Krump",
+        "Locking",
+        "Breaking",
+        "Waacking",
+        "Tutting",
+        "Haka",
+        "Moonwalk",
+        "Headspin",
+        "Charleston",
+        "C-Walk",
+        "Windmill",
+        "Flare"
+      ]
+    },
+    {
+      "prompt": "Latin Ballroom",
+      "correct": [
+        "Cha-Cha",
+        "Rumba",
+        "Samba",
+        "Jive"
+      ],
+      "distractors": [
+        "Waltz",
+        "Breaking",
+        "Krump",
+        "Lock",
+        "Plié",
+        "Arabesque",
+        "Freeze",
+        "Toprock",
+        "Tutting",
+        "Heel-Toe",
+        "Waack",
+        "Fan Kick"
+      ]
+    },
+    {
+      "prompt": "Salsa",
+      "correct": [
+        "Cross Body Lead",
+        "Right Turn",
+        "Left Turn",
+        "Cumbia Step"
+      ],
+      "distractors": [
+        "Windmill",
+        "Freeze",
+        "Moonwalk",
+        "Arabesque",
+        "Lock",
+        "Haka",
+        "Shuffle",
+        "Pirouette",
+        "Charleston",
+        "Krump Stomp",
+        "Jazz Square",
+        "Tut"
+      ]
+    },
+    {
+      "prompt": "Flamenco",
+      "correct": [
+        "Zapateado",
+        "Braceo",
+        "Palmas",
+        "Marcaje"
+      ],
+      "distractors": [
+        "Windmill",
+        "Six-step",
+        "Headspin",
+        "Moonwalk",
+        "Running Man",
+        "Jazz Square",
+        "Arabesque",
+        "Plié",
+        "Body Roll",
+        "Bounce",
+        "Lock",
+        "Freeze"
+      ]
+    },
+    {
+      "prompt": "Irish Dance",
+      "correct": [
+        "Treble Jig",
+        "Reel",
+        "Hornpipe",
+        "Slip Jig"
+      ],
+      "distractors": [
+        "Windmill",
+        "Pirouette",
+        "Arabesque",
+        "Salsa Turn",
+        "Lock",
+        "Krump",
+        "Tutting",
+        "Charleston",
+        "Moonwalk",
+        "Plié",
+        "Bounce",
+        "Waack"
+      ]
+    },
+    {
+      "prompt": "Māori Performing Arts (Kapa Haka)",
+      "correct": [
+        "Wero",
+        "Pūkana",
+        "Haka",
+        "Waiata-ā-ringa"
+      ],
+      "distractors": [
+        "Pirouette",
+        "Windmill",
+        "Moonwalk",
+        "Jazz Square",
+        "Lock",
+        "Wave",
+        "Six-step",
+        "Fan Kick",
+        "Shuffle",
+        "Salsa Spin",
+        "Samba Bounce",
+        "Cramp Roll"
+      ]
+    },
+    {
+      "prompt": "Pasifika Dance (Siva Samoa)",
+      "correct": [
+        "Taualuga",
+        "Siva",
+        "Fa'ataupati",
+        "Maulu'ulu"
+      ],
+      "distractors": [
+        "Arabesque",
+        "Lock",
+        "Headspin",
+        "Windmill",
+        "Plié",
+        "Shuffle",
+        "Waltz",
+        "Tango",
+        "Krump",
+        "Charleston",
+        "Pirouette",
+        "Tutting"
+      ]
+    },
+    {
+      "prompt": "Krump",
+      "correct": [
+        "Stomp",
+        "Chest Pop",
+        "Jab",
+        "Arm Swing"
+      ],
+      "distractors": [
+        "Arabesque",
+        "Pirouette",
+        "Shuffle",
+        "Windmill",
+        "Headspin",
+        "Lock",
+        "Waltz Turn",
+        "Flamenco Palmas",
+        "Tap Flap",
+        "Salsa Cross Body Lead",
+        "Tutting",
+        "Moonwalk"
+      ]
+    },
+    {
+      "prompt": "Waacking",
+      "correct": [
+        "Arm Rolls",
+        "Pose",
+        "Whip",
+        "Groove"
+      ],
+      "distractors": [
+        "Windmill",
+        "Headspin",
+        "Arabesque",
+        "Plié",
+        "Shuffle",
+        "Stomp (Krump)",
+        "Haka",
+        "Waltz",
+        "Charleston",
+        "Six-step",
+        "Pirouette",
+        "Fan Kick"
+      ]
+    },
+    {
+      "prompt": "House Dance",
+      "correct": [
+        "Jack",
+        "Skate",
+        "Lofting",
+        "Shuffle Step"
+      ],
+      "distractors": [
+        "Pirouette",
+        "Arabesque",
+        "Windmill",
+        "Lock",
+        "Freeze",
+        "Haka",
+        "Fan Kick",
+        "Waltz Turn",
+        "Cramp Roll",
+        "Flamenco Braceo",
+        "Treble Jig",
+        "Moonwalk"
+      ]
+    },
+    {
+      "prompt": "Vogue",
+      "correct": [
+        "Catwalk",
+        "Duckwalk",
+        "Hands Performance",
+        "Dip"
+      ],
+      "distractors": [
+        "Windmill",
+        "Headspin",
+        "Shuffle",
+        "Pirouette",
+        "Arabesque",
+        "Lock",
+        "Toprock",
+        "Haka",
+        "Charleston",
+        "Tap Flap",
+        "Samba Bounce",
+        "Tutting"
+      ]
+    },
+    {
+      "prompt": "Dance Elements",
+      "correct": [
+        "Space",
+        "Time",
+        "Energy",
+        "Relationships"
+      ],
+      "distractors": [
+        "Gravity",
+        "Velocity",
+        "Mitosis",
+        "Photosynthesis",
+        "Polygon",
+        "Continent",
+        "Volcano",
+        "Molecule",
+        "Telescope",
+        "Ecosystem",
+        "Algorithm",
+        "Longitude"
+      ]
+    }
+  ]
+}

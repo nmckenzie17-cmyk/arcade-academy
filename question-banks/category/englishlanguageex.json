@@ -1,0 +1,235 @@
+{
+  "subject": "English — Figurative Language & Literary Examples",
+  "categories": [
+    {
+      "prompt": "Alliteration",
+      "correct": [
+        "Peter Piper picked a peck of pickled peppers.",
+        "Wild winds whipped wildly.",
+        "Busy bees buzzed busily.",
+        "Silly snakes slithered slowly."
+      ],
+      "distractors": [
+        "Time is a thief.",
+        "I've told you a million times.",
+        "The wind whispered through the trees.",
+        "He was a real Romeo with the ladies.",
+        "The fire crackled and the clock ticked.",
+        "Do you really think money grows on trees?",
+        "He passed away peacefully.",
+        "We must stand together.",
+        "It was the best of times, it was the worst of times.",
+        "Easy come, easy go.",
+        "I came, I saw, I conquered.",
+        "Bite the bullet."
+      ]
+    },
+    {
+      "prompt": "Simile",
+      "correct": [
+        "As cold as ice.",
+        "He ran like the wind.",
+        "Her smile shone like the sun.",
+        "The baby slept like a log."
+      ],
+      "distractors": [
+        "Time is a thief.",
+        "The wind whispered through the trees.",
+        "The snake slithered silently across the sand.",
+        "We shall fight on the beaches.",
+        "What lovely weather! (during a storm)",
+        "The fire crackled loudly.",
+        "We have ships and men and money and stores.",
+        "He passed away.",
+        "Mind, body, and spirit.",
+        "Peter Piper picked a peck.",
+        "Government of the people, by the people, for the people.",
+        "Innocent animals are being slaughtered."
+      ]
+    },
+    {
+      "prompt": "Metaphor",
+      "correct": [
+        "Time is a thief.",
+        "Her voice was music to his ears.",
+        "The classroom was a zoo.",
+        "He is a shining star."
+      ],
+      "distractors": [
+        "As brave as a lion.",
+        "The wind whispered through the trees.",
+        "The fire crackled.",
+        "Act now before it's too late!",
+        "Why change? Because the current system fails.",
+        "Bite the bullet.",
+        "We must stand together.",
+        "The snake slithered silently.",
+        "I came, I saw, I conquered.",
+        "I've told you a million times.",
+        "He passed away.",
+        "It was the best of times, it was the worst of times."
+      ]
+    },
+    {
+      "prompt": "Personification",
+      "correct": [
+        "The wind whispered through the trees.",
+        "The sun smiled down on us.",
+        "The leaves danced in the breeze.",
+        "Opportunity knocked on the door."
+      ],
+      "distractors": [
+        "Time is a thief.",
+        "As cold as ice.",
+        "Peter Piper picked a peck.",
+        "I've told you a million times.",
+        "The fire crackled.",
+        "Mind, body, and spirit.",
+        "What lovely weather! (during a storm)",
+        "We shall fight on the beaches.",
+        "Bite the bullet.",
+        "We have ships and men and money.",
+        "He passed away.",
+        "The snake slithered silently."
+      ]
+    },
+    {
+      "prompt": "Hyperbole",
+      "correct": [
+        "I've told you a million times.",
+        "This bag weighs a ton.",
+        "I'm so hungry I could eat a horse.",
+        "Everyone in the world knows that."
+      ],
+      "distractors": [
+        "Time is a thief.",
+        "As cold as ice.",
+        "The wind whispered.",
+        "The fire crackled.",
+        "We must stand together.",
+        "Peter Piper picked a peck.",
+        "Bite the bullet.",
+        "He was a real Romeo.",
+        "We shall fight on the beaches.",
+        "The snake slithered silently.",
+        "Easy come, easy go.",
+        "He passed away."
+      ]
+    },
+    {
+      "prompt": "Rhetorical Question",
+      "correct": [
+        "Do you really think money grows on trees?",
+        "Who wouldn't want to succeed?",
+        "Is this the future we want?",
+        "Can anyone deny the facts?"
+      ],
+      "distractors": [
+        "Why change? Because the current system fails.",
+        "Act now before it's too late!",
+        "Time is a thief.",
+        "As cold as ice.",
+        "Innocent animals are being slaughtered.",
+        "The fire crackled.",
+        "Peter Piper picked a peck.",
+        "He passed away.",
+        "Government of the people, by the people, for the people.",
+        "The snake slithered silently.",
+        "Bite the bullet.",
+        "It was the best of times."
+      ]
+    },
+    {
+      "prompt": "Onomatopoeia",
+      "correct": [
+        "The fire crackled.",
+        "The clock ticked.",
+        "Bees buzzed around the flowers.",
+        "The bacon sizzled in the pan."
+      ],
+      "distractors": [
+        "The wind whispered.",
+        "Time is a thief.",
+        "As cold as ice.",
+        "We shall fight on the beaches.",
+        "We have ships and men and money.",
+        "I've told you a million times.",
+        "Bite the bullet.",
+        "The snake slithered silently.",
+        "He passed away.",
+        "Mind, body, and spirit.",
+        "Easy come, easy go.",
+        "He was a real Romeo."
+      ]
+    },
+    {
+      "prompt": "Anaphora",
+      "correct": [
+        "We shall fight on the beaches, we shall fight on the landing grounds.",
+        "Every day, every night, every hour.",
+        "I have a dream... I have a dream...",
+        "Let freedom ring... Let freedom ring..."
+      ],
+      "distractors": [
+        "Government of the people, by the people, for the people.",
+        "Easy come, easy go.",
+        "Time is a thief.",
+        "As brave as a lion.",
+        "The wind whispered.",
+        "I've told you a million times.",
+        "He passed away.",
+        "The bacon sizzled.",
+        "Bite the bullet.",
+        "Peter Piper picked a peck.",
+        "We have ships and men and money.",
+        "What lovely weather! (during a storm)"
+      ]
+    },
+    {
+      "prompt": "Symbolism",
+      "correct": [
+        "A white dove representing peace.",
+        "A red rose representing love.",
+        "A broken chain symbolising freedom.",
+        "A crown representing power."
+      ],
+      "distractors": [
+        "Time is a thief.",
+        "As cold as ice.",
+        "The wind whispered.",
+        "The bacon sizzled.",
+        "Peter Piper picked a peck.",
+        "We shall fight on the beaches.",
+        "Bite the bullet.",
+        "I've told you a million times.",
+        "He passed away.",
+        "The snake slithered silently.",
+        "Why change? Because the current system fails.",
+        "We have ships and men and money."
+      ]
+    },
+    {
+      "prompt": "Oxymoron",
+      "correct": [
+        "Deafening silence.",
+        "Bittersweet memory.",
+        "Living dead.",
+        "Seriously funny."
+      ],
+      "distractors": [
+        "It was the best of times, it was the worst of times.",
+        "Time is a thief.",
+        "As cold as ice.",
+        "The wind whispered.",
+        "We must stand together.",
+        "Peter Piper picked a peck.",
+        "The bacon sizzled.",
+        "I've told you a million times.",
+        "Bite the bullet.",
+        "We shall fight on the beaches.",
+        "He passed away.",
+        "A white dove representing peace."
+      ]
+    }
+  ]
+}

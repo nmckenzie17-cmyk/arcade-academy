@@ -1,0 +1,30 @@
+{
+  "subject": "Year 9 Physics — Speed",
+  "categories": [
+    {
+      "prompt": "Units of Speed",
+      "correct": ["m/s", "km/h", "mph", "knots"],
+      "distractors": ["kg", "N", "J", "°C", "Pa", "V", "A", "Ω", "mol", "cd", "Hz", "W", "Joules", "Newtons", "Watts", "Volts"]
+    },
+    {
+      "prompt": "Vector Quantities",
+      "correct": ["Velocity", "Acceleration", "Displacement", "Force"],
+      "distractors": ["Speed", "Distance", "Mass", "Time", "Energy", "Temperature", "Volume", "Density", "Power", "Charge", "Pressure", "Work", "Area", "Frequency", "Voltage", "Resistance"]
+    },
+    {
+      "prompt": "Scalar Quantities",
+      "correct": ["Speed", "Distance", "Mass", "Time"],
+      "distractors": ["Velocity", "Displacement", "Acceleration", "Force", "Momentum", "Weight", "Torque", "Impulse", "Electric field", "Magnetic field", "Gravitational field", "Angular velocity", "Drag", "Thrust", "Lift", "Tension"]
+    },
+    {
+      "prompt": "Instruments Used to Measure Motion",
+      "correct": ["Stopwatch", "Speedometer", "Motion sensor", "Ticker timer"],
+      "distractors": ["Thermometer", "Barometer", "Ammeter", "Voltmeter", "Balance", "Manometer", "pH meter", "Hygrometer", "Calorimeter", "Spectrometer", "Microscope", "Telescope", "Anemometer", "Hydrometer", "Seismometer", "Sphygmomanometer"]
+    },
+    {
+      "prompt": "Factors Affecting Stopping Distance",
+      "correct": ["Speed", "Reaction time", "Road surface", "Weather"],
+      "distractors": ["Colour of car", "Radio station", "Driver's height", "Car brand", "Seat material", "Music volume", "Number of cup holders", "Steering wheel size", "Paint type", "Bumper sticker", "Air freshener scent", "License plate number", "Wing mirror shape", "Number plate colour", "Boot size", "Roof rack"]
+    }
+  ]
+}

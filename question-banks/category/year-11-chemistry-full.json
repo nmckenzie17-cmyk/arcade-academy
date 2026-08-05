@@ -1,0 +1,465 @@
+{
+  "subject": "Year 11 Chemistry",
+  "categories": [
+    {
+      "prompt": "Ionic Compound Particles",
+      "correct": [
+        "Cation",
+        "Anion",
+        "Sodium ion (Na⁺)",
+        "Chloride ion (Cl⁻)"
+      ],
+      "distractors": [
+        "Delocalised electron",
+        "Covalent bond",
+        "Methane",
+        "Alkene",
+        "Benzene ring",
+        "Hydrogen bond",
+        "Carbon dioxide",
+        "Alcohol",
+        "Bromine water",
+        "Catalyst",
+        "Reflux",
+        "Electron shell"
+      ]
+    },
+    {
+      "prompt": "Metallic Compounds",
+      "correct": [
+        "Delocalised electrons",
+        "Metal cations",
+        "Metallic bond",
+        "Sea of electrons"
+      ],
+      "distractors": [
+        "Anion",
+        "Ionic bond",
+        "Covalent bond",
+        "Alkane",
+        "Haloalkane",
+        "Lone pair",
+        "Temporary dipole",
+        "Fractional distillation",
+        "Carbon monoxide",
+        "Sulfuric acid",
+        "Crude oil",
+        "Bromine water"
+      ]
+    },
+    {
+      "prompt": "Physical Properties",
+      "correct": [
+        "Melting point",
+        "Boiling point",
+        "Electrical conductivity",
+        "Brittleness"
+      ],
+      "distractors": [
+        "Flammability",
+        "Corrosion",
+        "Toxicity",
+        "Reactivity",
+        "Combustion",
+        "Neutralisation",
+        "Oxidation",
+        "Polymerisation",
+        "Addition reaction",
+        "Elimination reaction",
+        "Cracking",
+        "Precipitation"
+      ]
+    },
+    {
+      "prompt": "States of Matter",
+      "correct": [
+        "Solid",
+        "Liquid",
+        "Gas",
+        "Plasma"
+      ],
+      "distractors": [
+        "Cation",
+        "Alkane",
+        "Catalyst",
+        "Electron",
+        "Benzene",
+        "Alcohol",
+        "Hydroxyl group",
+        "Sulfuric acid",
+        "Bromine water",
+        "Carbon monoxide",
+        "Copper",
+        "Methane"
+      ]
+    },
+    {
+      "prompt": "Molecular Compounds",
+      "correct": [
+        "Covalent bond",
+        "Molecule",
+        "Intermolecular force",
+        "Non-metal atoms"
+      ],
+      "distractors": [
+        "Metallic bond",
+        "Delocalised electron",
+        "Sea of electrons",
+        "Cation",
+        "Anion",
+        "Alloy",
+        "Fractionating column",
+        "Crude oil",
+        "Reflux",
+        "Catalyst",
+        "Carbon soot",
+        "Bromine water"
+      ]
+    },
+    {
+      "prompt": "Intermolecular Forces",
+      "correct": [
+        "London dispersion forces",
+        "Permanent dipole",
+        "Hydrogen bonding",
+        "Temporary dipole"
+      ],
+      "distractors": [
+        "Ionic bond",
+        "Metallic bond",
+        "Covalent bond",
+        "Electron shell",
+        "Alkane",
+        "Haloalkane",
+        "Catalyst",
+        "Enthalpy",
+        "Carbon monoxide",
+        "Fractional distillation",
+        "Malleability",
+        "Brittleness"
+      ]
+    },
+    {
+      "prompt": "Atomic Structure",
+      "correct": [
+        "Proton",
+        "Neutron",
+        "Electron",
+        "Nucleus"
+      ],
+      "distractors": [
+        "Molecule",
+        "Alkene",
+        "Hydrocarbon",
+        "Carbon dioxide",
+        "Sulfuric acid",
+        "Catalyst",
+        "Delocalised electron",
+        "Alloy",
+        "Polymer",
+        "Alcohol",
+        "Bromine",
+        "Reflux"
+      ]
+    },
+    {
+      "prompt": "Electron Arrangement",
+      "correct": [
+        "Electron shell",
+        "Orbital",
+        "Valence electron",
+        "Lone pair"
+      ],
+      "distractors": [
+        "Cation",
+        "Alkane",
+        "Catalyst",
+        "Fractional distillation",
+        "Carbon monoxide",
+        "Copper",
+        "Alloy",
+        "Hydrocarbon",
+        "Bromine water",
+        "Soot",
+        "Petrol",
+        "Crude oil"
+      ]
+    },
+    {
+      "prompt": "VSEPR Shapes",
+      "correct": [
+        "Linear",
+        "Trigonal planar",
+        "Tetrahedral",
+        "Trigonal pyramidal"
+      ],
+      "distractors": [
+        "Hexagonal",
+        "Cubic",
+        "Metallic lattice",
+        "Ionic lattice",
+        "Bent pipe",
+        "Chain",
+        "Ring",
+        "Sphere",
+        "Octahedron",
+        "Benzene",
+        "Alkane",
+        "Alcohol"
+      ]
+    },
+    {
+      "prompt": "Hydrocarbon Families",
+      "correct": [
+        "Alkane",
+        "Alkene",
+        "Alkyne",
+        "Aromatic"
+      ],
+      "distractors": [
+        "Alcohol",
+        "Haloalkane",
+        "Ester",
+        "Ketone",
+        "Amine",
+        "Amide",
+        "Aldehyde",
+        "Carboxylic acid",
+        "Ether",
+        "Polymer",
+        "Salt",
+        "Oxide"
+      ]
+    },
+    {
+      "prompt": "Hydrocarbon Prefixes",
+      "correct": [
+        "Meth-",
+        "Eth-",
+        "Prop-",
+        "But-"
+      ],
+      "distractors": [
+        "-ane",
+        "-ene",
+        "-yne",
+        "Chloro-",
+        "Hydro-",
+        "Poly-",
+        "Meta-",
+        "Iso-",
+        "Cyclo-",
+        "Hydroxy-",
+        "Nitro-",
+        "Amino-"
+      ]
+    },
+    {
+      "prompt": "Hydrocarbon Suffixes",
+      "correct": [
+        "-ane",
+        "-ene",
+        "-yne",
+        "-ol"
+      ],
+      "distractors": [
+        "Meth-",
+        "Eth-",
+        "Prop-",
+        "But-",
+        "Chloro-",
+        "Bromo-",
+        "Hydroxy-",
+        "Nitro-",
+        "Amino-",
+        "Cyclo-",
+        "Iso-",
+        "Neo-"
+      ]
+    },
+    {
+      "prompt": "Organic Functional Groups",
+      "correct": [
+        "Carbon-carbon double bond",
+        "Carbon-carbon triple bond",
+        "Hydroxyl group (-OH)",
+        "Carbon-halogen bond (C-X)"
+      ],
+      "distractors": [
+        "Sodium ion",
+        "Electron shell",
+        "Proton",
+        "Delocalised electron",
+        "Alloy",
+        "Crude oil",
+        "Fractionating column",
+        "Carbon dioxide",
+        "Water molecule",
+        "Oxygen gas",
+        "Catalyst",
+        "Soot"
+      ]
+    },
+    {
+      "prompt": "Crude Oil Products",
+      "correct": [
+        "Petrol",
+        "Diesel",
+        "Jet fuel",
+        "LPG"
+      ],
+      "distractors": [
+        "Copper",
+        "Iron",
+        "Sodium chloride",
+        "Water",
+        "Oxygen",
+        "Hydrogen",
+        "Sulfuric acid",
+        "Ethanol",
+        "Bromine water",
+        "Sand",
+        "Graphite",
+        "Diamond"
+      ]
+    },
+    {
+      "prompt": "Environmental Impacts",
+      "correct": [
+        "Oil spills",
+        "Greenhouse gas emissions",
+        "Habitat destruction",
+        "Water contamination"
+      ],
+      "distractors": [
+        "Metallic bonding",
+        "Lone pair",
+        "Alkene",
+        "Malleability",
+        "Electron shell",
+        "Tetrahedral",
+        "Catalyst",
+        "Reflux",
+        "Fractionating column",
+        "Haloalkane",
+        "Carbon chain",
+        "Covalent bond"
+      ]
+    },
+    {
+      "prompt": "Fractional Distillation",
+      "correct": [
+        "Fractionating column",
+        "Different boiling points",
+        "Condensation",
+        "Evaporation"
+      ],
+      "distractors": [
+        "Addition reaction",
+        "Elimination reaction",
+        "Neutralisation",
+        "Combustion",
+        "Covalent bond",
+        "Delocalised electron",
+        "Alloy",
+        "Alkene",
+        "Lone pair",
+        "Bromine water",
+        "Catalyst poisoning",
+        "Malleability"
+      ]
+    },
+    {
+      "prompt": "Addition Reactions",
+      "correct": [
+        "Hydrogenation",
+        "Halogenation",
+        "Hydration",
+        "Alkene → Alkane"
+      ],
+      "distractors": [
+        "Combustion",
+        "Neutralisation",
+        "Precipitation",
+        "Elimination",
+        "Cracking",
+        "Distillation",
+        "Oxidation of metals",
+        "Alloying",
+        "Electrolysis",
+        "Condensation",
+        "Sublimation",
+        "Reflux"
+      ]
+    },
+    {
+      "prompt": "Combustion Products",
+      "correct": [
+        "Carbon dioxide",
+        "Water",
+        "Carbon monoxide",
+        "Carbon (soot)"
+      ],
+      "distractors": [
+        "Sodium chloride",
+        "Methane",
+        "Oxygen",
+        "Nitrogen",
+        "Copper",
+        "Iron",
+        "Chlorine",
+        "Bromine",
+        "Ethanol",
+        "Propene",
+        "Hydrogen chloride",
+        "Ammonia"
+      ]
+    },
+    {
+      "prompt": "Exothermic Reactions",
+      "correct": [
+        "Combustion",
+        "Heat released",
+        "Negative ΔH",
+        "Bond formation"
+      ],
+      "distractors": [
+        "Positive ΔH",
+        "Heat absorbed",
+        "Melting ice",
+        "Boiling water",
+        "Fractional distillation",
+        "Reflux",
+        "Sublimation",
+        "Electron shell",
+        "Lone pair",
+        "Catalyst",
+        "VSEPR",
+        "Alloy"
+      ]
+    },
+    {
+      "prompt": "Laboratory Techniques",
+      "correct": [
+        "Reflux",
+        "Fractional distillation",
+        "Cracking",
+        "Bromine water test"
+      ],
+      "distractors": [
+        "Metallic bonding",
+        "Ionic lattice",
+        "Lone pair",
+        "Tetrahedral",
+        "Alkane",
+        "Carbon dioxide",
+        "Proton",
+        "Electron shell",
+        "Alloy",
+        "Malleability",
+        "Brittleness",
+        "Temporary dipole"
+      ]
+    }
+  ]
+}

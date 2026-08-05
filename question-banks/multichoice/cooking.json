@@ -1,0 +1,623 @@
+
+[
+  {
+    "q": "What does the cookery term \"Bake\" mean?",
+    "o": [
+      "Cook food using dry heat in an oven.",
+      "Cook food in hot oil.",
+      "Cook food over direct flame.",
+      "Cook food in boiling water."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Barbecue (BBQ)\" mean?",
+    "o": [
+      "Cook food over direct heat, usually on a grill.",
+      "Cook food in an oven using dry heat.",
+      "Cook food in steam.",
+      "Cook food in a covered pot."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Baste\" mean?",
+    "o": [
+      "Spoon or brush liquid over food while it cooks to keep it moist.",
+      "Cover food in breadcrumbs.",
+      "Coat food with flour.",
+      "Marinate food overnight."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Beat\" mean?",
+    "o": [
+      "Mix ingredients rapidly to incorporate air.",
+      "Stir ingredients slowly.",
+      "Fold ingredients gently.",
+      "Shake ingredients together."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Blanch\" mean?",
+    "o": [
+      "Briefly boil food, then cool it quickly in ice water.",
+      "Cook food until tender.",
+      "Steam vegetables until soft.",
+      "Fry food quickly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Blend\" mean?",
+    "o": [
+      "Combine ingredients until smooth and evenly mixed.",
+      "Fold ingredients together carefully.",
+      "Stir ingredients gently.",
+      "Whisk ingredients until foamy."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Boil\" mean?",
+    "o": [
+      "Cook food in liquid at 100°C.",
+      "Cook food below boiling point.",
+      "Cook food in steam.",
+      "Cook food in an oven."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Bone\" mean?",
+    "o": [
+      "Remove bones from meat, poultry, or fish.",
+      "Slice meat thinly.",
+      "Trim excess fat.",
+      "Tenderize meat."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Braise\" mean?",
+    "o": [
+      "Slowly cook food in a small amount of liquid after browning it.",
+      "Cook food over direct heat.",
+      "Fry food in deep oil.",
+      "Steam food until tender."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Bread (Crumb)\" mean?",
+    "o": [
+      "Coat food with flour, egg, and breadcrumbs before cooking.",
+      "Cover food in batter.",
+      "Coat food in icing sugar.",
+      "Wrap food in pastry."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Broil/Grill\" mean?",
+    "o": [
+      "Cook food using intense heat from above or below.",
+      "Cook food slowly in liquid.",
+      "Bake food in an oven.",
+      "Steam food gently."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Brown\" mean?",
+    "o": [
+      "Cook food until its surface becomes golden brown.",
+      "Burn food until black.",
+      "Dry food in the oven.",
+      "Caramelise sugar."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Caramelise\" mean?",
+    "o": [
+      "Heat sugar until golden brown or slowly brown vegetables to develop sweetness.",
+      "Coat food in caramel sauce.",
+      "Roast vegetables until crispy.",
+      "Glaze food with syrup."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Chop\" mean?",
+    "o": [
+      "Cut food into roughly even-sized pieces.",
+      "Cut food into cubes.",
+      "Slice food thinly.",
+      "Shred food finely."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Clarify\" mean?",
+    "o": [
+      "Remove impurities from a liquid or separate butterfat from milk solids.",
+      "Blend ingredients together.",
+      "Strain food through a sieve.",
+      "Reduce liquid by boiling."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Coat\" mean?",
+    "o": [
+      "Evenly cover food with another ingredient.",
+      "Mix ingredients together.",
+      "Wrap food in pastry.",
+      "Sprinkle food lightly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Combine\" mean?",
+    "o": [
+      "Mix two or more ingredients together.",
+      "Fold ingredients carefully.",
+      "Beat ingredients rapidly.",
+      "Knead dough."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Core\" mean?",
+    "o": [
+      "Remove the center of fruit.",
+      "Peel fruit.",
+      "Slice fruit.",
+      "Dice fruit."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Cream\" mean?",
+    "o": [
+      "Beat butter and sugar until light and fluffy.",
+      "Add cream to a mixture.",
+      "Blend ingredients until smooth.",
+      "Whip cream until stiff."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Cube\" mean?",
+    "o": [
+      "Cut food into evenly sized square pieces.",
+      "Cut food into strips.",
+      "Chop food roughly.",
+      "Dice food finely."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Deglaze\" mean?",
+    "o": [
+      "Add liquid to a hot pan to dissolve browned food for a sauce.",
+      "Remove grease from a pan.",
+      "Cool a hot pan quickly.",
+      "Coat a pan with oil."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Dice\" mean?",
+    "o": [
+      "Cut food into small, even cubes.",
+      "Cut food into slices.",
+      "Chop food roughly.",
+      "Grate food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Drain\" mean?",
+    "o": [
+      "Remove excess liquid from food.",
+      "Dry food with paper towels.",
+      "Remove fat from meat.",
+      "Pour liquid into another container."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Dust\" mean?",
+    "o": [
+      "Lightly sprinkle food with a dry ingredient.",
+      "Coat food in breadcrumbs.",
+      "Brush food with oil.",
+      "Mix flour into a batter."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Fillet\" mean?",
+    "o": [
+      "Remove bones from fish or slice meat into boneless portions.",
+      "Cut meat into cubes.",
+      "Tenderize meat.",
+      "Slice vegetables thinly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Fold\" mean?",
+    "o": [
+      "Gently combine ingredients while keeping air in the mixture.",
+      "Beat ingredients rapidly.",
+      "Stir constantly.",
+      "Knead dough."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Fry\" mean?",
+    "o": [
+      "Cook food in hot oil or fat.",
+      "Cook food in boiling water.",
+      "Cook food in steam.",
+      "Roast food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Garnish\" mean?",
+    "o": [
+      "Decorate food to improve appearance or add flavour.",
+      "Season food with spices.",
+      "Coat food with sauce.",
+      "Brown food before serving."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Glaze\" mean?",
+    "o": [
+      "Coat food with a shiny finish.",
+      "Sprinkle food with sugar.",
+      "Dust food with flour.",
+      "Caramelise vegetables."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Grate\" mean?",
+    "o": [
+      "Shred food into fine pieces using a grater.",
+      "Slice food thinly.",
+      "Dice food.",
+      "Chop food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Grease\" mean?",
+    "o": [
+      "Coat a pan with fat to prevent sticking.",
+      "Clean a baking tray.",
+      "Add oil to food after cooking.",
+      "Melt butter."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Julienne\" mean?",
+    "o": [
+      "Cut food into thin matchstick-sized strips.",
+      "Dice food into cubes.",
+      "Slice food into rounds.",
+      "Chop food roughly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Knead\" mean?",
+    "o": [
+      "Press, fold, and stretch dough to develop gluten.",
+      "Fold cake batter.",
+      "Beat eggs rapidly.",
+      "Blend ingredients."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Marinate\" mean?",
+    "o": [
+      "Soak food in a seasoned liquid to add flavour and tenderness.",
+      "Coat food with breadcrumbs.",
+      "Steam food with herbs.",
+      "Season food before cooking."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Mash\" mean?",
+    "o": [
+      "Crush cooked food into a smooth or coarse consistency.",
+      "Blend food into a liquid.",
+      "Dice cooked food.",
+      "Chop vegetables finely."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Measure\" mean?",
+    "o": [
+      "Accurately determine ingredient amounts using measuring tools.",
+      "Estimate ingredient quantities.",
+      "Weigh cooked food.",
+      "Divide ingredients equally."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Mince\" mean?",
+    "o": [
+      "Cut food into very small pieces or grind it finely.",
+      "Slice food into strips.",
+      "Dice food evenly.",
+      "Shred food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Mix\" mean?",
+    "o": [
+      "Combine ingredients until evenly distributed.",
+      "Beat ingredients rapidly.",
+      "Fold ingredients gently.",
+      "Knead dough."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Peel\" mean?",
+    "o": [
+      "Remove the outer skin of fruit or vegetables.",
+      "Remove seeds.",
+      "Remove the core.",
+      "Slice the fruit."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Poach\" mean?",
+    "o": [
+      "Gently cook food in liquid below boiling point.",
+      "Boil food rapidly.",
+      "Steam food.",
+      "Fry food lightly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Preheat\" mean?",
+    "o": [
+      "Bring cooking equipment to the correct temperature before use.",
+      "Warm food before serving.",
+      "Heat ingredients together.",
+      "Cook food at a low temperature."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Purée\" mean?",
+    "o": [
+      "Blend food until completely smooth.",
+      "Mash food roughly.",
+      "Chop food finely.",
+      "Strain food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Reduce\" mean?",
+    "o": [
+      "Simmer a liquid until it thickens.",
+      "Add water to a sauce.",
+      "Lower the cooking temperature.",
+      "Remove fat from liquid."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Roast\" mean?",
+    "o": [
+      "Cook food using dry heat in an oven, often uncovered.",
+      "Cook food in boiling water.",
+      "Cook food in hot oil.",
+      "Steam food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Sauté\" mean?",
+    "o": [
+      "Cook food quickly in a small amount of fat over high heat.",
+      "Deep fry food.",
+      "Boil food rapidly.",
+      "Roast food slowly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Score\" mean?",
+    "o": [
+      "Make shallow cuts on the surface of food.",
+      "Cut food into strips.",
+      "Peel vegetables.",
+      "Tenderize meat."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Sear\" mean?",
+    "o": [
+      "Quickly cook the outside of food over high heat to develop colour and flavour.",
+      "Slowly cook food in liquid.",
+      "Steam vegetables.",
+      "Roast meat."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Season\" mean?",
+    "o": [
+      "Add flavourings such as salt, herbs, and spices.",
+      "Marinate food overnight.",
+      "Coat food with sauce.",
+      "Garnish food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Shred\" mean?",
+    "o": [
+      "Cut or tear food into long, thin strips.",
+      "Dice food into cubes.",
+      "Slice food into rounds.",
+      "Chop food roughly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Sift\" mean?",
+    "o": [
+      "Pass dry ingredients through a sieve to remove lumps and add air.",
+      "Strain liquid.",
+      "Fold ingredients together.",
+      "Blend flour."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Simmer\" mean?",
+    "o": [
+      "Cook food gently in liquid just below boiling point.",
+      "Boil food vigorously.",
+      "Steam food.",
+      "Roast food slowly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Slice\" mean?",
+    "o": [
+      "Cut food into thin, even pieces.",
+      "Dice food into cubes.",
+      "Chop food roughly.",
+      "Julienne food."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Steam\" mean?",
+    "o": [
+      "Cook food using steam without touching the water.",
+      "Boil food in water.",
+      "Roast food in an oven.",
+      "Fry food in oil."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Stew\" mean?",
+    "o": [
+      "Cook food slowly in liquid over low heat.",
+      "Roast food uncovered.",
+      "Steam vegetables.",
+      "Fry food in butter."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Stir\" mean?",
+    "o": [
+      "Move ingredients around to combine them or prevent sticking.",
+      "Beat ingredients rapidly.",
+      "Fold ingredients gently.",
+      "Whisk ingredients."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Tenderize\" mean?",
+    "o": [
+      "Make meat softer using mechanical or chemical methods.",
+      "Slice meat thinly.",
+      "Remove fat from meat.",
+      "Brown meat."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Toast\" mean?",
+    "o": [
+      "Brown food using dry heat.",
+      "Fry food in oil.",
+      "Steam food.",
+      "Bake food in a covered dish."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Toss\" mean?",
+    "o": [
+      "Gently mix ingredients without crushing them.",
+      "Beat ingredients rapidly.",
+      "Stir constantly.",
+      "Fold cake batter."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Trim\" mean?",
+    "o": [
+      "Remove unwanted fat, skin, or damaged portions.",
+      "Peel vegetables.",
+      "Slice meat.",
+      "Tenderize meat."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Whip\" mean?",
+    "o": [
+      "Beat ingredients rapidly to incorporate air and increase volume.",
+      "Fold ingredients gently.",
+      "Stir ingredients.",
+      "Knead dough."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Whisk\" mean?",
+    "o": [
+      "Beat ingredients using a whisk to blend or add air.",
+      "Mash ingredients.",
+      "Blend ingredients into a purée.",
+      "Stir ingredients slowly."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does \"Zest\" mean?",
+    "o": [
+      "Remove the coloured outer skin of citrus fruit without the white pith.",
+      "Peel the entire fruit.",
+      "Slice citrus into wedges.",
+      "Remove the seeds from citrus."
+    ],
+    "a": 0
+  }
+]

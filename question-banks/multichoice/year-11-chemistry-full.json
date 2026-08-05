@@ -1,0 +1,1002 @@
+[
+  {
+    "q": "What is the smallest fundamental unit of ordinary matter?",
+    "o": ["Molecule", "Atom", "Compound", "Ion"],
+    "a": 1
+  },
+  {
+    "q": "An element is electrically neutral because it has equal numbers of:",
+    "o": ["Protons and neutrons", "Neutrons and electrons", "Protons and electrons", "Ions and electrons"],
+    "a": 2
+  },
+  {
+    "q": "Which of the following is an ion?",
+    "o": ["Na", "O", "Cl⁻", "H₂"],
+    "a": 2
+  },
+  {
+    "q": "A positively charged ion is called a:",
+    "o": ["Anion", "Cation", "Molecule", "Isotope"],
+    "a": 1
+  },
+  {
+    "q": "A negatively charged ion is called a:",
+    "o": ["Cation", "Proton", "Anion", "Atom"],
+    "a": 2
+  },
+  {
+    "q": "Metals typically form:",
+    "o": ["Anions", "Cations", "Molecules", "Neutrons"],
+    "a": 1
+  },
+  {
+    "q": "Non-metals usually form:",
+    "o": ["Cations", "Anions", "Atoms", "Molecules"],
+    "a": 1
+  },
+  {
+    "q": "Ionic compounds are made from:",
+    "o": ["Two non-metals", "Two metals", "Metal cations and non-metal anions", "Noble gases"],
+    "a": 2
+  },
+  {
+    "q": "Sodium chloride consists of:",
+    "o": ["Na²⁺ and Cl²⁻", "Na⁺ and Cl⁻", "Na and Cl", "Na⁻ and Cl⁺"],
+    "a": 1
+  },
+  {
+    "q": "Ionic bonds are formed by:",
+    "o": ["Shared electrons", "Electrostatic attraction between opposite ions", "Hydrogen bonding", "Metallic bonding"],
+    "a": 1
+  },
+  {
+    "q": "Electrostatic attraction occurs between:",
+    "o": ["Like charges", "Opposite charges", "Neutrons", "Neutral atoms"],
+    "a": 1
+  },
+  {
+    "q": "Like charges:",
+    "o": ["Attract", "Repel", "Bond covalently", "Form molecules"],
+    "a": 1
+  },
+  {
+    "q": "Ionic compounds form:",
+    "o": ["Layers", "Chains", "A 3D lattice", "Individual molecules"],
+    "a": 2
+  },
+  {
+    "q": "In a 3D ionic lattice each cation is surrounded by:",
+    "o": ["Electrons", "Cations", "Anions", "Molecules"],
+    "a": 2
+  },
+  {
+    "q": "Which force holds an ionic lattice together?",
+    "o": ["Hydrogen bonding", "Metallic bonding", "Electrostatic attraction", "Dispersion forces"],
+    "a": 2
+  },
+  {
+    "q": "Chemical properties involve:",
+    "o": ["No new substance", "A change in chemical composition", "Colour only", "Density only"],
+    "a": 1
+  },
+  {
+    "q": "Which is a physical property?",
+    "o": ["Flammability", "Toxicity", "Melting point", "Reactivity"],
+    "a": 2
+  },
+  {
+    "q": "During melting, particles:",
+    "o": ["Stop moving", "Gain kinetic energy", "Lose electrons", "Become ions"],
+    "a": 1
+  },
+  {
+    "q": "Melting point is the temperature where a substance changes from:",
+    "o": ["Gas to liquid", "Liquid to solid", "Solid to liquid", "Gas to solid"],
+    "a": 2
+  },
+  {
+    "q": "Ionic compounds have:",
+    "o": ["Low melting points", "High melting points", "No melting point", "Very low boiling points"],
+    "a": 1
+  },
+  {
+    "q": "Ionic compounds require lots of heat to melt because:",
+    "o": ["Covalent bonds are weak", "Strong electrostatic attractions must be overcome", "They contain water", "They have weak intermolecular forces"],
+    "a": 1
+  },
+  {
+    "q": "Solid ionic compounds:",
+    "o": ["Conduct electricity well", "Conduct heat only", "Do not conduct electricity", "Conduct because electrons move freely"],
+    "a": 2
+  },
+  {
+    "q": "Molten ionic compounds conduct electricity because:",
+    "o": ["Electrons move freely", "Ions are free to move", "Atoms split apart", "They become metals"],
+    "a": 1
+  },
+  {
+    "q": "An ionic solution conducts electricity because:",
+    "o": ["Water conducts electricity", "Free-moving ions carry charge", "Molecules move faster", "It contains electrons"],
+    "a": 1
+  },
+  {
+    "q": "Brittleness refers to:",
+    "o": ["Ability to stretch", "Ability to shatter when force exceeds bond strength", "Conductivity", "Density"],
+    "a": 1
+  },
+  {
+    "q": "Ionic compounds break because:",
+    "o": ["Unlike charges repel", "Like charges are forced together and repel", "Covalent bonds break", "Electrons escape"],
+    "a": 1
+  },
+  {
+    "q": "Metallic compounds contain:",
+    "o": ["Molecules", "Metal cations and delocalised electrons", "Cations and anions", "Only atoms"],
+    "a": 1
+  },
+  {
+    "q": "Metallic bonding is the attraction between:",
+    "o": ["Atoms and neutrons", "Positive metal ions and delocalised electrons", "Molecules", "Opposite ions"],
+    "a": 1
+  },
+  {
+    "q": "Delocalised electrons are:",
+    "o": ["Fixed in place", "Shared by one atom", "Free to move throughout the lattice", "Lost from the metal"],
+    "a": 2
+  },
+  {
+    "q": "Metallic bonding is:",
+    "o": ["Directional", "Non-directional", "Covalent", "Temporary"],
+    "a": 1
+  },
+  {
+    "q": "Metals are malleable because:",
+    "o": ["Their atoms separate", "Delocalised electrons rearrange as layers slide", "They have weak bonds", "They contain molecules"],
+    "a": 1
+  },
+  {
+    "q": "Metals are not brittle because:",
+    "o": ["They have no bonds", "Like charges never directly align due to electron movement", "They contain water", "They are gases"],
+    "a": 1
+  },
+  {
+    "q": "Molecular compounds are usually made from:",
+    "o": ["Metals only", "Non-metals", "Metals and non-metals", "Noble gases only"],
+    "a": 1
+  },
+  {
+    "q": "Atoms within a molecule are held together by:",
+    "o": ["Metallic bonds", "Ionic bonds", "Covalent bonds", "Hydrogen bonds"],
+    "a": 2
+  },
+  {
+    "q": "Covalent bonds involve:",
+    "o": ["Electron transfer", "Electron sharing", "Proton transfer", "Neutron sharing"],
+    "a": 1
+  },
+  {
+    "q": "Forces between molecules are called:",
+    "o": ["Ionic bonds", "Metallic bonds", "Intermolecular forces", "Nuclear forces"],
+    "a": 2
+  },
+  {
+    "q": "Lone pairs are:",
+    "o": ["Shared electrons", "Unshared pairs of valence electrons", "Protons", "Bonding electrons"],
+    "a": 1
+  },
+  {
+    "q": "The octet rule states that most atoms aim for:",
+    "o": ["2 valence electrons", "6 valence electrons", "8 valence electrons", "10 valence electrons"],
+    "a": 2
+  },
+  {
+    "q": "Which element is an exception to the octet rule?",
+    "o": ["Carbon", "Oxygen", "Hydrogen", "Chlorine"],
+    "a": 2
+  },
+  {
+    "q": "Lewis diagrams use lines to represent:",
+    "o": ["Lone pairs", "Covalent bonds", "Protons", "Orbitals"],
+    "a": 1
+  },
+  {
+    "q": "VSEPR theory predicts:",
+    "o": ["Melting point", "Molecular shape", "Molar mass", "Reactivity"],
+    "a": 1
+  },
+  {
+    "q": "According to VSEPR theory, electron pairs:",
+    "o": ["Attract each other", "Repel each other", "Share protons", "Form ions"],
+    "a": 1
+  },
+  {
+    "q": "Four bonding regions and no lone pairs produce a:",
+    "o": ["Linear", "Bent", "Tetrahedral", "Trigonal pyramidal"],
+    "a": 2
+  },
+  {
+    "q": "Three regions of electron density can produce which shape?",
+    "o": ["Cubic", "Bent (angular)", "Square planar", "Octahedral"],
+    "a": 1
+  },
+  {
+    "q": "Hydrocarbons contain only:",
+    "o": ["Carbon and oxygen", "Carbon and hydrogen", "Hydrogen and oxygen", "Carbon and nitrogen"],
+    "a": 1
+  },
+  {
+    "q": "Alkanes are:",
+    "o": ["Unsaturated hydrocarbons", "Saturated hydrocarbons", "Aromatic hydrocarbons", "Alcohols"],
+    "a": 1
+  },
+  {
+    "q": "The general formula for alkanes is:",
+    "o": ["CnH₂n", "CnH₂n₋₂", "CnH₂n₊₂", "CnHn"],
+    "a": 2
+  },
+  {
+    "q": "Alkenes contain at least one:",
+    "o": ["Triple bond", "Double bond", "Ionic bond", "Hydrogen bond"],
+    "a": 1
+  },
+  {
+    "q": "The general formula for alkenes is:",
+    "o": ["CnH₂n₊₂", "CnH₂n", "CnH₂n₋₂", "CnHn"],
+    "a": 1
+  },
+  {
+    "q": "Alkynes contain at least one:",
+    "o": ["Single bond", "Double bond", "Triple bond", "Ionic bond"],
+    "a": 2
+  },
+  {
+    "q": "The general formula for alkynes is:",
+    "o": ["CnH₂n", "CnH₂n₊₂", "CnH₂n₋₂", "CnH₂n₊₄"],
+    "a": 2
+  },
+  {
+    "q": "The prefix \"hex-\" indicates:",
+    "o": ["Four carbons", "Five carbons", "Six carbons", "Seven carbons"],
+    "a": 2
+  },
+  {
+    "q": "The suffix \"-ene\" indicates:",
+    "o": ["An alkane", "An alcohol", "An alkene", "An alkyne"],
+    "a": 2
+  },
+  {
+    "q": "Structural isomers have:",
+    "o": ["Different molecular formulas", "The same molecular formula but different structures", "Different elements", "Different molar masses"],
+    "a": 1
+  },
+  {
+    "q": "Cracking converts:",
+    "o": ["Short alkanes into long alkanes", "Long alkanes into smaller hydrocarbons", "Alkenes into alcohols", "Alcohols into haloalkanes"],
+    "a": 1
+  },
+  {
+    "q": "Fractional distillation separates crude oil based on differences in:",
+    "o": ["Density", "Colour", "Boiling point", "Solubility"],
+    "a": 2
+  },
+  {
+    "q": "Volatile substances:",
+    "o": ["Have high boiling points", "Evaporate easily", "Never become gases", "Are always solids"],
+    "a": 1
+  },
+  {
+    "q": "Hydrocarbons are generally:",
+    "o": ["Polar and soluble in water", "Non-polar and insoluble in water", "Ionic compounds", "Good electrical conductors"],
+    "a": 1
+  },
+  {
+    "q": "Longer hydrocarbon chains generally have:",
+    "o": ["Lower boiling points", "Higher boiling points", "Lower molar masses", "Lower intermolecular forces"],
+    "a": 1
+  },
+  {
+    "q": "Reflux is used to:",
+    "o": ["Separate solids", "Heat reactions for long periods without losing solvent", "Freeze chemicals", "Produce electricity"],
+    "a": 1
+  },
+  {
+    "q": "What is the main component of crude oil?",
+    "o": ["Pure methane", "A mixture of hydrocarbons", "Water and oil", "Carbon dioxide"],
+    "a": 1
+  },
+  {
+    "q": "Crude oil is also commonly known as:",
+    "o": ["White spirit", "Black gold", "Coal tar", "Biofuel"],
+    "a": 1
+  },
+  {
+    "q": "Crude oil is a:",
+    "o": ["Renewable resource", "Non-renewable fossil fuel", "Mineral", "Metal"],
+    "a": 1
+  },
+  {
+    "q": "Which fuel is commonly used in passenger vehicles?",
+    "o": ["Diesel", "Petrol (Gasoline)", "LPG", "Heavy fuel oil"],
+    "a": 1
+  },
+  {
+    "q": "Which crude oil product is commonly used for road construction?",
+    "o": ["Paraffin wax", "Asphalt (Bitumen)", "Diesel", "Styrofoam"],
+    "a": 1
+  },
+  {
+    "q": "Which of the following is made using crude oil?",
+    "o": ["Cotton", "Polyester", "Wool", "Silk"],
+    "a": 1
+  },
+  {
+    "q": "Plastics are produced from:",
+    "o": ["Petrochemicals", "Water", "Limestone", "Salt"],
+    "a": 0
+  },
+  {
+    "q": "Oil drilling can lead to:",
+    "o": ["Habitat destruction", "Increased biodiversity", "More forests", "Cleaner waterways"],
+    "a": 0
+  },
+  {
+    "q": "Oil spills mainly threaten:",
+    "o": ["Space exploration", "Marine and terrestrial environments", "Volcanoes", "Deserts only"],
+    "a": 1
+  },
+  {
+    "q": "Burning fossil fuels contributes to:",
+    "o": ["Lower temperatures", "Greenhouse gas emissions", "Less carbon dioxide", "Ozone production"],
+    "a": 1
+  },
+  {
+    "q": "Long-term exposure to benzene increases the risk of:",
+    "o": ["Diabetes", "Blood cancers", "Broken bones", "Hearing loss"],
+    "a": 1
+  },
+  {
+    "q": "Hydrocarbons with longer chains generally have:",
+    "o": ["Lower intermolecular forces", "Stronger intermolecular forces", "No intermolecular forces", "Ionic bonds"],
+    "a": 1
+  },
+  {
+    "q": "Methane has a lower boiling point than hexane because methane:",
+    "o": ["Has a larger molar mass", "Has weaker intermolecular forces", "Is ionic", "Is metallic"],
+    "a": 1
+  },
+  {
+    "q": "Hydrocarbons are insoluble in water because they are:",
+    "o": ["Polar", "Ionic", "Non-polar", "Metallic"],
+    "a": 2
+  },
+  {
+    "q": "The molar mass of methane (CH₄) is:",
+    "o": ["12 g mol⁻¹", "14 g mol⁻¹", "16 g mol⁻¹", "18 g mol⁻¹"],
+    "a": 2
+  },
+  {
+    "q": "The molar mass of hexane (C₆H₁₄) is:",
+    "o": ["72 g mol⁻¹", "84 g mol⁻¹", "86 g mol⁻¹", "98 g mol⁻¹"],
+    "a": 2
+  },
+  {
+    "q": "Linear hydrocarbon molecules generally have:",
+    "o": ["Lower boiling points", "Higher boiling points than branched isomers", "No boiling point", "Lower molar mass"],
+    "a": 1
+  },
+  {
+    "q": "Fractional distillation separates substances by differences in:",
+    "o": ["Density", "Colour", "Boiling point", "Mass"],
+    "a": 2
+  },
+  {
+    "q": "In a fractional distillation column, shorter-chain hydrocarbons condense:",
+    "o": ["At the bottom", "Near the top", "In the middle only", "Outside the column"],
+    "a": 1
+  },
+  {
+    "q": "Longer-chain hydrocarbons condense:",
+    "o": ["At the top", "Near the bottom of the column", "Outside the column", "Above the gases"],
+    "a": 1
+  },
+  {
+    "q": "Volatile substances:",
+    "o": ["Evaporate easily", "Never evaporate", "Are always solids", "Have very high boiling points"],
+    "a": 0
+  },
+  {
+    "q": "Reflux allows reactions to:",
+    "o": ["Freeze quickly", "Be heated without losing solvent", "Separate solids", "Produce electricity"],
+    "a": 1
+  },
+  {
+    "q": "Saturated hydrocarbons are generally:",
+    "o": ["More reactive", "Less reactive", "Ionic", "Polar"],
+    "a": 1
+  },
+  {
+    "q": "Unsaturated hydrocarbons contain:",
+    "o": ["Only single bonds", "Double and/or triple bonds", "Ionic bonds", "Metallic bonds"],
+    "a": 1
+  },
+  {
+    "q": "Addition reactions occur mainly with:",
+    "o": ["Alkanes", "Alkenes and alkynes", "Metals", "Noble gases"],
+    "a": 1
+  },
+  {
+    "q": "Adding hydrogen to an alkene produces:",
+    "o": ["An alcohol", "An alkane", "A haloalkane", "A polymer"],
+    "a": 1
+  },
+  {
+    "q": "Hydrogenation of alkenes commonly uses which catalyst?",
+    "o": ["Iron", "Nickel or platinum", "Copper", "Zinc"],
+    "a": 1
+  },
+  {
+    "q": "Haloalkanes contain at least one:",
+    "o": ["C=O bond", "C-X bond (halogen)", "O-H bond", "N-H bond"],
+    "a": 1
+  },
+  {
+    "q": "Which is a halogen?",
+    "o": ["Sodium", "Bromine", "Carbon", "Oxygen"],
+    "a": 1
+  },
+  {
+    "q": "The suffix for a haloalkane is:",
+    "o": ["-ene", "-yne", "-ane", "-ol"],
+    "a": 2
+  },
+  {
+    "q": "Alcohols contain:",
+    "o": ["A hydroxyl (-OH) group", "A carbonyl group", "A halogen", "A triple bond"],
+    "a": 0
+  },
+  {
+    "q": "The suffix for alcohols is:",
+    "o": ["-ene", "-ol", "-yne", "-ide"],
+    "a": 1
+  },
+  {
+    "q": "Water can be added to an alkene to form:",
+    "o": ["An alkane", "An alcohol", "A polymer", "A ketone"],
+    "a": 1
+  },
+  {
+    "q": "Markovnikov's rule predicts:",
+    "o": ["The fastest reaction", "The major product of some addition reactions", "The melting point", "Polymer length"],
+    "a": 1
+  },
+  {
+    "q": "Oxidation of an alkene with acidified permanganate produces:",
+    "o": ["An alkane", "A diol", "A haloalkane", "An ester"],
+    "a": 1
+  },
+  {
+    "q": "Acidified permanganate changes from:",
+    "o": ["Blue to green", "Purple to brown", "Yellow to red", "Black to white"],
+    "a": 1
+  },
+  {
+    "q": "Elimination reactions:",
+    "o": ["Add atoms", "Remove atoms to form a double bond", "Form ionic compounds", "Produce metals"],
+    "a": 1
+  },
+  {
+    "q": "Treating a haloalkane with alcoholic KOH produces:",
+    "o": ["An alcohol", "An alkene", "An alkane", "A polymer"],
+    "a": 1
+  },
+  {
+    "q": "Dehydrating an alcohol with concentrated sulfuric acid produces:",
+    "o": ["An alkene and water", "Carbon dioxide", "A haloalkane", "A polymer"],
+    "a": 0
+  },
+  {
+    "q": "Saytzeff's rule predicts:",
+    "o": ["The least stable product", "The major elimination product", "The melting point", "The molar mass"],
+    "a": 1
+  },
+  {
+    "q": "Bromine water is used to distinguish between:",
+    "o": ["Acids and bases", "Alkanes and alkenes", "Metals and non-metals", "Alcohols and ketones"],
+    "a": 1
+  },
+  {
+    "q": "Bromine water is normally:",
+    "o": ["Blue", "Brown/orange", "Green", "Purple"],
+    "a": 1
+  },
+  {
+    "q": "An alkene will cause bromine water to become:",
+    "o": ["Blue", "Colourless", "Black", "Green"],
+    "a": 1
+  },
+  {
+    "q": "Combustion is a:",
+    "o": ["Physical change", "Chemical reaction with oxygen", "Neutralisation", "Polymerisation"],
+    "a": 1
+  },
+  {
+    "q": "Combustion reactions are:",
+    "o": ["Endothermic", "Exothermic", "Reversible", "Neutral"],
+    "a": 1
+  },
+  {
+    "q": "Complete combustion of hydrocarbons produces:",
+    "o": ["Carbon monoxide and soot", "Carbon dioxide and water", "Carbon and oxygen", "Hydrogen and oxygen"],
+    "a": 1
+  },
+  {
+    "q": "Incomplete combustion occurs when oxygen is:",
+    "o": ["Unlimited", "Limited", "Pure", "Absent"],
+    "a": 1
+  },
+  {
+    "q": "Incomplete combustion produces:",
+    "o": ["Carbon dioxide only", "Carbon monoxide, soot and water", "Oxygen and water", "Hydrogen only"],
+    "a": 1
+  },
+  {
+    "q": "A blue flame usually indicates:",
+    "o": ["Incomplete combustion", "Complete combustion", "No combustion", "Oxidation only"],
+    "a": 1
+  },
+  {
+    "q": "A yellow flame usually indicates:",
+    "o": ["Complete combustion", "Incomplete combustion", "Neutralisation", "Polymerisation"],
+    "a": 1
+  },
+  {
+    "q": "The law of conservation of mass states that:",
+    "o": ["Matter can be created", "Matter cannot be created or destroyed", "Mass always decreases", "Oxygen disappears"],
+    "a": 1
+  },
+  {
+    "q": "During complete combustion, carbon forms:",
+    "o": ["CO", "CO₂", "C", "CH₄"],
+    "a": 1
+  },
+  {
+    "q": "During complete combustion, hydrogen forms:",
+    "o": ["H₂", "H₂O", "H₂O₂", "OH⁻"],
+    "a": 1
+  },
+  {
+    "q": "Greenhouse gases trap:",
+    "o": ["Visible light", "Infrared heat", "Ultraviolet light only", "Sound waves"],
+    "a": 1
+  },
+  {
+    "q": "Which greenhouse gas is produced directly during complete combustion?",
+    "o": ["Nitrogen", "Carbon dioxide", "Helium", "Neon"],
+    "a": 1
+  },
+  {
+    "q": "Carbon monoxide is dangerous because it:",
+    "o": ["Dissolves bones", "Prevents oxygen transport in the blood", "Turns blood blue", "Produces extra oxygen"],
+    "a": 1
+  },
+  {
+    "q": "Carbon monoxide binds strongly to:",
+    "o": ["Calcium", "Haemoglobin", "DNA", "Water"],
+    "a": 1
+  },
+  {
+    "q": "Soot is mainly:",
+    "o": ["Pure oxygen", "Carbon particles", "Water vapour", "Nitrogen gas"],
+    "a": 1
+  },
+  {
+    "q": "Acid rain is mainly caused by:",
+    "o": ["Carbon dioxide only", "Sulfur dioxide and nitrogen oxides", "Hydrogen gas", "Helium"],
+    "a": 1
+  },
+  {
+    "q": "Ocean acidification occurs because carbon dioxide reacts with:",
+    "o": ["Nitrogen", "Seawater", "Sand", "Iron"],
+    "a": 1
+  },
+  {
+    "q": "Which statement best explains why molten sodium chloride conducts electricity while solid sodium chloride does not?",
+    "o": [
+      "Molten NaCl contains free electrons, while solid NaCl does not.",
+      "Solid NaCl has ions fixed in a lattice, while molten NaCl has mobile ions that carry charge.",
+      "Solid NaCl contains neutral sodium atoms, while molten NaCl contains ions.",
+      "The ionic bonds disappear completely when NaCl melts."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement most accurately explains why ionic compounds have high melting points?",
+    "o": [
+      "Ionic bonds are covalent in nature.",
+      "Large numbers of strong electrostatic attractions throughout the lattice require significant energy to overcome.",
+      "Individual ions possess high kinetic energy.",
+      "The ions are chemically bonded to every neighbouring atom."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which property would most strongly suggest that an unknown solid is metallic rather than ionic?",
+    "o": [
+      "High melting point",
+      "Electrical conductivity as a solid combined with malleability",
+      "Conductivity only when dissolved",
+      "Brittleness and high melting point"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which pair of substances would be expected to have the greatest difference in boiling point?",
+    "o": [
+      "Propane and butane",
+      "Pentane and hexane",
+      "Methane and decane",
+      "Hexene and hexane"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement about intermolecular forces is the most accurate?",
+    "o": [
+      "They break during combustion.",
+      "They determine many physical properties without changing molecular identity.",
+      "They are stronger than covalent bonds.",
+      "They only exist in solids."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement is NOT consistent with VSEPR theory?",
+    "o": [
+      "Electron pairs repel one another.",
+      "Lone pairs repel more strongly than bonding pairs.",
+      "Bonding pairs always repel more strongly than lone pairs.",
+      "Molecular shape minimises electron pair repulsion."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which compound would have the strongest intermolecular forces?",
+    "o": [
+      "CH₄",
+      "C₂H₆",
+      "C₆H₁₄",
+      "C₁₀H₂₂"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which explanation best describes why branching lowers the boiling point of hydrocarbons?",
+    "o": [
+      "Branched molecules have stronger covalent bonds.",
+      "Branched molecules have a smaller surface area, reducing intermolecular attractions.",
+      "Branched molecules contain fewer electrons.",
+      "Branched molecules are polar."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best distinguishes an alkene from an alkane?",
+    "o": [
+      "Alkenes contain fewer carbon atoms.",
+      "Alkenes contain at least one carbon-carbon double bond, making them unsaturated.",
+      "Alkenes always have lower boiling points.",
+      "Alkenes always contain oxygen."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which process does NOT involve an addition reaction?",
+    "o": [
+      "Hydrogenation of an alkene.",
+      "Hydration of an alkene.",
+      "Bromination of an alkene.",
+      "Cracking of an alkane."
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which observation would provide the strongest evidence that a hydrocarbon is unsaturated?",
+    "o": [
+      "It burns with a blue flame.",
+      "It is insoluble in water.",
+      "It rapidly decolourises bromine water.",
+      "It has a low boiling point."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which pair of hydrocarbons are structural isomers?",
+    "o": [
+      "C₂H₄ and C₂H₂",
+      "C₄H₁₀ and C₄H₁₀ (branched)",
+      "C₃H₆ and C₃H₈",
+      "C₅H₁₂ and C₆H₁₄"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best explains why complete combustion is preferred over incomplete combustion?",
+    "o": [
+      "It releases less energy.",
+      "It produces carbon monoxide instead of carbon dioxide.",
+      "It maximises energy release while minimising toxic products.",
+      "It occurs without oxygen."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement is most correct regarding carbon monoxide?",
+    "o": [
+      "It is less dense than air.",
+      "It is produced during complete combustion.",
+      "It binds strongly to haemoglobin, reducing oxygen transport.",
+      "It causes acid rain."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement best describes electrostatic attraction in metallic bonding?",
+    "o": [
+      "Attraction between positive ions and negative ions.",
+      "Attraction between positive metal ions and delocalised electrons.",
+      "Attraction between neighbouring atoms.",
+      "Attraction between molecules."
+    ],
+    "a": 1
+  },
+  {
+    "q": "During cracking, which statement is always true?",
+    "o": [
+      "Only alkanes are produced.",
+      "At least one smaller hydrocarbon is formed.",
+      "Oxygen is required.",
+      "Carbon dioxide is produced."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which property would NOT normally increase with hydrocarbon chain length?",
+    "o": [
+      "Boiling point",
+      "Molar mass",
+      "Intermolecular forces",
+      "Volatility"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which statement best explains why ionic compounds are brittle?",
+    "o": [
+      "The lattice collapses because electrons escape.",
+      "Shifting layers align like charges, causing strong repulsion.",
+      "Covalent bonds are broken.",
+      "Molecules separate."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following would be least useful for identifying an unknown hydrocarbon?",
+    "o": [
+      "Bromine water",
+      "Boiling point",
+      "Solubility in water",
+      "Combustion products"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement is the most scientifically complete?",
+    "o": [
+      "Ionic compounds contain ions.",
+      "Ionic compounds consist of oppositely charged ions arranged in a giant lattice held together by electrostatic attraction.",
+      "Ionic compounds contain atoms.",
+      "Ionic compounds contain molecules."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which answer best explains why metals are both malleable and electrical conductors?",
+    "o": [
+      "Their atoms slide over one another.",
+      "Delocalised electrons both maintain bonding during deformation and carry electrical charge.",
+      "They contain positive ions.",
+      "Metallic bonds are weak."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which property does NOT belong with the others?",
+    "o": [
+      "High melting point",
+      "Brittle",
+      "Conducts electricity when molten",
+      "Malleable"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which statement is most correct about alkanes?",
+    "o": [
+      "They are hydrocarbons.",
+      "They contain only single bonds.",
+      "They are saturated hydrocarbons containing only carbon-carbon single bonds.",
+      "They have the formula CₙH₂ₙ₊₂."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which characteristic is LEAST useful when identifying an ionic compound?",
+    "o": [
+      "Brittleness",
+      "High melting point",
+      "Ability to conduct electricity when molten",
+      "Colour"
+    ],
+    "a": 3
+  },
+  {
+    "q": "All of the following are consequences of increasing hydrocarbon chain length EXCEPT:",
+    "o": [
+      "Increased boiling point",
+      "Increased intermolecular forces",
+      "Increased volatility",
+      "Increased molar mass"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which answer is the best description of a covalent bond?",
+    "o": [
+      "Electrons are shared.",
+      "Two atoms share one or more pairs of electrons.",
+      "Non-metals bond together.",
+      "Atoms become stable."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which group contains ONLY unsaturated hydrocarbons?",
+    "o": [
+      "Ethane, Propane, Butane",
+      "Ethene, Propene, Butyne",
+      "Methane, Ethene, Pentane",
+      "Propane, Butene, Pentane"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement about bromine water is most correct?",
+    "o": [
+      "It detects hydrocarbons.",
+      "It reacts with unsaturated hydrocarbons causing the orange colour to disappear.",
+      "It reacts with all hydrocarbons.",
+      "It reacts only with alkanes."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which of the following does NOT fit the group?",
+    "o": [
+      "Alkene",
+      "Alkyne",
+      "Alkane",
+      "Unsaturated hydrocarbon"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement is the best explanation for why methane boils at a much lower temperature than decane?",
+    "o": [
+      "Methane is smaller.",
+      "Methane has weaker intermolecular forces because it has fewer electrons and a smaller surface area.",
+      "Methane is more reactive.",
+      "Methane has weaker covalent bonds."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which observation would provide the strongest evidence that combustion was incomplete?",
+    "o": [
+      "Blue flame",
+      "Colourless flame",
+      "Yellow smoky flame with soot deposits.",
+      "High temperature."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement about structural isomers is most correct?",
+    "o": [
+      "They have different names.",
+      "They have different molecular formulas.",
+      "They have the same molecular formula but different structural arrangements.",
+      "They always have identical boiling points."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which pair of properties best identifies a metal?",
+    "o": [
+      "Brittle and soluble",
+      "Conductive as a solid and malleable",
+      "Conductive only when molten",
+      "Low melting point and brittle"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement about ionic lattices is FALSE?",
+    "o": [
+      "They consist of repeating ions.",
+      "They contain equal numbers of positive and negative charges overall.",
+      "They are made from individual molecules.",
+      "They are held together by electrostatic attraction."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which answer best describes why hydrocarbons are generally insoluble in water?",
+    "o": [
+      "They have no electrons.",
+      "They are non-polar while water is polar.",
+      "They are too heavy.",
+      "They contain carbon."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which is the best explanation for why longer hydrocarbons are less volatile?",
+    "o": [
+      "They are heavier.",
+      "Stronger intermolecular attractions require more energy for molecules to escape the liquid.",
+      "They contain more carbon atoms.",
+      "They are darker in colour."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which property would most likely remain unchanged after melting an ionic compound?",
+    "o": [
+      "Shape",
+      "Ability to conduct electricity",
+      "Chemical composition",
+      "Particle movement"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which group contains substances that are all hydrocarbons?",
+    "o": [
+      "CH₄, CO₂, C₂H₆",
+      "CH₄, C₂H₄, C₃H₈",
+      "CO₂, H₂O, CH₄",
+      "C₂H₅OH, CH₄, C₂H₆"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which answer is the best definition of volatility?",
+    "o": [
+      "The tendency of a substance to boil.",
+      "The tendency of a substance to evaporate easily.",
+      "The ability of a substance to burn.",
+      "The ability of a substance to dissolve."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which characteristic would be the least reliable by itself for identifying a hydrocarbon?",
+    "o": [
+      "It contains carbon and hydrogen.",
+      "It burns in oxygen.",
+      "It is insoluble in water.",
+      "It is colourless."
+    ],
+    "a": 3
+  }
+]

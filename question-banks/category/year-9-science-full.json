@@ -1,0 +1,490 @@
+{
+  "subject": "Biology — Genetics, Anatomy & Ecosystems",
+  "categories": [
+    {
+      "prompt": "DNA Bases",
+      "correct": [
+        "Adenine",
+        "Thymine",
+        "Cytosine",
+        "Guanine"
+      ],
+      "distractors": [
+        "Ribosome",
+        "Glucose",
+        "Plasma",
+        "Platelets",
+        "Keratin",
+        "Xylem",
+        "Phloem",
+        "Carbon dioxide",
+        "Heart",
+        "Gene",
+        "Peptide",
+        "Chloroplast"
+      ]
+    },
+    {
+      "prompt": "Components of a Nucleotide",
+      "correct": [
+        "Nitrogenous base",
+        "Phosphate group",
+        "Deoxyribose sugar",
+        "Ribose sugar"
+      ],
+      "distractors": [
+        "Chromosome",
+        "Gene",
+        "Protein",
+        "Platelet",
+        "Chloroplast",
+        "Artery",
+        "Vein",
+        "Red blood cell",
+        "Carbon dioxide",
+        "Hormone",
+        "Xylem",
+        "Plasma"
+      ]
+    },
+    {
+      "prompt": "Scientists Who Contributed to DNA Discovery",
+      "correct": [
+        "Friedrich Miescher",
+        "Rosalind Franklin",
+        "James Watson",
+        "Francis Crick"
+      ],
+      "distractors": [
+        "Charles Darwin",
+        "Gregor Mendel",
+        "Isaac Newton",
+        "Albert Einstein",
+        "Louis Pasteur",
+        "Alfred Wallace",
+        "Marie Curie",
+        "Robert Hooke",
+        "Carl Linnaeus",
+        "Edward Jenner",
+        "Alexander Fleming",
+        "Galileo Galilei"
+      ]
+    },
+    {
+      "prompt": "Cell Structures",
+      "correct": [
+        "Nucleus",
+        "Cell membrane",
+        "Chromosome",
+        "DNA"
+      ],
+      "distractors": [
+        "Kidney",
+        "Heart",
+        "Bone",
+        "Plasma",
+        "Platelet",
+        "Hormone",
+        "Root",
+        "Xylem",
+        "Phloem",
+        "Stomata",
+        "Guard cell",
+        "Chlorophyll"
+      ]
+    },
+    {
+      "prompt": "Blood Components",
+      "correct": [
+        "Plasma",
+        "Red blood cell",
+        "White blood cell",
+        "Platelet"
+      ],
+      "distractors": [
+        "Vein",
+        "Artery",
+        "Capillary",
+        "DNA",
+        "Gene",
+        "Keratin",
+        "Glucose",
+        "Chloroplast",
+        "Xylem",
+        "Phloem",
+        "Nucleus",
+        "Carbon dioxide"
+      ]
+    },
+    {
+      "prompt": "Blood Vessels",
+      "correct": [
+        "Artery",
+        "Vein",
+        "Capillary",
+        "Blood"
+      ],
+      "distractors": [
+        "Plasma",
+        "Platelet",
+        "Chloroplast",
+        "Chromosome",
+        "Hormone",
+        "Kidney",
+        "Stomata",
+        "Gene",
+        "Glucose",
+        "Keratin",
+        "DNA",
+        "Root"
+      ]
+    },
+    {
+      "prompt": "Waste Products Removed by the Body",
+      "correct": [
+        "Carbon dioxide",
+        "Urea",
+        "Sweat",
+        "Faeces"
+      ],
+      "distractors": [
+        "Oxygen",
+        "Glucose",
+        "Protein",
+        "DNA",
+        "Platelet",
+        "Plasma",
+        "Hormone",
+        "Chlorophyll",
+        "Water",
+        "Nitrogen",
+        "Gene",
+        "Red blood cell"
+      ]
+    },
+    {
+      "prompt": "Environmental Factors Affecting Phenotype",
+      "correct": [
+        "Diet",
+        "Exercise",
+        "Sunlight",
+        "Lifestyle"
+      ],
+      "distractors": [
+        "Chromosome",
+        "DNA",
+        "Gene",
+        "Allele",
+        "Platelet",
+        "Plasma",
+        "Artery",
+        "Vein",
+        "Ribosome",
+        "Xylem",
+        "Phloem",
+        "Chloroplast"
+      ]
+    },
+    {
+      "prompt": "Continuous Variation",
+      "correct": [
+        "Height",
+        "Weight",
+        "Arm span",
+        "Seed size"
+      ],
+      "distractors": [
+        "Blood type",
+        "Eye colour category",
+        "Flower colour",
+        "Comb shape",
+        "DNA",
+        "Platelet",
+        "Plasma",
+        "Xylem",
+        "Hormone",
+        "Carbon dioxide",
+        "Artery",
+        "Vein"
+      ]
+    },
+    {
+      "prompt": "Discontinuous Variation",
+      "correct": [
+        "Blood group",
+        "Flower colour",
+        "Eye colour",
+        "Comb shape"
+      ],
+      "distractors": [
+        "Height",
+        "Weight",
+        "Hand span",
+        "Shoe size",
+        "Plasma",
+        "DNA",
+        "Vein",
+        "Capillary",
+        "Hormone",
+        "Chloroplast",
+        "Protein",
+        "Kidney"
+      ]
+    },
+    {
+      "prompt": "Molecules Needed for Photosynthesis",
+      "correct": [
+        "Carbon dioxide",
+        "Water",
+        "Light",
+        "Chlorophyll"
+      ],
+      "distractors": [
+        "Oxygen",
+        "Urea",
+        "Platelets",
+        "Plasma",
+        "DNA",
+        "Vein",
+        "Keratin",
+        "Hormone",
+        "Kidney",
+        "White blood cell",
+        "Glucose",
+        "Artery"
+      ]
+    },
+    {
+      "prompt": "Plant Structures",
+      "correct": [
+        "Stomata",
+        "Guard cells",
+        "Chloroplast",
+        "Root"
+      ],
+      "distractors": [
+        "Vein",
+        "Platelet",
+        "Plasma",
+        "Nucleus",
+        "Gene",
+        "Chromosome",
+        "Kidney",
+        "Heart",
+        "Red blood cell",
+        "Protein",
+        "Hormone",
+        "Capillary"
+      ]
+    },
+    {
+      "prompt": "Plant Transport Tissues",
+      "correct": [
+        "Xylem",
+        "Phloem",
+        "Root",
+        "Leaf vein"
+      ],
+      "distractors": [
+        "Artery",
+        "Vein",
+        "Capillary",
+        "Plasma",
+        "Platelet",
+        "DNA",
+        "Chromosome",
+        "Gene",
+        "Kidney",
+        "Hormone",
+        "Red blood cell",
+        "Heart"
+      ]
+    },
+    {
+      "prompt": "Types of Substance Transport",
+      "correct": [
+        "Simple diffusion",
+        "Facilitated diffusion",
+        "Active transport",
+        "Osmosis"
+      ],
+      "distractors": [
+        "Photosynthesis",
+        "Respiration",
+        "Digestion",
+        "Circulation",
+        "Chromosome",
+        "Platelet",
+        "Hormone",
+        "Plasma",
+        "Chloroplast",
+        "Xylem",
+        "Phloem",
+        "Gene"
+      ]
+    },
+    {
+      "prompt": "Ecosystem Levels",
+      "correct": [
+        "Individual",
+        "Population",
+        "Community",
+        "Ecosystem"
+      ],
+      "distractors": [
+        "Habitat",
+        "Genome",
+        "Gene",
+        "DNA",
+        "Platelet",
+        "Plasma",
+        "Stomata",
+        "Xylem",
+        "Hormone",
+        "Carbon dioxide",
+        "Protein",
+        "Nucleus"
+      ]
+    },
+    {
+      "prompt": "Abiotic Factors",
+      "correct": [
+        "Temperature",
+        "Water",
+        "Salinity",
+        "Light"
+      ],
+      "distractors": [
+        "Fish",
+        "Algae",
+        "Bacteria",
+        "Trees",
+        "Birds",
+        "Humans",
+        "Fungi",
+        "Insects",
+        "Crocodiles",
+        "Kea",
+        "Moss",
+        "Phytoplankton"
+      ]
+    },
+    {
+      "prompt": "Biotic Factors",
+      "correct": [
+        "Fish",
+        "Algae",
+        "Trees",
+        "Bacteria"
+      ],
+      "distractors": [
+        "Temperature",
+        "Rainfall",
+        "Light",
+        "Salinity",
+        "pH",
+        "Wind",
+        "Water",
+        "Soil",
+        "Rocks",
+        "Minerals",
+        "Ocean currents",
+        "Humidity"
+      ]
+    },
+    {
+      "prompt": "Nutrient Cycles",
+      "correct": [
+        "Water cycle",
+        "Carbon cycle",
+        "Nitrogen cycle",
+        "Food chain"
+      ],
+      "distractors": [
+        "Blood circulation",
+        "Active transport",
+        "Gene expression",
+        "DNA replication",
+        "Osmosis",
+        "Xylem",
+        "Phloem",
+        "Plasma",
+        "Platelet",
+        "Stomata",
+        "Heart",
+        "Hormone"
+      ]
+    },
+    {
+      "prompt": "Carbon Cycle Processes",
+      "correct": [
+        "Photosynthesis",
+        "Respiration",
+        "Decomposition",
+        "Carbon storage"
+      ],
+      "distractors": [
+        "Nitrogen fixation",
+        "Osmosis",
+        "Active transport",
+        "Mitosis",
+        "Platelet formation",
+        "Gene expression",
+        "Blood clotting",
+        "Protein folding",
+        "Glucose transport",
+        "Stomatal opening",
+        "Transcription",
+        "Translation"
+      ]
+    },
+    {
+      "prompt": "Indigenous Knowledge Examples",
+      "correct": [
+        "Māori",
+        "Inuit",
+        "Sámi",
+        "Aboriginal Australians"
+      ],
+      "distractors": [
+        "Penguins",
+        "Bonobos",
+        "Crocodiles",
+        "Oaks",
+        "Xylem",
+        "Platelets",
+        "Plasma",
+        "Chromosomes",
+        "DNA",
+        "Carbon dioxide",
+        "Water cycle",
+        "Nitrogen fixation"
+      ]
+    },
+    {
+      "prompt": "Units of Speed",
+      "correct": ["m/s", "km/h", "mph", "knots"],
+      "distractors": ["kg", "N", "J", "°C", "Pa", "V", "A", "Ω", "mol", "cd", "Hz", "W", "Joules", "Newtons", "Watts", "Volts"]
+    },
+    {
+      "prompt": "Vector Quantities",
+      "correct": ["Velocity", "Acceleration", "Displacement", "Force"],
+      "distractors": ["Speed", "Distance", "Mass", "Time", "Energy", "Temperature", "Volume", "Density", "Power", "Charge", "Pressure", "Work", "Area", "Frequency", "Voltage", "Resistance"]
+    },
+    {
+      "prompt": "Scalar Quantities",
+      "correct": ["Speed", "Distance", "Mass", "Time"],
+      "distractors": ["Velocity", "Displacement", "Acceleration", "Force", "Momentum", "Weight", "Torque", "Impulse", "Electric field", "Magnetic field", "Gravitational field", "Angular velocity", "Drag", "Thrust", "Lift", "Tension"]
+    },
+    {
+      "prompt": "Instruments Used to Measure Motion",
+      "correct": ["Stopwatch", "Speedometer", "Motion sensor", "Ticker timer"],
+      "distractors": ["Thermometer", "Barometer", "Ammeter", "Voltmeter", "Balance", "Manometer", "pH meter", "Hygrometer", "Calorimeter", "Spectrometer", "Microscope", "Telescope", "Anemometer", "Hydrometer", "Seismometer", "Sphygmomanometer"]
+    },
+    {
+      "prompt": "Factors Affecting Stopping Distance",
+      "correct": ["Speed", "Reaction time", "Road surface", "Weather"],
+      "distractors": ["Colour of car", "Radio station", "Driver's height", "Car brand", "Seat material", "Music volume", "Number of cup holders", "Steering wheel size", "Paint type", "Bumper sticker", "Air freshener scent", "License plate number", "Wing mirror shape", "Number plate colour", "Boot size", "Roof rack"]
+    }
+  ]
+}

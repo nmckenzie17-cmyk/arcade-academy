@@ -1,0 +1,477 @@
+[
+  {
+    "q": "Which dance genre originated in the royal courts of Italy and France before becoming a formal theatrical dance style?",
+    "o": ["Jazz", "Ballet", "Hip Hop", "Tap"],
+    "a": 1
+  },
+  {
+    "q": "Hip Hop culture is traditionally said to have how many foundational elements?",
+    "o": ["2", "3", "4", "6"],
+    "a": 2
+  },
+  {
+    "q": "Which dance style is characterised by percussive footwork and metal taps attached to shoes?",
+    "o": ["Contemporary", "Tap", "Ballet", "Salsa"],
+    "a": 1
+  },
+  {
+    "q": "Breaking (Breakdance) originally developed in which country?",
+    "o": ["Brazil", "France", "United States", "Jamaica"],
+    "a": 2
+  },
+  {
+    "q": "Which dance style commonly uses turnout of the legs?",
+    "o": ["Hip Hop", "Ballet", "Krump", "Locking"],
+    "a": 1
+  },
+  {
+    "q": "Which dance style is heavily influenced by African-American social dances and Broadway musicals?",
+    "o": ["Jazz", "Flamenco", "Bharatanatyam", "Waacking"],
+    "a": 0
+  },
+  {
+    "q": "Which dance style is known for expressive upper body movements and emotional storytelling?",
+    "o": ["Contemporary", "House", "Popping", "Tutting"],
+    "a": 0
+  },
+  {
+    "q": "Flamenco originated in:",
+    "o": ["Italy", "Spain", "Portugal", "Mexico"],
+    "a": 1
+  },
+  {
+    "q": "Which Hip Hop style features sudden muscle contractions called \"hits\"?",
+    "o": ["Locking", "Popping", "House", "Litefeet"],
+    "a": 1
+  },
+  {
+    "q": "Which dance style focuses on exaggerated freezes and playful poses?",
+    "o": ["Locking", "Krump", "Waacking", "Vogue"],
+    "a": 0
+  },
+  {
+    "q": "House dance developed primarily in:",
+    "o": ["Ballet schools", "Nightclubs", "Martial arts studios", "Folk festivals"],
+    "a": 1
+  },
+  {
+    "q": "House dance is especially recognised for its:",
+    "o": ["Toe shoes", "Fast footwork and fluid grooves", "Strict upright posture", "Acrobatic lifts"],
+    "a": 1
+  },
+  {
+    "q": "Krump developed primarily as:",
+    "o": ["A ballroom dance", "A form of emotional expression and release", "A military drill", "A theatrical ballet"],
+    "a": 1
+  },
+  {
+    "q": "Waacking originated in:",
+    "o": ["New York clubs", "Los Angeles disco clubs", "Brazil", "Japan"],
+    "a": 1
+  },
+  {
+    "q": "The defining characteristic of Waacking is:",
+    "o": ["Floor spins", "Fast arm movements and posing", "Toe work", "Partner lifts"],
+    "a": 1
+  },
+  {
+    "q": "Voguing was developed within which community?",
+    "o": ["Classical ballet", "Ballroom culture (LGBTQ+ ballroom scene)", "Country dance clubs", "Irish dance schools"],
+    "a": 1
+  },
+  {
+    "q": "Which dance style often imitates geometric shapes and Egyptian artwork?",
+    "o": ["Krump", "Tutting", "House", "Salsa"],
+    "a": 1
+  },
+  {
+    "q": "Which genre combines ballet technique with freedom of movement and floor work?",
+    "o": ["Contemporary", "Locking", "Tap", "Folk dance"],
+    "a": 0
+  },
+  {
+    "q": "Capoeira combines dance with:",
+    "o": ["Painting", "Martial arts", "Swimming", "Horse riding"],
+    "a": 1
+  },
+  {
+    "q": "Capoeira originated in:",
+    "o": ["Brazil", "Argentina", "Cuba", "Spain"],
+    "a": 0
+  },
+  {
+    "q": "Which Latin dance is commonly performed in pairs and emphasises Cuban motion?",
+    "o": ["Salsa", "Ballet", "Bharatanatyam", "Locking"],
+    "a": 0
+  },
+  {
+    "q": "Which genre traditionally tells stories through symbolic hand gestures called mudras?",
+    "o": ["Bharatanatyam", "Jazz", "House", "Krump"],
+    "a": 0
+  },
+  {
+    "q": "Bharatanatyam originated in:",
+    "o": ["Japan", "India", "Thailand", "China"],
+    "a": 1
+  },
+  {
+    "q": "Irish dance is famous for:",
+    "o": ["Large arm movements", "Minimal upper body movement with intricate footwork", "Partner lifts", "Floor work"],
+    "a": 1
+  },
+  {
+    "q": "Which dance style places the strongest emphasis on improvisation?",
+    "o": ["House", "Ballet", "Irish Dance", "Bharatanatyam"],
+    "a": 0
+  },
+  {
+    "q": "Which Hip Hop style evolved from the funk movement rather than Breaking?",
+    "o": ["Locking", "Breaking", "Contemporary", "Ballet"],
+    "a": 0
+  },
+  {
+    "q": "Which dance style most commonly uses \"bone breaking\" illusions and extreme flexibility?",
+    "o": ["Flexing", "House", "Jazz", "Ballet"],
+    "a": 0
+  },
+  {
+    "q": "Animation, in Hip Hop dance, is best described as:",
+    "o": ["Partner dancing", "Creating robotic or stop-motion illusions", "Ballet turns", "Tap rhythms"],
+    "a": 1
+  },
+  {
+    "q": "Which style often emphasises \"groove\" as a core movement principle?",
+    "o": ["House", "Ballet", "Irish Dance", "Bharatanatyam"],
+    "a": 0
+  },
+  {
+    "q": "Breaking was officially added to the Olympic Games in:",
+    "o": ["Tokyo 2020", "Paris 2024", "London 2012", "Los Angeles 2028"],
+    "a": 1
+  },
+  {
+    "q": "Which dance style traditionally includes \"cyphers\" where dancers take turns performing?",
+    "o": ["Hip Hop styles", "Ballet", "Ballroom", "Contemporary"],
+    "a": 0
+  },
+  {
+    "q": "A choreographer wants to create a piece focused on precision, symmetry and illusion. Which genre would be most appropriate?",
+    "o": ["Tutting", "Krump", "Contemporary", "Flamenco"],
+    "a": 0
+  },
+  {
+    "q": "Which dance style most strongly values individuality while maintaining foundational groove?",
+    "o": ["Hip Hop freestyle", "Ballet", "Irish Dance", "Flamenco"],
+    "a": 0
+  },
+  {
+    "q": "Which genre commonly uses call-and-response between musicians and dancers?",
+    "o": ["Flamenco", "Ballet", "House", "Contemporary"],
+    "a": 0
+  },
+  {
+    "q": "Which genre is MOST associated with \"release technique\" in training?",
+    "o": ["Contemporary", "Locking", "Krump", "Waacking"],
+    "a": 0
+  },
+  {
+    "q": "Which Hip Hop dance style places the greatest emphasis on storytelling through explosive emotional movement?",
+    "o": ["Krump", "Tutting", "House", "Popping"],
+    "a": 0
+  },
+  {
+    "q": "Which element of dance is particularly highlighted through rhythmic foot percussion in Tap?",
+    "o": ["Space", "Time", "Shape", "Focus"],
+    "a": 1
+  },
+  {
+    "q": "A choreographer combines Ballet alignment, Contemporary floor work and Hip Hop grooves. This would best be described as:",
+    "o": ["Fusion choreography", "Ballroom", "Folk dance", "Character dance"],
+    "a": 0
+  },
+  {
+    "q": "Which statement best describes Contemporary dance?",
+    "o": [
+      "It follows one internationally recognised syllabus.",
+      "It is a constantly evolving genre that draws from multiple techniques and philosophies.",
+      "It only uses ballet vocabulary.",
+      "It does not include improvisation."
+    ],
+    "a": 1
+  },
+  {
+    "q": "A choreographer wants dancers to perform with grounded movement, strong musicality, improvisation, social interaction and complex rhythmic footwork. Which genre best fits these characteristics?",
+    "o": ["House", "Ballet", "Irish Dance", "Bharatanatyam"],
+    "a": 0
+  },
+  {
+    "q": "Which of the following Hip Hop styles is NOT generally considered one of the original \"funk styles\" that emerged on the U.S. West Coast?",
+    "o": ["Locking", "Popping", "Boogaloo", "Breaking"],
+    "a": 3
+  },
+  {
+    "q": "Which of the following choreographic principles is most strongly associated with the aesthetics of House Dance?",
+    "o": [
+      "Verticality and turnout",
+      "Groove, jack, and continuous rhythmic flow",
+      "Rigid geometric symmetry",
+      "Formal partner hold"
+    ],
+    "a": 1
+  },
+  {
+    "q": "The movement quality known as \"Jack\" is fundamental to which dance genre?",
+    "o": ["Waacking", "House", "Krump", "Litefeet"],
+    "a": 1
+  },
+  {
+    "q": "In Popping, a dancer performing Dime Stops is primarily demonstrating control over:",
+    "o": [
+      "Floor transitions",
+      "Instantaneous stopping of momentum with precise muscle contractions",
+      "Continuous body rolls",
+      "Acrobatic rotations"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which dance style developed primarily from the LGBTQ+ ballroom community before gaining mainstream recognition through competitions and popular culture?",
+    "o": ["Waacking", "Voguing", "Locking", "Breaking"],
+    "a": 1
+  },
+  {
+    "q": "The concept of \"groundedness\" in dance is most closely associated with movement traditions that originate from:",
+    "o": [
+      "Classical European court dances",
+      "African and African Diasporic dance traditions",
+      "Romantic Ballet",
+      "Renaissance social dances"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best distinguishes Contemporary Dance from Modern Dance?",
+    "o": [
+      "Contemporary dance rejects improvisation.",
+      "Modern dance developed after Contemporary dance.",
+      "Contemporary dance continually evolves by incorporating multiple techniques and influences, while Modern dance refers to specific historical movement philosophies developed in the early 20th century.",
+      "Contemporary dance only uses ballet technique."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which Hip Hop dance style is most closely associated with the use of angles, boxes, hieroglyphic-inspired arm pathways, and geometric illusion?",
+    "o": ["Animation", "Tutting", "Flexing", "Turfing"],
+    "a": 1
+  },
+  {
+    "q": "Many choreographers deliberately combine Bharatanatyam mudras, Contemporary floor work, and Hip Hop groove within a single performance. This choreographic approach is best described as:",
+    "o": [
+      "Cultural appropriation by definition",
+      "Fusion choreography that requires informed understanding and respectful integration of multiple movement traditions",
+      "Postmodern dance",
+      "Musical theatre choreography"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A dancer is performing in a cypher. They respond spontaneously to another dancer's movement, maintain the groove, adapt to changes in the music, demonstrate originality while respecting foundational vocabulary, and engage with the audience. Which combination of choreographic skills is MOST essential?",
+    "o": [
+      "Memorisation, canon, and unison",
+      "Improvisation, musicality, battle etiquette, and stylistic authenticity",
+      "Turnout, elevation, and line",
+      "Symmetry, mirroring, and repetition"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement MOST accurately describes the relationship between Hip Hop dance and Hip Hop culture?",
+    "o": [
+      "Hip Hop dance is a performance style created mainly for competitions, while Hip Hop culture developed afterwards.",
+      "Hip Hop dance is one element of a broader culture that includes music, art, DJing, and community expression.",
+      "Hip Hop dance refers only to Breaking because it was the first style created within Hip Hop culture.",
+      "Hip Hop dance is a collection of commercial styles created for music videos."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which characteristic MOST clearly distinguishes Ballet from Contemporary Dance?",
+    "o": [
+      "Ballet uses structured technique and codified vocabulary, while Contemporary often explores personal expression and varied movement approaches.",
+      "Ballet uses emotion and storytelling, while Contemporary focuses only on abstract movement.",
+      "Ballet requires musicality, while Contemporary does not require rhythm.",
+      "Ballet uses the body as an expressive tool, while Contemporary focuses mainly on athletic movement."
+    ],
+    "a": 0
+  },
+  {
+    "q": "A dancer performs sharp isolations, robotic movements, and sudden stops while maintaining control and precision. Which genre is MOST likely being demonstrated?",
+    "o": [
+      "Popping, because it uses controlled muscle contractions and illusion-based movement.",
+      "Locking, because it uses controlled muscle contractions and illusion-based movement.",
+      "Tutting, because it uses controlled muscle contractions and illusion-based movement.",
+      "Animation, because it uses controlled muscle contractions and illusion-based movement."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement BEST describes the difference between Locking and Popping?",
+    "o": [
+      "Locking uses sharp pauses and expressive gestures, while Popping uses muscle contractions and robotic illusions.",
+      "Locking uses muscle contractions and robotic illusions, while Popping uses expressive gestures and pauses.",
+      "Locking developed from Breaking, while Popping developed from Ballet.",
+      "Locking and Popping are the same style but use different music."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which feature is MOST characteristic of House Dance?",
+    "o": [
+      "Continuous footwork, rhythmic grooves, and connection to club culture.",
+      "Continuous footwork, formal partner positions, and connection to ballroom culture.",
+      "Sharp isolations, robotic shapes, and connection to funk music.",
+      "Sharp isolations, floorwork, and connection to contemporary techniques."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which dancer would BEST demonstrate the principles of Krump?",
+    "o": [
+      "A dancer using explosive, expressive movement to communicate emotion and personal intensity.",
+      "A dancer using precise geometric shapes to create visual illusions.",
+      "A dancer using controlled turnout and extended lines to demonstrate elegance.",
+      "A dancer using fast footwork and minimal upper body movement."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement about Breaking is MOST accurate?",
+    "o": [
+      "Breaking combines upright movement, floorwork, power moves, freezes, and improvisation.",
+      "Breaking combines partner work, lifts, ballroom positions, and improvisation.",
+      "Breaking combines ballet vocabulary, jumps, turns, and improvisation.",
+      "Breaking combines traditional folk steps, storytelling, and improvisation."
+    ],
+    "a": 0
+  },
+  {
+    "q": "A choreographer wants to create movement based around angles, symmetry, and creating the illusion of shapes. Which genre would MOST strongly support this intention?",
+    "o": [
+      "Tutting, because it emphasises geometric patterns and detailed hand positions.",
+      "Waacking, because it emphasises geometric patterns and detailed hand positions.",
+      "Krump, because it emphasises geometric patterns and detailed hand positions.",
+      "House, because it emphasises geometric patterns and detailed hand positions."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement BEST explains why Contemporary Dance is difficult to define?",
+    "o": [
+      "It constantly evolves by combining influences from different techniques and movement philosophies.",
+      "It follows one strict technique that all dancers must learn.",
+      "It only includes movement created after Hip Hop developed.",
+      "It avoids combining different dance styles."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which element of dance is MOST emphasised when a dancer changes between slow sustained movement and sharp fast movements?",
+    "o": ["Space", "Time", "Shape", "Relationship"],
+    "a": 1
+  },
+  {
+    "q": "A dancer performs large arm movements, dramatic posing, and fast directional changes inspired by disco culture. Which genre is MOST likely?",
+    "o": ["Waacking", "Locking", "House", "Breaking"],
+    "a": 0
+  },
+  {
+    "q": "Which statement MOST accurately compares Jazz Dance and Hip Hop Dance?",
+    "o": [
+      "Both have developed through social and cultural influences while continuing to evolve into performance styles.",
+      "Both originated from European court traditions and developed into theatrical styles.",
+      "Both rely mainly on strict vocabulary with little personal interpretation.",
+      "Both avoid influences from popular music."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which movement quality would MOST likely be associated with Flamenco?",
+    "o": [
+      "Percussive footwork, expressive arms, and dramatic emotional intensity.",
+      "Smooth continuous flow, relaxed grooves, and improvisational footwork.",
+      "Sharp robotic isolations, popping actions, and mechanical shapes.",
+      "Suspended movement, release technique, and floor-based exploration."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement BEST describes Vogue?",
+    "o": [
+      "A style influenced by ballroom culture that uses posing, lines, shapes, and stylised performance.",
+      "A style influenced by ballet culture that uses jumps, turns, and pointe work.",
+      "A style influenced by martial arts that uses kicks and combat movements.",
+      "A style influenced by folk traditions that uses group formations."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which choreographic choice would MOST strongly communicate a Hip Hop aesthetic?",
+    "o": [
+      "Incorporating groove, individuality, musical interpretation, and connection with the audience.",
+      "Incorporating turnout, formal positions, and symmetrical formations.",
+      "Incorporating partner holds, fixed patterns, and traditional etiquette.",
+      "Incorporating historical gestures, ceremonial movements, and cultural symbolism."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement about dance fusion is MOST accurate?",
+    "o": [
+      "Fusion combines influences from different dance styles while requiring understanding of the original genres.",
+      "Fusion combines different dance styles by removing the original cultural meaning.",
+      "Fusion combines different dance styles only when they come from the same country.",
+      "Fusion combines different dance styles but cannot include traditional genres."
+    ],
+    "a": 0
+  },
+  {
+    "q": "A choreographer uses repetition, canon, contrast, and unison while creating a Hip Hop routine. Which statement is MOST accurate?",
+    "o": [
+      "These choreographic devices can be used across many genres, including Hip Hop, to structure movement.",
+      "These choreographic devices only belong to Contemporary Dance.",
+      "These choreographic devices are not appropriate for social dance styles.",
+      "These choreographic devices replace the need for musicality."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which dancer demonstrates the strongest understanding of Hip Hop freestyle?",
+    "o": [
+      "A dancer who creates spontaneous movement while maintaining knowledge of the style’s foundations.",
+      "A dancer who performs only memorised choreography from videos.",
+      "A dancer who copies another dancer’s movements exactly.",
+      "A dancer who avoids interacting with the music."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement MOST accurately describes the role of improvisation in many Hip Hop genres?",
+    "o": [
+      "Improvisation allows dancers to express individuality while responding to music, space, and other dancers.",
+      "Improvisation removes the need to understand the foundations of the genre.",
+      "Improvisation means dancers do not need technique or control.",
+      "Improvisation is only used during competitions."
+    ],
+    "a": 0
+  },
+  {
+    "q": "A student says: \"All Hip Hop styles are the same because they all use music and street-based movement.\" Which response is MOST accurate?",
+    "o": [
+      "Hip Hop styles share cultural roots but have different histories, movement qualities, and purposes.",
+      "Hip Hop styles are identical because they all developed at the same time.",
+      "Hip Hop styles only differ because dancers perform them to different songs.",
+      "Hip Hop styles are unrelated because they developed in different countries."
+    ],
+    "a": 0
+  }
+]

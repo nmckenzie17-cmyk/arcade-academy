@@ -1,0 +1,143 @@
+{
+  "subject": "Food Technology — Culinary Terms & Cooking Techniques",
+  "categories": [
+    {
+      "prompt": "Cutting Techniques",
+      "correct": [
+        "Chop",
+        "Dice",
+        "Slice",
+        "Julienne"
+      ],
+      "distractors": [
+        "Bake",
+        "Boil",
+        "Blend",
+        "Cream",
+        "Knead",
+        "Marinate",
+        "Roast",
+        "Steam",
+        "Whisk",
+        "Garnish",
+        "Reduce",
+        "Simmer"
+      ]
+    },
+    {
+      "prompt": "Cooking with Dry Heat",
+      "correct": [
+        "Bake",
+        "Roast",
+        "Toast",
+        "Barbecue (BBQ)"
+      ],
+      "distractors": [
+        "Boil",
+        "Steam",
+        "Simmer",
+        "Stew",
+        "Poach",
+        "Braise",
+        "Blend",
+        "Core",
+        "Dice",
+        "Cream",
+        "Grate",
+        "Drain"
+      ]
+    },
+    {
+      "prompt": "Cooking in Liquid",
+      "correct": [
+        "Boil",
+        "Simmer",
+        "Poach",
+        "Stew"
+      ],
+      "distractors": [
+        "Bake",
+        "Roast",
+        "Toast",
+        "Grill",
+        "Julienne",
+        "Knead",
+        "Cream",
+        "Sift",
+        "Garnish",
+        "Glaze",
+        "Whisk",
+        "Core"
+      ]
+    },
+    {
+      "prompt": "Mixing and Combining",
+      "correct": [
+        "Blend",
+        "Mix",
+        "Fold",
+        "Combine"
+      ],
+      "distractors": [
+        "Bake",
+        "Roast",
+        "Steam",
+        "Slice",
+        "Dice",
+        "Julienne",
+        "Core",
+        "Peel",
+        "Marinate",
+        "Glaze",
+        "Garnish",
+        "Score"
+      ]
+    },
+    {
+      "prompt": "Preparing Ingredients",
+      "correct": [
+        "Peel",
+        "Core",
+        "Bone",
+        "Trim"
+      ],
+      "distractors": [
+        "Bake",
+        "Fry",
+        "Roast",
+        "Simmer",
+        "Knead",
+        "Cream",
+        "Reduce",
+        "Blend",
+        "Whisk",
+        "Steam",
+        "Toast",
+        "Marinate"
+      ]
+    },
+    {
+      "prompt": "Adding Flavour or Finishing",
+      "correct": [
+        "Season",
+        "Garnish",
+        "Glaze",
+        "Marinate"
+      ],
+      "distractors": [
+        "Chop",
+        "Dice",
+        "Slice",
+        "Cube",
+        "Boil",
+        "Steam",
+        "Simmer",
+        "Knead",
+        "Whisk",
+        "Blend",
+        "Drain",
+        "Sift"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+[
+  {
+    "q": "What is the unit of force?",
+    "o": ["J", "N", "kg", "m/s"],
+    "a": 1
+  },
+  {
+    "q": "Which equation relates force, mass, and acceleration?",
+    "o": [
+      "Force = Mass ÷ Acceleration",
+      "Force = Mass + Acceleration",
+      "Force = Mass × Acceleration",
+      "Force = Acceleration ÷ Mass"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What does the symbol F represent?",
+    "o": ["Frequency", "Fuel", "Force", "Friction"],
+    "a": 2
+  },
+  {
+    "q": "What happens to an object's acceleration if the force acting on it increases but its mass stays the same?",
+    "o": ["It becomes zero.", "It decreases.", "It increases.", "It stays the same."],
+    "a": 2
+  },
+  {
+    "q": "A shopping trolley has a mass of 20 kg. If it accelerates at 3 m/s², what force is applied?",
+    "o": ["600 N", "60 N", "23 N", "17 N"],
+    "a": 1
+  },
+  {
+    "q": "If the same force is applied to two objects, which one accelerates more?",
+    "o": [
+      "Neither accelerates.",
+      "The object with the greater mass.",
+      "Both accelerate equally.",
+      "The object with the smaller mass."
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is the mass of an object if a force of 50 N causes it to accelerate at 5 m/s²?",
+    "o": ["25 kg", "250 kg", "10 kg", "55 kg"],
+    "a": 2
+  },
+  {
+    "q": "A force of 80 N acts on a 20 kg object. What is its acceleration?",
+    "o": ["4 m/s²", "0.25 m/s²", "100 m/s²", "2 m/s²"],
+    "a": 0
+  },
+  {
+    "q": "If the mass of an object doubles while the force stays the same, the acceleration will:",
+    "o": ["Stay the same.", "Halve.", "Double.", "Triple."],
+    "a": 1
+  },
+  {
+    "q": "Which statement is true?",
+    "o": [
+      "More force causes greater acceleration if mass stays constant.",
+      "Force and mass are measured in the same units.",
+      "Acceleration is measured in Newtons.",
+      "Heavier objects always accelerate faster."
+    ],
+    "a": 0
+  },
+  {
+    "q": "A force of 24 N is applied to a 6 kg object. What is the acceleration?",
+    "o": ["2 m/s²", "30 m/s²", "4 m/s²", "3 m/s²"],
+    "a": 2
+  },
+  {
+    "q": "An object accelerates at 8 m/s² when a force of 40 N is applied. What is its mass?",
+    "o": ["48 kg", "8 kg", "5 kg", "32 kg"],
+    "a": 2
+  },
+  {
+    "q": "Which of the following would require the greatest force to accelerate?",
+    "o": ["A 50 kg person", "A 500 g book", "A 5 kg backpack", "A 2 kg ball"],
+    "a": 0
+  },
+  {
+    "q": "A 10 kg object experiences a force of 100 N. If the force is increased to 200 N, the acceleration becomes:",
+    "o": ["40 m/s²", "20 m/s²", "5 m/s²", "10 m/s²"],
+    "a": 1
+  },
+  {
+    "q": "Which change would cause the greatest increase in acceleration?",
+    "o": [
+      "Doubling the mass.",
+      "Doubling the force.",
+      "Increasing both force and mass equally.",
+      "Halving the force."
+    ],
+    "a": 1
+  },
+  {
+    "q": "A rugby player pushes with a force of 600 N on a scrum. If the opposing force is also 600 N, what is the acceleration?",
+    "o": [
+      "Negative acceleration",
+      "Cannot be determined",
+      "Zero acceleration",
+      "Positive acceleration"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A force of 90 N acts on a box with a mass of 30 kg. What is the acceleration?",
+    "o": ["27 m/s²", "1 m/s²", "3 m/s²", "2 m/s²"],
+    "a": 2
+  },
+  {
+    "q": "A 12 kg object accelerates at 5 m/s². What is the applied force?",
+    "o": ["72 N", "17 N", "120 N", "60 N"],
+    "a": 3
+  },
+  {
+    "q": "A car's engine provides a greater driving force while its mass stays constant. The car will:",
+    "o": ["Lose mass.", "Accelerate faster.", "Maintain constant speed.", "Slow down."],
+    "a": 1
+  },
+  {
+    "q": "Two objects experience the same force. Object A has twice the mass of Object B. Compared with Object B, Object A will have:",
+    "o": [
+      "Four times the acceleration.",
+      "Half the acceleration.",
+      "The same acceleration.",
+      "Twice the acceleration."
+    ],
+    "a": 1
+  }
+]
