@@ -5,7 +5,7 @@
 const games = [
   { title: "Fortress Facts", subject: "Science challenge", icon: "🏰", path: "games/fortress-facts/", theme: "fortress" },
   { title: "Jetpack Journey", subject: "Learning adventure", icon: "🚀", path: "games/jetpack-journey/", theme: "jetpack" },
-  { title: "Rhythm Recall", subject: "Memory challenge", icon: "🎵", path: "games/rhythm-recall/", theme: "rhythm" },
+  { title: "Note Knowledge", subject: "Memory challenge", icon: "🎵", path: "games/note-knowledge/", theme: "note" },
   { title: "Rocket Recall", subject: "Quick-fire quiz", icon: "🛸", path: "games/rocket-recall/", theme: "rocket" },
   { title: "Shuriken Scholar", subject: "Skill builder", icon: "🥷", path: "games/shuriken-scholar/", theme: "shuriken" },
   { title: "Wild West Wordslinger", subject: "Word challenge", icon: "🤠", path: "games/wild-west-wordslinger/", theme: "wildwest" }
