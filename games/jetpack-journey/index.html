@@ -705,21 +705,18 @@ renderShop();
 });
 }
 
-// Teacher setup: these are secret session codes mapped to separate JSON files.
-// Add more entries here when you create a new question bank file.
-// data names follow the format '<year><term><Subject initial>'
+// Class codes map to the Terms & Definitions files. Paths are relative to this game folder.
 const QUESTION_BANK_FILES={
-'93bf':'question-banks/year-9-biology.json',
-'112cf':'question-banks/year-11-chemistryall.json',
-'112mm':'question-banks/year-11-chemistrymolmass.json',
-'11-13dg':'question-banks/dancegenres.json',
-'123p':'question-banks/pacificagenres.json',
-'92pf':'question-banks/year-10-physics.json',
-'science' :'question-banks/year-9-science-all.json',
-'chef':'question-banks/cooking.json',
-'elfdef':'question-banks/englishlanguagedef.json',
-'elfex':'question-banks/englishlanguageex.json',
-
+'93bf':'../../question-banks/terms-and-definitions/year-9-biology.json',
+'112cf':'../../question-banks/terms-and-definitions/year-11-chemistryall.json',
+'112mm':'../../question-banks/terms-and-definitions/year-11-chemistrymolmass.json',
+'11-13dg':'../../question-banks/terms-and-definitions/dancegenres.json',
+'123p':'../../question-banks/terms-and-definitions/pacificagenres.json',
+'92pf':'../../question-banks/terms-and-definitions/year-10-physics.json',
+'science':'../../question-banks/terms-and-definitions/year-9-science-all.json',
+'chef':'../../question-banks/terms-and-definitions/cooking.json',
+'elfdef':'../../question-banks/terms-and-definitions/englishlanguagedef.json',
+'elfex':'../../question-banks/terms-and-definitions/englishlanguageex.json'
 };
 let activeQuestionPack=null;
 let selectedSessionCode='';
@@ -2673,7 +2670,6 @@ codePanel.style.display=codeEntryVisible||selectedSessionCode?'block':'none';
 devCodeInput.style.display=selectedSessionCode&&!codeEntryVisible?'none':'inline-block';
 codeMessage.textContent=selectedSessionCode?'SESSION CODE READY':'';
 }
-
 function showCodeEntry(message){
 codeEntryVisible=true;
 codePanel.style.display='block';
