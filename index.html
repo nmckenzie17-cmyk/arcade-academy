@@ -7,7 +7,7 @@
   <title>Arcade Academy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/css/global.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,19 +35,28 @@
   </main>
 
   <template id="game-card-template">
-    <a class="game-card" href="#">
-      <div class="game-art" aria-hidden="true">
-        <span class="game-icon"></span>
-        <span class="spark spark-a">✦</span>
-        <span class="spark spark-b">✦</span>
-      </div>
-      <div class="game-details">
-        <p class="game-subject"></p>
-        <h3 class="game-name"></h3>
-        <span class="play-button">Play now <span aria-hidden="true">→</span></span>
-      </div>
-    </a>
-  </template>
+  <a class="game-card" href="#">
+    <div class="game-art" aria-hidden="true">
+      <span class="game-icon"></span>
+      <span class="spark spark-a">✦</span>
+      <span class="spark spark-b">✦</span>
+    </div>
+
+    <div class="game-details">
+
+      <h3 class="game-title"></h3>
+      <p class="game-catchphrase"></p>
+      <p class="game-description"></p>
+      <p class="game-genre"></p>
+
+      <span class="play-button">
+        Play now
+        <span aria-hidden="true">→</span>
+      </span>
+
+    </div>
+  </a>
+</template>
 
   <script src="app.js"></script>
 </body>

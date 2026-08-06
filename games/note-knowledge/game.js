@@ -7,56 +7,21 @@
     // Each chorus shows a category's "correct" words mixed with random distractors.
     // A valid code is required to play — there is no built-in question bank.
     // Change this value if Rhythm Recall ever supports another question type.
+    // All loading, storing, selecting and shuffling of categories lives in QuestionManager now.
     const QUESTION_BANK_TYPE = 'category';
-    const QUESTION_BANK_ROOT = '../../question-banks';
-    const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
 
-    let loadedCategories = null;  // array of {prompt,correct,distractors} once a valid class code is entered
-    let loadedBankCode = '';
-    let loadedBankName = '';
     let selectedBankCode = '';
 
-    // Resolves a class code through the shared registry before loading the
-    // category JSON for the mapped subject and bank.
-    async function loadBankFromCode(code) {
-      try {
-        const registryRes = await fetch(QUESTION_BANK_REGISTRY_PATH, {cache:'no-store'});
-        if (!registryRes.ok) return null;
-        const registry = await registryRes.json();
-        const bank = registry[code];
-        if (!bank || !bank.subject || !bank.bank) return null;
-        const questionFile = `${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
-        const res = await fetch(questionFile, {cache:'no-store'});
-        return res.ok ? res.json() : null;
-      } catch (e) {
-        console.error('Failed to load question bank', e);
-        return null;
-      }
-    }
-
     async function loadQuestionBank(code) {
-      const data = await loadBankFromCode(code);
-      if (!data) return false;
-      try {
-        const list = Array.isArray(data) ? data : data.categories;
-        if (!Array.isArray(list) || list.length === 0) return false;
-        const valid = list.every(c => c && typeof c.prompt === 'string' && Array.isArray(c.correct) && Array.isArray(c.distractors) && c.correct.length > 0);
-        if (!valid) return false;
-        loadedCategories = list;
-        loadedBankCode = code;
-        loadedBankName = (!Array.isArray(data) && data.subject) ? data.subject : ('Bank ' + code);
-        return true;
-      } catch (e) {
-        console.error('Failed to load question bank', e);
-        return false;
-      }
+      const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
+      return result.ok;
     }
 
     function updateCodeStatus() {
       const el = document.getElementById('code-status');
       if (!el) return;
-      if (loadedCategories && loadedCategories.length) {
-        el.textContent = '📚 Loaded: ' + loadedBankName;
+      if (QuestionManager.hasQuestions()) {
+        el.textContent = '📚 Loaded: ' + QuestionManager.getBankName();
         el.style.color = '#2ecc71';
       } else {
         el.textContent = 'A class code from your teacher is required to play';
@@ -86,7 +51,7 @@
 
       const code = raw.toLowerCase();
       if (code === 'reset') {
-        loadedCategories = null; loadedBankCode = ''; loadedBankName = '';
+        QuestionManager.questions = null; QuestionManager.bankCode = ''; QuestionManager.bankName = '';
         selectedBankCode = '';
         await safeSave();
         updateCodeStatus();
@@ -220,7 +185,7 @@
         recalcUnlocks();
         updateHomeHighScore();
         renderSongGrid();
-        if (selectedBankCode && !loadedCategories) {
+        if (selectedBankCode && !QuestionManager.hasQuestions()) {
           loadQuestionBank(selectedBankCode).then(updateCodeStatus);
         } else {
           updateCodeStatus();
@@ -372,7 +337,7 @@
     }
 
     function startGame(){
-      if(!loadedCategories||!loadedCategories.length){
+      if(!QuestionManager.hasQuestions()){
         const statusEl=document.getElementById('code-status');
         statusEl.textContent='❌ Enter a class code from your teacher to play';
         statusEl.style.color='#e74c3c';
@@ -403,12 +368,12 @@
     }
 
     function prepareChorus(){
-      if(!loadedCategories||!loadedCategories.length){
+      if(!QuestionManager.hasQuestions()){
         // Safety net — should never be reached since startGame() requires a loaded code.
         backToMenu();
         return;
       }
-      const c=loadedCategories[Math.floor(Math.random()*loadedCategories.length)];
+      const c=QuestionManager.getNextQuestion();
       const cat={name:c.prompt,correct:c.correct,wrong:c.distractors};
       currentCategory=cat;
       let items=cat.correct.map(t=>({text:t,isCorrect:true})).concat(cat.wrong.slice(0,12).map(t=>({text:t,isCorrect:false})));

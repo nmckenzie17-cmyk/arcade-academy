@@ -429,7 +429,7 @@ function runPrerunQuiz(onComplete){
     let qIndex = 0;
     function nextQ(){
         if(qIndex>=4){ computeRunPowerupBonuses(); onComplete(); return; }
-        let q = randQ();
+        let q = QuestionManager.getNextQuestion();
         let startTime = performance.now();
         let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
         let html = `<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">Powerup Calibration — Q${qIndex+1}/4</h2><p style="margin-bottom:8px;color:#8cf;font-size:12px">Answer quickly and correctly to strengthen this run's equipped powerups.</p><p style="margin-bottom:16px">${q.q}</p>`;
@@ -441,7 +441,7 @@ function runPrerunQuiz(onComplete){
                 let elapsed = (performance.now()-startTime)/1000;
                 let isCorrect = btn.dataset.correct==='true';
                 prerunQuizTimes.push(elapsed);
-                adjustQuestionWeight(q, isCorrect);
+                QuestionManager.recordAnswer(q, isCorrect);
                 if(isCorrect){ btn.classList.add('correct'); prerunQuizCorrect++; recordCorrectAnswer(); }
                 else { btn.classList.add('wrong'); modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); }
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
@@ -614,84 +614,11 @@ for(let i=0;i<80;i++) stars.push({x:Math.random()*GAME_W, y:Math.random()*140, b
 const mts1 = [], mts2 = [];
 for(let i=0;i<=16;i++){ mts1.push(180+Math.sin(i*0.7)*25+Math.random()*10); mts2.push(195+Math.sin(i*0.5+2)*15+Math.random()*8); }
 
-// Active question bank used by the game. There is no default/general-
-// knowledge bank anymore — the game cannot start until a valid teacher/
-// subject code is entered and its bank successfully loads (see loadQuestionBank).
-let questions = null;
-let currentBankName = '';
-let currentBankCode = '';
-
 // Change this value if Fortress Facts ever supports another question type.
+// This is the only question-related thing the game itself still owns: which
+// question-file type to ask QuestionManager for. Everything about loading,
+// storing, selecting and weighting questions lives in QuestionManager now.
 const QUESTION_BANK_TYPE = 'multichoice';
-const QUESTION_BANK_ROOT = '../../question-banks';
-const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
-
-// Picks a question weighted by q.weight — questions answered wrong recently
-// are proportionally more likely to come up again, questions answered right
-// recently are proportionally less likely, so practice naturally concentrates
-// on whatever a student is actually struggling with.
-function randQ(preferEasy) {
-    if(preferEasy){
-        // Quick Draw relic: pull from the easiest ~30% of the bank (lowest
-        // weight = most reliably answered correctly recently) instead of
-        // the full weighted pool.
-        let sorted = [...questions].sort((a,b)=>(a.weight??1)-(b.weight??1));
-        let easyPool = sorted.slice(0, Math.max(3, Math.ceil(sorted.length*0.3)));
-        return easyPool[Math.floor(Math.random()*easyPool.length)];
-    }
-    let totalWeight = questions.reduce((sum,q)=> sum + (q.weight??1), 0);
-    let r = Math.random()*totalWeight;
-    for(let q of questions){
-        r -= (q.weight??1);
-        if(r<=0) return q;
-    }
-    return questions[questions.length-1]; // floating-point fallback, practically never hit
-}
-
-// Every question starts at weight 1. A correct answer halves it (floor 0.1
-// — it can still come up, just rarely). A wrong answer doubles it (cap 16 —
-// it comes up often, but never so often it crowds out everything else).
-function adjustQuestionWeight(q, wasCorrect){
-    if(!q) return;
-    let w = q.weight ?? 1;
-    q.weight = wasCorrect ? Math.max(0.1, w*0.5) : Math.min(16, w*2);
-}
-
-// Resolves a teacher code with the shared registry, then loads this game's type
-// of question file from the subject and bank stored in that registry entry.
-async function loadBankFromCode(code) {
-    try {
-        const registryRes = await fetch(QUESTION_BANK_REGISTRY_PATH, {cache:'no-store'});
-        if(!registryRes.ok) return {error:'fetch-failed'};
-        const registry = await registryRes.json();
-        const bank = registry[code];
-        if(!bank || !bank.subject || !bank.bank) return {error:'code-not-found'};
-
-        const questionFile = `${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
-        const bankRes = await fetch(questionFile, {cache:'no-store'});
-        if(!bankRes.ok) return {error:'fetch-failed'};
-        const data = await bankRes.json();
-        return Array.isArray(data) && data.length ? {data} : {error:'fetch-failed'};
-    } catch(err) {
-        console.error('Failed to load question bank:', err);
-        return {error:'fetch-failed'};
-    }
-}
-
-// Loads a question bank by teacher/subject code, e.g. "93bf" -> Year 9 Biology.
-// A valid code is REQUIRED — there is no general-knowledge fallback, so an
-// empty or unrecognised code always fails and the game cannot start.
-// Bank files use the format: [{ "q": "...", "o": ["opt1","opt2","opt3","opt4"], "a": correctIndex }, ...]
-async function loadQuestionBank(code) {
-    code = (code||'').trim().toLowerCase();
-    if(!code) return { ok:false, error:'code-required' };
-    const loaded = await loadBankFromCode(code);
-    if(!loaded.data) return {ok:false, error:loaded.error};
-    questions = loaded.data.map(item => ({ q:item.q, a:item.o, c:item.a, weight:1 }));
-    currentBankName = code.toUpperCase();
-    currentBankCode = code;
-    return {ok:true, name:currentBankName};
-}
 
 // 10 unique boss types. Each has flavor visuals + one or more abilities.
 // abilities is a list of {type, ...params}. bossUpdate() below interprets these generically.
@@ -1407,7 +1334,7 @@ function grantEducationMilestoneReward(){
 
 function askBetweenQuestion(){
     if(betweenWaveQuestions>=4){ showCardSelect(); return; }
-    let q=randQ();
+    let q=QuestionManager.getNextQuestion();
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
     let html=`<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">Between Waves — Q${betweenWaveQuestions+1}/4</h2><p style="margin-bottom:16px">${q.q}</p>`;
     shuffled.forEach((a,i)=>{ html+=`<button class="choice-btn" data-correct="${a.correct}">${a.text}</button>`; });
@@ -1416,7 +1343,7 @@ function askBetweenQuestion(){
     modalRoot.querySelectorAll('.choice-btn').forEach(btn=>{
         btn.onclick=()=>{
             let isCorrect=btn.dataset.correct==='true';
-            adjustQuestionWeight(q, isCorrect);
+            QuestionManager.recordAnswer(q, isCorrect);
             if(isCorrect){
                 btn.classList.add('correct');
                 betweenWaveCorrect++;
@@ -1566,7 +1493,7 @@ function showCardSelect(){
 function showQuestion(){
     if(state!=='playing') return;
     state='question';
-    let q=randQ(equippedRelics.includes('relic_quickdraw'));
+    let q=QuestionManager.getNextQuestion(equippedRelics.includes('relic_quickdraw'));
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
     let html=`<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">Answer for Ammo!</h2><p style="margin-bottom:16px;font-size:clamp(15px,2.4vw,20px)">${q.q}</p><p style="color:var(--accent-pink);margin-bottom:16px;font-weight:700;font-size:clamp(12px,2vw,14px)">⚠️ Warning: Incorrect answers deal 1 damage to your Castle!</p>`;
     shuffled.forEach((a,i)=>{ html+=`<button class="choice-btn" data-correct="${a.correct}">${a.text}</button>`; });
@@ -1575,7 +1502,7 @@ function showQuestion(){
     modalRoot.querySelectorAll('.choice-btn').forEach(btn=>{
         btn.onclick=()=>{
             let isCorrect=btn.dataset.correct==='true';
-            adjustQuestionWeight(q, isCorrect);
+            QuestionManager.recordAnswer(q, isCorrect);
             if(isCorrect){
                 btn.classList.add('correct');
                 recordCorrectAnswer();
@@ -1772,7 +1699,7 @@ function showStart(){
         startBtn.textContent = 'Loading...';
         status.style.color = '#aaa';
         status.textContent = input.value.trim() ? 'Loading question bank...' : '';
-        const result = await loadQuestionBank(input.value);
+        const result = await QuestionManager.loadBank(input.value, QUESTION_BANK_TYPE);
         if(result.ok){
             modalRoot.innerHTML='';
             applyKingdomStartBonuses();
@@ -1820,7 +1747,7 @@ function showGameOver(voluntary){
     }
     modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">👑 +${lastCrownsEarned} Crowns earned (Total: ${kingdomSave.crowns})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — Crowns won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Play Again</button></div></div>`;
     document.getElementById('restart-btn').onclick=()=>{
-        sessionStorage.setItem('cd_restart_code', currentBankCode || '');
+        sessionStorage.setItem('cd_restart_code', QuestionManager.getBankCode() || '');
         location.reload();
     };
     document.getElementById('kingdom-btn').onclick=()=> showKingdom(()=>showGameOver());
@@ -1892,7 +1819,7 @@ function updateHUD(){
     document.getElementById('hud-hp').textContent='❤️ HP: '+Math.floor(castleHP)+'/'+maxHP;
     document.getElementById('hud-ammo').textContent='🏹 Ammo: '+ammo+'/'+maxAmmo;
     document.getElementById('hud-gold').textContent='🪙 Coins: '+gold;
-    document.getElementById('hud-bank').textContent='📚 '+currentBankName;
+    document.getElementById('hud-bank').textContent='📚 '+QuestionManager.getBankName();
     let w = WEATHER_EFFECTS.find(x=>x.id===activeWeather);
     let m = MUTATOR_DEFS.find(x=>x.id===activeMutator);
     document.getElementById('hud-weather').textContent = m ? ('⚠️ '+m.name) : (w ? w.name : '');

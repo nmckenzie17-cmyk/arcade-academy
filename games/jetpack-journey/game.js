@@ -1,9 +1,8 @@
 (function(){
 "use strict";
 // Change this value if Jetpack Journey ever supports another question type.
+// All loading, storing, selecting and shuffling of cards lives in QuestionManager now.
 const QUESTION_BANK_TYPE='matching';
-const QUESTION_BANK_ROOT='../../question-banks';
-const QUESTION_BANK_REGISTRY_PATH=`${QUESTION_BANK_ROOT}/banks.json`;
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
 
@@ -494,7 +493,6 @@ renderShop();
 });
 }
 
-let activeQuestionPack=null;
 let selectedSessionCode='';
 let codeEntryVisible=false;
 let sessionLoading=false;
@@ -1817,8 +1815,7 @@ for(let i=copy.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=copy[i]
 return copy;
 }
 function getMemoryPairs(count){
-const cards=(activeQuestionPack&&activeQuestionPack.cards?activeQuestionPack.cards:[]).slice();
-return shuffleList(cards).slice(0,Math.min(count||4,cards.length));
+return QuestionManager.getRandomSet(count||4, rng);
 }
 // kind is 'fuel', 'magnet', or 'headstart'. All three share this match-pairs quiz;
 // the only difference is the question count and what the reward means when finished.
@@ -1864,7 +1861,7 @@ if(!memoryGame.active)return;
 memoryGrid.innerHTML='';
 if(!memoryGame.finished){
 const capForStatus=(memoryGame.kind==='fuel'||memoryGame.kind==='magnet')?getQuizWrongCap():2;
-memoryStatus.textContent=(activeQuestionPack?activeQuestionPack.name:'')+' | Misses: '+memoryGame.wrong+'/'+capForStatus+' | Match all cards';
+memoryStatus.textContent=QuestionManager.getBankName()+' | Misses: '+memoryGame.wrong+'/'+capForStatus+' | Match all cards';
 }
 memoryGame.cards.forEach(function(card,idx){
 const btn=document.createElement('button');
@@ -2109,7 +2106,7 @@ document.getElementById('pixel-shop-btn').addEventListener('click',function(){hi
 document.getElementById('pixel-deathcoin-btn').addEventListener('click',function(){hidePixelGameOverPanel();openDeathCoinQuiz();});
 
 function playAgainFromGameOver(){
-if(!activeQuestionPack){showHomeScreen();return;}
+if(!QuestionManager.hasQuestions()){showHomeScreen();return;}
 showHome=false;homeScreen.style.display='none';
 resetGame();
 gameStarted=false;
@@ -2117,10 +2114,9 @@ beginPreRunSequence();
 }
 function openDeathCoinQuiz(){
 if(deathCoinCollected<=0)return;
-const cards=(activeQuestionPack&&activeQuestionPack.cards?activeQuestionPack.cards:[]).slice();
-if(cards.length<4)return;
-const correct=cards[Math.floor(rng()*cards.length)];
-let wrongPool=shuffleList(cards.filter(function(c){return c.term!==correct.term;})).slice(0,3);
+if(!QuestionManager.questions||QuestionManager.questions.length<4)return;
+const correct=QuestionManager.getRandomQuestion(rng);
+let wrongPool=QuestionManager.getDistractors(correct,3,rng);
 const options=shuffleList([{text:correct.definition,correct:true}].concat(wrongPool.map(function(c){return{text:c.definition,correct:false};})));
 deathQuiz={active:true,term:correct.term,options:options,resultMessage:''};
 document.getElementById('memory-title').textContent='DEATH COIN CHALLENGE';
@@ -2175,20 +2171,20 @@ function advancePreRunQueue(){
 if(powerupQuizQueue.length>0){
 const id=powerupQuizQueue.shift();
 openPowerupQuiz(id);
-}else if(shopState.owned.headstartBoost&&activeQuestionPack){
+}else if(shopState.owned.headstartBoost&&QuestionManager.hasQuestions()){
 openMemoryGame('headstart');
 }
 }
 function openPowerupQuiz(id){
 const def=POWERUP_DEFS.find(function(p){return p.id===id;});
-const cards=(activeQuestionPack&&activeQuestionPack.cards?activeQuestionPack.cards:[]).slice();
-if(!def||cards.length<4){
+const cardCount=QuestionManager.questions?QuestionManager.questions.length:0;
+if(!def||cardCount<4){
 activePowerupEffects[id]={correct:0};
 advancePreRunQueue();
 return;
 }
-const questions=shuffleList(cards).slice(0,4).map(function(c){
-const wrongPool=shuffleList(cards.filter(function(x){return x.term!==c.term;})).slice(0,3);
+const questions=QuestionManager.getRandomSet(4, rng).map(function(c){
+const wrongPool=QuestionManager.getDistractors(c,3,rng);
 const options=shuffleList([{text:c.definition,correct:true}].concat(wrongPool.map(function(w){return{text:w.definition,correct:false};})));
 return{term:c.term,options:options};
 });
@@ -2461,21 +2457,16 @@ codeMessage.textContent=message;
 codeMessage.style.color=isError?'#ff7777':'#ffdd00';
 }
 function normaliseCode(text){return text.trim().toLowerCase();}
-function validateQuestionPack(pack){
-return pack&&typeof pack.name==='string'&&Array.isArray(pack.cards)&&pack.cards.length>=4&&pack.cards.every(function(card){return typeof card.term==='string'&&typeof card.definition==='string'&&card.term&&card.definition;});
-}
+// Resolves a session code through QuestionManager, which owns loading,
+// validating and normalising the term/definition card bank. Throws with a
+// user-facing message on failure, same contract this function always had.
 async function loadQuestionPackForCode(code){
-const registryResponse=await fetch(QUESTION_BANK_REGISTRY_PATH,{cache:'no-store'});
-if(!registryResponse.ok)throw new Error('Question bank registry could not be loaded.');
-const registry=await registryResponse.json();
-const bank=registry[code];
-if(!bank||!bank.subject||!bank.bank)throw new Error('That session code is not active.');
-const questionFile=`${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
-const response=await fetch(questionFile,{cache:'no-store'});
-if(!response.ok)throw new Error('Question bank file could not be loaded.');
-const pack=await response.json();
-if(!validateQuestionPack(pack))throw new Error('Question bank needs a name and at least 4 term/definition cards.');
-return pack;
+const result=await QuestionManager.loadBank(code,QUESTION_BANK_TYPE);
+if(!result.ok){
+if(result.error==='code-not-found'||result.error==='code-required')throw new Error('That session code is not active.');
+throw new Error('Question bank could not be loaded — check with your teacher.');
+}
+return result;
 }
 async function handleStartClick(){
 if(sessionLoading)return;
@@ -2495,12 +2486,13 @@ damagelessMode=(parts.indexOf('damageless')!==-1);
 const sessionCode=parts.find(function(part){return DEV_CODE_WORDS.indexOf(part)===-1;})||normaliseCode(code);
 try{
 sessionLoading=true;startBtn.disabled=true;setSessionMessage('LOADING SESSION...',false);
-activeQuestionPack=await loadQuestionPackForCode(sessionCode);
+await loadQuestionPackForCode(sessionCode);
 selectedSessionCode=sessionCode;codeEntryVisible=false;
 localStorage.setItem(SESSION_CODE_STORAGE_KEY,sessionCode);
 devCodeInput.value='';devCodeInput.style.display='none';
 }catch(err){
-activeQuestionPack=null;selectedSessionCode='';
+QuestionManager.questions=null;QuestionManager.bankName='';QuestionManager.bankCode='';
+selectedSessionCode='';
 showCodeEntry(err.message||'SESSION CODE NOT FOUND');
 setSessionMessage(err.message||'SESSION CODE NOT FOUND',true);
 sessionLoading=false;startBtn.disabled=false;
@@ -2515,16 +2507,17 @@ const saved=localStorage.getItem(SESSION_CODE_STORAGE_KEY);
 if(!saved)return;
 try{
 setSessionMessage('LOADING SAVED SESSION...',false);
-activeQuestionPack=await loadQuestionPackForCode(saved);
+await loadQuestionPackForCode(saved);
 selectedSessionCode=saved;
 }catch(err){
 localStorage.removeItem(SESSION_CODE_STORAGE_KEY);
-activeQuestionPack=null;selectedSessionCode='';
+selectedSessionCode='';
 }
 if(showHome)showHomeScreen();
 }
 function changeSessionCode(){
-selectedSessionCode='';activeQuestionPack=null;devCodeInput.value='';
+QuestionManager.questions=null;QuestionManager.bankName='';QuestionManager.bankCode='';
+selectedSessionCode='';devCodeInput.value='';
 localStorage.removeItem(SESSION_CODE_STORAGE_KEY);
 showCodeEntry('ENTER NEW SESSION CODE');
 }

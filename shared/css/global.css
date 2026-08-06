@@ -1,0 +1,312 @@
+/* ============================================================
+   GLOBAL.CSS — shared design system for all games
+   Link this BEFORE each game's own style.css so per-game rules
+   can still override anything here when a game needs to differ.
+
+   <link rel="stylesheet" href="global.css">
+   <link rel="stylesheet" href="style.css">   <!-- game-specific, loads after -->
+
+   THEMING: every stylistic value below (color, font, glow, gradient,
+   radius) is a variable. To reskin every game/page at once (e.g. a
+   Halloween theme), redefine these variables — either by editing the
+   values directly, or by adding a second :root/class block further
+   down that overrides a subset of them.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+  /* ===== 1. COLOR TOKENS ===== */
+  --bg-primary: #0a0a0a;
+  --panel-dark: #1a0a2e;
+  --panel-dark-2: #150826;
+  --border-purple: #6a0572;
+  --accent-pink: #e94560;
+  --accent-blue: #00d4ff;
+  --accent-rose: #ff8fa8;
+  --accent-violet: #a855f7;
+  --gold: #d4af37;
+  --green: #2ecc71;
+  --red: #e74c3c;
+
+  /* legacy aliases — so old CSS/JS referencing these still works */
+  --panel-bg: var(--panel-dark);
+  --blue-highlight: var(--accent-blue);
+  --green-success: var(--green);
+  --red-damage: var(--red);
+  --vh: 1vh;
+
+  /* ===== 2. FONT TOKENS ===== */
+  --font-title: 'Press Start 2P', cursive;      /* headings, titles, buttons that shout */
+  --font-subtitle: 'VT323', monospace;          /* taglines/descriptions */
+  --font-body: 'Lexend', sans-serif;            /* everything readable: UI, paragraphs */
+
+  /* ===== 3. GLOW / SHADOW TOKENS ===== */
+  --glow-title: 0 0 8px rgba(0,212,255,0.6), 0 0 18px rgba(0,212,255,0.25);
+  --glow-title-soft: 0 0 6px rgba(0,212,255,0.4);
+  --glow-subtitle: 0 0 4px rgba(255,143,168,0.35);
+  --glow-gold: 0 0 10px rgba(212,175,55,0.6);
+  --glow-btn: 0 0 10px rgba(233,69,96,0.25);
+  --glow-btn-hover: 0 0 18px rgba(233,69,96,0.6);
+  --glow-tab: 0 0 10px rgba(168,85,247,0.3);
+  --glow-tab-hover: 0 0 18px rgba(168,85,247,0.6);
+  --glow-tab-active: 0 0 14px rgba(168,85,247,0.85);
+  --glow-panel: 0 0 0 1px rgba(233,69,96,0.25), 0 0 24px rgba(106,5,114,0.65), 0 0 48px rgba(0,212,255,0.12), inset 0 0 30px rgba(106,5,114,0.25);
+  --glow-card: 0 0 0 1px rgba(233,69,96,0.2), 0 0 20px rgba(106,5,114,0.5);
+  --glow-card-hover: 0 0 0 1px rgba(233,69,96,0.35), 0 0 28px rgba(233,69,96,0.4);
+
+  /* ===== 4. GRADIENT TOKENS ===== */
+  --gradient-panel: linear-gradient(160deg, var(--panel-dark) 0%, var(--panel-dark-2) 100%);
+  --gradient-btn: linear-gradient(160deg, #3d1155 0%, #240a38 100%);
+  --gradient-btn-hover: linear-gradient(160deg, #5c1a75 0%, #33104a 100%);
+  --gradient-tab-active: linear-gradient(160deg, #4a1a75 0%, #2a1040 100%);
+
+  /* ===== 5. SHAPE TOKENS ===== */
+  --radius-panel: 16px;
+  --radius-btn: 8px;
+  --radius-tab: 8px;
+  --border-width-panel: 3px;
+  --border-width-btn: 2px;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; padding: 0; }
+canvas, img.pixel-art { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* ============================================================
+   BODY / HTML DEFAULTS
+   ============================================================ */
+html, body {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--accent-blue);
+  font-family: var(--font-body);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.title-font {
+  font-family: var(--font-title);
+  letter-spacing: 1px;
+  color: var(--accent-blue);
+  text-shadow: var(--glow-title);
+}
+.subtitle-font {
+  font-family: var(--font-subtitle);
+  color: var(--accent-rose);
+  text-shadow: var(--glow-subtitle);
+  letter-spacing: 0.5px;
+  font-size: clamp(22px, 5.5vw, 42px);
+}
+.section-label-font {
+  font-family: var(--font-title);
+  color: var(--accent-blue);
+  font-size: clamp(9px, 2.2vw, 11px);
+  letter-spacing: 1px;
+  text-shadow: var(--glow-title-soft);
+}
+.desc-font, .canva-text {
+  font-family: var(--font-body);
+  color: var(--accent-blue);
+}
+
+/* ============================================================
+   PANEL — every popup/card/box in every game shares this look
+   (covers: .panel, .canva-card, .pixel-border, .modal-box, .box)
+   ============================================================ */
+.panel, .canva-card, .pixel-border, .modal-box, .box {
+  background: var(--gradient-panel);
+  border: var(--border-width-panel) solid var(--border-purple);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--glow-panel);
+}
+
+/* ============================================================
+   BUTTONS
+   (covers: .btn, .canva-button)
+   ============================================================ */
+.btn, .canva-button {
+  font-family: var(--font-body);
+  font-weight: 700;
+  background: var(--gradient-btn);
+  border: var(--border-width-btn) solid var(--accent-pink);
+  color: #ffffff !important;
+  border-radius: var(--radius-btn);
+  padding: 12px 22px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: var(--glow-btn);
+}
+.btn:hover:not(:disabled), .canva-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  border-color: #ff6b81;
+  background: var(--gradient-btn-hover);
+  box-shadow: var(--glow-btn-hover);
+}
+.btn:disabled, .canva-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================================
+   MODAL / OVERLAY BACKDROP
+   (covers: .modal-overlay + .open, .overlay + .show/.active)
+   Note: full-screen ID-based layouts like #home-screen / #shop-screen
+   keep their own per-game positioning — this is just the popup pattern.
+   ============================================================ */
+.modal-overlay, .overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-overlay.open, .modal-overlay.active,
+.overlay.show, .overlay.active {
+  display: flex;
+}
+
+/* ============================================================
+   HUD
+   (covers: .hud-left/.hud-right, .hud-stat/.hud-row, .hud-value/.hud-val)
+   ============================================================ */
+.hud-left, .hud-right {
+  position: fixed;
+  top: 14px;
+  z-index: 100;
+  background: linear-gradient(135deg, rgba(26,10,46,0.75) 0%, rgba(18,8,32,0.75) 100%);
+  border: 1px solid var(--border-purple);
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  pointer-events: none;
+  font-family: var(--font-body);
+}
+.hud-left { left: 14px; align-items: flex-start; }
+.hud-right { right: 14px; align-items: flex-end; text-align: right; }
+.hud-stat, .hud-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.hud-icon { font-size: clamp(13px, 2.5vw, 15px); line-height: 1; }
+.hud-value, .hud-val {
+  font-size: clamp(13px, 2.5vw, 15px);
+  font-weight: 600;
+  color: var(--gold);
+  font-family: var(--font-body);
+}
+
+/* ============================================================
+   TAB / NAV BUTTONS (shop tabs, kingdom tabs, etc.)
+   (covers active states: .active, .active-tab, .shop-tab-active)
+   ============================================================ */
+.kingdom-tab-btn, .shop-tab-btn {
+  font-family: var(--font-body);
+  font-weight: 700;
+  border: var(--border-width-btn) solid var(--accent-violet) !important;
+  background: rgba(168,85,247,0.1);
+  color: var(--accent-blue);
+  border-radius: var(--radius-tab);
+  cursor: pointer;
+  box-shadow: var(--glow-tab);
+  transition: all 0.15s ease;
+}
+.kingdom-tab-btn:hover, .shop-tab-btn:hover {
+  border-color: #c084fc !important;
+  box-shadow: var(--glow-tab-hover);
+}
+.kingdom-tab-btn.active-tab, .kingdom-tab-btn.active,
+.shop-tab-btn.active-tab, .shop-tab-btn.active, .shop-tab-active {
+  background: var(--gradient-tab-active) !important;
+  box-shadow: var(--glow-tab-active) !important;
+  border-color: #c084fc !important;
+}
+
+/* ============================================================
+   QUIZ / ANSWER STATES
+   (covers: .choice-btn, .option, .word-cell, .memory-card)
+   Layout/padding stays per-game since grid tiles vs list rows vs
+   blocks are intentionally different shapes — only the color
+   language (correct/wrong/selected) is unified.
+   ============================================================ */
+.choice-btn.correct, .option.right, .word-cell.selected, .memory-card.matched {
+  background: var(--green) !important;
+  border-color: var(--green) !important;
+  color: #fff;
+}
+.choice-btn.wrong, .option.wrong, .word-cell.wrong {
+  background: var(--red) !important;
+  border-color: var(--red) !important;
+  color: #fff;
+}
+.option.disabled, .choice-btn.disabled, .word-cell.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ============================================================
+   SHOP ITEM CARD
+   ============================================================ */
+.shop-item {
+  background: rgba(255,143,168,0.12);
+  border: var(--border-width-btn) solid var(--accent-rose);
+  border-radius: 10px;
+  padding: 12px;
+  font-family: var(--font-body);
+}
+.shop-name { color: var(--accent-blue); font-weight: 700; }
+.shop-cost { color: #fde047; }
+.shop-desc { color: var(--accent-blue); opacity: 0.85; }
+.shop-owned { color: var(--green); }
+.shop-btn, .shop-buy {
+  background: var(--gradient-btn);
+  border: var(--border-width-btn) solid var(--accent-pink);
+  color: var(--accent-blue);
+  font-family: var(--font-body);
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.shop-btn:hover:not(:disabled), .shop-buy:hover:not(:disabled) {
+  transform: scale(1.05);
+  border-color: #ff6b81;
+  box-shadow: var(--glow-btn-hover);
+}
+.shop-btn:disabled, .shop-buy:disabled {
+  background: #333;
+  border-color: #555;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   SCREEN WIPE TRANSITION (identical across every game already)
+   ============================================================ */
+#screenWipe {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, var(--bg-primary) 20%, var(--bg-primary) 80%, transparent 100%);
+  z-index: 300;
+  pointer-events: none;
+  opacity: 0;
+}
+#screenWipe.wipe { animation: wipeAcross 1.5s ease-in-out; }
+@keyframes wipeAcross {
+  0% { left: -100%; opacity: 1; }
+  50% { left: 0%; opacity: 1; }
+  100% { left: 100%; opacity: 1; }
+}

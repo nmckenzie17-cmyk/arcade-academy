@@ -104,7 +104,7 @@
       }
       maxAmmo = 5 + bulletLevel;
       updateHomeStats();
-      if (selectedBankCode && !loadedCategories) {
+      if (selectedBankCode && !QuestionManager.hasQuestions()) {
         loadQuestionBank(selectedBankCode).then(updateCodeStatus);
       } else {
         updateCodeStatus();
@@ -165,7 +165,7 @@
     const statusEl = document.getElementById('code-status');
     if (!code) return;
     if (code === 'reset') {
-      loadedCategories = null; loadedBankCode = ''; loadedBankName = '';
+      QuestionManager.questions = null; QuestionManager.bankCode = ''; QuestionManager.bankName = '';
       selectedBankCode = '';
       await safeSave();
       updateCodeStatus();
@@ -494,55 +494,19 @@
   // Each round shows 16 tiles (all "correct" words + random distractors) and the player must
   // click every "correct" tile — same word-grid mechanic as the built-in game, just per-subject.
   // Change this value if Wild West Wordslinger ever supports another question type.
+  // All loading, storing, selecting and shuffling of categories lives in QuestionManager now.
   const QUESTION_BANK_TYPE = 'category';
-  const QUESTION_BANK_ROOT = '../../question-banks';
-  const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
-
-  let loadedCategories = null;  // array of {prompt,correct,distractors} once a valid class code is entered — required to play
-  let loadedBankCode = '';
-  let loadedBankName = '';
-
-  // Resolves a class code through the shared registry before loading the
-  // category JSON for the mapped subject and bank.
-  async function loadBankFromCode(code) {
-    try {
-      const registryRes = await fetch(QUESTION_BANK_REGISTRY_PATH, {cache:'no-store'});
-      if (!registryRes.ok) return null;
-      const registry = await registryRes.json();
-      const bank = registry[code];
-      if (!bank || !bank.subject || !bank.bank) return null;
-      const questionFile = `${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
-      const res = await fetch(questionFile, {cache:'no-store'});
-      return res.ok ? res.json() : null;
-    } catch (e) {
-      console.error('Failed to load question bank', e);
-      return null;
-    }
-  }
 
   async function loadQuestionBank(code) {
-    const data = await loadBankFromCode(code);
-    if (!data) return false;
-    try {
-      const list = Array.isArray(data) ? data : data.categories;
-      if (!Array.isArray(list) || list.length === 0) return false;
-      const valid = list.every(c => c && typeof c.prompt === 'string' && Array.isArray(c.correct) && Array.isArray(c.distractors) && c.correct.length > 0);
-      if (!valid) return false;
-      loadedCategories = list;
-      loadedBankCode = code;
-      loadedBankName = (!Array.isArray(data) && data.subject) ? data.subject : ('Bank ' + code);
-      return true;
-    } catch (e) {
-      console.error('Failed to load question bank', e);
-      return false;
-    }
+    const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
+    return result.ok;
   }
 
   function updateCodeStatus() {
     const el = document.getElementById('code-status');
     if (!el) return;
-    if (loadedCategories && loadedCategories.length) {
-      el.textContent = '📚 Loaded: ' + loadedBankName;
+    if (QuestionManager.hasQuestions()) {
+      el.textContent = '📚 Loaded: ' + QuestionManager.getBankName();
       el.style.color = '#2ecc71';
     } else {
       el.textContent = 'Enter your class code to play';
@@ -809,7 +773,7 @@
   }
 
   function startGame() {
-    if (!loadedCategories || !loadedCategories.length) {
+    if (!QuestionManager.hasQuestions()) {
       const statusEl = document.getElementById('code-status');
       if (statusEl) { statusEl.textContent = '⚠️ Enter a valid class code to play'; statusEl.style.color = '#e74c3c'; }
       showScreen('home-screen');
@@ -866,7 +830,7 @@
   function showPowerupAssessmentRound() {
     preRunMistakes = 0;
     preRunRoundStart = Date.now();
-    const cat = loadedCategories[Math.floor(Math.random()*loadedCategories.length)];
+    const cat = QuestionManager.getNextQuestion();
     document.getElementById('start-question-category').textContent =
       '⚡ Powerup Check ' + (preRunRoundIndex+1) + '/2 — ' + cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
@@ -943,8 +907,7 @@
   }
 
   function showStartQuestion() {
-    const source = loadedCategories;
-    const cat=source[Math.floor(Math.random()*source.length)];
+    const cat = QuestionManager.getNextQuestion();
     document.getElementById('start-question-category').textContent=cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
     const words=[...cat.correct,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);
@@ -1351,7 +1314,7 @@
     barWrap.innerHTML='<div style="background:#1a0a2e;border:2px solid var(--border-purple);border-radius:6px;height:16px;overflow:hidden;"><div id="boss-health-fill" style="background:linear-gradient(90deg,#e74c3c,#ff6b81);height:100%;width:100%;transition:width 0.2s;"></div></div><p id="boss-name-label" class="text-center text-xs font-bold" style="color:#fff;text-shadow:0 1px 3px #000;margin-top:2px;"></p><p id="boss-hint-label" class="text-center" style="color:#ffd8e0;font-size:11px;text-shadow:0 1px 3px #000;margin-top:1px;"></p>';
     area.appendChild(barWrap);
 
-    const cat = loadedCategories[Math.floor(Math.random()*loadedCategories.length)];
+    const cat = QuestionManager.getNextQuestion();
     document.getElementById('boss-name-label').textContent = '👹 ' + bossDef.name + ' — tap: ' + cat.prompt;
     document.getElementById('boss-hint-label').textContent = bossDef.hint || '';
     showFloatingText(area.clientWidth/2-60, area.clientHeight/2-20, '⚠️ BOSS FIGHT ⚠️', '#e74c3c', area);
@@ -1477,8 +1440,7 @@
   }
 
   function generateGrid() {
-    const source = loadedCategories;
-    const cat=source[Math.floor(Math.random()*source.length)];
+    const cat = QuestionManager.getNextQuestion();
     document.getElementById('reload-category').textContent=cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
     const words=[...cat.correct,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);

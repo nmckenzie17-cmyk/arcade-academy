@@ -79,14 +79,10 @@
             quizTimer: null,
             questionsAnswered: 0,
             totalQuestionsThisQuiz: 0,
+            // Holds question objects (as returned by QuestionManager) already
+            // served in the current quiz, so the next pick can avoid repeats.
             usedQuestions: [],
-            currentQuestionIndex: -1,
-
-            // Adaptive difficulty: each question starts at weight 1. Wrong answers
-            // double a question's weight (more likely to reappear, capped at 16);
-            // correct answers halve it (less likely to reappear, floor of 0.1).
-            // Indexed the same way as quizQuestions.
-            questionWeights: [],
+            currentQuestion: null,
 
             // Number of questions answered correctly in the current quiz. After the
             // quiz ends, the player gets to choose 1 power-up out of this many random
@@ -170,47 +166,14 @@
         const POWERUP_KEYS = Object.keys(POWERUP_DEFS);
 
 
-        // The currently active set of quiz questions. A valid code MUST be loaded
-        // before the game can start - there is no built-in default question bank.
-        let quizQuestions = null;
+        // Whether a question bank is currently loaded. A valid code MUST be
+        // loaded before the game can start - there is no built-in default
+        // question bank. All loading, storing, selecting and weighting of
+        // questions themselves lives in QuestionManager now.
         let currentSubjectName = null;
 
         // Change this value if Rocket Recall ever supports another question type.
         const QUESTION_BANK_TYPE = 'multichoice';
-        const QUESTION_BANK_ROOT = '../../question-banks';
-        const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
-
-        // JSON FORMAT (must match across all games for consistency):
-        // A plain top-level array of question objects, each shaped like:
-        //   { "q": "question text", "o": ["option A", "option B", ...], "a": 0 }
-        // where "a" is the index (0-based) into "o" of the correct option.
-        // Resolves a teacher code in the shared registry, then loads this
-        // game's configured question type from that subject/bank directory.
-        async function loadBankFromCode(code) {
-            const registryResponse = await fetch(QUESTION_BANK_REGISTRY_PATH, {cache:'no-store'});
-            if (!registryResponse.ok) return null;
-            const registry = await registryResponse.json();
-            const bank = registry[code];
-            if (!bank || !bank.subject || !bank.bank) return null;
-
-            const questionFile = `${QUESTION_BANK_ROOT}/${bank.subject}/${bank.bank}/${QUESTION_BANK_TYPE}.json`;
-            const response = await fetch(questionFile, {cache:'no-store'});
-            if (!response.ok) return null;
-            return response.json();
-        }
-
-        // Question banks are a plain top-level array of { q, o, a } objects:
-        //   q = question text (string)
-        //   o = array of answer options (>= 2)
-        //   a = index into o of the correct answer
-        function validateQuestionBank(data) {
-            if (!Array.isArray(data) || data.length === 0) return false;
-            return data.every(item =>
-                typeof item.q === 'string' &&
-                Array.isArray(item.o) && item.o.length >= 2 &&
-                Number.isInteger(item.a) && item.a >= 0 && item.a < item.o.length
-            );
-        }
 
         function setActiveSubject(name) {
             currentSubjectName = name;
@@ -224,9 +187,10 @@
         function updateBeginButtonState() {
             const beginBtn = document.getElementById('beginGameBtn');
             if (!beginBtn) return;
-            beginBtn.disabled = !quizQuestions;
-            beginBtn.style.opacity = quizQuestions ? '1' : '0.5';
-            beginBtn.style.cursor = quizQuestions ? 'pointer' : 'not-allowed';
+            const loaded = QuestionManager.hasQuestions();
+            beginBtn.disabled = !loaded;
+            beginBtn.style.opacity = loaded ? '1' : '0.5';
+            beginBtn.style.cursor = loaded ? 'pointer' : 'not-allowed';
         }
 
         // Loads a question bank by code. Called from the single code box on the
@@ -237,7 +201,7 @@
             const statusDiv = document.getElementById('bankStatus');
 
             if (code === '') {
-                quizQuestions = null;
+                QuestionManager.questions = null;
                 setActiveSubject(null);
                 statusDiv.innerHTML = 'No question bank loaded — enter a code to play';
                 statusDiv.style.color = 'var(--red-damage)';
@@ -248,35 +212,23 @@
             statusDiv.textContent = 'Loading...';
             statusDiv.style.color = 'var(--blue-highlight)';
 
-            try {
-                const data = await loadBankFromCode(code);
+            const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
 
-                if (!validateQuestionBank(data)) {
-                    throw new Error('question bank JSON failed validation');
-                }
-
-                // Normalize { q, o, a } -> { question, options, correct } for the game engine.
-                quizQuestions = data.map(item => ({
-                    question: item.q,
-                    options: item.o,
-                    correct: item.a
-                }));
-                // Reset adaptive weighting - every question starts equally likely.
-                game.questionWeights = quizQuestions.map(() => 1);
-                const subjectName = code.toUpperCase();
-                setActiveSubject(subjectName);
-                statusDiv.innerHTML = `✅ Loaded: <strong>${subjectName}</strong> (${quizQuestions.length} questions)`;
-                statusDiv.style.color = 'var(--green-success)';
-                localStorage.setItem('lastBankCode', code);
-                return true;
-            } catch (err) {
-                console.error('Question bank load failed:', err);
-                quizQuestions = null;
+            if (!result.ok) {
+                console.error('Question bank load failed:', result.error);
+                QuestionManager.questions = null;
                 setActiveSubject(null);
                 statusDiv.innerHTML = `❌ Couldn't load code "${code}" — enter a valid code to play. (If you're testing locally, this game must be served from a web server, not opened as a local file.)`;
                 statusDiv.style.color = 'var(--red-damage)';
                 return false;
             }
+
+            const subjectName = result.name;
+            setActiveSubject(subjectName);
+            statusDiv.innerHTML = `✅ Loaded: <strong>${subjectName}</strong> (${QuestionManager.questions.length} questions)`;
+            statusDiv.style.color = 'var(--green-success)';
+            localStorage.setItem('lastBankCode', code);
+            return true;
         }
 
         // Re-load whichever bank code was used last time, for convenience
@@ -3665,7 +3617,7 @@
         }
 
         function startGame() {
-            if (!quizQuestions || quizQuestions.length === 0) {
+            if (!QuestionManager.hasQuestions()) {
                 const statusDiv = document.getElementById('bankStatus');
                 if (statusDiv) {
                     statusDiv.innerHTML = '❌ Enter a valid question bank code before starting';
@@ -3681,7 +3633,7 @@
         function answerQuiz(optionIndex) {
             if (game.state !== GameState.QUIZ) return;
             
-            const question = quizQuestions[game.currentQuestionIndex];
+            const question = game.currentQuestion;
             // optionIndex is the clicked DISPLAY position; map back to the real option index
             // via the shuffled order set up in nextQuestion().
             const optionOrder = game.currentOptionOrder || question.options.map((_, idx) => idx);
@@ -3709,14 +3661,10 @@
                 options[correctDisplayIndex].style.borderColor = 'var(--green-success)';
             }
             
-            // Adaptive difficulty: correct answers make a question rarer (half its
-            // weight, floor 0.1), wrong answers make it more likely to reappear
-            // (double its weight, cap 16) so struggling students see it again sooner.
-            const weightedIndex = game.currentQuestionIndex;
-            const currentWeight = game.questionWeights[weightedIndex] ?? 1;
-            game.questionWeights[weightedIndex] = isCorrect
-                ? Math.max(0.1, currentWeight / 2)
-                : Math.min(16, currentWeight * 2);
+            // Adaptive difficulty: correct answers make a question rarer, wrong
+            // answers make it more likely to reappear, so struggling students see
+            // it again sooner. The weighting itself lives in QuestionManager.
+            QuestionManager.recordAnswer(game.currentQuestionSource, isCorrect);
             
             if (isCorrect) {
                 const ammoGenLevel = game.runPowerups.ammoGeneration || 0;
@@ -4037,7 +3985,7 @@
             if (elapsedEl) elapsedEl.textContent = '00:00';
             
             hideAllModals();
-            if (playAgain && quizQuestions && quizQuestions.length > 0) {
+            if (playAgain && QuestionManager.hasQuestions()) {
                 game.canvas = document.getElementById('gameCanvas');
                 game.ctx = game.canvas.getContext('2d');
                 game.width = 800;
@@ -4135,37 +4083,22 @@
             nextQuestion();
         }
 
-        // Picks a random index out of `indices`, weighted by game.questionWeights.
-        // Questions the student has recently gotten wrong carry a higher weight
-        // (up to 16x) and so are more likely to be picked; questions they've
-        // nailed carry a lower weight (down to 0.1x) and become rarer.
-        function weightedRandomIndex(indices) {
-            const weights = indices.map(i => game.questionWeights[i] ?? 1);
-            const total = weights.reduce((sum, w) => sum + w, 0);
-            if (total <= 0) return indices[Math.floor(Math.random() * indices.length)];
-            let roll = Math.random() * total;
-            for (let i = 0; i < indices.length; i++) {
-                roll -= weights[i];
-                if (roll <= 0) return indices[i];
-            }
-            return indices[indices.length - 1];
-        }
-
         function nextQuestion() {
-            let availableIndices = quizQuestions
-                .map((_, index) => index)
-                .filter(index => !game.usedQuestions.includes(index));
-            
-            if (availableIndices.length === 0) {
+            // QuestionManager picks the next question (weighted by how the
+            // student has been doing on it) while avoiding repeats within this
+            // quiz where possible; usedQuestions holds the actual question
+            // objects it has already served this quiz. Once every question has
+            // been served, start the "already seen" tracking over.
+            if (QuestionManager.questions.every(item => game.usedQuestions.includes(item))) {
                 game.usedQuestions = [];
-                availableIndices = quizQuestions.map((_, index) => index);
             }
-            
-            const questionIndex = weightedRandomIndex(availableIndices);
-            game.usedQuestions.push(questionIndex);
-            game.currentQuestionIndex = questionIndex;
-            
-            const question = quizQuestions[questionIndex];
+            const q = QuestionManager.getNextQuestion(false, game.usedQuestions);
+            game.usedQuestions.push(q);
+            game.currentQuestionSource = q;
+
+            // Adapt to the field names this game's rendering code expects.
+            const question = { question: q.q, options: q.a, correct: q.c };
+            game.currentQuestion = question;
             
             document.getElementById('quizQuestion').textContent = question.question;
             
@@ -4270,7 +4203,8 @@
             }
             const key = game.bonusQuizQueue[0];
             const def = RUN_POWERUP_DEFS[key];
-            const q = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+            const raw = QuestionManager.getRandomQuestion();
+            const q = { question: raw.q, options: raw.a, correct: raw.c };
             const shuffledOptions = q.options.map((opt, idx) => ({ opt, idx })).sort(() => Math.random() - 0.5);
 
             document.getElementById('quizTimer').style.display = 'none';
@@ -5541,7 +5475,7 @@
             if ((game.permanentUpgrades.emergencyAmmo || 0) <= 0) return;
             if (game.emergencyAmmoUsedThisWave) return;
             if (game.state !== GameState.PLAYING) return;
-            if (!quizQuestions || quizQuestions.length === 0) return;
+            if (!QuestionManager.hasQuestions()) return;
 
             game.emergencyAmmoUsedThisWave = true;
             updateEmergencyAmmoButton();
@@ -5549,7 +5483,8 @@
             game.state = GameState.QUIZ; // reuse the quiz pause state so gameplay freezes
             hideAllModals();
 
-            const q = quizQuestions[Math.floor(Math.random() * quizQuestions.length)];
+            const raw = QuestionManager.getRandomQuestion();
+            const q = { question: raw.q, options: raw.a, correct: raw.c };
             document.getElementById('emergencyAmmoQuestion').textContent = q.question;
             document.getElementById('emergencyAmmoResult').textContent = '';
 

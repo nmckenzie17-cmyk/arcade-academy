@@ -1,3 +1,4 @@
+
     // Config editable via Canva
     const defaultConfig = {
       game_title: "Shuriken Scholar",
@@ -7,8 +8,6 @@
     // Change this value if this game is ever updated to use a different bank type.
     // Shuriken Scholar currently supports only multiple-choice question banks.
     const QUESTION_BANK_TYPE = 'multichoice';
-    const QUESTION_BANK_ROOT = '../../question-banks';
-    const QUESTION_BANK_REGISTRY_PATH = `${QUESTION_BANK_ROOT}/banks.json`;
 
     let ctx;
     const canvas = document.getElementById('canvas');
@@ -375,11 +374,11 @@
     const SAMURAI_WALK_SPEED = 2.4;
     let shadowReady = true;
 
-    // Quiz state
+    // Quiz state. usedQuestions holds references to question objects already
+    // served in the current quiz (not indices) — QuestionManager owns the
+    // underlying question array now, so exclusion is done by identity.
     let quiz = { index: 0, correct: 0, forPowerup: false, pending: 0, usedQuestions: [], questionCount: 4 };
 
-    
-    let questions = [];
     // Helper functions
     function norm(dx, dy) {
       const d = Math.hypot(dx, dy);
@@ -1188,37 +1187,17 @@
 
     const DEV_CHEAT_CODE = 'devtest';
 
-    // Looks up a teacher code in the shared registry, then builds this game's
-    // question-file path from the registry subject, bank, and configured type.
-    async function loadBankFromCode(code) {
-      try {
-        const registryResponse = await fetch(QUESTION_BANK_REGISTRY_PATH, { cache: 'no-store' });
-        if (!registryResponse.ok) return null;
-
-        const registry = await registryResponse.json();
-        const bankDetails = registry[code];
-        if (!bankDetails || !bankDetails.subject || !bankDetails.bank) return null;
-
-        const questionFile = `${QUESTION_BANK_ROOT}/${bankDetails.subject}/${bankDetails.bank}/${QUESTION_BANK_TYPE}.json`;
-        const questionsResponse = await fetch(questionFile, { cache: 'no-store' });
-        if (!questionsResponse.ok) return null;
-
-        const loadedQuestions = await questionsResponse.json();
-        return Array.isArray(loadedQuestions) && loadedQuestions.length > 0 ? loadedQuestions : null;
-      } catch (error) {
-        console.error('Unable to load question bank:', error);
-        return null;
-      }
-    }
-
     async function loadQuestionBank(code){
     const devMode = code === DEV_CHEAT_CODE;
     const lookupCode = devMode ? 'test' : code;
-    const loadedQuestions = await loadBankFromCode(lookupCode);
+    const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
 
-    if (!loadedQuestions) return false;
+    if (!result.ok) return false;
 
-    questions = loadedQuestions;
+    // Adaptive question weighting persists across sessions for this game
+    // (see progress.questionWeights), unlike the in-memory-only default —
+    // restore whatever was saved onto the freshly-loaded bank.
+    QuestionManager.restoreWeights(progress.questionWeights);
 
     if (!devMode && !progress.playedCodes.includes(code)) {
       progress.playedCodes.push(code);
@@ -4709,25 +4688,14 @@
       }
     }
 
-    function getQuestionWeight(q) {
-      const w = progress.questionWeights[q.q];
-      return typeof w === 'number' ? w : 1;
-    }
-    function adjustQuestionWeight(q, correct) {
-      let w = getQuestionWeight(q);
-      w = correct ? w * 0.5 : w * 2;
-      w = Math.max(0.1, Math.min(8, w));
-      progress.questionWeights[q.q] = w;
-    }
-    function weightedPickQuestion(pool) {
-      const weights = pool.map(getQuestionWeight);
-      const total = weights.reduce((a, b) => a + b, 0);
-      let r = Math.random() * total;
-      for (let i = 0; i < pool.length; i++) {
-        r -= weights[i];
-        if (r <= 0) return pool[i];
-      }
-      return pool[pool.length - 1];
+    // Weight cap for this game's adaptive difficulty is lower (8x) than the
+    // shared default (16x) — passed explicitly to QuestionManager.recordAnswer().
+    const QUESTION_WEIGHT_CAP = 8;
+
+    // Persists the current in-memory weights (as tracked by QuestionManager)
+    // back onto progress.questionWeights so they survive a refresh.
+    function saveQuestionWeights() {
+      progress.questionWeights = QuestionManager.getWeightsSnapshot();
     }
 
     function startQuiz(forPowerup) {
@@ -4744,18 +4712,15 @@
 
     function showQuestion() {
       if (quiz.index >= quiz.questionCount) { showQuizResult(); return; }
-      const available = questions.filter((q, idx) => !quiz.usedQuestions.includes(idx));
-      const pool = available.length > 0 ? available : questions;
-      const q = weightedPickQuestion(pool);
-      const originalIndex = questions.indexOf(q);
-      quiz.usedQuestions.push(originalIndex);
+      const q = QuestionManager.getNextQuestion(false, quiz.usedQuestions);
+      quiz.usedQuestions.push(q);
       quiz.currentQ = q;
       document.getElementById('quizNum').textContent = `Question ${quiz.index + 1}/${quiz.questionCount}`;
       document.getElementById('quizQ').textContent = q.q;
 
       const container = document.getElementById('quizOpts');
       container.innerHTML = '';
-      q.o.map((opt, idx) => ({ text: opt, isCorrect: idx === q.a })).sort(() => Math.random() - 0.5).forEach(opt => {
+      q.a.map((opt, idx) => ({ text: opt, isCorrect: idx === q.c })).sort(() => Math.random() - 0.5).forEach(opt => {
         const btn = document.createElement('div');
         btn.className = 'option';
         btn.textContent = opt.text;
@@ -4767,7 +4732,10 @@
     function answerQuestion(correct, btn) {
       const all = document.querySelectorAll('#quizOpts .option');
       all.forEach(o => o.classList.add('disabled'));
-      if (quiz.currentQ) adjustQuestionWeight(quiz.currentQ, correct);
+      if (quiz.currentQ) {
+        QuestionManager.recordAnswer(quiz.currentQ, correct, { cap: QUESTION_WEIGHT_CAP });
+        saveQuestionWeights();
+      }
       if (correct) {
         btn.classList.add('right');
         quiz.correct++;
@@ -6050,7 +6018,7 @@
     }
 
     function runNextPowerupUnlockQuiz() {
-      if (powerupQuizQueue.length === 0 || !questions || questions.length === 0) {
+      if (powerupQuizQueue.length === 0 || !QuestionManager.hasQuestions()) {
         startPowerupPhase();
         return;
       }
@@ -6064,7 +6032,7 @@
 
     function showPowerupUnlockQuestion() {
       if (powerupQuizState.index >= powerupQuizState.questionCount) { finishPowerupUnlockQuiz(); return; }
-      const q = weightedPickQuestion(questions);
+      const q = QuestionManager.getNextQuestion();
       powerupQuizState.currentQ = q;
       const info = SINGLE_USE_POWERUPS[powerupQuizState.key];
       document.getElementById('quizNum').textContent = `${info.name} — Q${powerupQuizState.index + 1}/${powerupQuizState.questionCount}`;
@@ -6072,7 +6040,7 @@
 
       const container = document.getElementById('quizOpts');
       container.innerHTML = '';
-      q.o.map((opt, idx) => ({ text: opt, isCorrect: idx === q.a })).sort(() => Math.random() - 0.5).forEach(opt => {
+      q.a.map((opt, idx) => ({ text: opt, isCorrect: idx === q.c })).sort(() => Math.random() - 0.5).forEach(opt => {
         const btn = document.createElement('div');
         btn.className = 'option';
         btn.textContent = opt.text;
@@ -6084,7 +6052,10 @@
     function answerPowerupUnlockQuestion(correct, btn) {
       const all = document.querySelectorAll('#quizOpts .option');
       all.forEach(o => o.classList.add('disabled'));
-      if (powerupQuizState.currentQ) adjustQuestionWeight(powerupQuizState.currentQ, correct);
+      if (powerupQuizState.currentQ) {
+        QuestionManager.recordAnswer(powerupQuizState.currentQ, correct, { cap: QUESTION_WEIGHT_CAP });
+        saveQuestionWeights();
+      }
       if (correct) {
         btn.classList.add('right');
         powerupQuizState.correct++;
