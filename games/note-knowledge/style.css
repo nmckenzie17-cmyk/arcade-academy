@@ -1,134 +1,99 @@
-    :root {
-      --vh: 1vh;
-      --bg-primary: #0a0a0a;
-      --panel-dark: #1a0a2e;
-      --panel-dark-2: #150826;
-      --border-purple: #6a0572;
-      --accent-pink: #e94560;
-      --accent-blue: #00d4ff;
-      --gold: #d4af37;
-      --green: #2ecc71;
-      --red: #e74c3c;
-      --accent-violet: #a855f7;
-    }
-    * { image-rendering: pixelated; box-sizing: border-box; font-family: 'Lexend', sans-serif; }
-    html, body {
-      background: var(--bg-primary);
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      overflow: hidden;
-      overscroll-behavior: none;
-      -webkit-text-size-adjust: 100%;
-    }
-    .desc-font { font-family: 'Lexend', sans-serif; }
-    .canva-text { color: var(--accent-blue); }
-    .title-font, #menu-screen h1 {
-      font-family: 'Press Start 2P', cursive;
-      letter-spacing: 1px;
-      color: var(--accent-blue);
-      text-shadow: 0 0 8px rgba(0,212,255,0.6), 0 0 18px rgba(0,212,255,0.25);
-    }
-    .subtitle-font {
-      font-family: 'VT323', monospace;
-      color: #ff8fa8;
-      text-shadow: 0 0 4px rgba(255,143,168,0.35);
-      letter-spacing: 0.5px;
-      font-size: clamp(20px, 6vw, 30px);
-    }
-    .section-label-font {
-      font-family: 'Press Start 2P', cursive;
-      color: var(--accent-blue);
-      font-size: clamp(9px, 2.2vw, 11px);
-      letter-spacing: 1px;
-      text-shadow: 0 0 6px rgba(0,212,255,0.4);
-    }
-    #menu-screen h1 { font-size: clamp(18px, 6vw, 28px); line-height: 1.4; }
-    /* ===== Unified panel style (shop, songs, code box, home) ===== */
-    .canva-card, .pixel-border {
-      background: linear-gradient(160deg, var(--panel-dark) 0%, var(--panel-dark-2) 100%);
-      border: 3px solid var(--border-purple);
-      border-radius: 16px;
-      box-shadow: 0 0 0 1px rgba(233,69,96,0.25), 0 0 24px rgba(106,5,114,0.65), 0 0 48px rgba(0,212,255,0.12), inset 0 0 30px rgba(106,5,114,0.25);
-    }
-    /* ===== Unified button style ===== */
-    .canva-button {
-      background: linear-gradient(160deg, #3d1155 0%, #240a38 100%);
-      border: 2px solid var(--accent-pink);
-      color: #ffffff !important;
-      font-family: 'Lexend', sans-serif;
-      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-      box-shadow: 0 0 10px rgba(233,69,96,0.25);
-    }
-    .canva-button:hover {
-      transform: scale(1.05);
-      border-color: #ff6b81;
-      background: linear-gradient(160deg, #5c1a75 0%, #33104a 100%);
-      box-shadow: 0 0 18px rgba(233,69,96,0.6);
-    }
-    #start-btn { color: var(--accent-blue) !important; text-shadow: 0 0 8px rgba(0,212,255,0.6), 0 0 18px rgba(0,212,255,0.25); }
-    :root { --vh: 1vh; }
-    .game-height { height: calc(100 * min(var(--vh, 1vh), 1vh)); }
-    @supports (height: 100dvh) {
-      .game-height { height: 100dvh; }
-    }
-    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .pulse { animation: pulse 0.6s ease-in-out infinite; }
-    @keyframes pixelBurst { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
-    @keyframes floatUpWord { from { opacity: 1; transform: translate(-50%,-50%); } to { opacity: 0; transform: translate(-50%,-190%); } }
-    @keyframes chainShake {
-      0%,100% { transform: translate(0,0); }
-      20% { transform: translate(calc(-1 * var(--shake-amt,2px)), calc(var(--shake-amt,2px) * 0.6)); }
-      40% { transform: translate(var(--shake-amt,2px), calc(-1 * var(--shake-amt,2px) * 0.6)); }
-      60% { transform: translate(calc(-1 * var(--shake-amt,2px) * 0.7), var(--shake-amt,2px)); }
-      80% { transform: translate(calc(var(--shake-amt,2px) * 0.7), calc(-1 * var(--shake-amt,2px))); }
-    }
-    #score-box.chain-shake { animation: chainShake 0.25s ease-in-out; }
-    .pixel-btn { border: 3px solid #000; box-shadow: 4px 4px 0 #000; transition: all 0.1s; }
-    .pixel-btn:active { box-shadow: 1px 1px 0 #000; transform: translate(3px, 3px); }
-    .lane-note { width: 90%; position: absolute; left: 5%; border: 3px solid #000; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 700; color: #000; text-align: center; overflow: hidden; padding: 3px; }
-    .lane-note.hold-note { border: 3px solid #fff; box-shadow: 0 0 8px rgba(255,255,0,0.6); }
-    .lane-note.hold-active { box-shadow: 0 0 16px rgba(0,255,255,0.8); }
-    .hold-bar { position: absolute; left: 12%; right: 12%; bottom: 100%; height: 0; border: 2px solid #fff; border-bottom: 0; background: rgba(255,255,0,0.25); pointer-events: none; }
-    .hold-bar-fill { position: absolute; inset: 0 0 auto 0; height: 0%; background: #00ffff; box-shadow: 0 0 8px #00ffff; transition: height 0.08s linear; }
-    .health-bar { transition: width 0.3s; }
-    .scanlines::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); }
-    canvas#bg-canvas { position: fixed; inset: 0; z-index: -1; }
-    .song-card { border: 2px solid var(--border-purple); background: var(--panel-dark); padding: 6px 8px; font-size: 7px; text-align: center; color: #ffffff; font-family: 'Lexend', sans-serif; transition: all 0.2s; }
-    .song-card.unlocked { border-color: var(--accent-blue); cursor: pointer; }
-    .song-card.unlocked:hover { background: #3d1155; }
-    .song-card.locked { opacity: 0.4; cursor: not-allowed; }
-    .song-card.selected { background: rgba(0,212,255,0.15); border-color: var(--accent-blue); box-shadow: 0 0 8px rgba(0,212,255,0.5); }
+/* ============================================================
+   GAME-SPECIFIC STYLES ONLY
+   Shared design tokens, typography, panels, buttons, HUD base,
+   and the screen-wipe transition all now come from
+   shared/css/global.css.
+   ============================================================ */
 
-    /* ===== Modal overlay (Shop / Songs / High Scores) — matches WWW ===== */
-    .modal-overlay { display: none; position: absolute; inset: 0; z-index: 100; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
-    .modal-overlay.open { display: flex; }
+/* Broader than global's canvas/img.pixel-art scope — this game
+   intentionally pixelates everything, and forces the body font
+   onto form controls, which don't inherit font-family by default */
+* { image-rendering: pixelated; font-family: var(--font-body); }
 
-    /* ===== HUD — always top corners, never moves ===== */
-    .hud-left, .hud-right {
-      position: absolute; top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px)); z-index: 40;
-      background: linear-gradient(135deg, rgba(26,10,46,0.75) 0%, rgba(18,8,32,0.75) 100%);
-      border: 1px solid var(--border-purple);
-      border-radius: 10px;
-      padding: 8px 14px;
-      display: flex; flex-direction: column; gap: 4px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-      pointer-events: none;
-    }
-    .hud-left { left: 14px; align-items: flex-start; }
-    .hud-right { right: 14px; align-items: flex-end; text-align: right; }
-    .hud-stat { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-    .hud-icon { font-size: clamp(13px, 2.5vw, 15px); line-height: 1; }
-    .hud-value { font-size: clamp(13px, 2.5vw, 15px); font-weight: 600; color: var(--gold); font-family: 'Lexend', sans-serif; }
-    .hud-healthbar-wrap { width: 70px; height: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-purple); border-radius: 4px; overflow: hidden; margin-top: 2px; }
-    #screenWipe {
-      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent 0%, #0a0a0a 20%, #0a0a0a 80%, transparent 100%);
-      z-index: 300; pointer-events: none; opacity: 0;
-    }
-    #screenWipe.wipe { animation: wipeAcross 1.5s ease-in-out; }
-    @keyframes wipeAcross {
-      0% { left: -100%; opacity: 1; }
-      50% { left: 0%; opacity: 1; }
-      100% { left: 100%; opacity: 1; }
-    }
+/* Game locks the viewport in place; background/overflow/etc.
+   already come from global's html,body rule */
+html, body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
+
+/* .desc-font / .canva-text now come from global.css */
+
+/* .title-font styling now comes from global.css; #menu-screen h1
+   keeps the same look plus its own size/line-height */
+#menu-screen h1 {
+  font-family: var(--font-title);
+  letter-spacing: 1px;
+  color: var(--accent-blue);
+  text-shadow: var(--glow-title);
+  font-size: clamp(18px, 6vw, 28px);
+  line-height: 1.4;
+}
+
+/* Only the font-size differs from global's .subtitle-font */
+.subtitle-font { font-size: clamp(20px, 6vw, 30px); }
+
+/* .section-label-font now comes from global.css */
+
+/* .canva-card / .pixel-border panel look now comes from global.css */
+/* .canva-button + hover now come from global.css */
+
+#start-btn { color: var(--accent-blue) !important; text-shadow: var(--glow-title); }
+
+.game-height { height: calc(100 * min(var(--vh, 1vh), 1vh)); }
+@supports (height: 100dvh) {
+  .game-height { height: 100dvh; }
+}
+
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.pulse { animation: pulse 0.6s ease-in-out infinite; }
+@keyframes pixelBurst { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+@keyframes floatUpWord { from { opacity: 1; transform: translate(-50%,-50%); } to { opacity: 0; transform: translate(-50%,-190%); } }
+@keyframes chainShake {
+  0%,100% { transform: translate(0,0); }
+  20% { transform: translate(calc(-1 * var(--shake-amt,2px)), calc(var(--shake-amt,2px) * 0.6)); }
+  40% { transform: translate(var(--shake-amt,2px), calc(-1 * var(--shake-amt,2px) * 0.6)); }
+  60% { transform: translate(calc(-1 * var(--shake-amt,2px) * 0.7), var(--shake-amt,2px)); }
+  80% { transform: translate(calc(var(--shake-amt,2px) * 0.7), calc(-1 * var(--shake-amt,2px))); }
+}
+#score-box.chain-shake { animation: chainShake 0.25s ease-in-out; }
+
+.pixel-btn { border: 3px solid #000; box-shadow: 4px 4px 0 #000; transition: all 0.1s; }
+.pixel-btn:active { box-shadow: 1px 1px 0 #000; transform: translate(3px, 3px); }
+
+.lane-note { width: 90%; position: absolute; left: 5%; border: 3px solid #000; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 700; color: #000; text-align: center; overflow: hidden; padding: 3px; }
+.lane-note.hold-note { border: 3px solid #fff; box-shadow: 0 0 8px rgba(255,255,0,0.6); }
+.lane-note.hold-active { box-shadow: 0 0 16px rgba(0,255,255,0.8); }
+.hold-bar { position: absolute; left: 12%; right: 12%; bottom: 100%; height: 0; border: 2px solid #fff; border-bottom: 0; background: rgba(255,255,0,0.25); pointer-events: none; }
+.hold-bar-fill { position: absolute; inset: 0 0 auto 0; height: 0%; background: #00ffff; box-shadow: 0 0 8px #00ffff; transition: height 0.08s linear; }
+.health-bar { transition: width 0.3s; }
+.scanlines::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); }
+canvas#bg-canvas { position: fixed; inset: 0; z-index: -1; }
+
+.song-card { border: 2px solid var(--border-purple); background: var(--panel-dark); padding: 6px 8px; font-size: 7px; text-align: center; color: #ffffff; transition: all 0.2s; }
+.song-card.unlocked { border-color: var(--accent-blue); cursor: pointer; }
+.song-card.unlocked:hover { background: #3d1155; }
+.song-card.locked { opacity: 0.4; cursor: not-allowed; }
+.song-card.selected { background: rgba(0,212,255,0.15); border-color: var(--accent-blue); box-shadow: 0 0 8px rgba(0,212,255,0.5); }
+
+/* Base show/hide (.open) behavior now comes from global's .modal-overlay;
+   this game keeps its own position (absolute, not fixed) and a lighter backdrop */
+.modal-overlay { position: absolute; background: rgba(0,0,0,0.8); }
+
+/* Background/border/layout/text-shadow now come from global's
+   .hud-left/.hud-right; this game keeps its own position (absolute,
+   not fixed), safe-area-aware top offset, and lower z-index */
+.hud-left, .hud-right {
+  position: absolute;
+  top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
+  z-index: 40;
+}
+/* .hud-left/.hud-right left/right/align-items, .hud-stat, .hud-icon,
+   .hud-value now come from global.css */
+
+.hud-healthbar-wrap { width: 70px; height: 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-purple); border-radius: 4px; overflow: hidden; margin-top: 2px; }
+
+/* Only the position differs from global's #screenWipe (absolute here,
+   fixed in global); .wipe / @keyframes wipeAcross now come from global.css */
+#screenWipe { position: absolute; }
