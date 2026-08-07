@@ -66,8 +66,8 @@
   .hidden{display:none !important;}
   /* Title and quiz screens break out of the (often letterboxed) game stage and
      cover the whole browser viewport, so they read as true full-screen pages. */
-  #titleScreen, #quizModal{position:fixed; inset:0; z-index:1000; padding:20px;}
-  #titleScreen .panel, #quizModal .panel{max-width:900px; width:94%; max-height:94vh;}
+  #titleScreen, #quizModal, #homeShopModal{position:fixed; inset:0; z-index:1000; padding:20px;}
+  #titleScreen .panel, #quizModal .panel, #homeShopModal .panel{max-width:900px; width:94%; max-height:94vh;}
   /* Same panel-family look as every other game (gradient + purple border + glow), kept at
      the sharp pixel-art corners (no --radius-panel) that fit Cavern Crammer's identity. */
   .panel{background:var(--gradient-panel); border:3px solid var(--outline); box-shadow:var(--glow-panel);
@@ -92,9 +92,35 @@
   .hubLink a{color:var(--accent-blue); text-decoration:none; font-family:var(--font-body); font-weight:600;}
   .hubLink a:hover{color:var(--accent-rose); text-decoration:underline;}
 
-  /* title screen */
-  #titleScreen .subtitle{color:var(--bone-dim); font-size:11px; text-align:center; margin-bottom:16px;}
-  #titleScreen .controlsHint{font-size:10px; color:var(--bone-dim); margin-top:14px; line-height:1.7;}
+  /* title screen — restructured to match the family's "home page" pattern (stat row,
+     Shop button that hides hero-select/upgrades, description list, canvas background,
+     footer credit — see Shuriken Scholar), also matching its size/font/colour choices:
+     cyan titles & headings, pink subtitle, gold stat numbers, violet Shop/Start buttons. */
+  #titleScreen.home-page{align-items:flex-start; overflow-y:auto; padding:20px 0;}
+  #titleScreen.home-page .panel{position:relative; z-index:2; margin:auto;}
+  #homeBg{position:absolute; top:0; left:0; width:100%; height:100%; opacity:0.35; z-index:1; pointer-events:none;}
+  #titleScreen h1{color:var(--accent-blue); text-shadow:var(--glow-title);}
+  #titleScreen h2{color:var(--accent-blue); text-shadow:none;}
+  #titleScreen .subtitle{color:var(--bone-dim); font-size:14px; font-weight:700; text-align:center; margin:6px 0 20px;}
+
+  .homeStatsRow{display:flex; justify-content:space-between; gap:8px; margin-bottom:16px; padding:0 2px; flex-wrap:wrap;}
+  .homeStat{flex:1; min-width:70px; text-align:center; background:rgba(0,0,0,0.28); border:2px solid var(--outline); padding:6px 4px;}
+  .homeStatLabel{font-size:9px; color:var(--accent-blue); margin:0 0 4px;}
+  .homeStatVal{font-size:18px; color:var(--amber); font-family:var(--font-title); margin:0;}
+  .descList p{font-size:12px; line-height:1.7; color:var(--accent-blue); margin:2px 0; text-align:left;}
+  .createdBy{text-align:center; opacity:0.6; font-size:10px; margin-top:14px; font-family:var(--font-body);}
+
+  .shopEntryBtn{display:block; width:100%; margin:4px 0 16px; background:rgba(139,95,191,0.15);
+    border:2px solid var(--outline); color:var(--accent-blue); font-size:13px; padding:12px;
+    box-shadow:none; text-shadow:0 0 8px rgba(0,180,255,0.35);}
+  .shopEntryBtn:hover:not(:disabled){background:rgba(139,95,191,0.3); box-shadow:var(--glow-tab-hover);}
+  #startBtn{width:100%; background:linear-gradient(160deg, #3d2a5c 0%, #241a38 100%); color:var(--accent-blue) !important;
+    text-shadow:0 0 8px rgba(0,180,255,0.5); text-transform:uppercase; letter-spacing:2px; padding:14px;
+    box-shadow:0 3px 0 #17102a;}
+  #startBtn:hover:not(:disabled){box-shadow:0 3px 0 #17102a, var(--glow-btn-hover);}
+  #startBtn:disabled{background:#4a4460; color:#847d99 !important; text-shadow:none; box-shadow:none;}
+
+
 
   /* quiz */
   #quizModal .qTitle{font-size:12px; color:var(--bone-dim); text-align:center; margin-bottom:14px;}

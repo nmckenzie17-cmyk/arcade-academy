@@ -37,30 +37,61 @@
     </div>
 
     <!-- Title -->
-    <div id="titleScreen" class="overlay">
+    <div id="titleScreen" class="overlay home-page">
+      <canvas id="homeBg"></canvas>
       <div class="panel">
         <h1>CAVERN CRAMMER</h1>
         <div class="subtitle">a tiny pixel roguelike of ruins, riddles &amp; recall</div>
-        <p>Climb tall, crumbling ruins full of spikes, foes, wall-jump shafts, and hidden traps.
-        Coins you carry are only safe once you reach a shrine — die before then and they're gone.
-        Each ruin hides one locked vault door leading to a loot room; find its key at a shrine to claim the treasure. Clear 4
-        ruins in a zone and a Guardian blocks the way — defeat it to descend into a new, deadlier
-        zone. You have limited lives — run out, and the ruins are lost for good (though your shop
-        upgrades remain).</p>
-        <div class="controlsHint">
-          ◀ ▶ or A/D — walk &nbsp;•&nbsp; SPACE / ▲ / W — jump (tap again mid-air to double jump, hold toward a wall to wall-jump)<br>
-          Touch players: use the on-screen pad in the corner.
+
+        <div class="homeStatsRow">
+          <div class="homeStat"><p class="homeStatLabel">🪙 Coins</p><p class="homeStatVal" id="homeTotalCoins">0</p></div>
+          <div class="homeStat"><p class="homeStatLabel">🏛️ Deepest Ruin</p><p class="homeStatVal" id="homeBestDepth">0</p></div>
+          <div class="homeStat"><p class="homeStatLabel">🗝️ Vaults</p><p class="homeStatVal" id="homeVaults">0</p></div>
+          <div class="homeStat"><p class="homeStatLabel">📖 Correct</p><p class="homeStatVal" id="homeCorrect">0</p></div>
         </div>
+
+        <button class="btn shopEntryBtn" id="openHomeShopBtn">Shop</button>
+
+        <h2 class="center" style="margin:16px 0 8px;">DESCRIPTION</h2>
+        <div class="descList">
+          <p>🏮 Climb tall, crumbling ruins lit only by your lantern.</p>
+          <p>🪙 Coins you carry are only safe once banked at a shrine — die before then and they're gone.</p>
+          <p>🗝️ Each ruin hides a locked vault door; find its key at a shrine to claim the loot.</p>
+          <p>📚 Answer shrine riddles correctly to earn powerful boons for the rest of your run.</p>
+          <p>👹 Clear 4 ruins in a zone and a Guardian blocks the way to the next, deadlier zone.</p>
+          <p>🎮 ◀ ▶ / A D — walk &nbsp;•&nbsp; SPACE / ▲ / W — jump (tap again to double jump, hold toward a wall to wall-jump). Touch players: use the on-screen pad.</p>
+        </div>
+
+        <div class="codeBox"><p id="bankMessage"></p></div>
+
+        <div class="center" style="margin-top:16px;">
+          <button class="btn" id="startBtn">▶ START</button>
+        </div>
+        <p class="createdBy">Created by Mr McKenzie</p>
+        <p class="center hubLink"><a href="../../index.html">🏛️ Back to Arcade Academy</a></p>
+      </div>
+    </div>
+
+    <!-- Home Shop (hero select + permanent upgrades, reachable from the title screen) -->
+    <div id="homeShopModal" class="overlay hidden">
+      <div class="panel">
+        <h1>SHOP</h1>
+        <p class="center">Coins: <span id="homeShopCoinVal" style="color:var(--amber);">0</span></p>
+
         <h2 class="center" style="margin-bottom:8px;">CHOOSE YOUR HERO</h2>
         <div class="shopGrid" id="charGrid"></div>
         <div class="center" id="hardModeRow" style="margin-top:14px;">
           <button class="btn secondary" id="hardModeBtn" style="font-size:10px;">HARD MODE: OFF</button>
         </div>
-        <div class="codeBox"><p id="bankMessage"></p></div>
+
+        <h2>UPGRADES</h2>
+        <div class="shopGrid" id="homeUpgradeGrid"></div>
+        <h2>COSMETIC SKINS</h2>
+        <div class="shopGrid" id="homeSkinGrid"></div>
+
         <div class="center" style="margin-top:16px;">
-          <button class="btn" id="startBtn">▶ START</button>
+          <button class="btn" id="homeShopCloseBtn">◀ BACK</button>
         </div>
-        <p class="center hubLink"><a href="../../index.html">🏛️ Back to Arcade Academy</a></p>
       </div>
     </div>
 
@@ -82,7 +113,7 @@
       </div>
     </div>
 
-    <!-- Shop -->
+    <!-- Shop (mid-run, reached after a shrine checkpoint) -->
     <div id="shopModal" class="overlay hidden">
       <div class="panel">
         <h1>WAYSHRINE MARKET</h1>

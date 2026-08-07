@@ -1276,7 +1276,7 @@
 
     const wrap=document.createElement('div');
     wrap.id='boss-wrap';
-    wrap.style.cssText='position:absolute;left:50%;top:34px;transform:translateX(-50%);width:150px;height:150px;cursor:crosshair;z-index:15;';
+    wrap.style.cssText='position:absolute;left:50%;top:clamp(64px, 14vh, 84px);transform:translateX(-50%);width:150px;height:150px;cursor:crosshair;z-index:15;';
     const canvas=document.createElement('canvas');
     canvas.width=128;canvas.height=128;canvas.style.width='150px';canvas.style.height='150px';
     bossDef.draw(canvas.getContext('2d'));
@@ -1299,7 +1299,7 @@
 
     const barWrap=document.createElement('div');
     barWrap.id='boss-health-bar-wrap';
-    barWrap.style.cssText='position:absolute;left:50%;top:8px;transform:translateX(-50%);width:260px;z-index:16;';
+    barWrap.style.cssText='position:absolute;left:50%;top:clamp(20px, 6vh, 34px);transform:translateX(-50%);width:min(260px, 74%);z-index:120;';
     barWrap.innerHTML='<div style="background:#1a0a2e;border:2px solid var(--border-purple);border-radius:6px;height:16px;overflow:hidden;"><div id="boss-health-fill" style="background:linear-gradient(90deg,#e74c3c,#ff6b81);height:100%;width:100%;transition:width 0.2s;"></div></div><p id="boss-name-label" class="text-center text-xs font-bold" style="color:#fff;text-shadow:0 1px 3px #000;margin-top:2px;"></p><p id="boss-hint-label" class="text-center" style="color:#ffd8e0;font-size:11px;text-shadow:0 1px 3px #000;margin-top:1px;"></p>';
     area.appendChild(barWrap);
 
@@ -1324,7 +1324,7 @@
     el.className = 'falling-word' + (isBomb ? ' falling-bomb' : '');
     el.textContent = word;
     const areaW = area.clientWidth, areaH = area.clientHeight;
-    el.style.left = Math.max(4, Math.random()*(areaW-100)) + 'px';
+    el.style.left = Math.max(4, Math.random()*(areaW-150)) + 'px';
     el.style.top = '-40px';
     area.appendChild(el);
     const fallDuration = 5200;

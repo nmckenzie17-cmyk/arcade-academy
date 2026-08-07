@@ -33,6 +33,20 @@ canvas {
   touch-action: none;
 }
 
+/* The rule above is meant for the main game canvas (and the home-screen
+   background canvas) so they scale to fill their container. But it was
+   also catching the little 56x56 Enemy Guide preview sprites, blowing
+   them up to fill the whole modal width and shoving the enemy name and
+   description text out of the way. Pin those back to their real size. */
+#enemyGuideOverlay canvas {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+#enemyGuideOverlay .shop-item {
+  display: flow-root; /* contains the floated sprite so this entry's height is never collapsed */
+}
+
 .hud {
   position: fixed;
   top: 14px;

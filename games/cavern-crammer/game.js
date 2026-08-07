@@ -16,7 +16,10 @@ const QUESTION_BANK_TYPE = 'matching';
 // addCoins() / spendCoins() instead of a local field.
 const SAVE_KEY = 'cavernCrammerGameProgress';
 const DEFAULT_SAVE = { upgrades:{maxHealthBonus:0, jumpBonus:0, wallJump:false, magnetTier:0, speedTier:0, extraLives:0}, skin:'green', skinsOwned:['green'], character:'wisp',
-  hasClearedLoop:false, hardMode:false, nextRunAdjust:0, questionWeights:{} };
+  hasClearedLoop:false, hardMode:false, nextRunAdjust:0, questionWeights:{},
+  // Lifetime stats shown on the title screen (separate from PlatformManager's shared
+  // coin/highscore totals — these are Cavern Crammer's own running totals).
+  stats:{ totalRuns:0, bestDepth:0, vaultsOpened:0, questionsCorrect:0 } };
 let save = JSON.parse(JSON.stringify(DEFAULT_SAVE));
 let saveDirty = false;
 
@@ -28,6 +31,7 @@ function loadSave(){
     save = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SAVE)), parsed);
     save.upgrades = Object.assign({maxHealthBonus:0,jumpBonus:0,wallJump:false,magnetTier:0,speedTier:0,extraLives:0}, parsed.upgrades||{});
     save.questionWeights = (parsed.questionWeights && typeof parsed.questionWeights==='object') ? parsed.questionWeights : {};
+    save.stats = Object.assign({totalRuns:0, bestDepth:0, vaultsOpened:0, questionsCorrect:0}, parsed.stats||{});
   }catch(e){ /* no save yet, or localStorage unavailable — fresh start */ }
 }
 function persistSave(){
@@ -915,6 +919,27 @@ const REWARD_DEFS = [
     apply:()=>{ session.curseVampiric=true; bumpReward('curseVampiric'); } }
 ];
 
+// Picks `k` distinct items from `items`, weighted by weightFn, without replacement.
+// (This was previously called but never defined — the ReferenceError it threw is why
+// the reward grid could come back empty and the shrine result screen would get stuck.)
+function weightedSampleWithoutReplacement(items, weightFn, k){
+  const pool = items.slice();
+  const result = [];
+  while(result.length < k && pool.length > 0){
+    let total = 0;
+    for(const it of pool) total += Math.max(0.0001, weightFn(it));
+    let r = Math.random()*total;
+    let idx = pool.length-1;
+    for(let i=0;i<pool.length;i++){
+      r -= Math.max(0.0001, weightFn(pool[i]));
+      if(r<=0){ idx = i; break; }
+    }
+    result.push(pool[idx]);
+    pool.splice(idx,1);
+  }
+  return result;
+}
+
 function buildRewardOptions(n){
   const pool = REWARD_DEFS.filter(rewardAvailable);
   const chosen = weightedSampleWithoutReplacement(pool, def=>def.weight||1, Math.min(n, pool.length));
@@ -1113,6 +1138,13 @@ function finishRound(){
     function renderOptions(){
       grid.innerHTML = '';
       const options = buildRewardOptions(count);
+      if(options.length===0){
+        // Every reward this run allows has already been claimed — nothing left to
+        // offer, so don't leave the player stuck on a blank grid with no way out.
+        document.getElementById('resultMessage').textContent = 'You already carry every boon these shrines can offer this run!';
+        btn.style.display = '';
+        return;
+      }
       options.forEach(def=>{
         const owned = rewardOwnedCount(def.id) > 0;
         const card = document.createElement('div');
@@ -1197,9 +1229,13 @@ function upgradeLevel(u){
   if(u.id==='extraLives') return save.upgrades.extraLives||0;
   return 0;
 }
-function renderShop(){
-  document.getElementById('shopCoinVal').textContent = PlatformManager.getCoins();
-  const grid = document.getElementById('upgradeGrid');
+// Shared renderer for the permanent-upgrades + skins grids — used both by the mid-run
+// "WAYSHRINE MARKET" (openShop/renderShop) and the title-screen "Shop" overlay
+// (openHomeShop/renderHomeShop), which are separate DOM elements with their own ids
+// so the two can't stomp on each other while a run is in progress.
+function renderShopGrids(coinValId, gridId, sgridId, rerender){
+  document.getElementById(coinValId).textContent = PlatformManager.getCoins();
+  const grid = document.getElementById(gridId);
   grid.innerHTML = '';
   UPGRADES.forEach(u=>{
     const lvl = upgradeLevel(u);
@@ -1215,13 +1251,13 @@ function renderShop(){
     btn.textContent = maxed? 'OWNED' : 'BUY';
     btn.disabled = maxed || PlatformManager.getCoins() < cost;
     btn.addEventListener('click', ()=>{
-      if(!maxed && PlatformManager.spendCoins(cost)){ u.buy(); saveDirty=true; persistSave(); renderShop(); }
+      if(!maxed && PlatformManager.spendCoins(cost)){ u.buy(); saveDirty=true; persistSave(); rerender(); }
     });
     div.appendChild(btn);
     grid.appendChild(div);
   });
 
-  const sgrid = document.getElementById('skinGrid');
+  const sgrid = document.getElementById(sgridId);
   sgrid.innerHTML = '';
   SKINS.forEach(s=>{
     const owned = save.skinsOwned.includes(s.id);
@@ -1236,18 +1272,19 @@ function renderShop(){
     if(owned){
       btn.textContent = active? 'EQUIPPED' : 'EQUIP';
       btn.disabled = active;
-      btn.addEventListener('click', ()=>{ save.skin = s.id; saveDirty=true; persistSave(); renderShop(); });
+      btn.addEventListener('click', ()=>{ save.skin = s.id; saveDirty=true; persistSave(); rerender(); });
     } else {
       btn.textContent = 'BUY';
       btn.disabled = PlatformManager.getCoins() < s.cost;
       btn.addEventListener('click', ()=>{
-        if(PlatformManager.spendCoins(s.cost)){ save.skinsOwned.push(s.id); save.skin=s.id; saveDirty=true; persistSave(); renderShop(); }
+        if(PlatformManager.spendCoins(s.cost)){ save.skinsOwned.push(s.id); save.skin=s.id; saveDirty=true; persistSave(); rerender(); }
       });
     }
     div.appendChild(btn);
     sgrid.appendChild(div);
   });
 }
+function renderShop(){ renderShopGrids('shopCoinVal', 'upgradeGrid', 'skinGrid', renderShop); }
 document.getElementById('shopContinueBtn').addEventListener('click', ()=>{
   document.getElementById('shopModal').classList.add('hidden');
   if(!save.hasClearedLoop && isBossLevel(levelIndex) && getZoneIndex(levelIndex)%ZONES.length===ZONES.length-1){
@@ -1257,6 +1294,21 @@ document.getElementById('shopContinueBtn').addEventListener('click', ()=>{
   persistSave();
   levelIndex++;
   startLevel(levelIndex);
+});
+
+/* ---- Title-screen Shop overlay: hero select + hard mode + permanent upgrades/skins,
+   all reachable from the home screen before a run starts (mirrors Shuriken Scholar's
+   home-screen Shop button, which hides its own character select + upgrades the same way). */
+function renderHomeShop(){ renderShopGrids('homeShopCoinVal', 'homeUpgradeGrid', 'homeSkinGrid', renderHomeShop); }
+function openHomeShop(){
+  renderCharGrid();
+  renderHardModeToggle();
+  renderHomeShop();
+  document.getElementById('homeShopModal').classList.remove('hidden');
+}
+document.getElementById('openHomeShopBtn').addEventListener('click', openHomeShop);
+document.getElementById('homeShopCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('homeShopModal').classList.add('hidden');
 });
 
 /* ============================= GAME OVER (PERMADEATH) ============================= */
@@ -1273,6 +1325,12 @@ function triggerRunOver(){
   if(deaths>=4) save.nextRunAdjust = -1;
   else if(deaths<=1) save.nextRunAdjust = 1;
   else save.nextRunAdjust = 0;
+  // Fold this run's results into the lifetime totals shown on the title screen.
+  const st = session.stats;
+  save.stats.totalRuns = (save.stats.totalRuns||0) + 1;
+  save.stats.bestDepth = Math.max(save.stats.bestDepth||0, levelIndex);
+  save.stats.vaultsOpened = (save.stats.vaultsOpened||0) + st.vaultsOpened;
+  save.stats.questionsCorrect = (save.stats.questionsCorrect||0) + st.questionsCorrect;
   persistSave();
   // Deepest ruin index reached this run is this game's "high score" for the shared platform stats.
   PlatformManager.setHighScore(GAME_CONFIG.id, levelIndex);
@@ -1280,7 +1338,6 @@ function triggerRunOver(){
   const zoneIdx = getZoneIndex(levelIndex)%ZONES.length;
   const zoneName = ZONES[zoneIdx].name;
   const depthLabel = (isBossLevel(levelIndex) ? zoneName+' — Boss' : 'Ruin '+(getPositionInZone(levelIndex)+1)+' · '+zoneName);
-  const st = session.stats;
   const accuracy = st.questionsTotal>0 ? Math.round(100*st.questionsCorrect/st.questionsTotal) : 0;
 
   document.getElementById('gameOverHeadline').textContent = 'Fell in ' + depthLabel;
@@ -2965,6 +3022,49 @@ function renderCharGrid(){
   });
 }
 
+function updateHomeStats(){
+  document.getElementById('homeTotalCoins').textContent = PlatformManager.getCoins();
+  document.getElementById('homeBestDepth').textContent = save.stats.bestDepth||0;
+  document.getElementById('homeVaults').textContent = save.stats.vaultsOpened||0;
+  document.getElementById('homeCorrect').textContent = save.stats.questionsCorrect||0;
+}
+
+// Decorative background: a few pixel motes (coins/embers) drifting behind the title
+// screen panel — purely visual, no game-state impact. Uses its own canvas/context so
+// it never touches the main gameplay `ctx`.
+(function homeBg(){
+  const bgCanvas = document.getElementById('homeBg');
+  const bgCtx = bgCanvas.getContext('2d');
+  const colors = ['#f2b84b', '#5fb89c', '#8b5fbf', '#e05650'];
+  const motes = [];
+  for(let i=0;i<16;i++){
+    motes.push({
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random()-0.5)*0.0006, vy: -0.0004-Math.random()*0.0006,
+      size: 2+Math.random()*3,
+      color: colors[i%colors.length]
+    });
+  }
+  function frame(){
+    const titleScreen = document.getElementById('titleScreen');
+    if(titleScreen && !titleScreen.classList.contains('hidden')){
+      const w = bgCanvas.clientWidth, h = bgCanvas.clientHeight;
+      if(bgCanvas.width!==w) bgCanvas.width = w;
+      if(bgCanvas.height!==h) bgCanvas.height = h;
+      bgCtx.clearRect(0,0,w,h);
+      motes.forEach(m=>{
+        m.x += m.vx; m.y += m.vy;
+        if(m.x<-0.05) m.x=1.05; if(m.x>1.05) m.x=-0.05;
+        if(m.y<-0.05) m.y=1.05;
+        bgCtx.fillStyle = m.color;
+        bgCtx.fillRect(m.x*w, m.y*h, m.size, m.size);
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
 function renderHardModeToggle(){
   const btn = document.getElementById('hardModeBtn');
   if(!save.hasClearedLoop){
@@ -2989,6 +3089,7 @@ document.getElementById('hardModeBtn').addEventListener('click', ()=>{
   loadSave();
   renderCharGrid();
   renderHardModeToggle();
+  updateHomeStats();
   requestAnimationFrame(loop);
 })();
 
