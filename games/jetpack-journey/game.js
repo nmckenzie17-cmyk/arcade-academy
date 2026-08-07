@@ -47,25 +47,16 @@ const VISUAL_SPEED=GROUND_SPEED*1.5;
 const CEILING_REPEL_FORCE=0.75;
 // Set this to false to hide the player's colored hitbox outline.
 const DEBUG_HITBOX=false;
-// Set this to false to disable developer/cheat codes (dinosaur, desert, space, horror, snow,
-// rainbow, damageless). While disabled, entering any of those words wipes the player's score,
-// coins, and progress instead of activating the code.
-const DEV_CODES_ENABLED=false;
-const DEV_CODE_WORDS=['dinosaur','desert','space','horror','snow','rainbow','damageless'];
 const STAGE_DURATION=30000;
 const TRANSITION_DURATION=5000;
 const SANDFLY_STRAIGHT_LINE_POINT = 0.45; // 40%
 
-let devMode=null;
-let damagelessMode=false;
 let showHome=true;
 const homeScreen=document.getElementById('home-screen');
 const homeStats=document.getElementById('home-stats');
 const startBtn=document.getElementById('start-btn');
-const devCodeInput=document.getElementById('dev-code');
 const codePanel=document.getElementById('code-panel');
 const codeMessage=document.getElementById('code-message');
-const changeCodeBtn=document.getElementById('change-code-btn');
 const shopBtn=document.getElementById('shop-btn');
 const shopScreen=document.getElementById('shop-screen');
 const shopClose=document.getElementById('shop-close');
@@ -93,7 +84,6 @@ let doubleCoinsNextRun=localStorage.getItem('pixelJetpackDoubleCoinsNextRun')===
 
 const SHOP_STORAGE_KEY='pixelJetpackShopState';
 const DEATH_PITY_KEY='pixelJetpackDeathPity';
-const SESSION_CODE_STORAGE_KEY='pixelJetpackSessionCode';
 const SHOP_DEFAULTS={
 levels:{scoreMultiplier:0,fuelEfficiency:0,coinNumbers:0,magnetTime:0,headstartBoostTime:0},
 owned:{silverSpawn:false,deathCoin:false,magnet:false,startingShield:false,doubleGas:false,halfGas:false,headstartBoost:false,extraQuizAttempt:false},
@@ -249,24 +239,6 @@ return JSON.parse(JSON.stringify(SHOP_DEFAULTS));
 }
 }
 function saveShopState(){localStorage.setItem(SHOP_STORAGE_KEY,JSON.stringify(shopState));}
-// Wipes all saved score, coin, and progress data. Used to penalize entering a developer
-// code while DEV_CODES_ENABLED is false.
-function wipeAllProgress(){
-highScore=0;doubleCoinsNextRun=false;
-localStorage.removeItem('pixelJetpackHighScore');
-localStorage.removeItem('pixelJetpackDoubleCoinsNextRun');
-// Coins are shared platform-wide (see PlatformManager) and intentionally NOT touched
-// here — wiping this game's local progress shouldn't wipe out coins the student
-// earned playing other games.
-shopState=JSON.parse(JSON.stringify(SHOP_DEFAULTS));
-localStorage.removeItem(SHOP_STORAGE_KEY);
-deathCoinPity=0;localStorage.removeItem(DEATH_PITY_KEY);
-totalDeathCount=0;localStorage.removeItem('pixelJetpackDeathCount');
-totalQuestionsCorrect=0;localStorage.removeItem('pixelJetpackQuestionsCorrect');
-announcedPowerupUnlocks=[];localStorage.removeItem('pixelJetpackAnnouncedPowerups');
-selectedPowerups=[];localStorage.removeItem('pixelJetpackSelectedPowerups');
-updateHomeStats();
-}
 function getUpgradePurchaseCount(){
 let total=0;
 Object.keys(shopState.levels).forEach(function(k){total+=shopState.levels[k]||0;});
@@ -501,8 +473,6 @@ renderShop();
 });
 }
 
-let selectedSessionCode='';
-let codeEntryVisible=false;
 let sessionLoading=false;
 
 // Stage identities. 5 = Rainbow Madness, a bonus stage outside the normal rotation.
@@ -564,12 +534,6 @@ const m=Math.floor(totalSec/60),s=totalSec%60;
 return m+':'+String(s).padStart(2,'0');
 }
 function getCurrentStageIndex(){
-if(devMode==='dinosaur')return 0;
-if(devMode==='desert')return 1;
-if(devMode==='space')return 2;
-if(devMode==='horror')return 3;
-if(devMode==='snow')return 4;
-if(devMode==='rainbow')return 5;
 return currentStageId;
 }
 function isDesert(){return getCurrentStageIndex()===1;}
@@ -578,7 +542,6 @@ function isHorror(){return getCurrentStageIndex()===3;}
 function isSnow(){return getCurrentStageIndex()===4;}
 function isRainbowMadness(){return getCurrentStageIndex()===5;}
 function getTransitionInfo(){
-if(devMode)return{transitioning:false,alpha:0,from:-1,to:-1};
 const t=score-lastStageBoundaryCount*STAGE_DURATION;
 if(t>=STAGE_DURATION-TRANSITION_DURATION){
 const alpha=(t-(STAGE_DURATION-TRANSITION_DURATION))/TRANSITION_DURATION;
@@ -2288,7 +2251,7 @@ player.vy+=getGravity();
 const ceilingThreshold=canvas.height*0.05;
 if(player.y<ceilingThreshold)player.vy+=CEILING_REPEL_FORCE;
 player.y+=player.vy;player.frameCounter++;
-const immune=damagelessMode||headstartImmuneTimer>0;
+const immune=headstartImmuneTimer>0;
 if(isSnow()){
 const cb=getCaveBoundsAtPlayer();
 if(!immune&&(player.y<=cb.top||player.y>=cb.bottom-PLAYER_HEIGHT)){
@@ -2448,64 +2411,33 @@ else if(o.type==='alien-tower'){drawPixelArtCtx(hctx,alienTowerIdle,o.x,o.y,PIXE
 function updateHomeStats(){document.getElementById('stat-deaths').textContent=totalDeathCount;document.getElementById('stat-highscore').textContent=highScore;document.getElementById('stat-correct').textContent=totalQuestionsCorrect;document.getElementById('stat-coins').textContent=PlatformManager.getCoins();}
 function showHomeScreen(){
 showHome=true;homeScreen.style.display='flex';updateHomeStats();initHomeBgObstacles();ctx.clearRect(0,0,canvas.width,canvas.height);
-startBtn.textContent=selectedSessionCode?'START SESSION':'PRESS START';
-changeCodeBtn.style.display=selectedSessionCode?'inline-block':'none';
-codePanel.style.display=codeEntryVisible||selectedSessionCode?'block':'none';
-devCodeInput.style.display=selectedSessionCode&&!codeEntryVisible?'none':'inline-block';
-codeMessage.textContent=selectedSessionCode?'SESSION CODE READY':'';
-}
-function showCodeEntry(message){
-codeEntryVisible=true;
+startBtn.textContent='PRESS START';
 codePanel.style.display='block';
-devCodeInput.style.display='inline-block';
-changeCodeBtn.style.display=selectedSessionCode?'inline-block':'none';
-startBtn.textContent='START SESSION';
-codeMessage.textContent=message||'ENTER SESSION CODE';
+codeMessage.textContent=PlatformManager.hasClassCode() ? '' : 'Please enter the class code before playing.';
 codeMessage.style.color='#ffdd00';
-devCodeInput.focus();
 }
 function setSessionMessage(message,isError){
 codeMessage.textContent=message;
 codeMessage.style.color=isError?'#ff7777':'#ffdd00';
 }
-function normaliseCode(text){return text.trim().toLowerCase();}
 // Resolves a session code through QuestionManager, which owns loading,
 // validating and normalising the term/definition card bank. Throws with a
 // user-facing message on failure, same contract this function always had.
-async function loadQuestionPackForCode(code){
-const result=await QuestionManager.loadBank(code,QUESTION_BANK_TYPE);
+async function loadCurrentQuestionPack(){
+const result=await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
 if(!result.ok){
-if(result.error==='code-not-found'||result.error==='code-required')throw new Error('That session code is not active.');
-throw new Error('Question bank could not be loaded — check with your teacher.');
+if(result.error==='class-code-required')throw new Error('Please enter the class code before playing.');
+throw new Error('Question bank could not be loaded. Return to the Hub and check the class code.');
 }
 return result;
 }
 async function handleStartClick(){
 if(sessionLoading)return;
-if(!codeEntryVisible&&!selectedSessionCode){showCodeEntry('ENTER SESSION CODE');return;}
-const code=devCodeInput.value.trim().toLowerCase();
-const parts=code.split(/\s+/).filter(Boolean);
-const usedDevCode=parts.some(function(p){return DEV_CODE_WORDS.indexOf(p)!==-1;});
-if(usedDevCode&&!DEV_CODES_ENABLED){
-wipeAllProgress();
-devCodeInput.value='';
-showCodeEntry('DEVELOPER CODES ARE DISABLED - PROGRESS RESET');
-setSessionMessage('DEVELOPER CODES ARE DISABLED - PROGRESS RESET',true);
-return;
-}
-if(parts.indexOf('dinosaur')!==-1)devMode='dinosaur';else if(parts.indexOf('desert')!==-1)devMode='desert';else if(parts.indexOf('space')!==-1)devMode='space';else if(parts.indexOf('horror')!==-1)devMode='horror';else if(parts.indexOf('snow')!==-1)devMode='snow';else if(parts.indexOf('rainbow')!==-1)devMode='rainbow';else devMode=null;
-damagelessMode=(parts.indexOf('damageless')!==-1);
-const sessionCode=parts.find(function(part){return DEV_CODE_WORDS.indexOf(part)===-1;})||normaliseCode(code);
 try{
 sessionLoading=true;startBtn.disabled=true;setSessionMessage('LOADING SESSION...',false);
-await loadQuestionPackForCode(sessionCode);
-selectedSessionCode=sessionCode;codeEntryVisible=false;
-localStorage.setItem(SESSION_CODE_STORAGE_KEY,sessionCode);
-devCodeInput.value='';devCodeInput.style.display='none';
+await loadCurrentQuestionPack();
 }catch(err){
 QuestionManager.questions=null;QuestionManager.bankName='';QuestionManager.bankCode='';
-selectedSessionCode='';
-showCodeEntry(err.message||'SESSION CODE NOT FOUND');
 setSessionMessage(err.message||'SESSION CODE NOT FOUND',true);
 sessionLoading=false;startBtn.disabled=false;
 return;
@@ -2518,32 +2450,9 @@ PlatformManager.startSession(GAME_CONFIG.id);
 showHome=false;homeScreen.style.display='none';resetGame();gameStarted=false;
 beginPreRunSequence();
 }
-async function tryAutoLoadSavedSessionCode(){
-const saved=localStorage.getItem(SESSION_CODE_STORAGE_KEY);
-if(!saved)return;
-try{
-setSessionMessage('LOADING SAVED SESSION...',false);
-await loadQuestionPackForCode(saved);
-selectedSessionCode=saved;
-}catch(err){
-localStorage.removeItem(SESSION_CODE_STORAGE_KEY);
-selectedSessionCode='';
-}
-if(showHome)showHomeScreen();
-}
-function changeSessionCode(){
-QuestionManager.questions=null;QuestionManager.bankName='';QuestionManager.bankCode='';
-selectedSessionCode='';devCodeInput.value='';
-localStorage.removeItem(SESSION_CODE_STORAGE_KEY);
-showCodeEntry('ENTER NEW SESSION CODE');
-}
 
 startBtn.addEventListener('click',function(e){e.stopPropagation();handleStartClick();});
 startBtn.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();handleStartClick();});
-devCodeInput.addEventListener('keydown',function(e){e.stopPropagation();if(e.code==='Enter')handleStartClick();});
-devCodeInput.addEventListener('mousedown',function(e){e.stopPropagation();});
-devCodeInput.addEventListener('touchstart',function(e){e.stopPropagation();});
-changeCodeBtn.addEventListener('click',function(e){e.stopPropagation();changeSessionCode();});
 shopBtn.addEventListener('click',function(e){e.stopPropagation();openShop();});
 shopClose.addEventListener('click',function(e){e.stopPropagation();closeShop();});
 document.querySelectorAll('.shop-tab-btn').forEach(function(btn){
@@ -2580,6 +2489,9 @@ if(showHome)drawHomeBg();
 requestAnimationFrame(loop);
 }
 showHomeScreen();
+loadCurrentQuestionPack().then(
+  () => setSessionMessage('QUESTION BANK READY',false),
+  error => setSessionMessage(error.message,true)
+);
 loop();
-tryAutoLoadSavedSessionCode();
 })();

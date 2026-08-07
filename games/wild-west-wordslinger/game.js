@@ -36,7 +36,6 @@
   let highScore=0, bulletLevel=0, livesLevel=0, lootBoxCount=0, comboLevel=0;
   let totalCorrectAnswers=0, totalKills=0;
   let equippedPowerups=[]; // ids from POWERUPS the player has selected to run with
-  let selectedBankCode='';
   let ownedCrosshairs=[], ownedEffects=[];
   let equippedCrosshair='', equippedEffect='';
 
@@ -106,7 +105,6 @@
         totalKills = playerData.total_kills || 0;
         equippedPowerups = playerData.equipped_powerups ? playerData.equipped_powerups.split(',').filter(Boolean) : [];
         comboLevel = playerData.combo_upgrade_level || 0;
-        selectedBankCode = playerData.selected_bank_code || '';
         ownedCrosshairs = playerData.owned_crosshairs ? playerData.owned_crosshairs.split(',').filter(Boolean) : [];
         ownedEffects = playerData.owned_effects ? playerData.owned_effects.split(',').filter(Boolean) : [];
         equippedCrosshair = playerData.equipped_crosshair || '';
@@ -115,17 +113,12 @@
         playerData = null;
         highScore=0; bulletLevel=0; livesLevel=0; lootBoxCount=0; comboLevel=0;
         totalCorrectAnswers=0; totalKills=0; equippedPowerups=[];
-        selectedBankCode='';
         ownedCrosshairs=[]; ownedEffects=[];
         equippedCrosshair=''; equippedEffect='';
       }
       maxAmmo = 5 + bulletLevel;
       updateHomeStats();
-      if (selectedBankCode && !QuestionManager.hasQuestions()) {
-        loadQuestionBank(selectedBankCode).then(updateCodeStatus);
-      } else {
-        updateCodeStatus();
-      }
+      loadQuestionBank().then(updateCodeStatus);
     }
   };
 
@@ -147,7 +140,6 @@
       total_kills: totalKills,
       equipped_powerups: equippedPowerups.join(','),
       combo_upgrade_level: comboLevel,
-      selected_bank_code: selectedBankCode,
       owned_crosshairs: ownedCrosshairs.join(','),
       owned_effects: ownedEffects.join(','),
       equipped_crosshair: equippedCrosshair,
@@ -174,33 +166,6 @@
   }
 
   function goHome() { showScreen('home-screen'); updateHomeStats(); }
-
-  async function submitCode() {
-    const input = document.getElementById('code-input-field');
-    const code = input.value.trim().toLowerCase();
-    const statusEl = document.getElementById('code-status');
-    if (!code) return;
-    if (code === 'reset') {
-      QuestionManager.questions = null; QuestionManager.bankCode = ''; QuestionManager.bankName = '';
-      selectedBankCode = '';
-      await safeSave();
-      updateCodeStatus();
-      input.value = '';
-      return;
-    }
-    statusEl.textContent = 'Checking code…'; statusEl.style.color = '#00d4ff';
-    const ok = await loadQuestionBank(code);
-    if (ok) {
-      selectedBankCode = code;
-      await safeSave();
-      input.value = '';
-    } else {
-      statusEl.textContent = '❌ Unknown code — check with your teacher';
-      statusEl.style.color = '#e74c3c';
-      return;
-    }
-    updateCodeStatus();
-  }
 
   // Shop
   const SHOP_TABS = ['upgrades','powerups','loot'];
@@ -509,9 +474,8 @@
   // All loading, storing, selecting and shuffling of categories lives in QuestionManager now.
   const QUESTION_BANK_TYPE = 'category';
 
-  async function loadQuestionBank(code) {
-    const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
-    return result.ok;
+  async function loadQuestionBank() {
+    return QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
   }
 
   function updateCodeStatus() {
@@ -521,10 +485,14 @@
       el.textContent = '📚 Loaded: ' + QuestionManager.getBankName();
       el.style.color = '#2ecc71';
     } else {
-      el.textContent = 'Enter your class code to play';
+      el.textContent = 'Please enter the class code before playing.';
       el.style.color = '#9aa0a6';
     }
   }
+
+  // This must run after QUESTION_BANK_TYPE is initialized. The Hub owns the
+  // class selection; this game only loads that selected class's category bank.
+  loadQuestionBank().then(updateCodeStatus);
 
   // ===== Procedural western pixel-art character renderer =====
   // 32x32 block grid at 4px per block = 128x128 canvas. Higher detail: shading, seams, brim, cuffs.
@@ -787,7 +755,7 @@
   function startGame() {
     if (!QuestionManager.hasQuestions()) {
       const statusEl = document.getElementById('code-status');
-      if (statusEl) { statusEl.textContent = '⚠️ Enter a valid class code to play'; statusEl.style.color = '#e74c3c'; }
+      if (statusEl) { statusEl.textContent = '⚠️ Please enter the class code before playing.'; statusEl.style.color = '#e74c3c'; }
       showScreen('home-screen');
       return;
     }

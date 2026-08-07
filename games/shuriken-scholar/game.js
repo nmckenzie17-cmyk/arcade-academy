@@ -1192,12 +1192,8 @@
       ctx.restore();
     }
 
-    const DEV_CHEAT_CODE = 'devtest';
-
-    async function loadQuestionBank(code){
-    const devMode = code === DEV_CHEAT_CODE;
-    const lookupCode = devMode ? 'test' : code;
-    const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
+    async function loadQuestionBank(){
+    const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
 
     if (!result.ok) return false;
 
@@ -1206,33 +1202,24 @@
     // restore whatever was saved onto the freshly-loaded bank.
     QuestionManager.restoreWeights(progress.questionWeights);
 
-    if (!devMode && !progress.playedCodes.includes(code)) {
-      progress.playedCodes.push(code);
+    const classCode = PlatformManager.getClassCode();
+    if (!progress.playedCodes.includes(classCode)) {
+      progress.playedCodes.push(classCode);
       saveProgress();
       checkSamuraiUnlock();
     }
 
-    if (devMode) {
-        // Dev/testing shortcut: huge coin + kill stockpile so every weapon and every shop
-        // upgrade (any level, any path) is freely buyable to test specific builds.
-        // Coins are shared platform-wide, so this tops up the PlatformManager balance
-        // rather than a local field.
-        PlatformManager.addCoins(Math.max(0, 999999 - PlatformManager.getCoins()));
-        for (const key of ALL_WEAPON_KEYS) {
-          progress.weapons[key].unlocked = true;
-          progress.weapons[key].kills = 999999;
-        }
-        if (!progress.samuraiUnlocked) {
-          progress.samuraiUnlocked = true;
-          triggerSamuraiUnlockEffect();
-        }
-        saveProgress();
-        updateHomeStats();
-        renderCharacterSelectors();
-    }
-
     return true;
 }
+    loadQuestionBank().then(loaded => {
+      const bankMessage = document.getElementById('bankMessage');
+      if (!bankMessage) return;
+      bankMessage.textContent = loaded
+        ? `✓ Loaded: ${QuestionManager.getBankName()}`
+        : PlatformManager.hasClassCode()
+          ? 'Question bank could not be loaded. Return to the Hub and check the class code.'
+          : 'Please enter the class code before playing.';
+    });
     function drawGolem(e) {
       const breathe = Math.sin(e.anim * 0.02) * 1;
       const rumble = Math.sin(e.anim * 0.15) * 0.5;
@@ -6186,38 +6173,13 @@
 
 
     document.getElementById("startBtn").addEventListener("click", async () => {
-    const code = document
-        .getElementById("bankCode")
-        .value
-        .trim()
-        .toLowerCase();
-
-    if (code === 'reset') {
-        // Resets this game's own progression only. Coins are shared platform-wide
-        // (see PlatformManager) and intentionally NOT touched here — resetting this
-        // game shouldn't wipe out coins the student earned playing other games.
-        for (const key of ALL_WEAPON_KEYS) {
-          progress.weapons[key].kills = 0;
-          progress.weapons[key].unlocked = (key === 'shuriken' || key === 'katana');
-        }
-        progress.samuraiUnlocked = false;
-        progress.playedCodes = [];
-        progress.questionsCorrect = 0;
-        progress.selectedCharacter = 'ninja';
-        saveProgress();
-        updateHomeStats();
-        renderCharacterSelectors();
-        document.getElementById('bankCode').value = '';
-        document.getElementById("bankMessage").textContent =
-            "✅ Progress reset — kills & unlocks back to 0. Enter a code to start.";
-        return;
-    }
-
-    const loaded = await loadQuestionBank(code);
+    const loaded = await loadQuestionBank();
 
     if(!loaded){
         document.getElementById("bankMessage").textContent =
-            "Invalid Code";
+            PlatformManager.hasClassCode()
+              ? 'Question bank could not be loaded. Return to the Hub and check the class code.'
+              : 'Please enter the class code before playing.';
         return;
     };
 

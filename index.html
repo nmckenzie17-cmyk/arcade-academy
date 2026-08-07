@@ -22,6 +22,47 @@
       <div class="hero-grid" aria-hidden="true"></div>
     </section>
 
+    <section class="class-section" id="class-code" aria-label="Your class">
+      <div class="class-card">
+        <div class="class-card-icon" aria-hidden="true">🏫</div>
+        <div class="class-card-body">
+          <p class="eyebrow">Your class</p>
+
+          <!-- Shown once a valid class code is active -->
+          <div class="class-view" id="class-view" hidden>
+            <h2 class="class-heading">
+              Class code <span class="class-code-value" id="class-code-value"></span>
+            </h2>
+            <p class="class-subject" id="class-subject-value"></p>
+            <button type="button" class="class-btn class-btn-secondary" id="change-class-btn">Change class</button>
+          </div>
+
+          <!-- Shown when no class code is set yet, or while changing it -->
+          <form class="class-edit" id="class-edit-form" novalidate>
+            <h2 class="class-heading" id="class-edit-heading">Enter your class code</h2>
+            <p class="class-hint">Ask your teacher for the code and type it in below.</p>
+            <div class="class-input-row">
+              <label class="sr-only" for="class-code-input">Class code</label>
+              <input
+                type="text"
+                id="class-code-input"
+                class="class-input"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="e.g. 93bf"
+                maxlength="24"
+              >
+              <button type="submit" class="class-btn class-btn-primary" id="class-submit-btn">Set code</button>
+              <button type="button" class="class-btn class-btn-secondary" id="class-cancel-btn" hidden>Cancel</button>
+            </div>
+            <p class="class-error" id="class-error" role="alert" hidden></p>
+          </form>
+
+        </div>
+      </div>
+    </section>
+
     <section class="dashboard-section" id="dashboard" aria-labelledby="dashboard-title">
       <div class="section-heading">
         <div>

@@ -48,12 +48,7 @@
      <p style="margin:2px 0">👾 Fight through waves of aliens and defeat bosses for upgrades</p>
      <p style="margin:2px 0">🪙 Earn coins from kills to buy permanent upgrades between runs</p>
     </div>
-    <div class="bank-selector" style="text-align:left;">
-     <p style="font-size: clamp(12px,1.8vw,14px); color:var(--blue-highlight); margin: 0 0 6px; font-weight:600;">Class Code — required to play (ask your teacher)</p>
-     <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;"><input type="text" id="bankCode" placeholder="Enter code" maxlength="16" style="flex:1;"> <button onclick="applyCode()" style="font-size: 14px; padding: 10px 18px; margin: 0;">Apply</button></div>
-     <div class="bank-status" id="bankStatus" style="color: var(--red-damage);">No question bank loaded — enter a code to play</div>
-     <div id="bankExtra" style="margin-top: 10px; font-size: 12px;"></div>
-    </div>
+    <div class="bank-selector" style="text-align:left;"><div class="bank-status" id="bankStatus" style="color: var(--red-damage);"></div></div>
     <div class="difficulty-selector">
      <h3 style="color: var(--blue-highlight); text-align: center; margin-bottom: 20px;">Choose Difficulty</h3>
      <div class="difficulty-option selected" onclick="selectDifficulty('easy')">

@@ -106,7 +106,13 @@
         totalPlayTimeMs: 0,
         activePlayTimeMs: 0
       },
-      games: {} // keyed by GAME_CONFIG.id -> emptyGameStats()
+      games: {}, // keyed by GAME_CONFIG.id -> emptyGameStats()
+      class: {
+        code: null,      // e.g. "93bf" - the teacher/class code the student entered
+        subject: null,   // e.g. "Maths" - resolved from banks.json
+        bankPath: null,  // the selected bank folder, resolved from banks.json
+        bank: null       // retained for backwards-compatible saved data
+      }
     };
   }
 
@@ -123,7 +129,8 @@
         coins: Object.assign(fresh.coins, parsed.coins),
         questions: Object.assign(fresh.questions, parsed.questions),
         sessions: Object.assign(fresh.sessions, parsed.sessions),
-        games: (parsed.games && typeof parsed.games === 'object') ? parsed.games : {}
+        games: (parsed.games && typeof parsed.games === 'object') ? parsed.games : {},
+        class: Object.assign(fresh.class, parsed.class)
       };
     } catch (e) {
       // Corrupt data or localStorage unavailable (private browsing, etc.) — start fresh.
@@ -327,6 +334,131 @@
     }
   }
 
+  // ---- class / question bank --------------------------------------------------
+  //
+  // PlatformManager is the single source of truth for the currently selected
+  // teacher/class code, subject, and question bank. The Hub is the only place
+  // that should ever call setClassCode() - games should just read the result
+  // via getCurrentBank() / getCurrentSubject() / getCurrentClass() and never
+  // need to know about banks.json, folder paths, or the code -> bank mapping.
+  //
+  // Expected shape of question-banks/banks.json - a flat object keyed by
+  // class code, e.g.:
+  //   {
+  //     "93bf": { "subject": "Maths", "bank": "question-banks/maths-year8.json" },
+  //     "k2p9": { "subject": "Science", "bank": "question-banks/science-year9.json" }
+  //   }
+  // A couple of reasonable variants are tolerated too (see resolveBankEntry
+  // below) so this keeps working even if the key names differ slightly.
+
+  const BANKS_INDEX_URL = 'question-banks/banks.json';
+
+  // In-memory cache of banks.json for the lifetime of the page, so repeated
+  // setClassCode() calls (e.g. a student retrying a code) don't re-fetch it.
+  let banksIndexCache = null;
+
+  async function fetchJson(url) {
+    const res = await global.fetch(url, { cache: 'no-cache' });
+    if (!res || !res.ok) throw new Error(`Failed to fetch ${url}`);
+    return res.json();
+  }
+
+  async function loadBanksIndex() {
+    if (banksIndexCache) return banksIndexCache;
+    const json = await fetchJson(BANKS_INDEX_URL);
+    // Support either a flat { code: entry } map, or { codes: { code: entry } }.
+    banksIndexCache = (json && typeof json === 'object' && json.codes && typeof json.codes === 'object')
+      ? json.codes
+      : json;
+    return banksIndexCache;
+  }
+
+  // Pulls { subject, bankPath } out of a single banks.json entry, tolerating
+  // a couple of likely key-naming variants.
+  function resolveBankEntry(entry) {
+    if (!entry || typeof entry !== 'object') return null;
+    const subject = entry.subject || entry.name || null;
+    const bankPath = entry.bank || entry.bankPath || entry.file || entry.path || null;
+    if (!bankPath) return null;
+    return { subject, bankPath };
+  }
+
+  // Looks up `code` in banks.json and, if valid, makes it the active class.
+  // Question files differ by game (multichoice/category/matching), so games
+  // load the appropriate file through QuestionManager after retrieving this
+  // code. The Hub only owns selecting and persisting the class.
+  //
+  // Returns a Promise<boolean> - true if the code was valid and the class
+  // was switched, false otherwise. Never throws; on any failure (bad code,
+  // network error, malformed bank) the currently selected class is left
+  // unchanged.
+  //
+  // Usage:
+  //   const ok = await PlatformManager.setClassCode('93bf');
+  //   if (!ok) { /* show "invalid code" to the student */ }
+  async function setClassCode(code) {
+    const trimmed = (typeof code === 'string') ? code.trim().toLowerCase() : '';
+    if (!trimmed) return false;
+
+    try {
+      const banksIndex = await loadBanksIndex();
+      const entry = banksIndex ? banksIndex[trimmed] : null;
+      const resolved = resolveBankEntry(entry);
+      if (!resolved) return false; // unknown code
+
+      data.class.code = trimmed;
+      data.class.subject = resolved.subject;
+      data.class.bankPath = resolved.bankPath;
+      data.class.bank = null;
+      markDirty();
+      save();
+      return true;
+    } catch (e) {
+      // Network failure, bad JSON, etc. - fail closed, leave selection unchanged.
+      return false;
+    }
+  }
+
+  function getClassCode() {
+    return data.class.code;
+  }
+
+  function getCurrentSubject() {
+    return data.class.subject;
+  }
+
+  // Retained for backwards compatibility. QuestionManager owns loading a
+  // game's typed question bank from the current class code.
+  function getCurrentBank() {
+    return data.class.bank;
+  }
+
+  // Convenience bundle of everything a game might want about the active
+  // class, without needing to call three separate getters.
+  function getCurrentClass() {
+    return {
+      code: data.class.code,
+      subject: data.class.subject,
+      bank: data.class.bank
+    };
+  }
+
+  function hasClassCode() {
+    return !!data.class.code;
+  }
+
+  // Clears the active class selection entirely (e.g. a "change class" button
+  // in the Hub). Games will see hasClassCode() === false / getCurrentBank()
+  // === null again until the Hub sets a new code.
+  function clearClassCode() {
+    data.class.code = null;
+    data.class.subject = null;
+    data.class.bankPath = null;
+    data.class.bank = null;
+    markDirty();
+    save();
+  }
+
   // ---- readers --------------------------------------------------
 
   function pct(correct, total) {
@@ -414,6 +546,15 @@
 
     // high scores
     setHighScore,
+
+    // class / question bank
+    setClassCode,
+    getClassCode,
+    clearClassCode,
+    hasClassCode,
+    getCurrentBank,
+    getCurrentSubject,
+    getCurrentClass,
 
     // readers
     getOverallStats,

@@ -923,7 +923,7 @@ function buildRewardOptions(n){
 
 /* ============================= QUIZ BANK ============================= */
 // Question data no longer lives here — it comes from QuestionManager (shared/js/QuestionManager.js),
-// loaded via the teacher's class code entered on the title screen (see loadQuestionBank() near BOOT).
+// loaded from the class code selected in the Hub (see loadQuestionBank() near BOOT).
 // QuestionManager owns selection/weighting internally; this game just asks it for cards and reports
 // back whether each was answered correctly on the first try (see recordAnswer() calls below).
 function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
@@ -2899,10 +2899,10 @@ function loop(ts){
 }
 
 /* ============================= BOOT ============================= */
-// Loads a class code's question bank via QuestionManager and restores this game's saved
+// Loads the Hub-selected class's question bank via QuestionManager and restores this game's saved
 // adaptive weights onto it. Returns true/false so the Start button can be gated on it.
-async function loadQuestionBank(code){
-  const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
+async function loadQuestionBank(){
+  const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
   if(!result.ok) return false;
   // Adaptive question weighting persists across sessions (see save.questionWeights),
   // unlike the in-memory-only default — restore whatever was saved onto the freshly-loaded bank.
@@ -2910,34 +2910,28 @@ async function loadQuestionBank(code){
   return true;
 }
 
-const codeInput = document.getElementById('bankCode');
 const bankMessage = document.getElementById('bankMessage');
 const startBtn = document.getElementById('startBtn');
 startBtn.disabled = true;
 
-let bankCheckToken = 0;
-async function attemptLoadBank(){
-  const code = codeInput.value.trim();
-  if(!code){ bankMessage.textContent = ''; startBtn.disabled = true; return; }
-  const myToken = ++bankCheckToken;
+async function loadCurrentQuestionBank(){
   bankMessage.style.color = '#a89fc0';
-  bankMessage.textContent = 'Checking code…';
+  bankMessage.textContent = 'Loading question bank…';
   startBtn.disabled = true;
-  const ok = await loadQuestionBank(code);
-  if(myToken !== bankCheckToken) return; // a newer code was entered while this one was loading
+  const ok = await loadQuestionBank();
   if(ok){
     bankMessage.style.color = 'var(--moss)';
     bankMessage.textContent = '✓ Loaded: ' + QuestionManager.getBankName();
     startBtn.disabled = false;
   } else {
     bankMessage.style.color = 'var(--danger)';
-    bankMessage.textContent = 'Code not recognised — check with your teacher.';
+    bankMessage.textContent = PlatformManager.hasClassCode()
+      ? 'Question bank could not be loaded. Return to the Hub and check the class code.'
+      : 'Please enter the class code before playing.';
     startBtn.disabled = true;
   }
 }
-codeInput.addEventListener('change', attemptLoadBank);
-codeInput.addEventListener('blur', attemptLoadBank);
-codeInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); attemptLoadBank(); } });
+loadCurrentQuestionBank();
 
 startBtn.addEventListener('click', ()=>{
   if(startBtn.disabled || !QuestionManager.hasQuestions()) return;

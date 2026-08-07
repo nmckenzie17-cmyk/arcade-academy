@@ -49,6 +49,146 @@ async function loadGames() {
 
 
 // ------------------------------------------------------------------
+// Class code
+// ------------------------------------------------------------------
+//
+// The Hub is the only place a student ever enters or changes their
+// class code. PlatformManager owns validating the code, resolving it
+// to a subject + question bank, and persisting it - games just read
+// PlatformManager.getCurrentBank() and never see this UI at all.
+
+const classView = document.querySelector("#class-view");
+const classEditForm = document.querySelector("#class-edit-form");
+const classEditHeading = document.querySelector("#class-edit-heading");
+const classCodeInput = document.querySelector("#class-code-input");
+const classCodeValueEl = document.querySelector("#class-code-value");
+const classSubjectValueEl = document.querySelector("#class-subject-value");
+const changeClassBtn = document.querySelector("#change-class-btn");
+const classCancelBtn = document.querySelector("#class-cancel-btn");
+const classSubmitBtn = document.querySelector("#class-submit-btn");
+const classErrorEl = document.querySelector("#class-error");
+
+
+function initClassCodeUI() {
+
+  if (!classEditForm || !window.PlatformManager) return;
+
+  renderClassCodeState();
+
+  classEditForm.addEventListener("submit", handleClassCodeSubmit);
+  changeClassBtn.addEventListener("click", showClassEditForm);
+  classCancelBtn.addEventListener("click", hideClassEditForm);
+
+}
+
+
+// Renders whichever state currently applies: the read-only "view" (a
+// class code is active) or the "edit" form (no class code yet).
+function renderClassCodeState() {
+
+  const hasCode = PlatformManager.hasClassCode();
+
+  if (hasCode) {
+
+    classCodeValueEl.textContent = PlatformManager.getClassCode();
+    classSubjectValueEl.textContent = PlatformManager.getCurrentSubject() || "";
+
+    classView.hidden = false;
+    classEditForm.hidden = true;
+    clearClassError();
+
+  } else {
+
+    classView.hidden = true;
+    showClassEditForm();
+
+  }
+
+}
+
+
+function showClassEditForm() {
+
+  classView.hidden = true;
+  classEditForm.hidden = false;
+
+  // Only offer "Cancel" if there's already a valid class code to fall
+  // back to - a first-time student with no code has nothing to cancel to.
+  classCancelBtn.hidden = !PlatformManager.hasClassCode();
+
+  classEditHeading.textContent = PlatformManager.hasClassCode()
+    ? "Change your class code"
+    : "Enter your class code";
+
+  clearClassError();
+  classCodeInput.value = "";
+  classCodeInput.focus();
+
+}
+
+
+function hideClassEditForm() {
+
+  // Only reachable when a class code already exists, so it's always
+  // safe to just go back to the view state without changing anything.
+  clearClassError();
+  renderClassCodeState();
+
+}
+
+
+async function handleClassCodeSubmit(event) {
+
+  event.preventDefault();
+
+  const code = classCodeInput.value.trim();
+
+  if (!code) {
+    showClassError("Please enter a class code.");
+    return;
+  }
+
+  setClassSubmitBusy(true);
+  clearClassError();
+
+  const isValid = await PlatformManager.setClassCode(code);
+
+  setClassSubmitBusy(false);
+
+  if (isValid) {
+    renderClassCodeState();
+  } else {
+    showClassError("That class code wasn't found. Check with your teacher and try again.");
+  }
+
+}
+
+
+function setClassSubmitBusy(isBusy) {
+
+  classSubmitBtn.disabled = isBusy;
+  classSubmitBtn.textContent = isBusy ? "Checking…" : "Set code";
+
+}
+
+
+function showClassError(message) {
+
+  classErrorEl.textContent = message;
+  classErrorEl.hidden = false;
+
+}
+
+
+function clearClassError() {
+
+  classErrorEl.hidden = true;
+  classErrorEl.textContent = "";
+
+}
+
+
+// ------------------------------------------------------------------
 // Dashboard (platform-wide stats)
 // ------------------------------------------------------------------
 
@@ -260,4 +400,5 @@ function loadScript(src) {
 }
 
 
+initClassCodeUI();
 loadGames();

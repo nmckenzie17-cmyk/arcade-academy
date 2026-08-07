@@ -210,32 +210,22 @@
             beginBtn.style.cursor = loaded ? 'pointer' : 'not-allowed';
         }
 
-        // Loads a question bank by code. Called from the single code box on the
-        // title screen (see applyCode() below), and also on page load to restore
-        // whichever bank was last used. A question bank is REQUIRED to play -
-        // there's no default fallback, so Begin Game stays disabled until one loads.
-        async function loadQuestionBank(code) {
+        // Loads the question bank for the class selected in the Hub.
+        async function loadQuestionBank() {
             const statusDiv = document.getElementById('bankStatus');
-
-            if (code === '') {
-                QuestionManager.questions = null;
-                setActiveSubject(null);
-                statusDiv.innerHTML = 'No question bank loaded — enter a code to play';
-                statusDiv.style.color = 'var(--red-damage)';
-                localStorage.removeItem('lastBankCode');
-                return false;
-            }
 
             statusDiv.textContent = 'Loading...';
             statusDiv.style.color = 'var(--blue-highlight)';
 
-            const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
+            const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
 
             if (!result.ok) {
                 console.error('Question bank load failed:', result.error);
                 QuestionManager.questions = null;
                 setActiveSubject(null);
-                statusDiv.innerHTML = `❌ Couldn't load code "${code}" — enter a valid code to play. (If you're testing locally, this game must be served from a web server, not opened as a local file.)`;
+                statusDiv.textContent = result.error === 'class-code-required'
+                    ? '❌ Please enter the class code before playing.'
+                    : '❌ Could not load the current question bank. Return to the Hub and check the class code.';
                 statusDiv.style.color = 'var(--red-damage)';
                 return false;
             }
@@ -244,20 +234,12 @@
             setActiveSubject(subjectName);
             statusDiv.innerHTML = `✅ Loaded: <strong>${subjectName}</strong> (${QuestionManager.questions.length} questions)`;
             statusDiv.style.color = 'var(--green-success)';
-            localStorage.setItem('lastBankCode', code);
             return true;
         }
 
-        // Re-load whichever bank code was used last time, for convenience
+        // Load the Hub-selected class when the game opens.
         window.addEventListener('load', () => {
-            const savedCode = localStorage.getItem('lastBankCode');
-            if (savedCode) {
-                const input = document.getElementById('bankCode');
-                if (input) {
-                    input.value = savedCode;
-                    loadQuestionBank(savedCode);
-                }
-            }
+            loadQuestionBank();
         });
 
         // Game classes
@@ -3888,74 +3870,6 @@
                 }
                 container.appendChild(div);
             });
-        }
-
-        // Developer/testing shortcuts - typed into the SAME code box as question bank codes.
-        const DEV_CODES = ['wave', 'alien', 'powerup'];
-
-        function applyDevCode(code) {
-            const statusDiv = document.getElementById('bankStatus');
-            const extraDiv = document.getElementById('bankExtra');
-            extraDiv.innerHTML = '';
-
-            if (code === 'wave') {
-                statusDiv.innerHTML = '🛠️ Dev mode: choose a starting wave';
-                statusDiv.style.color = 'var(--gold)';
-
-                const waveInput = document.createElement('input');
-                waveInput.type = 'number';
-                waveInput.min = '1';
-                waveInput.max = '50';
-                waveInput.value = '1';
-                waveInput.style.cssText = 'background: rgba(0,0,0,0.5); border: 1px solid #666; border-radius: 5px; padding: 8px; color: white; font-family: "Lexend", sans-serif; width: 120px; margin-right: 10px;';
-
-                const applyBtn = document.createElement('button');
-                applyBtn.textContent = 'Set';
-                applyBtn.style.cssText = 'padding: 8px 16px; font-size: 14px; background: linear-gradient(45deg, #2ecc71, #27ae60); border: none; border-radius: 4px; color: white; cursor: pointer; margin: 0;';
-                applyBtn.onclick = () => {
-                    const wave = parseInt(waveInput.value);
-                    if (wave >= 1 && wave <= 50) {
-                        game.startingWave = wave;
-                        game.startingAmmo = 200;
-                        game.secretCodeActive = true;
-                        extraDiv.innerHTML = `✅ Starting wave set to ${wave} with 200 ammo! Click Begin Game to play.`;
-                    } else {
-                        extraDiv.innerHTML = '❌ Wave must be between 1-50';
-                    }
-                };
-
-                extraDiv.appendChild(waveInput);
-                extraDiv.appendChild(applyBtn);
-            } else if (code === 'alien') {
-                game.skipQuizzes = true;
-                game.startingAmmo = 500;
-                game.secretCodeActive = true;
-                statusDiv.innerHTML = '✅ Quiz skip mode activated! Starting with 500 ammo!';
-                statusDiv.style.color = 'var(--green-success)';
-            } else if (code === 'powerup') {
-                game.skipQuizzes = true;
-                game.startingAmmo = 2000;
-                game.secretCodeActive = true;
-                game.powerupTestMode = true;
-                statusDiv.innerHTML = '✅ Powerup testing mode! 2000 ammo, quizzes skipped, powerups every wave!';
-                statusDiv.style.color = 'var(--green-success)';
-            }
-        }
-
-        // Single entry point for the code box: figures out whether the person typed
-        // a dev/testing shortcut or a question bank code, and handles either one.
-        async function applyCode() {
-            const codeInput = document.getElementById('bankCode');
-            const extraDiv = document.getElementById('bankExtra');
-            const code = codeInput.value.trim().toLowerCase();
-            extraDiv.innerHTML = '';
-
-            if (DEV_CODES.includes(code)) {
-                applyDevCode(code);
-                return;
-            }
-
-            await loadQuestionBank(code);
         }
 
         function restartGame(playAgain) {

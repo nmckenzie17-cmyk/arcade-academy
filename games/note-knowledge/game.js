@@ -16,11 +16,8 @@
     // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
     const GAME_CONFIG = { id: 'rhythm-recall', name: 'Rhythm Recall' };
 
-    let selectedBankCode = '';
-
-    async function loadQuestionBank(code) {
-      const result = await QuestionManager.loadBank(code, QUESTION_BANK_TYPE);
-      return result.ok;
+    async function loadQuestionBank() {
+      return QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
     }
 
     function updateCodeStatus() {
@@ -30,54 +27,9 @@
         el.textContent = '📚 Loaded: ' + QuestionManager.getBankName();
         el.style.color = '#2ecc71';
       } else {
-        el.textContent = 'A class code from your teacher is required to play';
+        el.textContent = 'Please enter the class code before playing.';
         el.style.color = '#9aa0a6';
       }
-    }
-
-    async function submitCode() {
-      const input = document.getElementById('code-input-field');
-      const raw = input.value.trim();
-      const statusEl = document.getElementById('code-status');
-      if (!raw) return;
-
-      // Dev/cheat codes take priority and are checked case-insensitively.
-      if (['PIXELPOWER','DEVTEST'].includes(raw.toUpperCase())) {
-        unlockedSongs = new Set(SONG_DEFS.map(s => s.id));
-        // Coins are shared platform-wide, so this tops up the PlatformManager
-        // balance rather than a local field.
-        PlatformManager.addCoins(Math.max(0, 100 - PlatformManager.getCoins()));
-        coins = PlatformManager.getCoins();
-        renderSongGrid();
-        updateHomeHighScore();
-        await safeSave();
-        statusEl.textContent = '🎉 Cheat accepted: all songs unlocked!';
-        statusEl.style.color = '#00ffcc';
-        input.value = '';
-        return;
-      }
-
-      const code = raw.toLowerCase();
-      if (code === 'reset') {
-        QuestionManager.questions = null; QuestionManager.bankCode = ''; QuestionManager.bankName = '';
-        selectedBankCode = '';
-        await safeSave();
-        updateCodeStatus();
-        input.value = '';
-        return;
-      }
-      statusEl.textContent = 'Checking code…'; statusEl.style.color = '#00d4ff';
-      const ok = await loadQuestionBank(code);
-      if (ok) {
-        selectedBankCode = code;
-        await safeSave();
-        input.value = '';
-      } else {
-        statusEl.textContent = '❌ Unknown code — check with your teacher';
-        statusEl.style.color = '#e74c3c';
-        return;
-      }
-      updateCodeStatus();
     }
 
     // Song unlock requirements: {minScore on previous, minPlays on previous}
@@ -176,8 +128,7 @@
         total_correct_answers: totalCorrectAnswers,
         total_notes_played: totalNotesPlayed,
         song_plays: JSON.stringify(songPlays),
-        song_best_scores: JSON.stringify(bestScores),
-        selected_bank_code: selectedBankCode
+        song_best_scores: JSON.stringify(bestScores)
       };
       if (playerData) {
         await window.dataSdk.update({...playerData, ...obj});
@@ -202,25 +153,21 @@
           totalNotesPlayed = Number(playerData.total_notes_played) || 0;
           try { songPlays = JSON.parse(playerData.song_plays || '{}'); } catch(e) { songPlays = {}; }
           try { bestScores = JSON.parse(playerData.song_best_scores || '{}'); } catch(e) { bestScores = {}; }
-          selectedBankCode = playerData.selected_bank_code || '';
         } else {
           playerData = null;
           highScore = 0;
           scoreUpgradeLevel = 0; chainUpgradeLevel = 0; superBonusLevel = 0;
-          totalCorrectAnswers = 0; totalNotesPlayed = 0; songPlays = {}; bestScores = {}; selectedBankCode = '';
+          totalCorrectAnswers = 0; totalNotesPlayed = 0; songPlays = {}; bestScores = {};
         }
         updateShop();
         recalcUnlocks();
         updateHomeHighScore();
         renderSongGrid();
-        if (selectedBankCode && !QuestionManager.hasQuestions()) {
-          loadQuestionBank(selectedBankCode).then(updateCodeStatus);
-        } else {
-          updateCodeStatus();
-        }
+        loadQuestionBank().then(updateCodeStatus);
       }
     };
     (async()=>{await window.dataSdk.init(dataHandler);})();
+    loadQuestionBank().then(updateCodeStatus);
 
     function recalcUnlocks(){
       unlockedSongs=new Set([1]);
@@ -367,9 +314,8 @@
     function startGame(){
       if(!QuestionManager.hasQuestions()){
         const statusEl=document.getElementById('code-status');
-        statusEl.textContent='❌ Enter a class code from your teacher to play';
+        statusEl.textContent='❌ Please enter the class code before playing.';
         statusEl.style.color='#e74c3c';
-        document.getElementById('code-input-field').focus();
         return;
       }
       cancelAnimationFrame(animFrame);

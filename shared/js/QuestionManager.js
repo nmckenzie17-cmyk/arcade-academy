@@ -128,6 +128,15 @@ const QuestionManager = {
         return { ok: true, name: this.bankName };
     },
 
+    // Loads the class selected in the Hub. Games must use this instead of
+    // accepting or persisting their own class-code input.
+    async loadCurrentBank(questionType) {
+        if (!window.PlatformManager || !PlatformManager.hasClassCode()) {
+            return { ok: false, error: 'class-code-required' };
+        }
+        return this.loadBank(PlatformManager.getClassCode(), questionType);
+    },
+
     // The active bank's display name (uppercased teacher code for
     // multichoice banks, or the bank/subject's own name for category and
     // matching banks) and the raw code itself, e.g. for restoring the input

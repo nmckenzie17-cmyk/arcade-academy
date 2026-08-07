@@ -1692,25 +1692,19 @@ function showStart(){
             🏰 Survive waves and pick cards to grow stronger<br>
             👑 Earn Crowns to unlock permanent Kingdom upgrades
         </p>
-        <div style="text-align:left;background:rgba(0,0,0,0.3);border:1px solid var(--border-purple);border-radius:8px;padding:12px;margin-bottom:16px">
-            <label for="bank-code-input" style="display:block;font-size:clamp(12px,1.8vw,14px);color:var(--accent-blue);margin-bottom:6px;font-weight:600">Class Code — required to play (ask your teacher)</label>
-            <input id="bank-code-input" type="text" placeholder="Enter code" maxlength="20" style="width:100%;padding:10px;border-radius:6px;border:2px solid var(--accent-rose);background:#0a0a1a;color:var(--accent-blue);font-family:'Lexend',sans-serif;font-size:clamp(13px,1.8vw,15px);text-transform:lowercase">
-            <div id="bank-status" style="font-size:12px;margin-top:6px;min-height:16px;color:#aaa"></div>
-        </div>
+        <div id="bank-status" style="font-size:12px;margin:0 0 16px;min-height:16px;color:#aaa"></div>
         <button class="canva-button title-font" style="width:100%;padding:14px;border-radius:6px;text-align:center;font-size:clamp(13px,2vw,16px);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;cursor:pointer;" id="start-btn">Press Start</button>
         ${kingdomSave.equippedPowerups.length ? `<p style="font-size:11px;color:var(--accent-rose);margin-top:6px">Equipped: ${kingdomSave.equippedPowerups.map(id=>(RUN_POWERUPS.find(p=>p.id===id)||{}).name).join(', ')}</p>` : ''}
         <p class="section-label-font" style="opacity:0.6;margin-top:18px;">Created by Nate McKenzie</p>
     </div></div>`;
-    const input = document.getElementById('bank-code-input');
     const status = document.getElementById('bank-status');
     const startBtn = document.getElementById('start-btn');
-    input.focus();
     const tryStart = async ()=>{
         startBtn.disabled = true;
         startBtn.textContent = 'Loading...';
         status.style.color = '#aaa';
-        status.textContent = input.value.trim() ? 'Loading question bank...' : '';
-        const result = await QuestionManager.loadBank(input.value, QUESTION_BANK_TYPE);
+        status.textContent = 'Loading question bank...';
+        const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
         if(result.ok){
             modalRoot.innerHTML='';
             // One PlatformManager session per sitting/reload — see the restart
@@ -1723,16 +1717,24 @@ function showStart(){
             startBtn.disabled = false;
             startBtn.textContent = '⚔️ START GAME';
             status.style.color = '#e74c3c';
-            status.textContent = result.error==='code-required'
-                ? "⚠️ A question bank code is required to play — ask your teacher for yours."
-                : result.error==='code-not-found'
-                ? "⚠️ Code not recognised — check with your teacher."
-                : "⚠️ Couldn't load that question bank (try hosting this file on a local server).";
+            status.textContent = result.error==='class-code-required'
+                ? '⚠️ Please enter the class code before playing.'
+                : '⚠️ Could not load the current question bank. Return to the Hub and check the class code.';
         }
     };
     startBtn.onclick = tryStart;
-    input.addEventListener('keydown', e=>{ if(e.key==='Enter') tryStart(); });
     document.getElementById('kingdom-btn').onclick = ()=> showKingdom(()=>showStart());
+    QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE).then(result => {
+        if (result.ok) {
+            status.style.color = '#2ecc71';
+            status.textContent = `✓ Loaded: ${result.name}`;
+        } else {
+            status.style.color = '#e74c3c';
+            status.textContent = result.error === 'class-code-required'
+                ? 'Please enter the class code before playing.'
+                : 'Could not load the current question bank. Return to the Hub and check the class code.';
+        }
+    });
 }
 
 let gameOverCrownsAwarded = false, lastCrownsEarned = 0, lastRunWasVoluntary = false;
@@ -1763,7 +1765,6 @@ function showGameOver(voluntary){
     }
     modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">👑 +${lastCrownsEarned} Crowns earned (Total: ${PlatformManager.getCoins()})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — Crowns won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Play Again</button></div></div>`;
     document.getElementById('restart-btn').onclick=()=>{
-        sessionStorage.setItem('cd_restart_code', QuestionManager.getBankCode() || '');
         location.reload();
     };
     document.getElementById('kingdom-btn').onclick=()=> showKingdom(()=>showGameOver());
@@ -4364,19 +4365,7 @@ function gameLoop(time){
     requestAnimationFrame(gameLoop);
 }
 
-const cdRestartCode = sessionStorage.getItem('cd_restart_code');
-if(cdRestartCode !== null){
-    sessionStorage.removeItem('cd_restart_code');
-    showStart();
-    const codeInput = document.getElementById('bank-code-input');
-    const startBtnEl = document.getElementById('start-btn');
-    if(codeInput && startBtnEl){
-        codeInput.value = cdRestartCode;
-        startBtnEl.click();
-    }
-} else {
-    showStart();
-}
+showStart();
 requestAnimationFrame(gameLoop);
 
 // Decorative background: idle enemy sprites drifting behind the home screen,
