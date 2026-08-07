@@ -1,8 +1,22 @@
-  // Game state
+ //Wild West Wordslinger Game.js
+ // Game state
   let killCount=0, overallScore=0, sessionCoins=0, lives=3, ammo=5, maxAmmo=5;
   let gameActive=false, spawnInterval=null, reloadOpen=false, reloadStartTime=null;
   let gameOverReason='';
   let comboStreak=0;
+
+  // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
+  // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
+  const GAME_CONFIG = { id: 'wild-west-wordslinger', name: 'Wild West Wordslinger' };
+  // One PlatformManager session per sitting — startGame() runs on every "Play"
+  // AND "Play Again" click (there's no separate restart path in this game),
+  // so this guards against starting a new session on every replay.
+  let platformSessionStarted = false;
+  // Reports whether the player is actively playing right now (gameActive already
+  // tracks this throughout: true during normal spawning and boss fights, false
+  // during reload/pre-run quiz/boss-incoming preview/game over) so PlatformManager
+  // can track "active play time" separately from total session time.
+  setInterval(() => PlatformManager.heartbeat(GAME_CONFIG.id, gameActive), 1000);
 
   // Single-run powerup modifiers (reset every game, scaled by the pre-run quiz performance)
   let runScoreMult=1, runCoinMult=1, runSpawnRateMult=1, runPerformance=0;
@@ -15,7 +29,11 @@
 
   // Persistent state
   let playerData = null; // the SDK record
-  let highScore=0, totalCoins=0, bulletLevel=0, livesLevel=0, lootBoxCount=0, comboLevel=0;
+  // NOTE: the persistent coin balance is NOT stored in a local field — it
+  // lives in PlatformManager (shared/js/PlatformManager.js) as the single
+  // source of truth for the shared coin economy. `sessionCoins` above is
+  // this run's ephemeral, not-yet-banked earnings, which stays local.
+  let highScore=0, bulletLevel=0, livesLevel=0, lootBoxCount=0, comboLevel=0;
   let totalCorrectAnswers=0, totalKills=0;
   let equippedPowerups=[]; // ids from POWERUPS the player has selected to run with
   let selectedBankCode='';
@@ -81,7 +99,6 @@
       if (data.length > 0) {
         playerData = data[0];
         highScore = playerData.high_score || 0;
-        totalCoins = playerData.total_coins || 0;
         bulletLevel = playerData.bullet_upgrade_level || 0;
         livesLevel = playerData.lives_upgrade_level || 0;
         lootBoxCount = playerData.loot_box_count || 0;
@@ -96,7 +113,7 @@
         equippedEffect = playerData.equipped_effect || '';
       } else {
         playerData = null;
-        highScore=0; totalCoins=0; bulletLevel=0; livesLevel=0; lootBoxCount=0; comboLevel=0;
+        highScore=0; bulletLevel=0; livesLevel=0; lootBoxCount=0; comboLevel=0;
         totalCorrectAnswers=0; totalKills=0; equippedPowerups=[];
         selectedBankCode='';
         ownedCrosshairs=[]; ownedEffects=[];
@@ -123,7 +140,6 @@
   async function saveData() {
     const obj = {
       high_score: highScore,
-      total_coins: totalCoins,
       bullet_upgrade_level: bulletLevel,
       lives_upgrade_level: livesLevel,
       loot_box_count: lootBoxCount,
@@ -146,7 +162,7 @@
 
   function updateHomeStats() {
     document.getElementById('home-highscore').textContent = highScore;
-    document.getElementById('home-coins').textContent = '🪙 ' + totalCoins;
+    document.getElementById('home-coins').textContent = '🪙 ' + PlatformManager.getCoins();
     document.getElementById('home-kills').textContent = totalKills;
     document.getElementById('home-correct').textContent = totalCorrectAnswers;
   }
@@ -196,7 +212,7 @@
   }
   function openShop() {
     document.getElementById('shop-modal').classList.add('open');
-    document.getElementById('shop-coins-display').textContent = '🪙 ' + totalCoins;
+    document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateBulletInfo();
     updateLifeInfo();
     updateComboUpgradeInfo();
@@ -258,12 +274,11 @@
 
   async function buyBulletUpgrade() {
     const cost = 10 * Math.pow(10, bulletLevel);
-    if (totalCoins < cost) { showLootResult('Not enough coins!', '#e74c3c'); return; }
-    totalCoins -= cost;
+    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
     bulletLevel++;
     maxAmmo = 5 + bulletLevel;
     await safeSave();
-    document.getElementById('shop-coins-display').textContent = '🪙 ' + totalCoins;
+    document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateBulletInfo();
     showLootResult('Upgraded! Ammo: ' + maxAmmo, '#2ecc71');
   }
@@ -274,11 +289,10 @@
   }
   async function buyLifeUpgrade() {
     const cost = lifeUpgradeCost();
-    if (totalCoins < cost) { showLootResult('Not enough coins!', '#e74c3c'); return; }
-    totalCoins -= cost;
+    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
     livesLevel++;
     await safeSave();
-    document.getElementById('shop-coins-display').textContent = '🪙 ' + totalCoins;
+    document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateLifeInfo();
     showLootResult('❤️ Now starting with ' + (3+livesLevel) + ' lives!', '#2ecc71');
   }
@@ -292,11 +306,10 @@
   }
   async function buyComboUpgrade() {
     const cost = comboUpgradeCost();
-    if (totalCoins < cost) { showLootResult('Not enough coins!', '#e74c3c'); return; }
-    totalCoins -= cost;
+    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
     comboLevel++;
     await safeSave();
-    document.getElementById('shop-coins-display').textContent = '🪙 ' + totalCoins;
+    document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateComboUpgradeInfo();
     showLootResult('🔥 Combo power increased!', '#2ecc71');
   }
@@ -315,8 +328,7 @@
 
   async function buyLootBox() {
     const cost = lootBoxCost();
-    if (totalCoins < cost) { showLootResult('Not enough coins!', '#e74c3c'); return; }
-    totalCoins -= cost;
+    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
     lootBoxCount++;
     const rarityKey = pickRarity();
     const poolNames = Object.keys(ITEM_RARITY).filter(n => ITEM_RARITY[n] === rarityKey);
@@ -331,11 +343,11 @@
     } else {
       // Everything in this tier is already owned — convert to a coin jackpot instead of a dud
       const bonus = RARITY_COIN_BONUS[rarityKey];
-      totalCoins += bonus;
+      PlatformManager.addCoins(bonus);
       showLootReveal(rarityKey, '', true, bonus);
     }
     await safeSave();
-    document.getElementById('shop-coins-display').textContent = '🪙 ' + totalCoins;
+    document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateLootBoxInfo();
   }
 
@@ -782,6 +794,10 @@
     killCount=0; overallScore=0; sessionCoins=0; lives=3+livesLevel;
     ammo=maxAmmo; gameActive=false; reloadOpen=false; gameOverReason='';
     comboStreak=0;
+    if (!platformSessionStarted) {
+      PlatformManager.startSession(GAME_CONFIG.id);
+      platformSessionStarted = true;
+    }
     runScoreMult=1; runCoinMult=1; runSpawnRateMult=1; runPerformance=0;
     activePowerupsThisRun=[...equippedPowerups];
     stage=1; bossActive=false; bossHP=0; bossMaxHP=0; stageStartScore=0;
@@ -848,6 +864,7 @@
           if(found>=cat.correct.length){ finishPowerupAssessmentRound(); }
         } else {
           cell.classList.add('wrong'); preRunMistakes++; wrongCount++;
+          PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
           if(wrongCount>=2){
             revealCorrectAnswers(grid, cat.correct);
             setTimeout(()=>finishPowerupAssessmentRound(),1000);
@@ -862,6 +879,9 @@
   function finishPowerupAssessmentRound() {
     const timeMs = Date.now() - preRunRoundStart;
     totalCorrectAnswers++; safeSave();
+    // Mirrors this game's own totalCorrectAnswers bookkeeping, which counts a
+    // completed round here as correct regardless of accuracy within it.
+    PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, true);
     const speedScore = Math.max(0.2, Math.min(1, 1 - timeMs/8000));
     const accuracyScore = Math.max(0, 1 - preRunMistakes*0.25);
     preRunScores.push((speedScore + accuracyScore) / 2);
@@ -918,8 +938,8 @@
       cell.className='word-cell p-2 text-xs text-center rounded font-bold';cell.textContent=w;
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected'))return;
-        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){totalCorrectAnswers++;safeSave();document.getElementById('start-question-overlay').classList.add('hidden');startEnemySpawning();}}
-        else{cell.classList.add('wrong');setTimeout(()=>showStartQuestion(),600);}
+        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);document.getElementById('start-question-overlay').classList.add('hidden');startEnemySpawning();}}
+        else{cell.classList.add('wrong');PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);setTimeout(()=>showStartQuestion(),600);}
       });
       grid.appendChild(cell);
     });
@@ -1129,9 +1149,10 @@
       const bh=document.getElementById('boss-health-bar-wrap'); if(bh) bh.remove();
     }
     updateCrosshairCursor();
-    totalCoins+=sessionCoins;
+    PlatformManager.addCoins(sessionCoins);
     const newHigh = overallScore > highScore;
     if(newHigh) highScore=overallScore;
+    PlatformManager.setHighScore(GAME_CONFIG.id, overallScore);
     try { await saveData(); } catch(e) { console.error('saveData failed', e); }
     document.getElementById('final-score').textContent='Score: '+overallScore+' (Kills: '+killCount+')';
     document.getElementById('final-coins').textContent='🪙 '+sessionCoins+' coins earned';
@@ -1355,6 +1376,7 @@
         damageBoss(dmg, area);
         showFloatingText(x,y-16,'💥 Defused!','#00d4ff',area);
       } else if (isCorrect) {
+        PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, true);
         spawnDeathEffect(x,y,area);
         let dmg = 12;
         if (bossDef && bossDef.modifyDamage) dmg = bossDef.modifyDamage(dmg, bossState);
@@ -1362,6 +1384,7 @@
         ammo = Math.min(maxAmmo, ammo+1);
         showFloatingText(x,y-16,'+1 Ammo','#00d4ff',area);
       } else {
+        PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
         ammo = Math.max(0, ammo-1);
         lives = Math.max(0, lives-1);
         showFloatingText(x,y-16,'Wrong!','#e74c3c',area);
@@ -1454,9 +1477,10 @@
       cell.className='word-cell p-2 text-xs text-center rounded font-bold';cell.textContent=w;
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected')||cell.classList.contains('wrong'))return;
-        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){clearInterval(si);totalCorrectAnswers++;safeSave();const bonus=Math.max(50,2000-(Date.now()-reloadStartTime)/4);overallScore+=bonus;ammo=maxAmmo;updateHUD();closeReload();checkStageProgress();}}
+        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){clearInterval(si);totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);const bonus=Math.max(50,2000-(Date.now()-reloadStartTime)/4);overallScore+=bonus;ammo=maxAmmo;updateHUD();closeReload();checkStageProgress();}}
         else{
           cell.classList.add('wrong');wrongCount++;
+          PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
           if(wrongCount>=2){
             clearInterval(si);
             revealCorrectAnswers(grid, cat.correct);

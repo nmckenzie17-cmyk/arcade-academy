@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cavern Crammer</title>
+<link rel="stylesheet" href="../../shared/css/global.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="gameCanvas"></canvas>
+    <div id="dangerFlash"></div>
+
+    <div id="hud">
+      <div>
+        <div id="hearts"><span id="livesLabel">×3</span></div>
+        <div id="effectsRow"></div>
+      </div>
+      <div id="hudRight">
+        <div id="levelLabel">RUIN 1</div>
+        <div id="coinCounter">🪙 <span id="coinVal">0</span><span id="carriedVal"></span></div>
+        <div id="speedScore">⚡ <span id="speedVal">1000</span></div>
+      </div>
+    </div>
+    <div id="toast"></div>
+
+    <div id="touchControls">
+      <div id="dpad">
+        <div class="tbtn" id="btnLeft">◀</div>
+        <div class="tbtn" id="btnRight">▶</div>
+      </div>
+      <div class="tbtn hidden" id="poundBtn">POUND</div>
+      <div class="tbtn hidden" id="warpBtn">🌀 WARP</div>
+      <div class="tbtn" id="jumpBtn">JUMP</div>
+    </div>
+
+    <!-- Title -->
+    <div id="titleScreen" class="overlay">
+      <div class="panel">
+        <h1>CAVERN CRAMMER</h1>
+        <div class="subtitle">a tiny pixel roguelike of ruins, riddles &amp; recall</div>
+        <p>Climb tall, crumbling ruins full of spikes, foes, wall-jump shafts, and hidden traps.
+        Coins you carry are only safe once you reach a shrine — die before then and they're gone.
+        Each ruin hides one locked vault door leading to a loot room; find its key at a shrine to claim the treasure. Clear 4
+        ruins in a zone and a Guardian blocks the way — defeat it to descend into a new, deadlier
+        zone. You have limited lives — run out, and the ruins are lost for good (though your shop
+        upgrades remain).</p>
+        <div class="controlsHint">
+          ◀ ▶ or A/D — walk &nbsp;•&nbsp; SPACE / ▲ / W — jump (tap again mid-air to double jump, hold toward a wall to wall-jump)<br>
+          Touch players: use the on-screen pad in the corner.
+        </div>
+        <h2 class="center" style="margin-bottom:8px;">CHOOSE YOUR HERO</h2>
+        <div class="shopGrid" id="charGrid"></div>
+        <div class="center" id="hardModeRow" style="margin-top:14px;">
+          <button class="btn secondary" id="hardModeBtn" style="font-size:10px;">HARD MODE: OFF</button>
+        </div>
+        <div class="codeBox">
+          <p class="codeLabel">Class Code — required to play (ask your teacher)</p>
+          <input id="bankCode" type="text" placeholder="Enter code" autocomplete="off">
+          <p id="bankMessage"></p>
+        </div>
+        <div class="center" style="margin-top:16px;">
+          <button class="btn" id="startBtn">▶ START</button>
+        </div>
+        <p class="center hubLink"><a href="../../index.html">🏛️ Back to Arcade Academy</a></p>
+      </div>
+    </div>
+
+    <!-- Quiz -->
+    <div id="quizModal" class="overlay hidden">
+      <div class="panel">
+        <h1 id="quizHeading">SHRINE OF KNOWLEDGE</h1>
+        <div class="qTitle" id="quizSubtitle">Drag each term beside its true definition.</div>
+        <div id="quizArea">
+          <div id="termBank"></div>
+          <div id="defList"></div>
+        </div>
+        <div id="resultPanel">
+          <div class="rtitle" id="resultTitle"></div>
+          <p id="resultMessage"></p>
+          <div id="rewardOptionsGrid"></div>
+          <div class="center"><button class="btn" id="resultContinueBtn">CONTINUE</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shop -->
+    <div id="shopModal" class="overlay hidden">
+      <div class="panel">
+        <h1>WAYSHRINE MARKET</h1>
+        <p class="center">Coins: <span id="shopCoinVal" style="color:var(--amber);">0</span></p>
+        <h2>UPGRADES</h2>
+        <div class="shopGrid" id="upgradeGrid"></div>
+        <h2>COSMETIC SKINS</h2>
+        <div class="shopGrid" id="skinGrid"></div>
+        <div class="center" style="margin-top:16px;">
+          <button class="btn" id="shopContinueBtn">CONTINUE TO NEXT RUIN ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over / Run summary -->
+    <div id="gameOverModal" class="overlay hidden">
+      <div class="panel">
+        <h1>THE RUINS CLAIM YOU</h1>
+        <p class="center" id="gameOverHeadline" style="color:var(--amber);"></p>
+        <div id="gameOverStats" class="statsList"></div>
+        <p class="center" style="margin-top:10px;">Your banked coins and shop upgrades carry over. Unbanked gold is lost forever.</p>
+        <div class="center" style="margin-top:16px;">
+          <button class="btn danger" id="newRunBtn">↻ NEW RUN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../../shared/js/PlatformManager.js"></script>
+<script src="../../shared/js/QuestionManager.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

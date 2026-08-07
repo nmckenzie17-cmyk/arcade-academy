@@ -15,7 +15,7 @@ window.GAME_CONFIG = {
 
     entry: "index.html",
 
-    icon: "🛸",
+    icon: "👾",
 
     saveKey: "rocketrecallGameProgress",
 

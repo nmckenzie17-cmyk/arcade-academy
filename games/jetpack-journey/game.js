@@ -1,8 +1,13 @@
+// Jetpack Journey Game.js
 (function(){
 "use strict";
 // Change this value if Jetpack Journey ever supports another question type.
 // All loading, storing, selecting and shuffling of cards lives in QuestionManager now.
 const QUESTION_BANK_TYPE='matching';
+
+// Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
+// Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
+const GAME_CONFIG={id:'jetpack-journey',name:'Jetpack Journey'};
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
 
@@ -80,7 +85,10 @@ const memoryGrid=document.getElementById('memory-grid');
 const memoryFinish=document.getElementById('memory-finish');
 
 let highScore=parseInt(localStorage.getItem('pixelJetpackHighScore'))||0;
-let coinCount=parseInt(localStorage.getItem('pixelJetpackCoins'))||0;
+// NOTE: the persistent coin balance is NOT stored locally — it lives in
+// PlatformManager (shared/js/PlatformManager.js) as the single source of
+// truth for the shared coin economy. Use PlatformManager.getCoins() /
+// addCoins() / spendCoins() instead of a local field.
 let doubleCoinsNextRun=localStorage.getItem('pixelJetpackDoubleCoinsNextRun')==='1';
 
 const SHOP_STORAGE_KEY='pixelJetpackShopState';
@@ -241,14 +249,15 @@ return JSON.parse(JSON.stringify(SHOP_DEFAULTS));
 }
 }
 function saveShopState(){localStorage.setItem(SHOP_STORAGE_KEY,JSON.stringify(shopState));}
-function saveCoins(){localStorage.setItem('pixelJetpackCoins',coinCount);}
 // Wipes all saved score, coin, and progress data. Used to penalize entering a developer
 // code while DEV_CODES_ENABLED is false.
 function wipeAllProgress(){
-highScore=0;coinCount=0;doubleCoinsNextRun=false;
+highScore=0;doubleCoinsNextRun=false;
 localStorage.removeItem('pixelJetpackHighScore');
-localStorage.removeItem('pixelJetpackCoins');
 localStorage.removeItem('pixelJetpackDoubleCoinsNextRun');
+// Coins are shared platform-wide (see PlatformManager) and intentionally NOT touched
+// here — wiping this game's local progress shouldn't wipe out coins the student
+// earned playing other games.
 shopState=JSON.parse(JSON.stringify(SHOP_DEFAULTS));
 localStorage.removeItem(SHOP_STORAGE_KEY);
 deathCoinPity=0;localStorage.removeItem(DEATH_PITY_KEY);
@@ -386,7 +395,7 @@ skinsList.forEach(function(skin){
 const owned=appearance[ownedField].indexOf(skin.id)!==-1;
 const equipped=appearance[equippedField]===skin.id;
 const label=!owned?(skin.cost+' COINS'):(equipped?'EQUIPPED':'EQUIP');
-container.appendChild(makeAppearanceShopItem(skin.name+' ('+skin.stage+')','Cosmetic only - no effect on gameplay.',function(pctx,w,h){previewFn(pctx,w,h,skin.id);},label,!owned&&coinCount<skin.cost,function(){
+container.appendChild(makeAppearanceShopItem(skin.name+' ('+skin.stage+')','Cosmetic only - no effect on gameplay.',function(pctx,w,h){previewFn(pctx,w,h,skin.id);},label,!owned&&PlatformManager.getCoins()<skin.cost,function(){
 if(!owned){
 if(!spendCoins(skin.cost)){setShopMessage('Not enough coins.',true);return;}
 appearance[ownedField].push(skin.id);
@@ -410,11 +419,10 @@ drawFirePreview(pctx,w,h,skinId);
 });
 }
 function spendCoins(cost){
-if(coinCount<cost)return false;
-coinCount-=cost;saveCoins();return true;
+return PlatformManager.spendCoins(cost);
 }
 function renderShop(){
-shopSummary.innerHTML='COINS: '+coinCount+'<br>UPGRADES PURCHASED: '+getUpgradePurchaseCount();
+shopSummary.innerHTML='COINS: '+PlatformManager.getCoins()+'<br>UPGRADES PURCHASED: '+getUpgradePurchaseCount();
 shopUpgrades.innerHTML='';shopSingles.innerHTML='';shopToggles.innerHTML='';
 SHOP_UPGRADES.forEach(function(up){
 const level=shopState.levels[up.id]||0;
@@ -422,7 +430,7 @@ const atMax=up.maxLevel!==undefined&&level>=up.maxLevel;
 const locked=up.requires&&!shopState.owned[up.requires];
 const cost=up.cost(level);
 const label=atMax?'MAX LEVEL':(locked?'LOCKED':cost+' COINS');
-shopUpgrades.appendChild(makeShopItem(up.name+' | LVL '+level+(up.maxLevel!==undefined?' / '+up.maxLevel:''),up.detail,label,atMax||locked||coinCount<cost,function(){
+shopUpgrades.appendChild(makeShopItem(up.name+' | LVL '+level+(up.maxLevel!==undefined?' / '+up.maxLevel:''),up.detail,label,atMax||locked||PlatformManager.getCoins()<cost,function(){
 if(atMax)return;
 if(locked){setShopMessage('Unlock Magnet first.',true);return;}
 if(!spendCoins(cost)){setShopMessage('Not enough coins.',true);return;}
@@ -431,7 +439,7 @@ shopState.levels[up.id]=level+1;saveShopState();setShopMessage('Upgrade purchase
 });
 SHOP_SINGLES.forEach(function(item){
 const owned=shopState.owned[item.id];
-shopSingles.appendChild(makeShopItem(item.name, item.detail, owned?'OWNED':item.cost+' COINS', owned||coinCount<item.cost, function(){
+shopSingles.appendChild(makeShopItem(item.name, item.detail, owned?'OWNED':item.cost+' COINS', owned||PlatformManager.getCoins()<item.cost, function(){
 if(!spendCoins(item.cost)){setShopMessage('Not enough coins.',true);return;}
 shopState.owned[item.id]=true;saveShopState();setShopMessage(item.name+' unlocked.',false);renderShop();updateHomeStats();
 }));
@@ -439,7 +447,7 @@ shopState.owned[item.id]=true;saveShopState();setShopMessage(item.name+' unlocke
 SHOP_TOGGLES.forEach(function(item){
 const owned=shopState.owned[item.id], active=shopState.toggles[item.id];
 const label=owned?(active?'ON':'OFF'):(item.cost+' COINS');
-shopToggles.appendChild(makeShopItem(item.name,item.detail,label,!owned&&coinCount<item.cost,function(){
+shopToggles.appendChild(makeShopItem(item.name,item.detail,label,!owned&&PlatformManager.getCoins()<item.cost,function(){
 if(!owned){
 if(!spendCoins(item.cost)){setShopMessage('Not enough coins.',true);return;}
 shopState.owned[item.id]=true;
@@ -519,7 +527,7 @@ const l=document.getElementById('hud-left'),r=document.getElementById('hud-right
 if(l.style.display==='none'){l.style.display='flex';r.style.display='flex';}
 document.getElementById('hud-stage').textContent=getStageName();
 document.getElementById('hud-score').textContent=Math.floor(score);
-document.getElementById('hud-coins').textContent=Math.floor(coinCount);
+document.getElementById('hud-coins').textContent=Math.floor(PlatformManager.getCoins());
 document.getElementById('hud-time').textContent=formatRunTime(runElapsedMs);
 const shieldRow=document.getElementById('hud-shield-row');
 if(shieldCharges>0){shieldRow.style.display='flex';document.getElementById('hud-shield').textContent=shieldCharges;}
@@ -1722,8 +1730,7 @@ return false;
 }
 
 function addCoins(amount){
-coinCount+=amount*(doubleCoinsNextRun?2:1);
-saveCoins();
+PlatformManager.addCoins(amount*(doubleCoinsNextRun?2:1));
 }
 function spawnCoin(){
 if(coins.length>=getMaxCoinsOnScreen())return;
@@ -1900,11 +1907,13 @@ const a=memoryGame.cards[memoryGame.selected[0]],b=memoryGame.cards[memoryGame.s
 if(a.pair===b.pair&&a.type!==b.type){
 a.matched=true;b.matched=true;memoryGame.matched+=2;memoryGame.selected=[];
 recordQuestionCorrect();
+PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);
 if(memoryGame.kind==='fuel'||memoryGame.kind==='magnet')addCoins(2);
 if(memoryGame.matched===memoryGame.cards.length){finishMemoryGame();}
 renderMemoryGame();
 }else{
 memoryGame.wrong++;
+PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);
 const cap=(memoryGame.kind==='fuel'||memoryGame.kind==='magnet')?getQuizWrongCap():2;
 if(memoryGame.wrong>=cap){
 setTimeout(function(){memoryGame.selected=[];finishMemoryGame();},650);
@@ -2047,7 +2056,7 @@ else if(roll<0.92+bonus){addCoins(100);msg='+100 coins';}
 else won=false;
 if(won){deathCoinPity=0;}else deathCoinPity++;
 localStorage.setItem(DEATH_PITY_KEY,deathCoinPity);
-if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpackHighScore',highScore);}
+if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpackHighScore',highScore);PlatformManager.setHighScore(GAME_CONFIG.id,highScore);}
 return msg||'No prize this time. Next chance improved.';
 }
 function endGame(){
@@ -2065,7 +2074,7 @@ deathRewardMessage='';
 finalScore=Math.floor(score);
 if(activePowerupEffects.highscore)finalScore=Math.floor(finalScore*(1+0.25*activePowerupEffects.highscore.correct));
 if(doubleCoinsNextRun){doubleCoinsNextRun=false;localStorage.setItem('pixelJetpackDoubleCoinsNextRun','0');}
-if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpackHighScore',highScore);lastRunWasNewHigh=true;}else{lastRunWasNewHigh=false;}
+if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpackHighScore',highScore);PlatformManager.setHighScore(GAME_CONFIG.id,highScore);lastRunWasNewHigh=true;}else{lastRunWasNewHigh=false;}
 totalDeathCount++;
 localStorage.setItem('pixelJetpackDeathCount',totalDeathCount);
 if(totalDeathCount>=5&&(totalDeathCount-5)%15===0)forceRainbowNextRun=true;
@@ -2089,7 +2098,7 @@ powerupUnlockAlert='\ud83c\udf89 New Powerup Unlocked: '+newlyUnlocked.join(', '
 // skipping the home screen entirely.
 function showPixelGameOverPanel(){
 document.getElementById('pixel-final-score').textContent='Final Score: '+finalScore;
-document.getElementById('pixel-final-coins').textContent='\ud83e\ude99 Coins: '+coinCount;
+document.getElementById('pixel-final-coins').textContent='\ud83e\ude99 Coins: '+PlatformManager.getCoins();
 document.getElementById('pixel-new-high').style.display=lastRunWasNewHigh?'block':'none';
 document.getElementById('pixel-death-message').textContent=buildDeathMessage();
 const alertEl=document.getElementById('pixel-powerup-alert');
@@ -2145,6 +2154,7 @@ function chooseDeathAnswer(idx){
 if(!deathQuiz.active||deathQuiz.resultMessage)return;
 const opt=deathQuiz.options[idx];
 deathCoinCollected--;
+PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,!!opt.correct);
 let prize;
 if(opt.correct){recordQuestionCorrect();prize=rollSingleDeathCoinPrize();}
 else{deathCoinPity++;localStorage.setItem(DEATH_PITY_KEY,deathCoinPity);prize='No prize this time. Next chance improved.';}
@@ -2215,7 +2225,9 @@ memoryFinish.textContent='CONTINUE';
 function choosePowerupAnswer(idx){
 if(!powerupQuizActive||powerupQuizActive.finished)return;
 const q=powerupQuizActive.questions[powerupQuizActive.index];
-if(q.options[idx].correct){powerupQuizActive.correct++;recordQuestionCorrect();}
+const wasCorrect=!!q.options[idx].correct;
+PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,wasCorrect);
+if(wasCorrect){powerupQuizActive.correct++;recordQuestionCorrect();}
 powerupQuizActive.index++;
 if(powerupQuizActive.index>=powerupQuizActive.questions.length){
 activePowerupEffects[powerupQuizActive.id]={correct:powerupQuizActive.correct};
@@ -2433,7 +2445,7 @@ else if(o.type==='alien-tower'){drawPixelArtCtx(hctx,alienTowerIdle,o.x,o.y,PIXE
 });
 }
 
-function updateHomeStats(){document.getElementById('stat-deaths').textContent=totalDeathCount;document.getElementById('stat-highscore').textContent=highScore;document.getElementById('stat-correct').textContent=totalQuestionsCorrect;document.getElementById('stat-coins').textContent=coinCount;}
+function updateHomeStats(){document.getElementById('stat-deaths').textContent=totalDeathCount;document.getElementById('stat-highscore').textContent=highScore;document.getElementById('stat-correct').textContent=totalQuestionsCorrect;document.getElementById('stat-coins').textContent=PlatformManager.getCoins();}
 function showHomeScreen(){
 showHome=true;homeScreen.style.display='flex';updateHomeStats();initHomeBgObstacles();ctx.clearRect(0,0,canvas.width,canvas.height);
 startBtn.textContent=selectedSessionCode?'START SESSION':'PRESS START';
@@ -2499,6 +2511,10 @@ sessionLoading=false;startBtn.disabled=false;
 return;
 }
 sessionLoading=false;startBtn.disabled=false;
+// One PlatformManager session per sitting — Play Again from the game-over
+// screen re-runs beginPreRunSequence() directly without going through
+// handleStartClick(), so it doesn't start a new one.
+PlatformManager.startSession(GAME_CONFIG.id);
 showHome=false;homeScreen.style.display='none';resetGame();gameStarted=false;
 beginPreRunSequence();
 }
@@ -2553,6 +2569,12 @@ const now=performance.now();
 currentDelta=Math.min(now-lastFrameTime,50);
 lastFrameTime=now;
 if(shopMessageTimer>0){shopMessageTimer--;if(shopMessageTimer===0)shopMessage.textContent='';}
+// Reports whether the player is actively playing right now (matches the
+// same guard update() uses to skip gameplay logic during quizzes/menus/
+// countdowns) so PlatformManager can track "active play time" separately
+// from total session time. Cheap - in-memory only, safe every frame.
+const isActivelyPlaying=gameStarted&&!showHome&&!gameOver&&!memoryGame.active&&!deathQuiz.active&&!powerupQuizActive&&!postQuizCountdownActive;
+PlatformManager.heartbeat(GAME_CONFIG.id,isActivelyPlaying);
 update();draw();
 if(showHome)drawHomeBg();
 requestAnimationFrame(loop);

@@ -1,4 +1,5 @@
-        // Game state management
+//Rocket Recall Game.js
+// Game state management
         const GameState = {
             WELCOME: 'welcome',
             QUIZ: 'quiz',
@@ -174,6 +175,22 @@
 
         // Change this value if Rocket Recall ever supports another question type.
         const QUESTION_BANK_TYPE = 'multichoice';
+
+        // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
+        // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
+        const GAME_CONFIG = { id: 'rocket-recall', name: 'Rocket Recall' };
+
+        // Reconciles this run's locally-mutated game.coins working balance back into
+        // PlatformManager's shared, persistent balance, then re-syncs game.coins to
+        // match. Coins are mutated directly on game.coins on every kill (too frequent
+        // to route through PlatformManager one at a time) - call this at commit points
+        // instead (game over, opening the shop) to fold those changes in.
+        function commitCoinsToPlatform() {
+            const delta = game.coins - PlatformManager.getCoins();
+            if (delta > 0) PlatformManager.addCoins(delta);
+            else if (delta < 0) PlatformManager.spendCoins(-delta);
+            game.coins = PlatformManager.getCoins();
+        }
 
         function setActiveSubject(name) {
             currentSubjectName = name;
@@ -3665,6 +3682,7 @@
             // answers make it more likely to reappear, so struggling students see
             // it again sooner. The weighting itself lives in QuestionManager.
             QuestionManager.recordAnswer(game.currentQuestionSource, isCorrect);
+            PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             
             if (isCorrect) {
                 const ammoGenLevel = game.runPowerups.ammoGeneration || 0;
@@ -3744,13 +3762,12 @@
 
         function buyPermanentUpgrade(upgradeType) {
             const cost = getPermanentUpgradeCost(upgradeType);
-            if (game.coins < cost) return;
-            
-            game.coins -= cost;
+            if (!PlatformManager.spendCoins(cost)) return;
+
+            game.coins = PlatformManager.getCoins();
             game.permanentUpgrades[upgradeType]++;
             savePermanentUpgrades();
-            localStorage.setItem('coins', game.coins.toString());
-            
+
             renderGameOverShop();
             updateUI();
         }
@@ -3944,13 +3961,12 @@
         function restartGame(playAgain) {
             loadPermanentUpgrades();
             const savedTotalEnemiesDefeated = parseInt(localStorage.getItem('totalEnemiesDefeated') || '0');
-            const savedCoins = parseInt(localStorage.getItem('coins') || '0');
             
             game.wave = game.secretCodeActive ? game.startingWave : 1;
             game.baseLives = 15 + game.permanentUpgrades.extraLife;
             game.lives = game.baseLives;
             game.score = 0;
-            game.coins = savedCoins;
+            game.coins = PlatformManager.getCoins();
             game.ammo = game.secretCodeActive ? game.startingAmmo : 20 + (game.permanentUpgrades.startingAmmo || 0) * 10;
             game.shields = 0;
             game.bullets = [];
@@ -4017,11 +4033,10 @@
             
             loadPermanentUpgrades();
             const savedTotalEnemiesDefeated = parseInt(localStorage.getItem('totalEnemiesDefeated') || '0');
-            const savedCoins = parseInt(localStorage.getItem('coins') || '0');
             game.totalQuestionsCorrect = parseInt(localStorage.getItem('totalQuestionsCorrect') || '0');
             
             game.totalEnemiesDefeatedAllTime = savedTotalEnemiesDefeated;
-            game.coins = savedCoins;
+            game.coins = PlatformManager.getCoins();
             game.score = 0;
             game.baseLives = 15 + game.permanentUpgrades.extraLife;
             game.lives = game.baseLives;
@@ -4039,6 +4054,12 @@
             game.player = new Player(game.width / 2 - 20, game.height - 100);
             
             createStars();
+            
+            // One PlatformManager session per sitting — restarting a run (via
+            // restartGame(true) on the Game Over screen) reuses the loaded
+            // bank without calling initializeGame() again, so it doesn't
+            // start a new one.
+            PlatformManager.startSession(GAME_CONFIG.id);
             
             gameLoopToken++;
             gameLoop(gameLoopToken);
@@ -4226,6 +4247,7 @@
 
         function answerBonusPowerupQuiz(isCorrect) {
             const key = game.bonusQuizQueue.shift();
+            PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if (isCorrect) {
                 game.runPowerupDoubled[key] = true;
                 document.getElementById('quizResult').textContent = `✅ Correct! ${RUN_POWERUP_DEFS[key].name} is doubled for this run.`;
@@ -4635,6 +4657,11 @@
 
         function gameLoop(token) {
             if (token !== gameLoopToken) return;
+            // Reports whether the player is actively playing right now (not
+            // paused for a quiz/shop/menu/game-over) so PlatformManager can
+            // track "active play time" separately from total session time.
+            // Cheap - in-memory only, safe to call every frame.
+            PlatformManager.heartbeat(GAME_CONFIG.id, game.state === GameState.PLAYING);
             if (game.state === GameState.PLAYING) {
                 update();
                 draw();
@@ -5510,6 +5537,7 @@
 
         function answerEmergencyAmmo(isCorrect, chosenDiv, optionsDiv, question, optionOrder) {
             Array.from(optionsDiv.children).forEach(child => { child.onclick = null; child.style.pointerEvents = 'none'; });
+            PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
 
             const resultEl = document.getElementById('emergencyAmmoResult');
             if (isCorrect) {
@@ -5593,11 +5621,12 @@
             localStorage.setItem('totalEnemiesDefeated', game.totalEnemiesDefeatedAllTime.toString());
             
             // Item 2: coins persist across runs
-            localStorage.setItem('coins', game.coins.toString());
+            commitCoinsToPlatform();
             
             if (game.score > game.highScore) {
                 game.highScore = game.score;
                 localStorage.setItem('spaceInvadersHighScore', game.highScore.toString());
+                PlatformManager.setHighScore(GAME_CONFIG.id, game.highScore);
                 document.getElementById('newHighScoreMessage').style.display = 'block';
             } else {
                 document.getElementById('newHighScoreMessage').style.display = 'none';
@@ -5635,7 +5664,7 @@
         function showShop(fromScreen) {
             shopReturnScreen = fromScreen === 'gameover' ? 'gameOver' : 'welcomeScreen';
             loadPermanentUpgrades();
-            game.coins = parseInt(localStorage.getItem('coins') || '0');
+            game.coins = PlatformManager.getCoins();
             hideAllModals();
             renderGameOverShop();
             document.getElementById('shopScreen').style.display = 'block';
@@ -5806,10 +5835,9 @@
         function updateHomeStats() {
             const savedHighScore = parseInt(localStorage.getItem('spaceInvadersHighScore') || '0');
             const savedKills = parseInt(localStorage.getItem('totalEnemiesDefeated') || '0');
-            const savedCoins = parseInt(localStorage.getItem('coins') || '0');
             const savedCorrect = parseInt(localStorage.getItem('totalQuestionsCorrect') || '0');
             document.getElementById('homeKills').textContent = savedKills;
             document.getElementById('homeHighScore').textContent = savedHighScore;
             document.getElementById('homeCorrect').textContent = savedCorrect;
-            document.getElementById('homeCoins').textContent = savedCoins;
+            document.getElementById('homeCoins').textContent = PlatformManager.getCoins();
         }

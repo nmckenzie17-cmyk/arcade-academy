@@ -22,6 +22,16 @@
       <div class="hero-grid" aria-hidden="true"></div>
     </section>
 
+    <section class="dashboard-section" id="dashboard" aria-labelledby="dashboard-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Player stats</p>
+          <h2 id="dashboard-title">Your Progress</h2>
+        </div>
+      </div>
+      <div class="stat-grid" id="stat-grid"></div>
+    </section>
+
     <section class="game-section" id="games" aria-labelledby="games-title">
       <div class="section-heading">
         <div>
@@ -33,6 +43,16 @@
       <div class="game-grid" id="game-grid"></div>
     </section>
   </main>
+
+  <template id="stat-card-template">
+  <div class="stat-card">
+    <span class="stat-icon" aria-hidden="true"></span>
+    <div class="stat-info">
+      <p class="stat-value"></p>
+      <p class="stat-label"></p>
+    </div>
+  </div>
+</template>
 
   <template id="game-card-template">
   <a class="game-card" href="#">
@@ -49,6 +69,29 @@
       <p class="game-description"></p>
       <p class="game-genre"></p>
 
+      <dl class="game-stats">
+        <div class="stat-row">
+          <dt>High Score</dt>
+          <dd class="stat-highscore"></dd>
+        </div>
+        <div class="stat-row">
+          <dt>Accuracy</dt>
+          <dd class="stat-accuracy"></dd>
+        </div>
+        <div class="stat-row">
+          <dt>Questions</dt>
+          <dd class="stat-questions"></dd>
+        </div>
+        <div class="stat-row">
+          <dt>Play Time</dt>
+          <dd class="stat-playtime"></dd>
+        </div>
+        <div class="stat-row">
+          <dt>Last Played</dt>
+          <dd class="stat-lastplayed"></dd>
+        </div>
+      </dl>
+
       <span class="play-button">
         Play now
         <span aria-hidden="true">→</span>
@@ -58,6 +101,7 @@
   </a>
 </template>
 
+  <script src="shared/js/PlatformManager.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

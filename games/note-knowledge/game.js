@@ -1,4 +1,6 @@
-    // ===== Teacher question banks =====
+// Note Knowledge Game.js
+
+// ===== Teacher question banks =====
     // Category files use this shape:
     //   { "subject": "Year 9 Biology", "categories": [
     //       { "prompt": "Cell Structures", "correct": ["Nucleus","Mitochondria","Ribosome","Cell membrane"],
@@ -9,6 +11,10 @@
     // Change this value if Rhythm Recall ever supports another question type.
     // All loading, storing, selecting and shuffling of categories lives in QuestionManager now.
     const QUESTION_BANK_TYPE = 'category';
+
+    // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
+    // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
+    const GAME_CONFIG = { id: 'rhythm-recall', name: 'Rhythm Recall' };
 
     let selectedBankCode = '';
 
@@ -38,8 +44,10 @@
       // Dev/cheat codes take priority and are checked case-insensitively.
       if (['PIXELPOWER','DEVTEST'].includes(raw.toUpperCase())) {
         unlockedSongs = new Set(SONG_DEFS.map(s => s.id));
-        persistedCoins = Math.max(persistedCoins, 100);
-        coins = persistedCoins;
+        // Coins are shared platform-wide, so this tops up the PlatformManager
+        // balance rather than a local field.
+        PlatformManager.addCoins(Math.max(0, 100 - PlatformManager.getCoins()));
+        coins = PlatformManager.getCoins();
         renderSongGrid();
         updateHomeHighScore();
         await safeSave();
@@ -94,7 +102,14 @@
     let currentCategory=null, chorusQueue=[];
     let selectedSong=1;
     let songPlays={}, bestScores={}, unlockedSongs=new Set([1]);
-    let persistedCoins=0, scoreUpgradeLevel=0, chainUpgradeLevel=0, superBonusLevel=0, chain=0;
+    // NOTE: the persistent coin balance is NOT stored in a local field — it
+    // lives in PlatformManager as the single source of truth for the shared
+    // coin economy. `coins` below is this run's live working balance: it's
+    // synced from PlatformManager.getCoins() whenever a run/shop session
+    // starts, mutated locally as coins are earned/spent during play, and
+    // reconciled back into PlatformManager at each commit point (game over,
+    // shop purchase, cheat code) — see commitCoinsToPlatform().
+    let scoreUpgradeLevel=0, chainUpgradeLevel=0, superBonusLevel=0, chain=0;
     let highScore=0, totalCorrectAnswers=0, totalNotesPlayed=0, playerData=null, notesHitSession=0;
     let gameOverReason='';
     function upgradeCost(){return Math.floor(10*Math.pow(2,scoreUpgradeLevel));}
@@ -105,6 +120,18 @@
     // so a maxed-out streak with Chain LV n gives up to +20n% bonus score. Resets on any miss or wrong hit.
     const CHAIN_CAP=20;
     function chainMultiplier(){ return 1 + chainUpgradeLevel*Math.min(chain,CHAIN_CAP)*0.01; }
+
+    // Reconciles this run's locally-mutated `coins` working balance back into
+    // PlatformManager's shared, persistent balance, then re-syncs `coins` to
+    // match. Call at any point local coin changes should be committed
+    // (game over, cheat code) — NOT on every note hit, since that would hit
+    // localStorage far too often.
+    function commitCoinsToPlatform(){
+      const delta = coins - PlatformManager.getCoins();
+      if (delta > 0) PlatformManager.addCoins(delta);
+      else if (delta < 0) PlatformManager.spendCoins(-delta);
+      coins = PlatformManager.getCoins();
+    }
     function updateChainDisplay(){
       const stat=document.getElementById('chain-stat'),disp=document.getElementById('chain-display');
       if(!stat||!disp)return;
@@ -121,7 +148,7 @@
     }
     function registerChainHit(){ chain++; updateChainDisplay(); if(chain>1)triggerChainShake(); }
     function resetChain(){ chain=0; updateChainDisplay(); }
-    function updateShop(){document.getElementById('upgrade-cost').textContent=upgradeCost();document.getElementById('upgrade-bonus').textContent=scoreUpgradeLevel*5;document.getElementById('buy-chain-btn').textContent=`CHAIN LV ${chainUpgradeLevel} · ${chainCost()}¢`;document.getElementById('buy-super-btn').textContent=`SUPER LV ${superBonusLevel} · ${superCost()}¢`;const sc=document.getElementById('shop-coins-display');if(sc)sc.textContent='🪙 '+persistedCoins;}
+    function updateShop(){document.getElementById('upgrade-cost').textContent=upgradeCost();document.getElementById('upgrade-bonus').textContent=scoreUpgradeLevel*5;document.getElementById('buy-chain-btn').textContent=`CHAIN LV ${chainUpgradeLevel} · ${chainCost()}¢`;document.getElementById('buy-super-btn').textContent=`SUPER LV ${superBonusLevel} · ${superCost()}¢`;const sc=document.getElementById('shop-coins-display');if(sc)sc.textContent='🪙 '+PlatformManager.getCoins();}
     function openShop(){updateShop();document.getElementById('shop-modal').classList.add('open');}
     function closeShop(){document.getElementById('shop-modal').classList.remove('open');}
     function openSongs(){document.getElementById('songs-modal').classList.add('open');}
@@ -129,9 +156,9 @@
     function openScores(){showScores();document.getElementById('high-scores-modal').classList.add('open');}
     function closeScores(){document.getElementById('high-scores-modal').classList.remove('open');}
     function closeAllModals(){closeShop();closeSongs();closeScores();}
-    async function buyScoreUpgrade(){const cost=upgradeCost();const msg=document.getElementById('shop-message');if(coins<cost){msg.textContent='Not enough coins.';return;}coins-=cost;scoreUpgradeLevel++;persistedCoins=coins;updateShop();msg.textContent='Score upgrade purchased!';await safeSave();}
-    async function buyChainUpgrade(){const cost=chainCost(),msg=document.getElementById('shop-message');if(coins<cost){msg.textContent='Not enough coins.';return;}coins-=cost;chainUpgradeLevel++;persistedCoins=coins;updateShop();msg.textContent='Chain upgrade purchased!';await safeSave();}
-    async function buySuperBonus(){const cost=superCost(),msg=document.getElementById('shop-message');if(coins<cost){msg.textContent='Not enough coins.';return;}coins-=cost;superBonusLevel++;persistedCoins=coins;updateShop();msg.textContent='Super bonus purchased!';await safeSave();}
+    async function buyScoreUpgrade(){const cost=upgradeCost();const msg=document.getElementById('shop-message');if(!PlatformManager.spendCoins(cost)){msg.textContent='Not enough coins.';return;}coins=PlatformManager.getCoins();scoreUpgradeLevel++;updateShop();msg.textContent='Score upgrade purchased!';await safeSave();}
+    async function buyChainUpgrade(){const cost=chainCost(),msg=document.getElementById('shop-message');if(!PlatformManager.spendCoins(cost)){msg.textContent='Not enough coins.';return;}coins=PlatformManager.getCoins();chainUpgradeLevel++;updateShop();msg.textContent='Chain upgrade purchased!';await safeSave();}
+    async function buySuperBonus(){const cost=superCost(),msg=document.getElementById('shop-message');if(!PlatformManager.spendCoins(cost)){msg.textContent='Not enough coins.';return;}coins=PlatformManager.getCoins();superBonusLevel++;updateShop();msg.textContent='Super bonus purchased!';await safeSave();}
 
     // Song-specific state
     let songState={};
@@ -143,7 +170,6 @@
       const obj = {
         player_name: 'Player',
         high_score: highScore,
-        coins: persistedCoins,
         score_upgrade_level: scoreUpgradeLevel,
         chain_upgrade_level: chainUpgradeLevel,
         super_bonus_level: superBonusLevel,
@@ -162,11 +188,13 @@
 
     const dataHandler = {
       onDataChanged(data) {
+        // Coins are no longer part of this per-player data record — they live
+        // in PlatformManager (shared/js/PlatformManager.js) as the single
+        // source of truth for the shared coin economy across every game.
+        coins = PlatformManager.getCoins();
         if (data.length > 0) {
           playerData = data[0];
           highScore = Number(playerData.high_score) || 0;
-          persistedCoins = Number(playerData.coins) || 0;
-          coins = persistedCoins;
           scoreUpgradeLevel = Number(playerData.score_upgrade_level) || 0;
           chainUpgradeLevel = Number(playerData.chain_upgrade_level) || 0;
           superBonusLevel = Number(playerData.super_bonus_level) || 0;
@@ -177,7 +205,7 @@
           selectedBankCode = playerData.selected_bank_code || '';
         } else {
           playerData = null;
-          highScore = 0; persistedCoins = 0; coins = 0;
+          highScore = 0;
           scoreUpgradeLevel = 0; chainUpgradeLevel = 0; superBonusLevel = 0;
           totalCorrectAnswers = 0; totalNotesPlayed = 0; songPlays = {}; bestScores = {}; selectedBankCode = '';
         }
@@ -220,7 +248,7 @@
 
     function updateHomeHighScore(){
       document.getElementById('home-high-score').textContent=highScore;
-      const homeCoins=document.getElementById('home-coins');if(homeCoins)homeCoins.textContent=persistedCoins;
+      const homeCoins=document.getElementById('home-coins');if(homeCoins)homeCoins.textContent=PlatformManager.getCoins();
       const homeNotes=document.getElementById('home-notes');if(homeNotes)homeNotes.textContent=totalNotesPlayed;
       const homeCorrect=document.getElementById('home-correct');if(homeCorrect)homeCorrect.textContent=totalCorrectAnswers;
     }
@@ -346,7 +374,10 @@
       }
       cancelAnimationFrame(animFrame);
       document.querySelectorAll('.lane-note').forEach(n=>n.remove());
-      notes=[];gameState='playing';score=0;health=100;totalCorrect=0;coins=persistedCoins;notesHitSession=0;gameOverReason='';chain=0;
+      notes=[];gameState='playing';score=0;health=100;totalCorrect=0;coins=PlatformManager.getCoins();notesHitSession=0;gameOverReason='';chain=0;
+      // One PlatformManager session per sitting — playing another song after
+      // this one (via backToMenu -> startGame again) doesn't start a new one.
+      PlatformManager.startSession(GAME_CONFIG.id);
       noteSpeed=2.5;spawnInterval=850;lastSpawn=0;
       phase='verse';notesInPhase=0;currentCategory=null;chorusQueue=[];
       initSongState();
@@ -360,6 +391,10 @@
 
     function gameLoop(ts){
       if(gameState!=='playing')return;
+      // Reports that the player is actively playing right now, so
+      // PlatformManager can track "active play time" separately from total
+      // session time. Cheap - in-memory only, safe to call every frame.
+      PlatformManager.heartbeat(GAME_CONFIG.id, true);
       drawBg();
       if(ts-lastSpawn>spawnInterval){spawnNote();lastSpawn=ts;}
       updateNotes();
@@ -522,6 +557,9 @@
       el.remove();notes.splice(idx,1);
       notesHitSession++;
       if(n.isChorus){
+        // Each chorus note tap is a "does this word belong in the category?"
+        // answer — report it to PlatformManager regardless of outcome.
+        PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, n.isCorrect);
         if(n.isCorrect){let pts=25+(scoreUpgradeLevel*5);if(perfect)pts=Math.round(pts*1.5);pts=Math.round(pts*chainMultiplier());score+=pts;coins+=10;totalCorrect++;registerChainHit();noteSpeed=Math.min(8,noteSpeed+0.15);spawnInterval=Math.max(350,spawnInterval-15);playTone(400,0.08);}
         else{score=Math.max(0,score-50);health-=10;coins=Math.max(0,coins-2);resetChain();noteSpeed=Math.max(1.5,noteSpeed-0.1);spawnInterval=Math.min(1100,spawnInterval+10);playTone(150,0.12);if(health<=0){gameOverReason='Ran out of health — you tapped a word that didn\'t belong in "'+currentCategory.name+'". Check the category before you sort each word!';gameOver();}}
       } else {
@@ -564,6 +602,7 @@
 
     function gameOver(){
       gameState='over';cancelAnimationFrame(animFrame);
+      PlatformManager.heartbeat(GAME_CONFIG.id, false);
 
       // Update persisted per-song stats
       const key=String(selectedSong);
@@ -572,9 +611,10 @@
       const newHigh=score>highScore;
       if(score>(bestScores[key]||0)) bestScores[key]=score;
       if(newHigh) highScore=score;
+      PlatformManager.setHighScore(GAME_CONFIG.id, score);
       totalCorrectAnswers+=totalCorrect;
       totalNotesPlayed+=notesHitSession;
-      persistedCoins=coins;
+      commitCoinsToPlatform();
       recalcUnlocks();
 
       document.getElementById('final-score').textContent='Score: '+score+' (Notes: '+notesHitSession+')';
@@ -608,6 +648,7 @@
 
     function backToMenu(){
       cancelAnimationFrame(animFrame);gameState='menu';
+      PlatformManager.heartbeat(GAME_CONFIG.id, false);
       document.getElementById('gameover-screen').classList.add('hidden');
       document.getElementById('game-screen').style.display='none';
       document.querySelectorAll('.lane-note').forEach(n=>n.remove());notes=[];

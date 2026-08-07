@@ -1,7 +1,13 @@
+// Fortress Facts Game.js
+
 (function(){
 const canvas = document.getElementById('game');
 let ctx = canvas.getContext('2d');
 const modalRoot = document.getElementById('modal-root');
+
+// Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
+// Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
+const GAME_CONFIG = { id: 'fortress-facts', name: 'Fortress Facts' };
 
 let W, H, scale;
 const GAME_W = 512, GAME_H = 288;
@@ -129,13 +135,16 @@ let ammoPerCorrect = 1;
 // noticing how their next run feels different, not by reading a tooltip.
 // ═══════════════════════════════════════════════════════════════════════════
 const KINGDOM_SAVE_KEY = 'castleDefenceKingdomSave_v1';
+// NOTE: Crowns (the persistent, spendable currency) are NOT stored here — they
+// live in PlatformManager (shared/js/PlatformManager.js) as the single source
+// of truth for the shared coin economy. Use PlatformManager.getCoins() /
+// addCoins() / spendCoins() instead of a local field.
 function loadKingdomSave(){
     try {
         let raw = localStorage.getItem(KINGDOM_SAVE_KEY);
         if(raw){
             let parsed = JSON.parse(raw);
             if(parsed && typeof parsed==='object') return {
-                crowns: parsed.crowns||0,
                 levels: parsed.levels||{},
                 totalCorrectAnswers: parsed.totalCorrectAnswers||0,
                 totalKills: parsed.totalKills||0,
@@ -146,7 +155,7 @@ function loadKingdomSave(){
             };
         }
     } catch(err){ console.warn('Kingdom save unavailable (localStorage blocked) — progress will not persist this session.', err); }
-    return { crowns:0, levels:{}, totalCorrectAnswers:0, totalKills:0, bestWave:0, equippedPowerups:[], notifiedThresholds:[], unlockedRelics:[] };
+    return { levels:{}, totalCorrectAnswers:0, totalKills:0, bestWave:0, equippedPowerups:[], notifiedThresholds:[], unlockedRelics:[] };
 }
 let kingdomStorageOk = true;
 function saveKingdomSave(){
@@ -190,8 +199,7 @@ function buyKingdomUpgrade(id){
     let level = kingdomLevel(id);
     if(level>=upg.maxLevel) return false;
     let cost = kingdomUpgradeCost(upg);
-    if(kingdomSave.crowns<cost) return false;
-    kingdomSave.crowns -= cost;
+    if(!PlatformManager.spendCoins(cost)) return false;
     kingdomSave.levels[id] = level+1;
     saveKingdomSave();
     return true;
@@ -442,6 +450,7 @@ function runPrerunQuiz(onComplete){
                 let isCorrect = btn.dataset.correct==='true';
                 prerunQuizTimes.push(elapsed);
                 QuestionManager.recordAnswer(q, isCorrect);
+                PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
                 if(isCorrect){ btn.classList.add('correct'); prerunQuizCorrect++; recordCorrectAnswer(); }
                 else { btn.classList.add('wrong'); modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); }
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
@@ -1344,6 +1353,7 @@ function askBetweenQuestion(){
         btn.onclick=()=>{
             let isCorrect=btn.dataset.correct==='true';
             QuestionManager.recordAnswer(q, isCorrect);
+            PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if(isCorrect){
                 btn.classList.add('correct');
                 betweenWaveCorrect++;
@@ -1503,6 +1513,7 @@ function showQuestion(){
         btn.onclick=()=>{
             let isCorrect=btn.dataset.correct==='true';
             QuestionManager.recordAnswer(q, isCorrect);
+            PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if(isCorrect){
                 btn.classList.add('correct');
                 recordCorrectAnswer();
@@ -1554,7 +1565,7 @@ function renderPermanentTab(){
             let level = kingdomLevel(u.id);
             let maxed = level>=u.maxLevel;
             let cost = maxed ? null : kingdomUpgradeCost(u);
-            let canAfford = !maxed && kingdomSave.crowns>=cost;
+            let canAfford = !maxed && PlatformManager.getCoins()>=cost;
             html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #2a2a3a;gap:10px">
                 <div>
                     <div style="font-size:14px">${u.name}</div>
@@ -1618,7 +1629,7 @@ function renderCardsTab(){
 function renderKingdomHTML(){
     let html = `<div class="modal-overlay"><div class="modal-box" style="max-width:540px;max-height:85vh;overflow-y:auto;text-align:left">
         <h2 class="title-font" style="text-align:center;background:none;border:none;box-shadow:none;">The Kingdom</h2>
-        <p style="text-align:center;color:#ffcc44;font-size:20px;margin:8px 0 4px">👑 ${kingdomSave.crowns} Crowns</p>`;
+        <p style="text-align:center;color:#ffcc44;font-size:20px;margin:8px 0 4px">👑 ${PlatformManager.getCoins()} Crowns</p>`;
     if(!kingdomStorageOk){
         html += `<p style="text-align:center;color:#e74c3c;font-size:11px">⚠️ This browser is blocking save data — progress won't persist after you close this tab.</p>`;
     }
@@ -1671,7 +1682,7 @@ function showStart(){
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">💀 Kills</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.totalKills||0}</p></div>
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">High Score</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.bestWave||0}</p></div>
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">Correct</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.totalCorrectAnswers||0}</p></div>
-            <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">Total Coins</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">👑 ${kingdomSave.crowns}</p></div>
+            <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">Total Coins</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">👑 ${PlatformManager.getCoins()}</p></div>
         </div>
         <button class="choice-btn" style="text-align:center;font-size:clamp(13px,2vw,15px);margin-bottom:16px;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button>
         <p class="section-label-font" style="margin-bottom:10px;">Description:</p>
@@ -1702,6 +1713,10 @@ function showStart(){
         const result = await QuestionManager.loadBank(input.value, QUESTION_BANK_TYPE);
         if(result.ok){
             modalRoot.innerHTML='';
+            // One PlatformManager session per sitting/reload — see the restart
+            // flow at the bottom of this file, which reloads the page and
+            // re-triggers this same tryStart() function for "Play Again".
+            PlatformManager.startSession(GAME_CONFIG.id);
             applyKingdomStartBonuses();
             showRelicSelect(()=> runPrerunQuiz(()=> startBetweenWave()));
         } else {
@@ -1726,9 +1741,10 @@ function showGameOver(voluntary){
     state='gameover';
     if(!gameOverCrownsAwarded){
         lastCrownsEarned = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCrownBonus));
-        kingdomSave.crowns += lastCrownsEarned;
+        PlatformManager.addCoins(lastCrownsEarned);
         kingdomSave.totalKills = (kingdomSave.totalKills||0) + kills;
         kingdomSave.bestWave = Math.max(kingdomSave.bestWave||0, wave);
+        PlatformManager.setHighScore(GAME_CONFIG.id, wave);
         saveKingdomSave();
         gameOverCrownsAwarded = true;
     }
@@ -1745,7 +1761,7 @@ function showGameOver(voluntary){
         const label = ENEMY_DISPLAY_NAMES[lastDamageSource.type] || lastDamageSource.type;
         deathMsg = `<p style="color:#ff6b6b;font-weight:bold;margin:10px 0">☠️ Defeated by a ${label}${lastDamageSource.flying ? ` — a flying enemy. Next time, upgrade your Archer Tower or Ballista so you can hit flying threats.` : `. Next time, spend some Crowns in The Kingdom to boost your defenses.`}</p>`;
     }
-    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">👑 +${lastCrownsEarned} Crowns earned (Total: ${kingdomSave.crowns})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — Crowns won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Play Again</button></div></div>`;
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">👑 +${lastCrownsEarned} Crowns earned (Total: ${PlatformManager.getCoins()})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — Crowns won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Play Again</button></div></div>`;
     document.getElementById('restart-btn').onclick=()=>{
         sessionStorage.setItem('cd_restart_code', QuestionManager.getBankCode() || '');
         location.reload();
@@ -4042,6 +4058,11 @@ function gameLoop(time){
     let dt=Math.min(time-lastTime, 32);
     lastTime=time;
     animFrame++;
+    // Reports whether the player is actively playing right now (state
+    // 'playing', not paused for a quiz/menu/cashout-confirm/game-over) so
+    // PlatformManager can track "active play time" separately from total
+    // session time. Cheap - in-memory only.
+    PlatformManager.heartbeat(GAME_CONFIG.id, state==='playing');
 
     ctx.fillStyle='#0a0a0a';
     ctx.fillRect(0,0,W,H);

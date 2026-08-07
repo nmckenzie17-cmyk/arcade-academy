@@ -1,9 +1,13 @@
-
+// Shuriken Scholar Game.js
     // Config editable via Canva
     const defaultConfig = {
       game_title: "Shuriken Scholar",
       enemy_name: "enemies"
     };
+
+    // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
+    // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
+    const GAME_CONFIG = { id: 'shuriken-scholar', name: 'Shuriken Scholar' };
 
     // Change this value if this game is ever updated to use a different bank type.
     // Shuriken Scholar currently supports only multiple-choice question banks.
@@ -20,8 +24,13 @@
     const SAMURAI_WEAPON_KEYS = ['katana', 'naginata', 'bow', 'servant'];
     const ALL_WEAPON_KEYS = [...NINJA_WEAPON_KEYS, ...SAMURAI_WEAPON_KEYS];
 
+    // NOTE: the persistent coin balance is NOT stored here — it lives in
+    // PlatformManager (shared/js/PlatformManager.js) as the single source of
+    // truth for the shared coin economy. Use PlatformManager.getCoins() /
+    // addCoins() / spendCoins() instead of a local field. `runCoins` below is
+    // this run's in-progress, not-yet-banked earnings, which stays local.
     let progress = {
-      totalCoins: 0, runCoins: 0, runNumber: 1, deaths: 0, powerupStart: 0,
+      runCoins: 0, runNumber: 1, deaths: 0, powerupStart: 0,
       questionsCorrect: 0, selectedPowerups: [], bestLevel: 0,
       questionWeights: {},
       playedCodes: [], samuraiUnlocked: false, selectedCharacter: 'ninja',
@@ -44,7 +53,6 @@
         const weaponKills = {};
         for (const key of ALL_WEAPON_KEYS) weaponKills[key] = progress.weapons[key].kills;
         const slim = {
-          totalCoins: progress.totalCoins,
           questionsCorrect: progress.questionsCorrect,
           bestLevel: progress.bestLevel,
           playedCodes: progress.playedCodes,
@@ -62,7 +70,6 @@
         const raw = localStorage.getItem(SAVE_KEY);
         if (!raw) return;
         const saved = JSON.parse(raw);
-        if (typeof saved.totalCoins === 'number') progress.totalCoins = saved.totalCoins;
         if (typeof saved.questionsCorrect === 'number') progress.questionsCorrect = saved.questionsCorrect;
         if (typeof saved.bestLevel === 'number') progress.bestLevel = saved.bestLevel;
         if (Array.isArray(saved.playedCodes)) progress.playedCodes = saved.playedCodes;
@@ -1208,7 +1215,9 @@
     if (devMode) {
         // Dev/testing shortcut: huge coin + kill stockpile so every weapon and every shop
         // upgrade (any level, any path) is freely buyable to test specific builds.
-        progress.totalCoins = 999999;
+        // Coins are shared platform-wide, so this tops up the PlatformManager balance
+        // rather than a local field.
+        PlatformManager.addCoins(Math.max(0, 999999 - PlatformManager.getCoins()));
         for (const key of ALL_WEAPON_KEYS) {
           progress.weapons[key].unlocked = true;
           progress.weapons[key].kills = 999999;
@@ -4548,6 +4557,10 @@
       draw();
       updateLevelBar();
       updateWeaponBars();
+      // Reports whether the player is actively playing right now (not paused
+      // for a quiz/menu/shop/game-over) so PlatformManager can track "active
+      // play time" separately from total session time. Cheap - in-memory only.
+      PlatformManager.heartbeat(GAME_CONFIG.id, game.active && !game.paused);
       requestAnimationFrame(gameLoop);
 
     } catch (err) {
@@ -4558,7 +4571,7 @@
     function updateHomeStats() {
       const w = progress.weapons;
       const totalKills = w.shuriken.kills + w.dart.kills + w.smoke.kills + w.trap.kills;
-      document.getElementById('homeTotalCoins').textContent = progress.totalCoins;
+      document.getElementById('homeTotalCoins').textContent = PlatformManager.getCoins();
       document.getElementById('homeTotalKills').textContent = totalKills;
       document.getElementById('homeBestLevel').textContent = progress.bestLevel||0;
       document.getElementById('homeCorrect').textContent = progress.questionsCorrect||0;
@@ -4736,6 +4749,7 @@
         QuestionManager.recordAnswer(quiz.currentQ, correct, { cap: QUESTION_WEIGHT_CAP });
         saveQuestionWeights();
       }
+      PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
       if (correct) {
         btn.classList.add('right');
         quiz.correct++;
@@ -5394,7 +5408,7 @@
 
       renderPowerupShopSection(powerupsContainer);
 
-      document.getElementById('totalCoins').textContent = progress.totalCoins;
+      document.getElementById('totalCoins').textContent = PlatformManager.getCoins();
     }
 
     function switchShopTab(tab) {
@@ -5579,7 +5593,7 @@
         const nextLevel = w.level + 1;
         const nextInfo = abilities[nextLevel - 1];
         const cost = weaponLevelCost(key, nextLevel, 0);
-        const canAffordCoin = progress.totalCoins >= cost.coin;
+        const canAffordCoin = PlatformManager.getCoins() >= cost.coin;
         const hasKills = w.kills >= cost.kills;
         const canBuy = canAffordCoin && hasKills;
 
@@ -5647,7 +5661,7 @@
       const nextLevelIdx = Math.min(nextLevel, 10);
       const nextInfo = abilities[nextLevelIdx - 6];
       const cost = nextLevel <= 9 ? weaponSubLevelCost(key, nextLevel) : weaponLevelCost(key, 10, w.subRepeatBuys);
-      const canAffordCoin = progress.totalCoins >= cost.coin;
+      const canAffordCoin = PlatformManager.getCoins() >= cost.coin;
       const hasKills = w.kills >= cost.kills;
       const canBuy = canAffordCoin && hasKills;
 
@@ -5687,7 +5701,7 @@
       const w = progress.weapons[key];
       if (currentLevel < 1) {
         const cost = weaponSubLevelCost(key, 6);
-        const canBuy = progress.totalCoins >= cost.coin;
+        const canBuy = PlatformManager.getCoins() >= cost.coin;
         const btnDiv = document.createElement('div');
         btnDiv.className = 'shop-item';
         btnDiv.innerHTML = `
@@ -5698,7 +5712,7 @@
         if (canBuy) document.getElementById(`precommit_${key}_${subpath}`).onclick = () => buySubPreCommitLevel(key, subpath, cost.coin);
       } else {
         const cost = weaponSubLevelCost(key, 7);
-        const canAffordCoin = progress.totalCoins >= cost.coin;
+        const canAffordCoin = PlatformManager.getCoins() >= cost.coin;
         const hasKills = w.kills >= cost.kills;
         const canBuy = canAffordCoin && hasKills;
         const lockDiv = document.createElement('div');
@@ -5734,7 +5748,7 @@
       if (currentLevel < 2) {
         const nextLevel = currentLevel + 1;
         const cost = weaponLevelCost(key, nextLevel, 0);
-        const canAfford = progress.totalCoins >= cost.coin;
+        const canAfford = PlatformManager.getCoins() >= cost.coin;
         const buyDiv = document.createElement('div');
         buyDiv.className = 'shop-item';
         buyDiv.innerHTML = `
@@ -5748,7 +5762,7 @@
         if (canAfford) document.getElementById(`buy_${key}_${path}_pre`).onclick = () => buyPreCommitLevel(key, path, cost.coin);
       } else {
         const cost = weaponLevelCost(key, 3, 0);
-        const canAffordCoin = progress.totalCoins >= cost.coin;
+        const canAffordCoin = PlatformManager.getCoins() >= cost.coin;
         const w = progress.weapons[key];
         const hasKills = w.kills >= cost.kills;
         const canBuy = canAffordCoin && hasKills;
@@ -5772,8 +5786,7 @@
     }
 
     function buyPreCommitLevel(key, path, cost) {
-      if (progress.totalCoins < cost) return;
-      progress.totalCoins -= cost;
+      if (!PlatformManager.spendCoins(cost)) return;
       const w = progress.weapons[key];
       if (path === 'A') w.levelA++; else w.levelB++;
       if (SAMURAI_WEAPON_KEYS.includes(key)) samuraiUpgradesPurchased++; else ninjaUpgradesPurchased++;
@@ -5783,8 +5796,7 @@
     }
 
     function chooseWeaponPath(key, path, cost) {
-      if (progress.totalCoins < cost) return;
-      progress.totalCoins -= cost;
+      if (!PlatformManager.spendCoins(cost)) return;
       const w = progress.weapons[key];
       w.path = path;
       w.level = 3;
@@ -5795,10 +5807,9 @@
     }
 
     function buyWeaponLevel(key, cost) {
-      if (progress.totalCoins < cost) return;
       const w = progress.weapons[key];
       if (w.level >= 5) return; // level 5 no longer stacks - branch into C/D instead
-      progress.totalCoins -= cost;
+      if (!PlatformManager.spendCoins(cost)) return;
       w.level++;
       if (SAMURAI_WEAPON_KEYS.includes(key)) samuraiUpgradesPurchased++; else ninjaUpgradesPurchased++;
       saveProgress();
@@ -5808,10 +5819,9 @@
 
     // Level 6 pre-commit buy, available in either sub-path once level 5 is owned.
     function buySubPreCommitLevel(key, subpath, cost) {
-      if (progress.totalCoins < cost) return;
       const w = progress.weapons[key];
       if (!w.path || w.level < 5 || w.subPath) return;
-      progress.totalCoins -= cost;
+      if (!PlatformManager.spendCoins(cost)) return;
       if (subpath === 'C') w.levelC++; else w.levelD++;
       if (SAMURAI_WEAPON_KEYS.includes(key)) samuraiUpgradesPurchased++; else ninjaUpgradesPurchased++;
       saveProgress();
@@ -5821,10 +5831,9 @@
 
     // Locking in sub-path C or D: mirrors chooseWeaponPath, jumps straight to level 7.
     function chooseWeaponSubPath(key, subpath, cost) {
-      if (progress.totalCoins < cost) return;
       const w = progress.weapons[key];
       if (!w.path || w.level < 5 || w.subPath) return;
-      progress.totalCoins -= cost;
+      if (!PlatformManager.spendCoins(cost)) return;
       w.subPath = subpath;
       w.level = 7;
       if (SAMURAI_WEAPON_KEYS.includes(key)) samuraiUpgradesPurchased++; else ninjaUpgradesPurchased++;
@@ -5835,10 +5844,9 @@
 
     // Levels 8-9 buy normally; level 10+ becomes the new repeatable stacking tier.
     function buyWeaponSubLevel(key, cost) {
-      if (progress.totalCoins < cost) return;
       const w = progress.weapons[key];
       if (!w.subPath) return;
-      progress.totalCoins -= cost;
+      if (!PlatformManager.spendCoins(cost)) return;
       w.level++;
       if (w.level >= 10) w.subRepeatBuys++;
       if (SAMURAI_WEAPON_KEYS.includes(key)) samuraiUpgradesPurchased++; else ninjaUpgradesPurchased++;
@@ -5849,7 +5857,7 @@
     
     function addShopItem(container, item) {
       const cost = Math.floor(item.base * Math.pow(item.mult, item.owned));
-      const canAfford = progress.totalCoins >= cost;
+      const canAfford = PlatformManager.getCoins() >= cost;
       const canBuy = canAfford && item.canBuy;
 
       const div = document.createElement('div');
@@ -5872,8 +5880,7 @@
     }
 
     function buyItem(id, cost) {
-      if (progress.totalCoins < cost) return;
-      progress.totalCoins -= cost;
+      if (!PlatformManager.spendCoins(cost)) return;
 
       if (id === 'powerup') progress.powerupStart++;
 
@@ -5891,8 +5898,9 @@
       wipe.classList.add('wipe');
 
       setTimeout(() => {
-        progress.totalCoins += progress.runCoins;
+        PlatformManager.addCoins(progress.runCoins);
         progress.bestLevel = Math.max(progress.bestLevel||0, player.level);
+        PlatformManager.setHighScore(GAME_CONFIG.id, progress.bestLevel);
         saveProgress();
 
         document.getElementById('finalLvl').textContent = player.level;
@@ -6056,6 +6064,7 @@
         QuestionManager.recordAnswer(powerupQuizState.currentQ, correct, { cap: QUESTION_WEIGHT_CAP });
         saveQuestionWeights();
       }
+      PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
       if (correct) {
         btn.classList.add('right');
         powerupQuizState.correct++;
@@ -6184,7 +6193,9 @@
         .toLowerCase();
 
     if (code === 'reset') {
-        progress.totalCoins = 0;
+        // Resets this game's own progression only. Coins are shared platform-wide
+        // (see PlatformManager) and intentionally NOT touched here — resetting this
+        // game shouldn't wipe out coins the student earned playing other games.
         for (const key of ALL_WEAPON_KEYS) {
           progress.weapons[key].kills = 0;
           progress.weapons[key].unlocked = (key === 'shuriken' || key === 'katana');
@@ -6198,7 +6209,7 @@
         renderCharacterSelectors();
         document.getElementById('bankCode').value = '';
         document.getElementById("bankMessage").textContent =
-            "✅ Progress reset — coins & kills back to 0. Enter a code to start.";
+            "✅ Progress reset — kills & unlocks back to 0. Enter a code to start.";
         return;
     }
 
@@ -6248,6 +6259,9 @@
     document.getElementById('startGameBtn').addEventListener('click', () => {
 
       document.getElementById('enemyGuideOverlay').classList.remove('show');
+      // One PlatformManager session per sitting — restarting a run (below) doesn't
+      // start a new one, it's still the same session.
+      PlatformManager.startSession(GAME_CONFIG.id);
       reset();
       updateUI();
       showRandomEventThenStart();
