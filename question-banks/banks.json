@@ -1,34 +1,34 @@
 {
   "93bf": {
-    "subject": "biology",
+    "subject": "Year 9 Biology",
     "bank": "year-9-full"
   },
   "112mm": {
-    "subject": "chemistry",
+    "subject": "Year 11 Chemistry",
     "bank": "year-11-molar-mass"
   },
   "112cf": {
-    "subject": "chemistry",
+    "subject": "Year 11 Chemistry",
     "bank": "year-11-full"
   },
   "11-13dg": {
-    "subject": "dance",
+    "subject": "Senior Dance",
     "bank": "genres"
   },
   "11-13dc": {
-    "subject": "dance",
+    "subject": "Senior Dance",
     "bank": "choreography"
   },
   "elfdef": {
-    "subject": "english",
+    "subject": "English",
     "bank": "language-definitions"
   },
   "elfex": {
-    "subject": "english",
+    "subject": "English",
     "bank": "language-examples"
   },
   "chef": {
-    "subject": "foodtech",
+    "subject": "Food Tech",
     "bank": "cooking"
   }
 }
