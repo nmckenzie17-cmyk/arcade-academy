@@ -363,7 +363,7 @@ body {
 }
 .multiplayer-section { padding-top:0; }
 .theme-pixel-artillery { background: linear-gradient(130deg, #081a42, #173f78); }
-.theme-pinball-postulation { background: linear-gradient(130deg, #4a1a75, var(--accent-violet)); }
+.theme-pinball-postulation { background: transparent; }
 
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.6rem; }
 .section-heading h2 {

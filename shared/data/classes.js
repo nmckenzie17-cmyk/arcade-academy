@@ -1,58 +1,60 @@
 /**
  * CLASS_OPTIONS
  * ================================================================
- * Single source of truth for the classes students can pick from on
- * the profile setup screen, grouped by year level.
+ * Single source of truth for the classes shown during profile setup
+ * and the senior hourly class picker.
  *
- * This is the ONLY place class names live — app.js just reads from
- * this list to build the Class dropdown, so adding, renaming, or
- * removing a class is a one-line edit here and needs no changes to
- * the profile setup logic itself.
+ * Every class has:
+ *   name:       the class name saved on student profiles/tracking
+ *   yearLevels: every year level allowed to select that class
  *
- * Years 9 and 10 use tree-based class names (e.g. "9 Tanekaha").
- * Years 11-13 use subject-based class names (e.g. "12 Chemistry").
+ * To create another combined class, duplicate the Senior Dance row
+ * and change its name/yearLevels. For example:
  *
- * If a year level has an empty array (or is missing entirely), the
- * Class dropdown will show a single disabled "No classes configured"
- * option instead of failing.
+ *   { name: "Senior Drama", yearLevels: [11, 12, 13] }
+ *
+ * A student's own year level is still stored separately on their
+ * profile, so a combined class can be filtered by year in reporting.
  * ================================================================
  */
-window.CLASS_OPTIONS = {
+window.CLASS_OPTIONS = [
+  { name: "9 Tanekaha", yearLevels: [9] },
+  { name: "9 Matai", yearLevels: [9] },
+  { name: "9 Kauri", yearLevels: [9] },
+  { name: "9 Rimu", yearLevels: [9] },
 
-  9: [
-    "9 Tanekaha",
-    "9 Matai",
-    "9 Kauri",
-    "9 Rimu"
-  ],
+  { name: "10 Tanekaha", yearLevels: [10] },
+  { name: "10 Matai", yearLevels: [10] },
+  { name: "10 Kauri", yearLevels: [10] },
+  { name: "10 Rimu", yearLevels: [10] },
 
-  10: [
-    "10 Tanekaha",
-    "10 Matai",
-    "10 Kauri",
-    "10 Rimu"
-  ],
+  { name: "11 Science", yearLevels: [11] },
+  { name: "11 English", yearLevels: [11] },
+  { name: "11 Maths", yearLevels: [11] },
 
-  11: [
-    "11 Science",
-    "11 English",
-    "11 Maths"
-  ],
+  { name: "12 Biology", yearLevels: [12] },
+  { name: "12 Chemistry", yearLevels: [12] },
+  { name: "12 Physics", yearLevels: [12] },
+  { name: "12 English", yearLevels: [12] },
+  { name: "12 Maths", yearLevels: [12] },
 
-  12: [
-    "12 Biology",
-    "12 Chemistry",
-    "12 Physics",
-    "12 English",
-    "12 Maths"
-  ],
+  { name: "13 Biology", yearLevels: [13] },
+  { name: "13 Chemistry", yearLevels: [13] },
+  { name: "13 Physics", yearLevels: [13] },
+  { name: "13 English", yearLevels: [13] },
+  { name: "13 Maths", yearLevels: [13] },
 
-  13: [
-    "13 Biology",
-    "13 Chemistry",
-    "13 Physics",
-    "13 English",
-    "13 Maths"
-  ]
+  // Combined class template: this same option appears for Years 11, 12 and 13.
+  { name: "Senior Dance", yearLevels: [11, 12, 13] }
+];
 
+window.getClassOptionsForYear = function getClassOptionsForYear(yearLevel) {
+  const year = Number(yearLevel);
+  if (!Number.isInteger(year)) return [];
+
+  return window.CLASS_OPTIONS
+    .filter(classOption => Array.isArray(classOption.yearLevels)
+      && classOption.yearLevels.map(Number).includes(year))
+    .map(classOption => classOption.name)
+    .filter(className => typeof className === "string" && className.trim());
 };

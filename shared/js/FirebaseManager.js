@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import {
-  getAuth,
+  initializeAuth,
+  browserSessionPersistence,
+  browserPopupRedirectResolver,
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
@@ -33,7 +35,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app);
+// Use sessionStorage-backed Auth persistence explicitly. Firebase's default web
+// persistence prefers IndexedDB, which can be closed by the browser while a
+// Google popup temporarily hides the Hub and produces "Database is
+// closing/hidden" when the popup returns. Session persistence survives page
+// refreshes in this tab without depending on IndexedDB (and is safer on shared
+// classroom devices because it ends when the tab/window session is closed).
+export const auth = initializeAuth(app, {
+  persistence: browserSessionPersistence,
+  popupRedirectResolver: browserPopupRedirectResolver
+});
 export const db = getFirestore(app);
 
 const googleProvider = new GoogleAuthProvider();

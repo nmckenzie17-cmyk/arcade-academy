@@ -235,7 +235,7 @@ profileYearSelect?.addEventListener("change", () => {
 
 
 // Pulls the year number (e.g. 9) out of a "Year 9"-style select value,
-// so it can be used as a key into window.CLASS_OPTIONS.
+// so the shared class list can return every option that permits that year.
 function parseYearNumber(yearLevelValue) {
 
   const match = /\d+/.exec(yearLevelValue || "");
@@ -267,14 +267,16 @@ function hasCurrentSeniorClass(profile) {
 }
 
 
-// Rebuilds the Class dropdown to match the chosen year level, reading
-// from the shared, easily-editable list in shared/data/classes.js.
+// Rebuilds the Class dropdown to match the chosen year level, including
+// combined classes whose yearLevels list contains the student's year.
 // Falls back to a disabled "No classes configured" option if that
-// year has no classes listed (or CLASS_OPTIONS hasn't loaded).
+// year has no classes listed (or the class-options helper hasn't loaded).
 function populateClassOptions(yearLevelValue) {
 
   const yearNumber = parseYearNumber(yearLevelValue);
-  const classes = (yearNumber && window.CLASS_OPTIONS && window.CLASS_OPTIONS[yearNumber]) || [];
+  const classes = yearNumber && window.getClassOptionsForYear
+    ? window.getClassOptionsForYear(yearNumber)
+    : [];
 
   profileClassSelect.innerHTML = "";
 
@@ -382,7 +384,7 @@ const seniorClassLockMessage = document.querySelector("#senior-class-lock-messag
 function showSeniorClassSelection(profile) {
   currentProfile = profile;
   const year = parseYearNumber(profile.yearLevel);
-  const classes = window.CLASS_OPTIONS?.[year] || [];
+  const classes = window.getClassOptionsForYear?.(year) || [];
   seniorClassSelect.innerHTML = '<option value="" disabled selected>Select your current class</option>';
   classes.forEach(className => {
     const option = document.createElement("option");
