@@ -1070,6 +1070,7 @@ function endActiveDrag(clientX, clientY){
         session.stats.questionsTotal++;
         if(firstTry) session.stats.questionsCorrect++;
         PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, firstTry);
+        if(!firstTry) PlatformManager.deductCoins(10);
       }
       if(quizRound.filled >= quizRound.pairs.length){
         setTimeout(finishRound, 350);

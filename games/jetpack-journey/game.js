@@ -1877,6 +1877,7 @@ renderMemoryGame();
 }else{
 memoryGame.wrong++;
 PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);
+PlatformManager.deductCoins(10);
 const cap=(memoryGame.kind==='fuel'||memoryGame.kind==='magnet')?getQuizWrongCap():2;
 if(memoryGame.wrong>=cap){
 setTimeout(function(){memoryGame.selected=[];finishMemoryGame();},650);
@@ -2118,6 +2119,7 @@ if(!deathQuiz.active||deathQuiz.resultMessage)return;
 const opt=deathQuiz.options[idx];
 deathCoinCollected--;
 PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,!!opt.correct);
+if(!opt.correct)PlatformManager.deductCoins(10);
 let prize;
 if(opt.correct){recordQuestionCorrect();prize=rollSingleDeathCoinPrize();}
 else{deathCoinPity++;localStorage.setItem(DEATH_PITY_KEY,deathCoinPity);prize='No prize this time. Next chance improved.';}
@@ -2190,6 +2192,7 @@ if(!powerupQuizActive||powerupQuizActive.finished)return;
 const q=powerupQuizActive.questions[powerupQuizActive.index];
 const wasCorrect=!!q.options[idx].correct;
 PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,wasCorrect);
+if(!wasCorrect)PlatformManager.deductCoins(10);
 if(wasCorrect){powerupQuizActive.correct++;recordQuestionCorrect();}
 powerupQuizActive.index++;
 if(powerupQuizActive.index>=powerupQuizActive.questions.length){

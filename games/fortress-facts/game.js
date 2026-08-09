@@ -451,6 +451,7 @@ function runPrerunQuiz(onComplete){
                 prerunQuizTimes.push(elapsed);
                 QuestionManager.recordAnswer(q, isCorrect);
                 PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
+                if(!isCorrect) PlatformManager.deductCoins(10);
                 if(isCorrect){ btn.classList.add('correct'); prerunQuizCorrect++; recordCorrectAnswer(); }
                 else { btn.classList.add('wrong'); modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); }
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
@@ -1354,6 +1355,7 @@ function askBetweenQuestion(){
             let isCorrect=btn.dataset.correct==='true';
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
+            if(!isCorrect) PlatformManager.deductCoins(10);
             if(isCorrect){
                 btn.classList.add('correct');
                 betweenWaveCorrect++;
@@ -1514,6 +1516,7 @@ function showQuestion(){
             let isCorrect=btn.dataset.correct==='true';
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
+            if(!isCorrect) PlatformManager.deductCoins(10);
             if(isCorrect){
                 btn.classList.add('correct');
                 recordCorrectAnswer();

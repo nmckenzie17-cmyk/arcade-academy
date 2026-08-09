@@ -319,7 +319,8 @@
       updateHUD(); checkStageProgress();
       if (gameActive===false && !bossActive && !bossPreviewActive) { gameActive = true; spawnInterval = setInterval(spawnEnemy, getSpawnDelay()); }
     } else {
-      showFloatingText(area.clientWidth/2-70, area.clientHeight/2, 'Too slow! It was "'+correctWord+'"', '#e74c3c', area);
+      PlatformManager.deductCoins(5);
+      showFloatingText(area.clientWidth/2-70, area.clientHeight/2, 'Too slow! It was "'+correctWord+'" / -5🪙', '#e74c3c', area);
       loseLife(1, area, area.clientWidth/2-40, area.clientHeight/2+30, 'Lost a quickdraw duel — outdrawn!');
       if (gameActive===false && !bossActive && !bossPreviewActive && lives>0) { gameActive = true; spawnInterval = setInterval(spawnEnemy, getSpawnDelay()); }
     }
@@ -1141,6 +1142,7 @@
         } else {
           cell.classList.add('wrong'); preRunMistakes++; wrongCount++;
           PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
+          PlatformManager.deductCoins(5);
           if(wrongCount>=2){
             revealCorrectAnswers(grid, cat.correct);
             setTimeout(()=>finishPowerupAssessmentRound(),1000);
@@ -1215,7 +1217,7 @@
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected'))return;
         if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);document.getElementById('start-question-overlay').classList.add('hidden');startEnemySpawning();}}
-        else{cell.classList.add('wrong');PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);setTimeout(()=>showStartQuestion(),600);}
+        else{cell.classList.add('wrong');PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);PlatformManager.deductCoins(5);setTimeout(()=>showStartQuestion(),600);}
       });
       grid.appendChild(cell);
     });
@@ -1467,13 +1469,14 @@
       const bh=document.getElementById('boss-health-bar-wrap'); if(bh) bh.remove();
     }
     updateCrosshairCursor();
-    PlatformManager.addCoins(sessionCoins);
+    if (sessionCoins > 0) PlatformManager.addCoins(sessionCoins);
+    else if (sessionCoins < 0) PlatformManager.spendCoins(-sessionCoins);
     const newHigh = overallScore > highScore;
     if(newHigh) highScore=overallScore;
     PlatformManager.setHighScore(GAME_CONFIG.id, overallScore);
     try { await saveData(); } catch(e) { console.error('saveData failed', e); }
     document.getElementById('final-score').textContent='Score: '+overallScore+' (Kills: '+killCount+')';
-    document.getElementById('final-coins').textContent='🪙 '+sessionCoins+' coins earned';
+    document.getElementById('final-coins').textContent='🪙 '+sessionCoins+' net coins';
     document.getElementById('gameover-reason').textContent = gameOverReason || '';
     document.getElementById('new-highscore').classList.toggle('hidden',!newHigh);
     const wipe = document.getElementById('screenWipe');
@@ -1703,6 +1706,7 @@
         showFloatingText(x,y-16,'+1 Ammo','#00d4ff',area);
       } else {
         PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
+        PlatformManager.deductCoins(5);
         ammo = Math.max(0, ammo-1);
         showFloatingText(x,y-16,'Wrong!','#e74c3c',area);
         loseLife(1, area, x, y-16, 'Ran out of lives — you missed a word during the boss fight! Slow down and double-check each word before you shoot it.');
@@ -1802,6 +1806,7 @@
         else{
           cell.classList.add('wrong');wrongCount++;
           PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
+          PlatformManager.deductCoins(5);
           if(wrongCount>=2){
             clearInterval(si);
             revealCorrectAnswers(grid, cat.correct);

@@ -594,7 +594,7 @@ try {
         // answer — report it to PlatformManager regardless of outcome.
         PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, n.isCorrect);
         if(n.isCorrect){let pts=25+(scoreUpgradeLevel*5);if(perfect)pts=Math.round(pts*1.5);pts=Math.round(pts*chainMultiplier());score+=pts;coins+=10;totalCorrect++;registerChainHit();noteSpeed=Math.min(8,noteSpeed+0.15);spawnInterval=Math.max(350,spawnInterval-15);playTone(400,0.08);}
-        else{score=Math.max(0,score-50);health-=10;coins=Math.max(0,coins-2);resetChain();noteSpeed=Math.max(1.5,noteSpeed-0.1);spawnInterval=Math.min(1100,spawnInterval+10);playTone(150,0.12);if(health<=0){gameOverReason='Ran out of health — you tapped a word that didn\'t belong in "'+currentCategory.name+'". Check the category before you sort each word!';gameOver();}}
+        else{score=Math.max(0,score-50);health-=10;coins=Math.max(0,coins-5);resetChain();noteSpeed=Math.max(1.5,noteSpeed-0.1);spawnInterval=Math.min(1100,spawnInterval+10);playTone(150,0.12);if(health<=0){gameOverReason='Ran out of health — you tapped a word that didn\'t belong in "'+currentCategory.name+'". Check the category before you sort each word!';gameOver();}}
       } else {
         let pts=scorePerNote();if(perfect)pts=Math.round(pts*1.5);pts=Math.round(pts*chainMultiplier());score+=pts;coins+=1;registerChainHit();noteSpeed=Math.min(8,noteSpeed+0.08);spawnInterval=Math.max(350,spawnInterval-8);playTone(200+n.col*100,0.08);
       }
@@ -710,5 +710,4 @@ try {
       gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
       osc.connect(gain);gain.connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+dur);
     }
-
 

@@ -4737,6 +4737,7 @@
         saveQuestionWeights();
       }
       PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
+      if (!correct) PlatformManager.deductCoins(10);
       if (correct) {
         btn.classList.add('right');
         quiz.correct++;
@@ -6052,6 +6053,7 @@
         saveQuestionWeights();
       }
       PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
+      if (!correct) PlatformManager.deductCoins(10);
       if (correct) {
         btn.classList.add('right');
         powerupQuizState.correct++;

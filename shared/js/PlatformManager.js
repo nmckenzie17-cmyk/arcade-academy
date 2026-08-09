@@ -576,6 +576,20 @@
     return true;
   }
 
+  // Removes up to the requested number of coins without allowing a negative
+  // balance. Intended for gameplay penalties rather than shop purchases.
+  function deductCoins(amount) {
+    const requested = Math.max(0, Math.floor(Number(amount) || 0));
+    const deducted = Math.min(requested, data.coins.balance);
+    if (deducted === 0) return 0;
+    data.coins.balance -= deducted;
+    touchActivity();
+    save();
+    if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting -= deducted;
+    queueStatsSave();
+    return deducted;
+  }
+
   // ---- questions --------------------------------------------------
 
   function recordQuestionAnswered(gameId, wasCorrect) {
@@ -823,6 +837,7 @@
     // coins
     addCoins,
     spendCoins,
+    deductCoins,
     getCoins,
     connectFirebase,
     disconnectFirebase,
