@@ -6234,11 +6234,10 @@
 
     document.getElementById('restartBtn').addEventListener('click', () => {
       document.getElementById('gameOverOverlay').classList.remove('show');
-      progress.runNumber++;
-      reset();
-      updateUI();
-      showRandomEventThenStart();
-      gameLoop();
+      game.active = false;
+      game.paused = true;
+      updateHomeStats();
+      document.getElementById('startOverlay').classList.add('show');
     });
 
     document.getElementById('homeShopBtn').addEventListener('click', () => showShop('home'));

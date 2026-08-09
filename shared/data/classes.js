@@ -35,9 +35,6 @@ window.CLASS_OPTIONS = {
 
   11: [
     "11 Science",
-    "11 Biology",
-    "11 Chemistry",
-    "11 Physics",
     "11 English",
     "11 Maths"
   ],

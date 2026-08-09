@@ -310,3 +310,25 @@ html, body {
   50% { left: 0%; opacity: 1; }
   100% { left: 100%; opacity: 1; }
 }
+.game-home-link {
+  display: block;
+  width: fit-content;
+  margin: 14px auto 0;
+  padding: 9px 12px;
+  color: var(--accent-blue, #00d4ff);
+  background: rgba(8, 26, 66, 0.78);
+  border: 2px solid var(--border-purple, #6d3b8f);
+  border-radius: 6px;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(9px, 1.6vw, 11px);
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+}
+
+.game-home-link:hover,
+.game-home-link:focus-visible {
+  color: #fde047;
+  border-color: #fde047;
+  text-decoration: underline;
+}

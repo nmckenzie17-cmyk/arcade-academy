@@ -519,6 +519,17 @@ function restartGame() {
   questionModalOpen = false;
 }
 
+function returnToHome() {
+  restartGame();
+  gameStarted = false;
+  const latestStats = PlatformManager.getGameStats(GAME_CONFIG.id);
+  document.getElementById('home-high-score').textContent = highScore;
+  document.getElementById('home-coins').textContent = PlatformManager.getCoins();
+  document.getElementById('home-correct').textContent = latestStats?.correct || 0;
+  document.getElementById('home-games').textContent = latestStats?.gamesPlayed || 0;
+  document.getElementById('home-screen').classList.remove('hidden');
+}
+
 function startFromHomeScreen() {
   if (!questionBankReady) return;
   gameStarted = true;

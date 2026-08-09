@@ -2058,8 +2058,8 @@ powerupUnlockAlert='\ud83c\udf89 New Powerup Unlocked: '+newlyUnlocked.join(', '
 }
 // Death Coin flow: Game Over screen -> [USE DEATH COIN] -> multichoice quiz (1 term, 4 definitions)
 // -> reward rolled and shown -> back to Game Over screen (with updated score/coins) -> can use again.
-// Game Over screen "PLAY AGAIN": restarts immediately using the already-loaded question pack,
-// skipping the home screen entirely.
+// The game-over action returns to the game's home screen so the shop and
+// refreshed totals are available before the next run.
 function showPixelGameOverPanel(){
 document.getElementById('pixel-final-score').textContent='Final Score: '+finalScore;
 document.getElementById('pixel-final-coins').textContent='\ud83e\ude99 Coins: '+PlatformManager.getCoins();
@@ -2074,7 +2074,7 @@ document.getElementById('pixel-gameover-screen').style.display='flex';
 function hidePixelGameOverPanel(){
 document.getElementById('pixel-gameover-screen').style.display='none';
 }
-document.getElementById('pixel-playagain-btn').addEventListener('click',function(){hidePixelGameOverPanel();playAgainFromGameOver();});
+document.getElementById('pixel-playagain-btn').addEventListener('click',function(){hidePixelGameOverPanel();showHomeScreen();});
 document.getElementById('pixel-shop-btn').addEventListener('click',function(){hidePixelGameOverPanel();openShop();});
 document.getElementById('pixel-deathcoin-btn').addEventListener('click',function(){hidePixelGameOverPanel();openDeathCoinQuiz();});
 

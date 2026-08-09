@@ -16,7 +16,7 @@
     </div>
     <label for="question-type">Room question type</label><select id="question-type"><option value="multichoice">Multiple Choice</option><option value="matching">Matching</option><option value="category">Category</option></select>
     <div class="actions"><button id="create-btn">Create Game</button><button id="show-join-btn">Join Game</button></div>
-    <p class="error" id="menu-error"></p><p class="credit">Created by Mr McKenzie</p><a href="../../index.html">🏛️ Back to Arcade Academy</a>
+    <p class="error" id="menu-error"></p><p class="credit">Created by Mr McKenzie</p><a class="game-home-link" href="../../index.html">🏛️ Back to Arcade Academy</a>
   </section>
   <section class="panel" id="join-screen" hidden><h1>Join Room</h1><form id="join-form"><input id="room-input" inputmode="numeric" maxlength="5" placeholder="48217"><button>Join</button></form><button class="ghost" id="join-back">Back</button><p class="error" id="join-error"></p></section>
   <section class="panel" id="room-screen" hidden><p class="eyebrow">Room Code</p><div class="code" id="room-code"></div><p id="room-status">Waiting for opponent…</p><button id="ready-btn" hidden>Ready</button><button class="danger" id="leave-room-btn">Leave Room</button></section>

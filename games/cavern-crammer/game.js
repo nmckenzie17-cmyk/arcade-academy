@@ -1364,9 +1364,9 @@ function triggerRunOver(){
 }
 document.getElementById('newRunBtn').addEventListener('click', ()=>{
   document.getElementById('gameOverModal').classList.add('hidden');
-  resetSession();
-  levelIndex = 0;
-  startLevel(0);
+  state = 'title';
+  updateHomeStats();
+  document.getElementById('titleScreen').classList.remove('hidden');
 });
 
 /* ============================= PHYSICS / COLLISION ============================= */

@@ -362,8 +362,8 @@ body {
   padding: clamp(2.5rem, 6vw, 4.5rem) 1.5rem 5rem;
 }
 .multiplayer-section { padding-top:0; }
-.theme-pixel-artillery { background: linear-gradient(130deg, #274b35, #d66a2c); }
-.theme-pinball-postulation { background: linear-gradient(130deg, #35115f, #e94560); }
+.theme-pixel-artillery { background: linear-gradient(130deg, #081a42, #173f78); }
+.theme-pinball-postulation { background: linear-gradient(130deg, #4a1a75, var(--accent-violet)); }
 
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.6rem; }
 .section-heading h2 {
@@ -422,7 +422,7 @@ body {
 .theme-rocket   { background: linear-gradient(130deg, var(--panel-dark), #6448dd); }
 .theme-shuriken { background: linear-gradient(130deg, #0f4a3a, var(--green)); }
 .theme-wildwest { background: linear-gradient(130deg, #7a4a12, var(--gold)); }
-.theme-tic-tac-toe { background: linear-gradient(130deg, #1d266d, #d82f82); }
+.theme-tic-tac-toe { background: linear-gradient(130deg, #081a42, #173f78); }
 
 .game-details { display: flex; flex: 1; flex-direction: column; align-items: flex-start; padding: 1.15rem 1.25rem 1.2rem; font-family: var(--font-body); }
 .game-catchphrase { margin: 0 0 .3rem; color: var(--accent-rose); font-size: .76rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
