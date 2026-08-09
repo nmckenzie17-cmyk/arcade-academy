@@ -1,0 +1,312 @@
+/* Shared Arcade Academy multiplayer presentation.
+   Mirrors the Shuriken Scholar home-screen vocabulary while leaving each
+   game's board/canvas mechanics in its own stylesheet. */
+
+html,
+body {
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  background: var(--bg-primary) !important;
+  color: var(--accent-blue) !important;
+  font-family: var(--font-body);
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  opacity: .42;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(0, 212, 255, .18), transparent 24%),
+    radial-gradient(circle at 82% 72%, rgba(233, 69, 96, .14), transparent 26%),
+    linear-gradient(rgba(106, 5, 114, .13) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(106, 5, 114, .13) 1px, transparent 1px);
+  background-size: auto, auto, 34px 34px, 34px 34px;
+}
+
+.ttt-shell,
+.shell {
+  width: min(100%, 980px) !important;
+  min-height: 100vh;
+  margin: 0 auto !important;
+  padding: clamp(18px, 4vh, 48px) 16px 60px !important;
+  overflow: visible;
+}
+
+.ttt-header {
+  width: min(100%, 560px);
+  margin: 0 auto 14px;
+}
+
+.ttt-card,
+.shell > .panel {
+  width: min(100%, 560px);
+  margin: auto;
+  padding: clamp(20px, 4vw, 34px) !important;
+  color: var(--accent-blue) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.match-card,
+.shell > .game {
+  width: min(100%, 920px);
+  margin: auto;
+}
+
+.home-page,
+.home {
+  max-width: 560px !important;
+  padding-top: clamp(24px, 4vh, 60px) !important;
+}
+
+h1,
+.ttt-card h1,
+.shell h1 {
+  margin: 0 0 8px !important;
+  color: var(--accent-blue) !important;
+  font-family: var(--font-title) !important;
+  font-size: clamp(24px, 6vw, 40px) !important;
+  line-height: 1.45 !important;
+  text-transform: none !important;
+  text-shadow: var(--glow-title) !important;
+}
+
+.subtitle,
+.tagline {
+  margin: 6px 0 20px !important;
+  color: var(--accent-rose) !important;
+  font-family: var(--font-subtitle) !important;
+  font-size: clamp(24px, 5vw, 34px) !important;
+  line-height: 1 !important;
+  text-shadow: var(--glow-subtitle);
+}
+
+.eyebrow,
+.section-title,
+.home h2 {
+  color: var(--accent-blue) !important;
+  font-family: var(--font-title) !important;
+  font-size: clamp(9px, 2.2vw, 11px) !important;
+  line-height: 1.7;
+  letter-spacing: 1px !important;
+  text-shadow: var(--glow-title-soft);
+}
+
+.home-stats,
+.stats {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin: 0 0 18px !important;
+}
+
+.home-stat,
+.stats > div {
+  display: grid !important;
+  gap: 5px;
+  min-width: 0;
+  padding: 8px 4px !important;
+  text-align: center;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.home-stat span,
+.stats b {
+  color: var(--gold) !important;
+  font-size: clamp(18px, 2.6vw, 22px) !important;
+  font-weight: 700;
+  text-shadow: var(--glow-gold);
+}
+
+.home-stat small,
+.stats span {
+  color: var(--accent-blue) !important;
+  font-size: clamp(11px, 2vw, 13px) !important;
+  font-weight: 700;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.description-list,
+.description {
+  display: grid;
+  gap: 3px !important;
+  margin-bottom: 16px;
+  color: var(--accent-blue) !important;
+  font-size: clamp(13px, 2vw, 15px);
+  line-height: 1.7;
+  text-align: left;
+}
+
+.description-list p,
+.description p {
+  margin: 2px 0 !important;
+  padding: 0 !important;
+  color: var(--accent-blue) !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.question-type-label,
+.home > label {
+  display: block;
+  margin: 14px 0 8px !important;
+  color: var(--accent-blue) !important;
+  font-family: var(--font-title);
+  font-size: 10px;
+  line-height: 1.6;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.question-type-select,
+.home > select,
+.room-input,
+#room-input,
+.controls select,
+.controls input {
+  color: #fff !important;
+  background: var(--panel-dark) !important;
+  border: 2px solid var(--border-purple) !important;
+  border-radius: var(--radius-btn) !important;
+}
+
+.action,
+.text-button,
+.shell button,
+.question-option,
+.question section button {
+  min-height: 48px;
+  padding: 12px 18px !important;
+  color: #fff !important;
+  font-family: var(--font-body) !important;
+  font-weight: 700 !important;
+  background: var(--gradient-btn) !important;
+  border: 2px solid var(--accent-pink) !important;
+  border-radius: var(--radius-btn) !important;
+  box-shadow: var(--glow-btn);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.action:hover:not(:disabled),
+.text-button:hover:not(:disabled),
+.shell button:hover:not(:disabled),
+.question-option:hover:not(:disabled),
+.question section button:hover:not(:disabled) {
+  transform: scale(1.03);
+  color: #fff !important;
+  background: var(--gradient-btn-hover) !important;
+  border-color: #ff6b81 !important;
+  box-shadow: var(--glow-btn-hover);
+}
+
+.secondary,
+.ghost {
+  color: var(--accent-blue) !important;
+  background: rgba(168, 85, 247, .12) !important;
+  border-color: var(--accent-violet) !important;
+}
+
+.danger {
+  color: var(--accent-rose) !important;
+  background: rgba(233, 69, 96, .08) !important;
+  border-color: var(--accent-pink) !important;
+}
+
+.menu-actions,
+.actions {
+  gap: 10px !important;
+  margin-top: 16px !important;
+}
+
+.created-by,
+.credit {
+  margin-top: 18px !important;
+  color: var(--accent-blue) !important;
+  font-family: var(--font-title);
+  font-size: 9px !important;
+  opacity: .6;
+}
+
+.hub-link a,
+.home > a,
+.back-link {
+  color: var(--accent-blue) !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.room-code,
+.code,
+.turn-status,
+#turn-label,
+#timer,
+#result h2 {
+  color: var(--gold) !important;
+  text-shadow: var(--glow-gold) !important;
+}
+
+.player-panel,
+.question-card,
+.question > div,
+.controls {
+  background: var(--gradient-panel) !important;
+  border-color: var(--border-purple) !important;
+  box-shadow: var(--glow-card);
+}
+
+.cell {
+  background: var(--gradient-panel) !important;
+  border-color: var(--border-purple) !important;
+  border-radius: var(--radius-btn) !important;
+  box-shadow: var(--glow-card);
+}
+
+.cell:hover:not(:disabled),
+.player-panel.active {
+  border-color: var(--accent-pink) !important;
+  box-shadow: var(--glow-card-hover) !important;
+}
+
+.symbol.x,
+.cell.x {
+  color: var(--accent-blue) !important;
+}
+
+.symbol.o,
+.cell.o {
+  color: var(--accent-pink) !important;
+}
+
+.game header {
+  padding: 9px 12px;
+  background: rgba(26, 10, 46, .88);
+  border: 1px solid var(--border-purple);
+  border-radius: 10px;
+  box-shadow: var(--glow-card);
+}
+
+#battlefield {
+  border: 3px solid var(--border-purple) !important;
+  border-radius: 6px !important;
+  box-shadow: var(--glow-panel);
+}
+
+.error,
+.message.error {
+  color: var(--accent-rose) !important;
+}
+
+@media (max-width: 520px) {
+  .home-stats,
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

@@ -5,12 +5,16 @@ const gameFolders = [
   "rocket-recall",
   "shuriken-scholar",
   "wild-west-wordslinger",
-  "cavern-crammer"
+  "cavern-crammer",
+  "tic-tac-toe",
+  "pixel-artillery"
 ];
 
-const gameGrid = document.querySelector("#game-grid");
+const singleGameGrid = document.querySelector("#single-game-grid");
+const multiplayerGameGrid = document.querySelector("#multiplayer-game-grid");
 const cardTemplate = document.querySelector("#game-card-template");
 const gameCount = document.querySelector("#game-count");
+const multiplayerGameCount = document.querySelector("#multiplayer-game-count");
 const statGrid = document.querySelector("#stat-grid");
 const statCardTemplate = document.querySelector("#stat-card-template");
 
@@ -579,6 +583,9 @@ function buildStatCard({ icon, value, label }) {
 
 function displayGames(games) {
 
+  let singleCount = 0;
+  let multiplayerCount = 0;
+
   games.forEach((game) => {
 
     const card = cardTemplate.content.cloneNode(true);
@@ -620,13 +627,15 @@ function displayGames(games) {
 
     populateGameStats(card, game.id);
 
-    gameGrid.appendChild(card);
+    const isMultiplayer = game.players === "2 Online";
+    (isMultiplayer ? multiplayerGameGrid : singleGameGrid).appendChild(card);
+    if (isMultiplayer) multiplayerCount++; else singleCount++;
 
   });
 
 
-  gameCount.textContent =
-    `${games.length} games ready to play`;
+  gameCount.textContent = `${singleCount} games ready to play`;
+  multiplayerGameCount.textContent = `${multiplayerCount} games ready to play`;
 
 }
 

@@ -17,7 +17,8 @@ import {
   runTransaction,
   writeBatch,
   query,
-  where
+  where,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -253,6 +254,9 @@ function emptyCloudGameStats() {
     questionsAnswered: 0,
     correct: 0,
     incorrect: 0,
+    wins: 0,
+    losses: 0,
+    draws: 0,
     percentageCorrect: 0,
     playTimeMs: 0,
     activePlayTimeMs: 0,
@@ -428,6 +432,141 @@ export async function completeProgressReset(uid, token) {
   }
 }
 
+const ACTIVE_MATCH_STATUSES = new Set(["waiting", "lobby", "playing", "finished"]);
+const MATCH_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
+
+function requireAuthenticatedUser() {
+  const user = auth.currentUser;
+  if (!user) throw new Error("You must be signed in to play online.");
+  return user;
+}
+
+function publicMatch(snapshot) {
+  return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
+}
+
+export async function createMultiplayerMatch(gameId, player, initialGameState, settings = {}) {
+  const user = requireAuthenticatedUser();
+  if (!gameId || player?.uid !== user.uid) throw new Error("Invalid match player.");
+
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const roomCode = String(Math.floor(10000 + Math.random() * 90000));
+    const matchRef = doc(db, "matches", roomCode);
+    try {
+      const created = await runTransaction(db, async (transaction) => {
+        const snapshot = await transaction.get(matchRef);
+        const existing = snapshot.data();
+        const isActive = existing && ACTIVE_MATCH_STATUSES.has(existing.status)
+          && Date.now() - Number(existing.updatedAt || existing.createdAt || 0) < MATCH_STALE_AFTER_MS;
+        if (isActive) return false;
+
+        const now = Date.now();
+        transaction.set(matchRef, {
+          gameId,
+          roomCode,
+          player1: { uid: user.uid, displayName: String(player.displayName || "Player 1").slice(0, 40) },
+          player2: null,
+          status: "waiting",
+          currentTurn: null,
+          startingPlayerUid: user.uid,
+          gameState: initialGameState,
+          settings,
+          winner: null,
+          round: 1,
+          rematchRequests: {},
+          rewardsClaimed: {},
+          leftBy: null,
+          createdAt: now,
+          updatedAt: now
+        });
+        return true;
+      });
+      if (created) return roomCode;
+    } catch (error) {
+      console.warn("Room-code attempt failed:", error);
+      if (error?.code === "permission-denied") {
+        throw new Error("Firestore is blocking multiplayer rooms. Deploy the Arcade Academy /matches security rules and try again.");
+      }
+    }
+  }
+  throw new Error("Unable to create a unique room. Please try again.");
+}
+
+export async function joinMultiplayerMatch(roomCode, player) {
+  const user = requireAuthenticatedUser();
+  if (!/^\d{5}$/.test(roomCode) || player?.uid !== user.uid) throw new Error("Enter a valid 5-digit room code.");
+  const matchRef = doc(db, "matches", roomCode);
+
+  return runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(matchRef);
+    if (!snapshot.exists()) throw new Error("ROOM_NOT_FOUND");
+    const match = snapshot.data();
+    if (match.player1?.uid === user.uid) throw new Error("CREATOR_CANNOT_JOIN");
+    if (match.status !== "waiting" || match.player2) throw new Error("ROOM_FULL");
+    if (Date.now() - Number(match.updatedAt || match.createdAt || 0) >= MATCH_STALE_AFTER_MS) {
+      throw new Error("ROOM_NOT_FOUND");
+    }
+
+    const joinedStatus = match.settings?.requiresReady ? "lobby" : "playing";
+    transaction.update(matchRef, {
+      player2: { uid: user.uid, displayName: String(player.displayName || "Player 2").slice(0, 40) },
+      status: joinedStatus,
+      currentTurn: match.player1.uid,
+      updatedAt: Date.now()
+    });
+    return roomCode;
+  });
+}
+
+export function watchMultiplayerMatch(matchId, onChange, onError) {
+  requireAuthenticatedUser();
+  return onSnapshot(doc(db, "matches", matchId), (snapshot) => {
+    onChange(publicMatch(snapshot));
+  }, onError);
+}
+
+export async function transactMultiplayerMatch(matchId, updater) {
+  const user = requireAuthenticatedUser();
+  const matchRef = doc(db, "matches", matchId);
+  return runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(matchRef);
+    if (!snapshot.exists()) throw new Error("MATCH_NOT_FOUND");
+    const match = { id: snapshot.id, ...snapshot.data() };
+    const isParticipant = match.player1?.uid === user.uid || match.player2?.uid === user.uid;
+    if (!isParticipant) throw new Error("NOT_A_PARTICIPANT");
+    const changes = updater(match, user.uid);
+    if (!changes || typeof changes !== "object") return match;
+    transaction.update(matchRef, { ...changes, updatedAt: Date.now() });
+    return { ...match, ...changes };
+  });
+}
+
+export async function claimMultiplayerReward(matchId, expectedRound) {
+  const user = requireAuthenticatedUser();
+  const matchRef = doc(db, "matches", matchId);
+  return runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(matchRef);
+    if (!snapshot.exists()) return null;
+    const match = snapshot.data();
+    if (match.status !== "finished" || Number(match.round) !== Number(expectedRound)) return null;
+    const isPlayer1 = match.player1?.uid === user.uid;
+    const isPlayer2 = match.player2?.uid === user.uid;
+    if (!isPlayer1 && !isPlayer2) return null;
+    const claimId = `${Number(match.round)}_${user.uid}`;
+    if (match.rewardsClaimed?.[claimId]) return null;
+
+    const result = match.winner === "draw" ? "draw" : match.winner === user.uid ? "win" : "loss";
+    // Multiplayer results are claimed once so wins/losses/draws cannot be
+    // counted repeatedly after refresh. Tic-Tac-Toe does not award coins.
+    const coins = 0;
+    transaction.update(matchRef, {
+      [`rewardsClaimed.${claimId}`]: { round: Number(match.round), uid: user.uid, result, coins, claimedAt: Date.now() },
+      updatedAt: Date.now()
+    });
+    return { result, coins };
+  });
+}
+
 window.FirebaseManager = {
   signInWithGoogle,
   signOut,
@@ -447,5 +586,10 @@ window.FirebaseManager = {
   requestClassProgressReset,
   getClassResetHistory,
   getPendingProgressReset,
-  completeProgressReset
+  completeProgressReset,
+  createMultiplayerMatch,
+  joinMultiplayerMatch,
+  watchMultiplayerMatch,
+  transactMultiplayerMatch,
+  claimMultiplayerReward
 };

@@ -1,0 +1,38 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thinking Tanks | Arcade Academy</title>
+<style>html,body{min-height:100%;overflow-x:hidden;overflow-y:auto!important}.shell{min-height:100vh;overflow:visible}</style>
+<link rel="stylesheet" href="../../shared/css/global.css"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="../../shared/css/multiplayer-game.css">
+</head><body>
+<main class="shell">
+  <section class="panel" id="loading-screen"><p>Connecting to Arcade Academy…</p></section>
+  <section class="panel home" id="menu-screen" hidden>
+    <p class="eyebrow">Arcade Academy · 2 Player Online</p><h1>Thinking Tanks</h1>
+    <p class="subtitle">Answer. Aim. Fire. Be the last tank standing!</p>
+    <div class="stats"><div><b id="wins">0</b><span>Wins</span></div><div><b id="losses">0</b><span>Losses</span></div><div><b id="draws">0</b><span>Draws</span></div><div><b id="games">0</b><span>Games</span></div></div>
+    <h2>Description</h2><div class="description">
+      <p>🏞️ Battle across randomly generated destructible hills.</p><p>📚 Correct turn questions grant combat bonuses; wrong answers grant no bonus.</p>
+      <p>🎯 Move, aim and fire before the 20-second timer expires.</p><p>🪙 Multiplayer games award no score or coins.</p>
+    </div>
+    <label for="question-type">Room question type</label><select id="question-type"><option value="multichoice">Multiple Choice</option><option value="matching">Matching</option><option value="category">Category</option></select>
+    <div class="actions"><button id="create-btn">Create Game</button><button id="show-join-btn">Join Game</button></div>
+    <p class="error" id="menu-error"></p><p class="credit">Created by Mr McKenzie</p><a href="../../index.html">🏛️ Back to Arcade Academy</a>
+  </section>
+  <section class="panel" id="join-screen" hidden><h1>Join Room</h1><form id="join-form"><input id="room-input" inputmode="numeric" maxlength="5" placeholder="48217"><button>Join</button></form><button class="ghost" id="join-back">Back</button><p class="error" id="join-error"></p></section>
+  <section class="panel" id="room-screen" hidden><p class="eyebrow">Room Code</p><div class="code" id="room-code"></div><p id="room-status">Waiting for opponent…</p><button id="ready-btn" hidden>Ready</button><button class="danger" id="leave-room-btn">Leave Room</button></section>
+  <section class="game" id="game-screen" hidden>
+    <header><b id="turn-label">PLAYER TURN</b><span id="timer">20</span><button class="danger" id="leave-game-btn">Leave Room</button></header>
+    <canvas id="battlefield" width="800" height="450" aria-label="Pixel artillery battlefield"></canvas>
+    <div class="controls">
+      <button id="left-btn">◀ Move</button><button id="right-btn">Move ▶</button>
+      <label>Angle <input id="angle" type="range" min="15" max="165" value="45"><output id="angle-out">45°</output></label>
+      <label>Power <input id="power" type="range" min="25" max="100" value="60"><output id="power-out">60</output></label>
+      <select id="weapon"><option value="cannon">Cannon ∞</option><option value="heavy">Heavy Bomb</option><option value="triple">Triple Shot</option><option value="rocket">Rocket</option><option value="mega">Mega Bomb</option></select>
+      <button class="fire" id="fire-btn">Fire!</button><button id="end-btn">End Turn</button>
+    </div><p class="error" id="game-error"></p>
+    <div id="result" hidden><h2 id="result-text"></h2><button id="rematch-btn">Rematch</button><button class="danger" id="result-leave">Return to Menu</button><p id="rematch-status"></p></div>
+  </section>
+</main>
+<section class="question" id="question-overlay" hidden><div><p class="eyebrow">Turn Question</p><h2 id="question-prompt"></h2><section id="question-options"></section><p id="question-feedback"></p></div></section>
+<script type="module" src="../../shared/js/FirebaseManager.js"></script><script src="../../shared/js/PlatformManager.js"></script><script src="../../shared/js/QuestionManager.js"></script><script src="../../shared/js/MultiplayerManager.js"></script><script src="../../shared/js/MultiplayerQuestionHelper.js"></script><script src="game.js"></script>
+</body></html>

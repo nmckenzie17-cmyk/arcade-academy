@@ -81,6 +81,9 @@
       questionsAnswered: 0,
       correct: 0,
       incorrect: 0,
+      wins: 0,
+      losses: 0,
+      draws: 0,
       lastPlayed: null
     };
   }
@@ -216,6 +219,9 @@
       questionsAnswered: stats.questionsAnswered,
       correct: stats.correct,
       incorrect: stats.incorrect,
+      wins: stats.wins,
+      losses: stats.losses,
+      draws: stats.draws,
       percentageCorrect: stats.percentageCorrect,
       playTimeMs: stats.playTimeMs,
       activePlayTimeMs: stats.activePlayTimeMs,
@@ -286,6 +292,9 @@
         game.questionsAnswered = normalizeCount(stats.questionsAnswered);
         game.correct = normalizeCount(stats.correct);
         game.incorrect = normalizeCount(stats.incorrect);
+        game.wins = normalizeCount(stats.wins);
+        game.losses = normalizeCount(stats.losses);
+        game.draws = normalizeCount(stats.draws);
         game.playTimeMs = normalizeCount(stats.playTimeMs);
         game.activePlayTimeMs = normalizeCount(stats.activePlayTimeMs);
         game.lastPlayed = Number.isFinite(Number(stats.lastPlayed)) ? Number(stats.lastPlayed) : null;
@@ -614,6 +623,21 @@
     queueStatsSave(gameId ? [gameId] : undefined);
   }
 
+  function recordMultiplayerResult(gameId, result) {
+    if (!gameId || !['win', 'loss', 'draw'].includes(result)) return false;
+    const g = ensureGame(gameId);
+    g.wins = normalizeCount(g.wins);
+    g.losses = normalizeCount(g.losses);
+    g.draws = normalizeCount(g.draws);
+    if (result === 'win') g.wins += 1;
+    else if (result === 'loss') g.losses += 1;
+    else g.draws += 1;
+    touchActivity();
+    save();
+    queueStatsSave([gameId]);
+    return true;
+  }
+
   // ---- high scores --------------------------------------------------
 
   function setHighScore(gameId, score) {
@@ -815,6 +839,9 @@
       questionsAnswered: g.questionsAnswered,
       correct: g.correct,
       incorrect: g.incorrect,
+      wins: normalizeCount(g.wins),
+      losses: normalizeCount(g.losses),
+      draws: normalizeCount(g.draws),
       percentageCorrect: pct(g.correct, g.questionsAnswered),
       lastPlayed: g.lastPlayed,
       currentSessionStartTime: isCurrent ? currentSession.startedAt : null
@@ -846,6 +873,7 @@
 
     // questions
     recordQuestionAnswered,
+    recordMultiplayerResult,
 
     // high scores
     setHighScore,

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Play online Tic-Tac-Toe in Arcade Academy.">
+  <title>Tic-Tac-Toe | Arcade Academy</title>
+  <link rel="stylesheet" href="../../shared/css/global.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../../shared/css/multiplayer-game.css">
+</head>
+<body>
+  <main class="ttt-shell">
+    <header class="ttt-header">
+      <a href="../../index.html" class="back-link">← Arcade Academy</a>
+    </header>
+
+    <section class="ttt-card" id="loading-screen">
+      <div class="loader" aria-hidden="true"></div>
+      <p id="loading-message">Connecting to Arcade Academy…</p>
+    </section>
+
+    <section class="ttt-card" id="auth-screen" hidden>
+      <p class="eyebrow">Arcade Academy</p>
+      <h1>Tic-Tac-Toe</h1>
+      <p>Sign in with your Arcade Academy Google account to play online.</p>
+      <button class="action primary" id="sign-in-btn">Sign in with Google</button>
+      <p class="message error" id="auth-error" role="alert"></p>
+    </section>
+
+    <section class="ttt-card home-page" id="menu-screen" hidden>
+      <p class="eyebrow">Arcade Academy · 2 Player Online</p>
+      <h1>Tic-Tac-Toe</h1>
+      <p class="subtitle">Three in a row wins the show</p>
+
+      <div class="home-stats" aria-label="Tic-Tac-Toe statistics">
+        <div class="home-stat"><span id="home-wins">0</span><small>Wins</small></div>
+        <div class="home-stat"><span id="home-losses">0</span><small>Losses</small></div>
+        <div class="home-stat"><span id="home-draws">0</span><small>Draws</small></div>
+        <div class="home-stat"><span id="home-games">0</span><small>Games</small></div>
+      </div>
+
+      <h2 class="section-title">Description</h2>
+      <div class="description-list">
+        <p>❎ Create a private room and share its five-digit code with another signed-in student.</p>
+        <p>⭕ Take turns placing X and O. Make three in a row horizontally, vertically, or diagonally to win.</p>
+        <p>🔄 Both players must agree before a rematch begins.</p>
+        <p>📚 Answer correctly before your turn to place a mark. A wrong answer skips your turn.</p>
+        <p>🪙 Multiplayer games do not award scores or shared coins.</p>
+      </div>
+
+      <label class="question-type-label" for="question-type">Room question type</label>
+      <select class="question-type-select" id="question-type">
+        <option value="multichoice">Multiple Choice</option>
+        <option value="matching">Matching</option>
+        <option value="category">Category</option>
+      </select>
+
+      <div class="menu-actions">
+        <button class="action primary" id="create-btn">Create Game</button>
+        <button class="action secondary" id="show-join-btn">Join Game</button>
+      </div>
+      <p class="message error" id="menu-error" role="alert"></p>
+      <p class="created-by">Created by Mr McKenzie</p>
+      <p class="hub-link"><a href="../../index.html">🏛️ Back to Arcade Academy</a></p>
+    </section>
+
+    <section class="ttt-card" id="join-screen" hidden>
+      <p class="eyebrow">Join a friend</p>
+      <h1>Enter 5-digit room code</h1>
+      <form id="join-form" novalidate>
+        <label class="sr-only" for="room-input">Five-digit room code</label>
+        <input id="room-input" class="room-input" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="one-time-code" placeholder="48217">
+        <button class="action primary" id="join-btn" type="submit">Join</button>
+      </form>
+      <button class="text-button" id="join-back-btn" type="button">← Back</button>
+      <p class="message error" id="join-error" role="alert"></p>
+    </section>
+
+    <section class="ttt-card" id="room-screen" hidden>
+      <p class="eyebrow">Room code</p>
+      <div class="room-code" id="room-code">00000</div>
+      <p class="status-line" id="room-status">Waiting for opponent…</p>
+      <button class="action danger" id="cancel-room-btn">Leave Room</button>
+    </section>
+
+    <section class="ttt-card match-card" id="match-screen" hidden>
+      <p class="eyebrow">Tic-Tac-Toe · Room <span id="match-room-code"></span></p>
+      <div class="versus">
+        <div class="player-panel" id="player-one-panel"><strong id="player-one-name">Player 1</strong><span class="symbol x">X</span></div>
+        <span class="vs">VS</span>
+        <div class="player-panel" id="player-two-panel"><strong id="player-two-name">Player 2</strong><span class="symbol o">O</span></div>
+      </div>
+      <h2 class="turn-status" id="turn-status" aria-live="polite">Starting match…</h2>
+      <div class="board" id="board" role="grid" aria-label="Tic-Tac-Toe board"></div>
+      <p class="message error" id="match-error" role="alert"></p>
+      <div class="result-actions" id="result-actions" hidden>
+        <button class="action primary" id="rematch-btn">Play Again</button>
+        <p class="message" id="rematch-status"></p>
+      </div>
+      <button class="action danger leave-button" id="leave-btn">Leave Room</button>
+    </section>
+
+    <section class="question-overlay" id="question-overlay" hidden>
+      <div class="question-card">
+        <p class="eyebrow">Answer to take your turn</p>
+        <h2 id="question-prompt">Loading question…</h2>
+        <div class="question-options" id="question-options"></div>
+        <p class="message" id="question-feedback"></p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="../../shared/js/FirebaseManager.js"></script>
+  <script src="../../shared/js/PlatformManager.js"></script>
+  <script src="../../shared/js/QuestionManager.js"></script>
+  <script src="../../shared/js/MultiplayerManager.js"></script>
+  <script src="../../shared/js/MultiplayerQuestionHelper.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

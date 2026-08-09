@@ -1,0 +1,74 @@
+// Add this match block inside your existing:
+// service cloud.firestore { match /databases/{database}/documents { ... } }
+// Do not replace the existing /users or teacher-dashboard rules.
+
+match /matches/{matchId} {
+  function signedIn() {
+    return request.auth != null;
+  }
+
+  function isParticipant(data) {
+    return signedIn() && (
+      data.player1.uid == request.auth.uid ||
+      (data.player2 != null && data.player2.uid == request.auth.uid)
+    );
+  }
+
+  function coreIdentityUnchanged() {
+    return request.resource.data.gameId == resource.data.gameId
+      && request.resource.data.roomCode == resource.data.roomCode
+      && request.resource.data.player1 == resource.data.player1
+      && request.resource.data.createdAt == resource.data.createdAt;
+  }
+
+  function validNewRoom() {
+    return signedIn()
+      && request.resource.data.gameId in ["tic-tac-toe", "pixel-artillery"]
+      && request.resource.data.roomCode == matchId
+      && request.resource.data.roomCode.matches('^[0-9]{5}$')
+      && request.resource.data.player1.uid == request.auth.uid
+      && request.resource.data.player2 == null
+      && request.resource.data.status == "waiting"
+      && request.resource.data.currentTurn == null;
+  }
+
+  // Creating a collision-safe room uses a transaction that first gets the
+  // proposed five-digit document ID. That lookup must also work when the
+  // document does not exist. Match documents contain only the minimum public
+  // multiplayer data (UID and display name), never email/profile/stat data.
+  allow get: if signedIn();
+  allow list: if false;
+
+  allow create: if validNewRoom();
+
+  // Joining is the only update a non-participant can perform.
+  allow update: if signedIn() && coreIdentityUnchanged() && (
+    (
+      resource.data.status == "waiting"
+      && resource.data.player2 == null
+      && request.auth.uid != resource.data.player1.uid
+      && request.resource.data.player2.uid == request.auth.uid
+            && request.resource.data.status in ["playing", "lobby"]
+      && request.resource.data.currentTurn == resource.data.player1.uid
+      && request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(["player2", "status", "currentTurn", "updatedAt"])
+    )
+    ||
+    (
+      isParticipant(resource.data)
+      && request.resource.data.player2 == resource.data.player2
+      && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        "gameState", "status", "currentTurn", "winner", "round",
+        "startingPlayerUid", "rematchRequests", "rewardsClaimed",
+        "leftBy", "updatedAt"
+      ])
+    )
+  )
+  // Reclaim an abandoned or 24-hour-stale numeric code for a fresh room.
+  || (validNewRoom() && (
+    resource.data.status == "abandoned"
+    || request.time.toMillis() - resource.data.updatedAt > 86400000
+  ));
+
+  allow delete: if false;
+}
