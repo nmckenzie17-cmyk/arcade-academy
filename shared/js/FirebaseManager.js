@@ -243,7 +243,8 @@ function emptyCloudPlatformData() {
     },
     currentSession: null,
     lastActive: null,
-    favouriteGame: null
+    favouriteGame: null,
+    questionBanks: {}
   };
 }
 

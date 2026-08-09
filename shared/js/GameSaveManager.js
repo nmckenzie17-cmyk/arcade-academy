@@ -16,6 +16,9 @@
       "pixelJetpackDeathPity"
     ],
     "note-knowledge": ["noteknowledgeGameProgress"],
+    // Pinball progression is entirely PlatformManager-owned; the empty list
+    // still registers the game so teacher resets report success.
+    "pinball-postulation": [],
     "rocket-recall": [
       "rocketrecallGameProgress",
       "totalQuestionsCorrect",

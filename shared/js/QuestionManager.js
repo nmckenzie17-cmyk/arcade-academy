@@ -263,3 +263,8 @@ const QuestionManager = {
         });
     }
 };
+
+// Classic scripts can reference the top-level `QuestionManager` binding, but
+// reusable managers deliberately access shared services through `window`.
+// Export the same singleton there so both styles resolve to one bank state.
+if (typeof window !== 'undefined') window.QuestionManager = QuestionManager;

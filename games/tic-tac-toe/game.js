@@ -94,7 +94,7 @@
       if (!classCode) throw new Error('Return to the Hub and enter your class code before creating a multiplayer room.');
       const loaded = await MultiplayerQuestionHelper.load({ classCode, questionType });
       if (!loaded.ok) throw new Error('This class does not have that question type available. Choose another type or check the question bank.');
-      matchId = await MultiplayerManager.createRoom(GAME_ID, EMPTY_STATE(), { classCode, questionType });
+      matchId = await MultiplayerManager.createRoom(GAME_ID, EMPTY_STATE(), { questionType });
       localStorage.setItem(ACTIVE_MATCH_KEY, matchId);
       byId('room-code').textContent = matchId;
       showScreen('room');
@@ -149,16 +149,24 @@
     localStorage.setItem(ACTIVE_MATCH_KEY, nextMatch.id);
 
     const validQuestionSettings = nextMatch.settings
-      && nextMatch.settings.classCode
       && ['matching', 'multichoice', 'category'].includes(nextMatch.settings.questionType);
     if (!validQuestionSettings) {
       returnToMenu('That previous room used the old question system. Create a new room to continue.');
       return;
     }
 
-    const nextBankKey = `${nextMatch.settings?.classCode}:${nextMatch.settings?.questionType}`;
+    const localClassCode = PlatformManager.getClassCode();
+    if (!localClassCode) {
+      returnToMenu('Return to the Hub and enter your own class code before joining a room.');
+      return;
+    }
+    const localQuestionSettings = {
+      classCode: localClassCode,
+      questionType: nextMatch.settings.questionType
+    };
+    const nextBankKey = `${localClassCode}:${nextMatch.settings.questionType}`;
     if (questionBankKey !== nextBankKey) {
-      const loaded = await MultiplayerQuestionHelper.load(nextMatch.settings);
+      const loaded = await MultiplayerQuestionHelper.load(localQuestionSettings);
       if (!loaded.ok) {
         setMessage('loading-message', 'Unable to load this room’s question bank. Return to the Hub and check the class code.');
         showScreen('loading');

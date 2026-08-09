@@ -6,6 +6,7 @@ const gameFolders = [
   "shuriken-scholar",
   "wild-west-wordslinger",
   "cavern-crammer",
+  "pinball-postulation",
   "tic-tac-toe",
   "pixel-artillery"
 ];
@@ -64,11 +65,14 @@ const screens = {
   loading: document.querySelector("#loading-screen"),
   login: document.querySelector("#login-screen"),
   profileSetup: document.querySelector("#profile-setup-screen"),
+  seniorClass: document.querySelector("#senior-class-screen"),
   hub: document.querySelector("#hub-screen")
 };
 
 let currentUser = null;
+let currentProfile = null;
 let hubInitialized = false;
+let seniorClassExpiryTimer = null;
 
 
 function showScreen(name) {
@@ -135,8 +139,10 @@ function showProfileSetup(user) {
 // page reload) doesn't need to redo that work.
 function showHub(profile) {
 
+  currentProfile = profile;
   applyProfileToHub(profile);
   showScreen("hub");
+  scheduleSeniorClassExpiry(profile);
 
   if (!hubInitialized) {
     hubInitialized = true;
@@ -238,6 +244,28 @@ function parseYearNumber(yearLevelValue) {
 
 }
 
+function isSeniorYear(yearLevelValue) {
+  const year = parseYearNumber(yearLevelValue);
+  return year >= 11 && year <= 13;
+}
+
+function currentHourKey(date = new Date()) {
+  const pad = value => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}`;
+}
+
+function nextHourTimestamp() {
+  const next = new Date();
+  next.setMinutes(0, 0, 0);
+  next.setHours(next.getHours() + 1);
+  return next.getTime();
+}
+
+function hasCurrentSeniorClass(profile) {
+  return !isSeniorYear(profile?.yearLevel)
+    || profile?.seniorClassSelection?.hourKey === currentHourKey();
+}
+
 
 // Rebuilds the Class dropdown to match the chosen year level, reading
 // from the shared, easily-editable list in shared/data/classes.js.
@@ -320,6 +348,14 @@ async function handleProfileSetupSubmit(event) {
     className,
     email: currentUser.email || null
   };
+  if (isSeniorYear(yearLevel)) {
+    profile.seniorClassSelection = {
+      className,
+      hourKey: currentHourKey(),
+      selectedAt: Date.now(),
+      expiresAt: nextHourTimestamp()
+    };
+  }
 
   const created = await window.FirebaseManager.createUserProfile(currentUser.uid, profile);
 
@@ -331,6 +367,72 @@ async function handleProfileSetupSubmit(event) {
     showProfileError("Something went wrong saving your profile. Please try again.");
   }
 
+}
+
+// ------------------------------------------------------------------
+// Senior hourly subject-class selection
+// ------------------------------------------------------------------
+
+const seniorClassForm = document.querySelector("#senior-class-form");
+const seniorClassSelect = document.querySelector("#senior-class-select");
+const seniorClassSubmit = document.querySelector("#senior-class-submit");
+const seniorClassError = document.querySelector("#senior-class-error");
+const seniorClassLockMessage = document.querySelector("#senior-class-lock-message");
+
+function showSeniorClassSelection(profile) {
+  currentProfile = profile;
+  const year = parseYearNumber(profile.yearLevel);
+  const classes = window.CLASS_OPTIONS?.[year] || [];
+  seniorClassSelect.innerHTML = '<option value="" disabled selected>Select your current class</option>';
+  classes.forEach(className => {
+    const option = document.createElement("option");
+    option.value = className;
+    option.textContent = className;
+    seniorClassSelect.appendChild(option);
+  });
+  seniorClassSelect.disabled = classes.length === 0;
+  seniorClassSubmit.disabled = classes.length === 0;
+  seniorClassLockMessage.textContent = `This selection will be locked until ${new Date(nextHourTimestamp()).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`;
+  seniorClassError.hidden = true;
+  showScreen("seniorClass");
+}
+
+seniorClassForm?.addEventListener("submit", async event => {
+  event.preventDefault();
+  const className = seniorClassSelect.value;
+  if (!currentUser || !className) {
+    seniorClassError.textContent = "Choose the class you are currently attending.";
+    seniorClassError.hidden = false;
+    return;
+  }
+  seniorClassSubmit.disabled = true;
+  seniorClassSubmit.textContent = "Saving…";
+  const selection = {
+    className,
+    hourKey: currentHourKey(),
+    selectedAt: Date.now(),
+    expiresAt: nextHourTimestamp()
+  };
+  const saved = await window.FirebaseManager.updateUserProfile(currentUser.uid, {
+    className,
+    seniorClassSelection: selection
+  });
+  seniorClassSubmit.disabled = false;
+  seniorClassSubmit.textContent = "Enter Arcade Academy";
+  if (!saved) {
+    seniorClassError.textContent = "Your class could not be saved. Check your connection and try again.";
+    seniorClassError.hidden = false;
+    return;
+  }
+  currentProfile = { ...currentProfile, className, seniorClassSelection: selection };
+  showHub(currentProfile);
+});
+
+function scheduleSeniorClassExpiry(profile) {
+  clearTimeout(seniorClassExpiryTimer);
+  if (!isSeniorYear(profile?.yearLevel)) return;
+  const delay = Math.max(0, nextHourTimestamp() - Date.now()) + 250;
+  seniorClassExpiryTimer = setTimeout(() => showSeniorClassSelection(currentProfile), delay);
 }
 
 
@@ -757,7 +859,9 @@ async function handleAuthStateChanged(user) {
 
   if (profile) {
     await window.PlatformManager?.connectFirebase(user.uid);
-    showHub(profile);
+    currentProfile = profile;
+    if (hasCurrentSeniorClass(profile)) showHub(profile);
+    else showSeniorClassSelection(profile);
   } else {
     showProfileSetup(user);
   }

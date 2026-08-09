@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pinball Postulation</title>
+  <link rel="stylesheet" href="../../shared/css/global.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="pinball" aria-label="Pinball table"></canvas>
+
+  <div class="game-ui">
+    <div class="hud-panel">
+      <h1>Pinball Postulation</h1>
+      <p id="score-label">Score <strong id="score-value">0</strong></p>
+      <p id="combo-label" class="hidden">Combo ×<span id="combo-value">1.0</span></p>
+      <p id="high-score-label">High Score <strong id="high-score-value">0</strong></p>
+      <p id="coins-label">Coins <strong id="coins-value">0</strong></p>
+    </div>
+    <button class="btn launch-btn" onclick="requestLaunch()">Launch [Space]</button>
+  </div>
+
+  <button class="flipper-btn left" id="left-flip-btn">◄ Left</button>
+  <button class="flipper-btn right" id="right-flip-btn">Right ►</button>
+
+  <div id="game-over-overlay" class="hidden overlay-screen">
+    <div class="box result-box">
+      <h2 class="title-font">Game Over</h2>
+      <p id="final-score"></p>
+      <p id="new-high-score" class="hidden">New High Score!</p>
+      <button class="btn" onclick="restartGame()">Play Again</button>
+      <p class="hub-link"><a href="../../index.html">🏛️ Back to Arcade Academy</a></p>
+    </div>
+  </div>
+
+  <div id="home-screen" class="home-page">
+    <canvas id="home-bg"></canvas>
+    <div class="box home-box">
+      <h1 class="title-font">Pinball Postulation</h1>
+      <p class="subtitle-font">Flip. Think. Dominate the grid.</p>
+
+      <div class="home-stats">
+        <div><span>High Score</span><strong id="home-high-score">0</strong></div>
+        <div><span>Coins</span><strong id="home-coins">0</strong></div>
+        <div><span>Correct</span><strong id="home-correct">0</strong></div>
+        <div><span>Games</span><strong id="home-games">0</strong></div>
+      </div>
+
+      <p class="section-label-font">Description</p>
+      <div class="description-list">
+        <p>🕹️ Use ◄ Left / Right ► or Z and M to work the flippers.</p>
+        <p>📚 Answer a real class-bank question to earn each ball.</p>
+        <p>💥 Hit bumpers, triangles, gates and ramps to build combos.</p>
+        <p>🌀 Ride ramps, warp through wells and trigger multiball.</p>
+        <p>❤️ Keep the ball above the drain — you have three lives.</p>
+      </div>
+
+      <p id="bank-message" class="bank-message">Loading your class questions…</p>
+      <button class="btn start-btn" id="start-btn" onclick="startFromHomeScreen()" disabled>Press Start</button>
+      <p class="created-by">Created by Mr McKenzie</p>
+      <p class="hub-link"><a href="../../index.html">🏛️ Back to Arcade Academy</a></p>
+    </div>
+  </div>
+
+  <div id="question-overlay" class="hidden overlay-screen">
+    <div class="box question-box">
+      <p id="question-type-label" class="section-label-font"></p>
+      <h2 id="question-text"></h2>
+      <div id="question-options"></div>
+      <p id="question-feedback"></p>
+      <p class="question-hint">Answer correctly to earn a ball.</p>
+    </div>
+  </div>
+
+  <script src="../../shared/js/PlatformManager.js"></script>
+  <script src="../../shared/js/QuestionManager.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+html, body { width:100%; height:100%; overflow:hidden; background:var(--bg-primary); }
+body { margin:0; font-family:var(--font-body); }
+canvas { display:block; }
+.hidden { display:none !important; }
+
+.game-ui { position:absolute; inset:0 0 auto; z-index:10; display:flex; align-items:flex-start; justify-content:space-between; padding:14px; pointer-events:none; }
+.game-ui button { pointer-events:auto; }
+.hud-panel { padding:9px 13px; color:#fff; background:rgba(26,10,46,.82); border:1px solid var(--border-purple); border-radius:10px; box-shadow:var(--glow-card); }
+.hud-panel h1 { margin:0 0 8px; color:var(--accent-blue); font-family:var(--font-title); font-size:clamp(10px,2vw,14px); text-shadow:var(--glow-title-soft); }
+.hud-panel p { display:flex; justify-content:space-between; gap:14px; margin:4px 0; color:var(--accent-violet); font-size:12px; font-weight:700; }
+.hud-panel strong, #combo-label { color:var(--gold); }
+.launch-btn { font-size:12px; }
+
+.flipper-btn { position:absolute; bottom:24px; z-index:12; display:flex; align-items:center; justify-content:center; width:82px; height:82px; color:var(--accent-blue); font-weight:800; background:rgba(0,212,255,.12); border:3px solid var(--accent-blue); border-radius:50%; box-shadow:var(--glow-title-soft); user-select:none; touch-action:none; }
+.flipper-btn.left { left:24px; }
+.flipper-btn.right { right:24px; }
+.flipper-btn:active { background:rgba(0,212,255,.35); }
+
+.home-page { position:fixed; inset:0; z-index:50; display:flex; align-items:flex-start; overflow-y:auto; padding:clamp(24px,4vh,60px) 16px; background:var(--bg-primary); }
+#home-bg { position:absolute; inset:0; width:100%; height:100%; opacity:.45; pointer-events:none; }
+.home-box { position:relative; z-index:2; width:min(100%,560px); margin:auto; padding:12px 0; text-align:center; background:none; border:0; box-shadow:none; }
+.home-box h1 { margin:0; font-size:clamp(22px,5.5vw,38px); line-height:1.5; text-transform:none; }
+.home-box .subtitle-font { margin:6px 0 20px; }
+.home-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+.home-stats div { display:grid; gap:6px; text-align:center; }
+.home-stats span { color:var(--accent-blue); font-size:clamp(11px,2vw,14px); font-weight:700; }
+.home-stats strong { color:var(--gold); font-size:clamp(18px,2.6vw,22px); text-shadow:var(--glow-gold); }
+.description-list { margin:8px 0 16px; color:var(--accent-blue); font-size:clamp(13px,2vw,15px); line-height:1.7; text-align:left; }
+.description-list p { margin:2px 0; }
+.bank-message { min-height:18px; margin:0 0 14px; color:#aaa; font-size:12px; }
+.bank-message.error { color:var(--accent-rose); }
+.start-btn { width:100%; padding:14px; color:var(--accent-blue) !important; font-family:var(--font-title); font-size:clamp(12px,2vw,15px); letter-spacing:2px; text-transform:uppercase; }
+.created-by { margin:18px 0 0; color:var(--accent-blue); font-family:var(--font-title); font-size:9px; opacity:.6; }
+.hub-link { margin:12px 0 0; }
+.hub-link a { color:var(--accent-blue); font-size:12px; font-weight:700; text-decoration:none; }
+
+.overlay-screen { position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.88); }
+.result-box, .question-box { width:min(100%,480px); padding:28px; text-align:center; }
+.result-box h2 { color:var(--accent-blue); }
+#new-high-score { color:var(--gold); }
+.question-box h2 { color:var(--accent-blue); font-size:clamp(16px,3vw,20px); line-height:1.5; }
+#question-options { display:grid; gap:8px; margin:18px 0; }
+#question-options button { width:100%; text-align:left; }
+#question-feedback { min-height:1.5em; font-weight:800; }
+.question-hint { color:var(--accent-violet); font-size:12px; }
+
+@media (max-width:520px) {
+  .home-stats { grid-template-columns:repeat(2,1fr); }
+  .game-ui { padding:8px; }
+  .hud-panel h1 { display:none; }
+  .flipper-btn { bottom:14px; width:70px; height:70px; }
+  .flipper-btn.left { left:14px; }
+  .flipper-btn.right { right:14px; }
+}

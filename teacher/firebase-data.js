@@ -8,7 +8,8 @@ const gameFolders = [
   "rocket-recall",
   "shuriken-scholar",
   "wild-west-wordslinger",
-  "cavern-crammer"
+  "cavern-crammer",
+  "pinball-postulation"
 ];
 
 let studentDocuments = null;
@@ -150,6 +151,45 @@ function mapGameStats(gameStats, catalog) {
   }).sort((a, b) => (b.lastPlayed || 0) - (a.lastPlayed || 0));
 }
 
+function mapQuestionBankHistory(document) {
+  const banks = document?.platform?.questionBanks || {};
+  const dates = new Map();
+
+  Object.entries(banks).forEach(([code, bank]) => {
+    const label = bank.subject
+      ? `${bank.subject} (${code})`
+      : code;
+    Object.entries(bank.byDate || {}).forEach(([date, daily]) => {
+      if (!dates.has(date)) {
+        dates.set(date, {
+          date,
+          answered: 0,
+          correct: 0,
+          byGame: {},
+          bySubject: {},
+          byQuestionType: {}
+        });
+      }
+      const record = dates.get(date);
+      const answered = numberOrZero(daily.answered);
+      const correct = numberOrZero(daily.correct);
+      record.answered += answered;
+      record.correct += correct;
+      record.bySubject[label] = accuracy(correct, answered);
+    });
+  });
+
+  return Array.from(dates.values())
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((record) => ({
+      date: record.date,
+      overallAccuracy: accuracy(record.correct, record.answered),
+      byGame: record.byGame,
+      bySubject: record.bySubject,
+      byQuestionType: record.byQuestionType
+    }));
+}
+
 window.TeacherDataProvider = {
   clearCache() {
     studentDocuments = null;
@@ -210,8 +250,9 @@ window.TeacherDataProvider = {
     return { ...mapStudent(document, catalog), games: mapGameStats(games, catalog) };
   },
 
-  async getStudentHistory() {
-    return [];
+  async getStudentHistory(studentId) {
+    const students = await loadStudents();
+    return mapQuestionBankHistory(students.find((student) => student.uid === studentId));
   },
 
   async getGamesCatalog() {

@@ -115,6 +115,7 @@
         syncedUid: null
       },
       games: {}, // keyed by GAME_CONFIG.id -> emptyGameStats()
+      questionBanks: {}, // keyed by class/question-bank code, with daily accuracy history
       class: {
         code: null,      // e.g. "93bf" - the teacher/class code the student entered
         subject: null,   // e.g. "Maths" - resolved from banks.json
@@ -139,6 +140,7 @@
         sessions: Object.assign(fresh.sessions, parsed.sessions),
         activity: Object.assign(fresh.activity, parsed.activity),
         games: (parsed.games && typeof parsed.games === 'object') ? parsed.games : {},
+        questionBanks: (parsed.questionBanks && typeof parsed.questionBanks === 'object') ? parsed.questionBanks : {},
         class: Object.assign(fresh.class, parsed.class)
       };
     } catch (e) {
@@ -206,7 +208,8 @@
         durationMs: stats.currentSessionDurationMs
       } : null,
       lastActive: data.activity.lastActive,
-      favouriteGame: stats.favouriteGame
+      favouriteGame: stats.favouriteGame,
+      questionBanks: JSON.parse(JSON.stringify(data.questionBanks || {}))
     };
   }
 
@@ -281,6 +284,10 @@
 
     if (platformData && Number.isFinite(Number(platformData.lastActive))) {
       data.activity.lastActive = Number(platformData.lastActive);
+    }
+
+    if (platformData?.questionBanks && typeof platformData.questionBanks === 'object') {
+      data.questionBanks = platformData.questionBanks;
     }
 
     if (cloudGames && typeof cloudGames === 'object') {
@@ -617,6 +624,34 @@
       const g = ensureGame(gameId);
       g.questionsAnswered += 1;
       if (wasCorrect) g.correct += 1; else g.incorrect += 1;
+    }
+    const bankCode = data.class.code;
+    if (bankCode) {
+      const date = todayString();
+      const bank = data.questionBanks[bankCode] || {
+        code: bankCode,
+        subject: data.class.subject || bankCode,
+        bankPath: data.class.bankPath || null,
+        totalAnswered: 0,
+        totalCorrect: 0,
+        totalIncorrect: 0,
+        lastAnswered: null,
+        byDate: {}
+      };
+      bank.subject = data.class.subject || bank.subject || bankCode;
+      bank.bankPath = data.class.bankPath || bank.bankPath || null;
+      bank.totalAnswered = normalizeCount(bank.totalAnswered) + 1;
+      if (wasCorrect) bank.totalCorrect = normalizeCount(bank.totalCorrect) + 1;
+      else bank.totalIncorrect = normalizeCount(bank.totalIncorrect) + 1;
+      bank.lastAnswered = Date.now();
+      const daily = bank.byDate?.[date] || { answered: 0, correct: 0, incorrect: 0 };
+      daily.answered = normalizeCount(daily.answered) + 1;
+      if (wasCorrect) daily.correct = normalizeCount(daily.correct) + 1;
+      else daily.incorrect = normalizeCount(daily.incorrect) + 1;
+      bank.byDate = { ...(bank.byDate || {}), [date]: daily };
+      const dates = Object.keys(bank.byDate).sort();
+      dates.slice(0, Math.max(0, dates.length - 120)).forEach(oldDate => delete bank.byDate[oldDate]);
+      data.questionBanks[bankCode] = bank;
     }
     touchActivity();
     save();

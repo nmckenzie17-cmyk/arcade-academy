@@ -43,6 +43,33 @@
     </section>
   </main>
 
+  <!-- Senior students change subject classes throughout the day. Their
+       selection is locked only until the next clock-hour boundary. -->
+  <main class="site-shell auth-shell" id="senior-class-screen" hidden>
+    <section class="hero auth-hero" aria-labelledby="senior-class-title">
+      <p class="eyebrow"><span aria-hidden="true">✦</span> Current lesson</p>
+      <h1 id="senior-class-title">Choose your <span>class</span></h1>
+      <p class="hero-copy">Select the subject class you are in for this hour. It will lock until the next hour begins.</p>
+      <div class="hero-orb orb-one" aria-hidden="true">✦</div>
+      <div class="hero-orb orb-two" aria-hidden="true">★</div>
+      <div class="hero-grid" aria-hidden="true"></div>
+    </section>
+    <section class="class-section" aria-label="Choose current senior class">
+      <div class="class-card profile-card">
+        <div class="class-card-icon" aria-hidden="true">📚</div>
+        <div class="class-card-body">
+          <form id="senior-class-form" novalidate>
+            <label class="profile-label" for="senior-class-select">Class for this hour</label>
+            <select id="senior-class-select" class="class-input"></select>
+            <p class="class-hint" id="senior-class-lock-message"></p>
+            <p class="class-error" id="senior-class-error" role="alert" hidden></p>
+            <button type="submit" class="class-btn class-btn-primary profile-submit" id="senior-class-submit">Enter Arcade Academy</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
   <!-- ============================================================
        PROFILE SETUP — shown once, for first-time students, before
        they ever see the Hub

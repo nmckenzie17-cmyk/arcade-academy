@@ -5,6 +5,9 @@
   let questionType = null;
 
   async function load(settings) {
+    if (!global.QuestionManager || typeof global.QuestionManager.loadBank !== 'function') {
+      return { ok: false, error: 'QUESTION_MANAGER_UNAVAILABLE' };
+    }
     const type = settings?.questionType;
     const classCode = settings?.classCode;
     if (!['matching', 'multichoice', 'category'].includes(type) || !classCode) {
