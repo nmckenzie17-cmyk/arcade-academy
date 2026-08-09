@@ -14,9 +14,9 @@
  * inventories, cosmetic unlocks, per-game achievements, etc. — must stay
  * inside each game's own save system. Do not add that kind of data here.
  *
- * All data lives in localStorage under STORAGE_KEY below, so every game
- * on the same origin reads and writes the same platform stats automatically
- * with zero setup beyond including this script.
+ * Data is cached in localStorage under STORAGE_KEY below, so every game on
+ * the same origin can read it immediately. When Firebase Authentication is
+ * available, the shared coin balance is also synchronized to Firestore.
  *
  * USAGE
  * -----
@@ -106,6 +106,10 @@
         totalPlayTimeMs: 0,
         activePlayTimeMs: 0
       },
+      activity: {
+        lastActive: null,
+        syncedUid: null
+      },
       games: {}, // keyed by GAME_CONFIG.id -> emptyGameStats()
       class: {
         code: null,      // e.g. "93bf" - the teacher/class code the student entered
@@ -129,6 +133,7 @@
         coins: Object.assign(fresh.coins, parsed.coins),
         questions: Object.assign(fresh.questions, parsed.questions),
         sessions: Object.assign(fresh.sessions, parsed.sessions),
+        activity: Object.assign(fresh.activity, parsed.activity),
         games: (parsed.games && typeof parsed.games === 'object') ? parsed.games : {},
         class: Object.assign(fresh.class, parsed.class)
       };
@@ -140,6 +145,14 @@
 
   let data = load();
   let dirty = false;
+
+  // Firebase synchronization mirrors educator-relevant platform and per-game
+  // statistics. Game-specific progression remains local to each game.
+  let firebaseUid = null;
+  let firebaseConnectionPromise = null;
+  let firebaseConnected = false;
+  let firebaseWriteQueue = Promise.resolve();
+  let coinChangesWhileConnecting = 0;
 
   function save() {
     try {
@@ -153,8 +166,202 @@
 
   function markDirty() { dirty = true; }
 
+  function touchActivity() {
+    data.activity.lastActive = Date.now();
+    markDirty();
+  }
+
+  function normalizeCoinBalance(value) {
+    if (value === null || value === undefined || value === '') return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : null;
+  }
+
+  function buildPlatformSyncData() {
+    const stats = getOverallStats();
+    return {
+      coins: stats.coins.balance,
+      questions: {
+        date: data.questions.dailyDate,
+        totalAnswered: stats.totalQuestionsAnswered,
+        totalCorrect: stats.totalCorrect,
+        totalIncorrect: stats.totalIncorrect,
+        percentageCorrect: stats.overallPercentageCorrect,
+        dailyAnswered: stats.questionsAnsweredToday,
+        dailyCorrect: stats.correctAnsweredToday,
+        dailyIncorrect: stats.incorrectAnsweredToday
+      },
+      sessions: {
+        totalSessions: stats.totalSessionsPlayed,
+        totalPlayTimeMs: stats.totalPlayTimeMs,
+        activePlayTimeMs: stats.activePlayTimeMs
+      },
+      currentSession: currentSession ? {
+        gameId: currentSession.gameId,
+        startedAt: currentSession.startedAt,
+        durationMs: stats.currentSessionDurationMs
+      } : null,
+      lastActive: data.activity.lastActive,
+      favouriteGame: stats.favouriteGame
+    };
+  }
+
+  function buildGameSyncData(gameId) {
+    const stats = getGameStats(gameId);
+    if (!stats) return null;
+    return {
+      gamesPlayed: stats.gamesPlayed,
+      highScore: stats.highScore,
+      questionsAnswered: stats.questionsAnswered,
+      correct: stats.correct,
+      incorrect: stats.incorrect,
+      percentageCorrect: stats.percentageCorrect,
+      playTimeMs: stats.playTimeMs,
+      activePlayTimeMs: stats.activePlayTimeMs,
+      lastPlayed: stats.lastPlayed,
+      currentSessionStartTime: stats.currentSessionStartTime
+    };
+  }
+
+  function queueStatsSave(gameIds) {
+    if (!firebaseUid || !firebaseConnected || !global.FirebaseManager) return;
+
+    const uid = firebaseUid;
+    const platformSnapshot = buildPlatformSyncData();
+    const ids = gameIds
+      ? Array.from(new Set(gameIds.filter(Boolean)))
+      : Object.keys(data.games);
+    const gameSnapshots = ids.map(gameId => [gameId, buildGameSyncData(gameId)]);
+
+    firebaseWriteQueue = firebaseWriteQueue
+      .catch(() => false)
+      .then(async () => {
+        await global.FirebaseManager.updatePlatformData(uid, platformSnapshot);
+        await Promise.all(gameSnapshots.map(([gameId, snapshot]) =>
+          snapshot ? global.FirebaseManager.updateGameStats(uid, gameId, snapshot) : true
+        ));
+      });
+  }
+
+  function restorePlatformData(platformData, cloudGames) {
+    const cloudCoins = normalizeCoinBalance(platformData && platformData.coins);
+    if (cloudCoins !== null) data.coins.balance = cloudCoins;
+
+    const questions = platformData && platformData.questions;
+    if (questions && typeof questions === 'object') {
+      data.questions.totalAnswered = normalizeCount(questions.totalAnswered);
+      data.questions.totalCorrect = normalizeCount(questions.totalCorrect);
+      data.questions.totalIncorrect = normalizeCount(questions.totalIncorrect);
+      if (questions.date === todayString()) {
+        data.questions.dailyDate = questions.date;
+        data.questions.dailyAnswered = normalizeCount(questions.dailyAnswered);
+        data.questions.dailyCorrect = normalizeCount(questions.dailyCorrect);
+        data.questions.dailyIncorrect = normalizeCount(questions.dailyIncorrect);
+      } else {
+        data.questions.dailyDate = todayString();
+        data.questions.dailyAnswered = 0;
+        data.questions.dailyCorrect = 0;
+        data.questions.dailyIncorrect = 0;
+      }
+    }
+
+    const sessions = platformData && platformData.sessions;
+    if (sessions && typeof sessions === 'object') {
+      data.sessions.totalSessions = normalizeCount(sessions.totalSessions);
+      data.sessions.totalPlayTimeMs = normalizeCount(sessions.totalPlayTimeMs);
+      data.sessions.activePlayTimeMs = normalizeCount(sessions.activePlayTimeMs);
+    }
+
+    if (platformData && Number.isFinite(Number(platformData.lastActive))) {
+      data.activity.lastActive = Number(platformData.lastActive);
+    }
+
+    if (cloudGames && typeof cloudGames === 'object') {
+      Object.entries(cloudGames).forEach(([gameId, stats]) => {
+        if (!stats || typeof stats !== 'object') return;
+        const game = ensureGame(gameId);
+        game.gamesPlayed = normalizeCount(stats.gamesPlayed);
+        game.highScore = normalizeCount(stats.highScore);
+        game.questionsAnswered = normalizeCount(stats.questionsAnswered);
+        game.correct = normalizeCount(stats.correct);
+        game.incorrect = normalizeCount(stats.incorrect);
+        game.playTimeMs = normalizeCount(stats.playTimeMs);
+        game.activePlayTimeMs = normalizeCount(stats.activePlayTimeMs);
+        game.lastPlayed = Number.isFinite(Number(stats.lastPlayed)) ? Number(stats.lastPlayed) : null;
+      });
+    }
+  }
+
+  function normalizeCount(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+  }
+
+  async function connectFirebase(uid) {
+    if (!uid || !global.FirebaseManager) return false;
+    if (firebaseUid === uid && firebaseConnectionPromise) return firebaseConnectionPromise;
+
+    firebaseUid = uid;
+    firebaseConnected = false;
+    coinChangesWhileConnecting = 0;
+
+    const connectionAttempt = (async () => {
+      const [platformData, cloudGames] = await Promise.all([
+        global.FirebaseManager.getPlatformData(uid),
+        global.FirebaseManager.getAllGameStats(uid)
+      ]);
+      if (firebaseUid !== uid) return false;
+      if (platformData === undefined || cloudGames === undefined) return false;
+
+      const cloudBalance = normalizeCoinBalance(platformData && platformData.coins);
+      firebaseConnected = true;
+
+      const cloudLastActive = normalizeCount(platformData && platformData.lastActive);
+      const localIsNewer = data.activity.syncedUid === uid
+        && normalizeCount(data.activity.lastActive) > cloudLastActive;
+
+      if (cloudBalance === null || localIsNewer) {
+        // Migrate a first-time cache, or retain a newer cache for this UID.
+        data.activity.syncedUid = uid;
+        markDirty();
+        save();
+        queueStatsSave();
+      } else {
+        restorePlatformData(platformData, cloudGames);
+        data.coins.balance = Math.max(0, data.coins.balance + coinChangesWhileConnecting);
+        data.activity.syncedUid = uid;
+        markDirty();
+        save();
+        queueStatsSave();
+      }
+
+      coinChangesWhileConnecting = 0;
+      return true;
+    })();
+
+    firebaseConnectionPromise = connectionAttempt;
+    const connected = await connectionAttempt;
+
+    if (!connected && firebaseUid === uid && firebaseConnectionPromise === connectionAttempt) {
+      firebaseConnectionPromise = null;
+    }
+
+    return connected;
+  }
+
+  function disconnectFirebase() {
+    firebaseUid = null;
+    firebaseConnectionPromise = null;
+    firebaseConnected = false;
+    coinChangesWhileConnecting = 0;
+  }
+
   if (typeof global.setInterval === 'function') {
-    global.setInterval(() => { if (dirty) save(); }, AUTOSAVE_INTERVAL_MS);
+    global.setInterval(() => {
+      if (currentSession) reconcileCurrentSession();
+      if (dirty) save();
+      if (currentSession) queueStatsSave([currentSession.gameId]);
+    }, AUTOSAVE_INTERVAL_MS);
   }
 
   // ---- daily rollover --------------------------------------------------
@@ -180,7 +387,7 @@
   // The in-progress session lives only in memory (not persisted every tick)
   // so heartbeat() can be called every frame without hammering localStorage.
   // It's reconciled into `data` (and saved) on endSession / autosave / unload.
-  let currentSession = null; // { gameId, startTime, activeSince }
+  let currentSession = null; // { gameId, startedAt, lastReconciledAt, activeSince }
 
   function startSession(gameId) {
     if (!gameId) return;
@@ -190,14 +397,16 @@
     if (currentSession && currentSession.gameId === gameId) return; // already running, no-op
 
     rollDailyIfNeeded();
+    const now = Date.now();
     const g = ensureGame(gameId);
     g.gamesPlayed += 1;
-    g.lastPlayed = Date.now();
+    g.lastPlayed = now;
     data.sessions.totalSessions += 1;
+    currentSession = { gameId, startedAt: now, lastReconciledAt: now, activeSince: null };
+    data.activity.lastActive = now;
     markDirty();
     save();
-
-    currentSession = { gameId, startTime: Date.now(), activeSince: null };
+    queueStatsSave([gameId]);
   }
 
   // Folds the in-progress session's elapsed time into `data` without
@@ -207,10 +416,10 @@
     const now = Date.now();
     const g = ensureGame(currentSession.gameId);
 
-    const elapsed = Math.max(0, now - currentSession.startTime);
+    const elapsed = Math.max(0, now - currentSession.lastReconciledAt);
     g.playTimeMs += elapsed;
     data.sessions.totalPlayTimeMs += elapsed;
-    currentSession.startTime = now;
+    currentSession.lastReconciledAt = now;
 
     if (currentSession.activeSince !== null) {
       const activeElapsed = Math.max(0, now - currentSession.activeSince);
@@ -219,13 +428,16 @@
       currentSession.activeSince = now;
     }
     markDirty();
+    data.activity.lastActive = now;
   }
 
   function endSession(gameId) {
     if (!currentSession || (gameId && currentSession.gameId !== gameId)) return;
     reconcileCurrentSession();
+    const endedGameId = currentSession.gameId;
     currentSession = null;
     save();
+    queueStatsSave([endedGameId]);
   }
 
   // Call every frame/tick with whether the player is actively playing right
@@ -243,12 +455,13 @@
       data.sessions.activePlayTimeMs += activeElapsed;
       currentSession.activeSince = null;
       markDirty();
+      data.activity.lastActive = now;
     }
   }
 
   function getCurrentSessionDurationMs(gameId) {
     if (!currentSession || (gameId && currentSession.gameId !== gameId)) return 0;
-    return Date.now() - currentSession.startTime;
+    return Date.now() - currentSession.startedAt;
   }
 
   // Auto-flush on unload/backgrounding so a closed tab or a game the player
@@ -258,6 +471,7 @@
     const flushOnHide = () => {
       if (currentSession) reconcileCurrentSession();
       if (dirty) save();
+      queueStatsSave(currentSession ? [currentSession.gameId] : undefined);
     };
     global.addEventListener('pagehide', flushOnHide);
     global.addEventListener('beforeunload', flushOnHide);
@@ -279,8 +493,10 @@
     if (n > 0) {
       data.coins.balance += n;
       data.coins.totalEarned += n;
-      markDirty();
+      touchActivity();
       save();
+      if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting += n;
+      queueStatsSave();
     }
     return data.coins.balance;
   }
@@ -292,8 +508,10 @@
     if (data.coins.balance < n) return false;
     data.coins.balance -= n;
     data.coins.totalSpent += n;
-    markDirty();
+    touchActivity();
     save();
+    if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting -= n;
+    queueStatsSave();
     return true;
   }
 
@@ -316,8 +534,9 @@
       g.questionsAnswered += 1;
       if (wasCorrect) g.correct += 1; else g.incorrect += 1;
     }
-    markDirty();
+    touchActivity();
     save();
+    queueStatsSave(gameId ? [gameId] : undefined);
   }
 
   // ---- high scores --------------------------------------------------
@@ -329,8 +548,9 @@
     const g = ensureGame(gameId);
     if (n > g.highScore) {
       g.highScore = n;
-      markDirty();
+      touchActivity();
       save();
+      queueStatsSave([gameId]);
     }
   }
 
@@ -475,7 +695,7 @@
 
   function getOverallStats() {
     rollDailyIfNeeded();
-    const liveTotal = currentSession ? Math.max(0, Date.now() - currentSession.startTime) : 0;
+    const liveTotal = currentSession ? Math.max(0, Date.now() - currentSession.lastReconciledAt) : 0;
     const liveActive = (currentSession && currentSession.activeSince !== null)
       ? Math.max(0, Date.now() - currentSession.activeSince) : 0;
 
@@ -492,8 +712,10 @@
       questionsAnsweredToday: data.questions.dailyAnswered,
       correctAnsweredToday: data.questions.dailyCorrect,
       incorrectAnsweredToday: data.questions.dailyIncorrect,
-      currentSessionStartTime: currentSession ? currentSession.startTime : null,
-      currentSessionDurationMs: liveTotal,
+      currentSessionStartTime: currentSession ? currentSession.startedAt : null,
+      currentSessionDurationMs: currentSession ? Math.max(0, Date.now() - currentSession.startedAt) : 0,
+      currentActiveGame: currentSession ? currentSession.gameId : null,
+      lastActive: data.activity.lastActive,
       totalSessionsPlayed: data.sessions.totalSessions,
       totalPlayTimeMs: data.sessions.totalPlayTimeMs + liveTotal,
       activePlayTimeMs: data.sessions.activePlayTimeMs + liveActive,
@@ -505,7 +727,7 @@
     const g = data.games[gameId];
     if (!g) return null;
     const isCurrent = currentSession && currentSession.gameId === gameId;
-    const liveTotal = isCurrent ? Math.max(0, Date.now() - currentSession.startTime) : 0;
+    const liveTotal = isCurrent ? Math.max(0, Date.now() - currentSession.lastReconciledAt) : 0;
     const liveActive = (isCurrent && currentSession.activeSince !== null)
       ? Math.max(0, Date.now() - currentSession.activeSince) : 0;
 
@@ -519,7 +741,8 @@
       correct: g.correct,
       incorrect: g.incorrect,
       percentageCorrect: pct(g.correct, g.questionsAnswered),
-      lastPlayed: g.lastPlayed
+      lastPlayed: g.lastPlayed,
+      currentSessionStartTime: isCurrent ? currentSession.startedAt : null
     };
   }
 
@@ -540,6 +763,8 @@
     addCoins,
     spendCoins,
     getCoins,
+    connectFirebase,
+    disconnectFirebase,
 
     // questions
     recordQuestionAnswered,
@@ -562,5 +787,20 @@
     getAllGameStats,
     getFavouriteGame
   };
+
+  // Game pages include PlatformManager but do not need Firebase-specific
+  // code. Load the adjacent manager and restore the signed-in user there.
+  if (typeof document !== 'undefined' && document.currentScript && typeof global.FirebaseManager === 'undefined') {
+    const firebaseManagerUrl = new URL('FirebaseManager.js', document.currentScript.src).href;
+    import(firebaseManagerUrl)
+      .then(() => {
+        if (!global.FirebaseManager) return;
+        global.FirebaseManager.watchAuthState(user => {
+          if (user) connectFirebase(user.uid);
+          else disconnectFirebase();
+        });
+      })
+      .catch(error => console.error('Unable to start Firebase coin sync:', error));
+  }
 
 })(window);

@@ -490,3 +490,153 @@ body {
   .game-title { font-size: .85rem; }
   .game-stats { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   AUTH FLOW — loading / login / profile setup / player bar
+   ============================================================ */
+
+/* Author styles such as display:flex override the browser's built-in
+   [hidden] rule. Keep inactive app screens genuinely out of view. */
+#loading-screen[hidden],
+#login-screen[hidden],
+#profile-setup-screen[hidden],
+#hub-screen[hidden] {
+  display: none;
+}
+
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: linear-gradient(125deg, var(--panel-dark-2) 0%, var(--panel-dark) 45%, var(--border-purple) 100%);
+}
+
+.loading-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid rgba(255,255,255,.18);
+  border-top-color: var(--accent-pink);
+  border-radius: 50%;
+  animation: loading-spin 0.9s linear infinite;
+}
+
+.loading-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .9rem;
+  color: #d9d0ee;
+}
+
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Login + profile setup share the compact "auth" hero treatment */
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-hero {
+  min-height: 0;
+  padding-bottom: 3rem;
+}
+
+.google-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  margin-top: .4rem;
+}
+
+.google-btn-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: #fff;
+  color: #4285F4;
+  font-family: var(--font-title);
+  font-size: .75rem;
+}
+
+.auth-shell .class-error {
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/* Profile setup form */
+.profile-card {
+  align-items: stretch;
+}
+
+.profile-field {
+  margin-bottom: .9rem;
+}
+
+.profile-field:last-of-type {
+  margin-bottom: 0;
+}
+
+.profile-label {
+  display: block;
+  margin: 0 0 .4rem;
+  font-family: var(--font-body);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--accent-violet);
+}
+
+#profile-setup-form .class-input {
+  width: 100%;
+}
+
+#profile-setup-form select.class-input {
+  color: #fff;
+  background: rgba(0,0,0,.25);
+}
+
+.profile-submit {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+#profile-setup-form .class-error {
+  margin-top: .9rem;
+}
+
+/* Player bar (top of Hub) */
+.player-bar {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.player-bar-name {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .85rem;
+  color: #d9d0ee;
+}
+
+@media (max-width: 480px) {
+  .player-bar { flex-direction: column; align-items: stretch; gap: .6rem; }
+}

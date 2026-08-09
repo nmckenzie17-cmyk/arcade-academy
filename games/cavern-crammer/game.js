@@ -176,8 +176,8 @@ const session = {
   // run-long abilities, granted once via shrine rewards, never permanent across runs
   wallJump:false, wallJumpTier:0,
   extraJumps:0,
-  tripleJumpOwned:false, jumpChainCount:0,
-  dashOwned:false, shadowDash:false,
+  tripleJumpOwned:false, jumpChainCount:0, jumpChainWindow:0,
+  dashOwned:false, shadowDash:false, dashAirCharges:1, dashAirChargesUsed:0,
   warpCharges:0, warpTargeting:false,
   hoverOwned:false,
   featherFall:false,
@@ -203,15 +203,17 @@ const session = {
 
 function startingLives(){ return 3 + (save.upgrades.extraLives||0); }
 
+// Astronaut/Ninja/King are built and balanced but hidden from the select screen for now
+// (set hidden:false to bring a character back — no other code needs to change).
 const CHARACTERS = [
   { id:'wisp', name:'Wisp', tagline:'The lantern-bearer', desc:'Balanced in every way — no bonus, no drawback.',
     gravityMult:1, speedMult:1, jumpMult:1, maxHealthDelta:0, windImmune:false, startDash:false, magnetBonus:0, coinsSurvive:false, fallDamageMult:1, knockbackMult:1 },
   { id:'astronaut', name:'Astronaut', tagline:'Low-gravity drifter', desc:'Floaty jumps and falls, immune to wind gusts. -10% move speed (bulky suit).',
-    gravityMult:0.8, speedMult:0.9, jumpMult:1, maxHealthDelta:0, windImmune:true, startDash:false, magnetBonus:0, coinsSurvive:false, fallDamageMult:1, knockbackMult:1 },
+    gravityMult:0.8, speedMult:0.9, jumpMult:1, maxHealthDelta:0, windImmune:true, startDash:false, magnetBonus:0, coinsSurvive:false, fallDamageMult:1, knockbackMult:1, hidden:true },
   { id:'ninja', name:'Ninja', tagline:'Silent blade', desc:'Starts with Dash already unlocked, lands soft (half knockback/fall damage). -1 max health.',
-    gravityMult:1, speedMult:1, jumpMult:1, maxHealthDelta:-1, windImmune:false, startDash:true, magnetBonus:0, coinsSurvive:false, fallDamageMult:0.5, knockbackMult:0.6 },
+    gravityMult:1, speedMult:1, jumpMult:1, maxHealthDelta:-1, windImmune:false, startDash:true, magnetBonus:0, coinsSurvive:false, fallDamageMult:0.5, knockbackMult:0.6, hidden:true },
   { id:'king', name:'King', tagline:'Royal treasury', desc:'Passive coin magnet and coins always survive death. -10% jump height (heavy robes).',
-    gravityMult:1, speedMult:1, jumpMult:0.9, maxHealthDelta:0, windImmune:false, startDash:false, magnetBonus:30, coinsSurvive:true, fallDamageMult:1, knockbackMult:1 }
+    gravityMult:1, speedMult:1, jumpMult:0.9, maxHealthDelta:0, windImmune:false, startDash:false, magnetBonus:30, coinsSurvive:true, fallDamageMult:1, knockbackMult:1, hidden:true }
 ];
 function currentCharacter(){ return CHARACTERS.find(c=>c.id===save.character) || CHARACTERS[0]; }
 function applyCharacterStats(){
@@ -234,8 +236,8 @@ function resetSession(){
   session.rewardCounts = {};
   session.wallJump = save.upgrades.wallJump; session.wallJumpTier = save.upgrades.wallJump?1:0;
   session.extraJumps = 0;
-  session.tripleJumpOwned=false; session.jumpChainCount=0;
-  session.dashOwned=false; session.shadowDash=false;
+  session.tripleJumpOwned=false; session.jumpChainCount=0; session.jumpChainWindow=0;
+  session.dashOwned=false; session.shadowDash=false; session.dashAirCharges=1; session.dashAirChargesUsed=0;
   session.warpCharges=0; session.warpTargeting=false;
   session.hoverOwned=false;
   session.featherFall=false;
@@ -267,7 +269,7 @@ const player = {
   jumpsUsed:0,health:3,maxHealth:3,invincTimer:0,
   coyote:0,jumpBuffer:0,touchWall:0,standingPlatform:null,
   walkAnim:0, prevBottom:0,
-  dashTimer:0, dashCooldown:0, dashDir:1,
+  dashTimer:0, dashCooldown:0, dashDir:1, airDashUsed:0,
   hoverFuel:0, pounding:false
 };
 
@@ -819,14 +821,14 @@ function startLevel(idx){
   player.maxHealth = Math.max(1, 3 + save.upgrades.maxHealthBonus + currentCharacter().maxHealthDelta);
   player.health = player.maxHealth;
   player.x = level.spawn.x; player.y = level.spawn.y; player.vx=0; player.vy=0;
-  player.pounding=false; player.dashTimer=0; player.dashCooldown=0; player.hoverFuel=0;
+  player.pounding=false; player.dashTimer=0; player.dashCooldown=0; player.hoverFuel=0; player.airDashUsed=0;
   checkpointSpawn = {x:level.spawn.x, y:level.spawn.y};
   STATE = 'playing';
 }
 function respawnPlayer(){
   player.x = checkpointSpawn.x; player.y = checkpointSpawn.y;
   player.vx=0; player.vy=0; player.health = player.maxHealth; player.invincTimer=60;
-  player.pounding=false; player.dashTimer=0; player.dashCooldown=0; player.hoverFuel=0;
+  player.pounding=false; player.dashTimer=0; player.dashCooldown=0; player.hoverFuel=0; player.airDashUsed=0;
 }
 
 /* ============================= REWARD SYSTEM ============================= */
@@ -855,8 +857,11 @@ const REWARD_DEFS = [
     descFor:()=> 'Jump from the ground 3 times in a row (landing between each) — the third leaps twice as high, for the rest of this run.',
     apply:()=>{ session.tripleJumpOwned = true; bumpReward('tripleJump'); } },
   { id:'dash', label:'Dash', maxCount:1,
-    descFor:()=> 'Double-tap a direction to dash that way — works in midair too, for the rest of this run.',
+    descFor:()=> 'Double-tap a direction to dash that way. Unlimited on the ground; in midair you get one dash until you land again.',
     apply:()=>{ session.dashOwned = true; bumpReward('dash'); } },
+  { id:'airDash', label:'Extra Air Dash', maxCount:2, prereq:()=>session.dashOwned,
+    descFor:()=> `Adds one more midair dash charge before you need to land (currently ${session.dashAirCharges}, max 3).`,
+    apply:()=>{ session.dashAirCharges = Math.min(3, session.dashAirCharges+1); bumpReward('airDash'); } },
   { id:'shadowDash', label:'Shadow Dash', maxCount:1, prereq:()=>session.dashOwned,
     descFor:()=> 'Your dash now trails shadow and grants brief immunity while dashing.',
     apply:()=>{ session.shadowDash = true; bumpReward('shadowDash'); } },
@@ -1453,7 +1458,12 @@ function collideY(){
       }
     }
   }
+  const justLanded = landed && !player.onGround;
   player.onGround = landed;
+  if(landed) player.airDashUsed = 0;
+  // Triple-jump chain requires quick successive ground jumps — dawdling on the ground
+  // after landing lets the window expire and resets the combo (see updatePlayer).
+  if(justLanded && session.tripleJumpOwned && session.jumpChainCount>0) session.jumpChainWindow = 20;
   if(!landed) player.standingPlatform=null;
 }
 
@@ -1461,11 +1471,24 @@ function updatePlayer(){
   const dir = (input.right?1:0)-(input.left?1:0);
   if(dir!==0) player.facing = dir;
 
-  // dash: triggered by a double-tap, consumed here regardless of whether it fired
+  // Triple-jump chain must be kept alive with quick jumps — if the window granted on
+  // landing (see collideY) runs out before the next ground jump, the combo resets.
+  if(session.jumpChainCount>0){
+    if(session.jumpChainWindow>0) session.jumpChainWindow--;
+    else if(player.onGround) session.jumpChainCount = 0;
+  }
+
+  // dash: triggered by a double-tap, consumed here regardless of whether it fired.
+  // Grounded dashes are unlimited (just gated by the short reuse cooldown below); in the
+  // air the player has a pool of charges (1 by default, up to 3 with the Extra Air Dash
+  // reward) that only refills once they touch ground again.
   if(player.dashCooldown>0) player.dashCooldown--;
   if(input.dashRequest!==0){
-    if(session.dashOwned && player.dashCooldown<=0){
+    const airChargesLeft = session.dashAirCharges - player.airDashUsed;
+    const dashReady = session.dashOwned && player.dashCooldown<=0 && (player.onGround || airChargesLeft>0);
+    if(dashReady){
       player.dashTimer = 12; player.dashCooldown = 34; player.dashDir = input.dashRequest; player.facing = input.dashRequest;
+      if(!player.onGround) player.airDashUsed++;
       spawnParticles(player.x+player.w/2, player.y+player.h/2, session.shadowDash?14:8, session.shadowDash?'#2a2138':'#dff5fb', 2.2);
     }
     input.dashRequest = 0;
@@ -3004,7 +3027,12 @@ startBtn.addEventListener('click', ()=>{
 function renderCharGrid(){
   const grid = document.getElementById('charGrid');
   grid.innerHTML = '';
-  CHARACTERS.forEach(c=>{
+  // Safety net: if a save has a now-hidden character selected (e.g. from before this
+  // change), fall back to Wisp rather than leaving an unselectable character active.
+  if(!CHARACTERS.some(c=>c.id===save.character && !c.hidden)){
+    save.character = 'wisp'; saveDirty=true; persistSave();
+  }
+  CHARACTERS.filter(c=>!c.hidden).forEach(c=>{
     const active = save.character === c.id;
     const div = document.createElement('div');
     div.className = 'shopItem';

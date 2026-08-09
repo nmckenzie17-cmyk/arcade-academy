@@ -69,6 +69,12 @@ html, body {
 .hold-bar-fill { position: absolute; inset: 0 0 auto 0; height: 0%; background: #00ffff; box-shadow: 0 0 8px #00ffff; transition: height 0.08s linear; }
 .health-bar { transition: width 0.3s; }
 .scanlines::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); }
+/* Home-screen decorative canvas — positioned with plain CSS (not a
+   Tailwind utility class) so it's correctly sized and placed even if the
+   Tailwind CDN script hasn't finished applying yet, same as #bg-canvas
+   below. */
+#noteHomeBg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
 canvas#bg-canvas { position: fixed; inset: 0; z-index: -1; }
 
 .song-card { border: 2px solid var(--border-purple); background: var(--panel-dark); padding: 6px 8px; font-size: 7px; text-align: center; color: #ffffff; transition: all 0.2s; }

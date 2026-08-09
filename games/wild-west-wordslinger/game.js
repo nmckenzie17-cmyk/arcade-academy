@@ -27,6 +27,304 @@
   let currentBoss=null, bossState={};
   const STAGE_SCORE_STEP = 300; // score needed within a stage before the boss appears
 
+  // ===== In-run Roguelike Upgrade Cards =====
+  // Offered one-of-three after every boss defeat. Entirely reset each run.
+  // Cards can stack up to MAX_STACK times; several effects scale with stack count.
+  const UPGRADE_CARDS = [
+    { id:'piercing',   name:'Piercing Rounds',   icon:'🎯', rarity:'common', desc:'Kills also strike one other enemy on screen.' },
+    { id:'ricochet',   name:'Ricochet',          icon:'↩️', rarity:'common', desc:'Missed shots bounce and strike the nearest enemy.' },
+    { id:'spread',     name:'Spread Shot',       icon:'📐', rarity:'rare',   desc:'Kills also damage nearby enemies in a blast radius.' },
+    { id:'explosive',  name:'Explosive Rounds',  icon:'💥', rarity:'rare',   desc:'Kills trigger a bonus explosion that can finish off nearby enemies.' },
+    { id:'hollow',     name:'Hollow Points',     icon:'🪖', rarity:'common', desc:'Armored enemies go down in one less hit.' },
+    { id:'quickdraw',  name:'Quickdraw',         icon:'⏱️', rarity:'common', desc:'Chance for any shot to cost no ammo.' },
+    { id:'speedload',  name:'Speed Loader',      icon:'🔃', rarity:'common', desc:'Reload puzzles use a smaller, faster grid.' },
+    { id:'overflow',   name:'Overflow Chamber',  icon:'🔫', rarity:'common', desc:'+1 max ammo, right now.' },
+    { id:'hotreload',  name:'Hot Reload',        icon:'🔥', rarity:'rare',   desc:'After reloading, your next few shots are free.' },
+    { id:'mastery',    name:'Category Mastery',  icon:'📚', rarity:'common', desc:'Reload & start bonuses pay out more.' },
+    { id:'chain',      name:'Chain Lightning',   icon:'⚡', rarity:'rare',   desc:'High combos occasionally zap a bonus enemy dead.' },
+    { id:'adrenaline', name:'Adrenaline',        icon:'💉', rarity:'common', desc:'Missing only halves your combo instead of resetting it.' },
+    { id:'bounty',     name:'Bounty Hunter',     icon:'⭐', rarity:'rare',   desc:'Enemies occasionally spawn as Bounties worth 3x.' },
+    { id:'kevlar',     name:'Kevlar Vest',       icon:'🦺', rarity:'common', desc:'The first life you\'d lose each stage is blocked.' },
+    { id:'secondwind', name:'Second Wind',       icon:'❤️', rarity:'rare',   desc:'Once per run, survive a killing blow with 1 life.' },
+    { id:'horseshoe',  name:'Lucky Horseshoe',   icon:'🍀', rarity:'common', desc:'Chance to shrug off a life-losing mistake entirely.' },
+    { id:'magnet',     name:'Magnetic Draw',     icon:'🧲', rarity:'common', desc:'+1 bonus coin on every kill.' },
+    { id:'deadeye',    name:'Deadeye Focus',     icon:'👁️', rarity:'rare',   desc:'Chance for a kill to score double.' }
+  ];
+  const CURSE_CARDS = [
+    { id:'gamble',       name:"Outlaw's Gamble",    icon:'🎲', rarity:'curse', desc:'+50% score this run — but you\'re capped at 1 life.' },
+    { id:'fanning',      name:'Fanning the Hammer', icon:'🔫', rarity:'curse', desc:'Combo builds twice as fast — but every shot costs 2 ammo.' },
+    { id:'bloodmoney',   name:'Blood Money',        icon:'🩸', rarity:'curse', desc:'Double coins from every kill — but mistakes cost double lives.' },
+    { id:'glasscannon',  name:'Glass Cannon',       icon:'🍾', rarity:'curse', desc:'+75% score this run — but max ammo is cut by 2, right now.' },
+    { id:'triggerhappy', name:'Trigger Happy',      icon:'🌵', rarity:'curse', desc:'Never run out of ammo — but score gained is cut by 30%.' },
+    { id:'deadmanshand', name:"Dead Man's Hand",    icon:'💀', rarity:'curse', desc:'Double coins from every kill — but you lose a life every 45 seconds.' }
+  ];
+  const ALL_UPGRADE_CARDS = UPGRADE_CARDS.concat(CURSE_CARDS);
+  const MAX_STACK = 3;
+
+  let runUpgrades = {};          // id -> stack count, reset every run
+  let kevlarUsedThisStage = false;
+  let secondWindUsed = false;
+  let deadManHandTimer = null;
+  let runModifier = null;
+
+  function upStack(id) { return runUpgrades[id] || 0; }
+  function hasUp(id) { return upStack(id) > 0; }
+
+  function rollUpgradeOffer() {
+    // Commons/rares are far more likely to appear than curses; maxed-out cards drop out of the pool.
+    const pool = [];
+    ALL_UPGRADE_CARDS.forEach(c=>{
+      if (upStack(c.id) >= MAX_STACK) return;
+      const weight = c.rarity==='curse' ? 1 : (c.rarity==='rare' ? 2 : 4);
+      for (let i=0;i<weight;i++) pool.push(c);
+    });
+    const picks = [], usedIds = new Set();
+    let guard = 0;
+    while (picks.length < 3 && pool.length && guard < 300) {
+      guard++;
+      const c = pool[Math.floor(Math.random()*pool.length)];
+      if (!usedIds.has(c.id)) { picks.push(c); usedIds.add(c.id); }
+    }
+    return picks;
+  }
+
+  function showUpgradePicks() {
+    gameActive = false; clearInterval(spawnInterval);
+    kevlarUsedThisStage = false;
+    document.getElementById('upgrade-stage-num').textContent = stage;
+    const grid = document.getElementById('upgrade-pick-grid');
+    grid.innerHTML = '';
+    rollUpgradeOffer().forEach(card=>{
+      const stackCount = upStack(card.id);
+      const el = document.createElement('div');
+      el.className = 'upgrade-card powerup-card' + (card.rarity==='curse' ? ' curse' : '');
+      el.innerHTML =
+        '<p class="canva-text desc-font font-bold text-sm mb-1">' + card.icon + ' ' + card.name +
+        (stackCount>0 ? ' <span class="stack-badge">(Lv.'+(stackCount+1)+')</span>' : '') + '</p>' +
+        '<p class="text-xs text-gray-300 desc-font">' + card.desc + '</p>';
+      el.addEventListener('click', ()=>pickUpgrade(card.id));
+      grid.appendChild(el);
+    });
+    document.getElementById('upgrade-pick-overlay').classList.remove('hidden');
+  }
+
+  function pickUpgrade(id) {
+    runUpgrades[id] = upStack(id) + 1;
+    applyImmediateUpgradeEffect(id);
+    document.getElementById('upgrade-pick-overlay').classList.add('hidden');
+    updateHUD();
+    gameActive = true;
+    spawnInterval = setInterval(spawnEnemy, getSpawnDelay());
+  }
+
+  // A few cards need a one-time effect the moment they're picked (max ammo
+  // changes, life caps, timers) rather than a passive check elsewhere.
+  function applyImmediateUpgradeEffect(id) {
+    if (id==='overflow') { maxAmmo += 1; ammo = Math.min(maxAmmo, ammo+1); }
+    if (id==='glasscannon') { maxAmmo = Math.max(2, maxAmmo-2); ammo = Math.min(ammo, maxAmmo); }
+    if (id==='gamble') { lives = Math.min(lives, 1); }
+    if (id==='deadmanshand' && !deadManHandTimer) {
+      deadManHandTimer = setInterval(()=>{
+        if (!gameActive && !bossActive) return;
+        const area = document.getElementById('game-area');
+        loseLife(1, area, area.clientWidth/2-50, 50, "The Dead Man's Hand caught up with you.");
+      }, 45000);
+    }
+  }
+
+  // Centralizes every way the player can lose lives so defensive cards
+  // (Kevlar, Second Wind, Lucky Horseshoe) and curses (Blood Money) only
+  // need to be handled here instead of at every call site.
+  function loseLife(amount, area, x, y, reason) {
+    if (hasUp('bloodmoney')) amount *= 2;
+    const fx = x!=null ? x : (area ? area.clientWidth/2-40 : 20);
+    const fy = y!=null ? y : 60;
+    if (hasUp('horseshoe') && Math.random() < 0.1*upStack('horseshoe')) {
+      showFloatingText(fx, fy, '🍀 Lucky!', '#2ecc71', area);
+      return;
+    }
+    if (hasUp('kevlar') && !kevlarUsedThisStage) {
+      kevlarUsedThisStage = true;
+      showFloatingText(fx, fy, '🦺 Blocked!', '#00d4ff', area);
+      return;
+    }
+    lives = Math.max(0, lives - amount);
+    updateHUD();
+    if (lives <= 0) {
+      if (hasUp('secondwind') && !secondWindUsed) {
+        secondWindUsed = true;
+        lives = 1; updateHUD();
+        showFloatingText(fx, fy, '❤️ Second Wind!', '#ff69b4', area);
+      } else {
+        gameOverReason = reason || gameOverReason || 'Ran out of lives.';
+        endGame();
+      }
+    }
+  }
+
+  // Centralizes ammo spend so Trigger Happy / Fanning the Hammer / Quickdraw /
+  // Hot Reload only need to be handled here instead of at every shot site.
+  let freeShotsRemaining = 0;
+  function consumeAmmo(base) {
+    if (hasUp('triggerhappy')) return;
+    if (freeShotsRemaining > 0) { freeShotsRemaining--; return; }
+    let cost = base;
+    if (hasUp('fanning')) cost *= 2;
+    if (hasUp('quickdraw') && Math.random() < 0.12*upStack('quickdraw')) cost = 0;
+    ammo = Math.max(0, ammo - cost);
+  }
+
+  function upgradeScoreMult() {
+    let m = 1;
+    if (hasUp('gamble')) m *= 1.5;
+    if (hasUp('glasscannon')) m *= 1.75;
+    if (hasUp('triggerhappy')) m *= 0.7;
+    return m;
+  }
+  function upgradeCoinMult() {
+    let m = 1;
+    if (hasUp('bloodmoney')) m *= 2;
+    if (hasUp('deadmanshand')) m *= 2;
+    return m;
+  }
+  // Fully kills an enemy element (used by Explosive/Piercing/Chain Lightning
+  // to finish off a *different* enemy than the one directly clicked).
+  function finishOffEnemy(other, area) {
+    if (!other || other.dataset.dead || other.dataset.kind==='decoy') return;
+    const ox=parseInt(other.style.left), oy=parseInt(other.style.top);
+    other.dataset.dead='1';
+    if (other._expireTimer) clearTimeout(other._expireTimer);
+    stopTeleport(other); stopDrain(other);
+    const otherType = ENEMY_TYPES.find(t=>t.id===other.dataset.type) || ENEMY_TYPES[0];
+    comboStreak++;
+    const otherGain = Math.round(otherType.score * getComboMultiplier() * runScoreMult * upgradeScoreMult());
+    const otherCoins = Math.round(otherType.coins * runCoinMult * upgradeCoinMult()) + upStack('magnet');
+    killCount++; totalKills++; overallScore+=otherGain; sessionCoins+=otherCoins;
+    spawnDeathEffect(ox,oy,area);
+    other.style.transition='transform 0.25s, opacity 0.25s';
+    other.style.transform='scale(0) rotate(90deg)';other.style.opacity='0';
+    setTimeout(()=>other.remove(),300);
+  }
+  // Reduces an enemy's remaining hits by 1; returns true if that was its last hit
+  // (caller should then call finishOffEnemy on it).
+  function damageOtherEnemy(other) {
+    if (!other || other.dataset.dead || other.dataset.kind==='decoy') return false;
+    const hitsLeft = parseInt(other.dataset.hitsLeft||'1',10) - 1;
+    if (hitsLeft > 0) {
+      other.dataset.hitsLeft = String(hitsLeft);
+      other.classList.remove('armor-flash'); void other.offsetWidth; other.classList.add('armor-flash');
+      return false;
+    }
+    return true;
+  }
+
+  // ===== Random Start Modifiers ("Wanted: Special Conditions") =====
+  // Rolled once at the start of every run — never player-chosen. About half
+  // of runs get none at all so a "clean" run stays common.
+  const MODIFIERS = [
+    { id:'highnoon',  name:'High Noon',       desc:'Enemies spawn 30% faster — but score is worth +25% more.',
+      apply:()=>{ runSpawnRateMult *= 0.7; runScoreMult *= 1.25; } },
+    { id:'ghosttown', name:'Ghost Town',      desc:'Enemies spawn 25% slower — but escapes cost double lives.',
+      apply:()=>{ runSpawnRateMult *= 1.25; runModifier.escapePenaltyMult = 2; } },
+    { id:'payday',    name:'Payday',          desc:'Coins are worth +50% more — but max ammo is 1 less.',
+      apply:()=>{ runCoinMult *= 1.5; maxAmmo = Math.max(2, maxAmmo-1); ammo = Math.min(ammo, maxAmmo); } },
+    { id:'ironwill',  name:'Iron Will',       desc:'+1 life to start — but coins are worth 20% less.',
+      apply:()=>{ lives += 1; runCoinMult *= 0.8; } },
+    { id:'quicktrigger', name:'Quick Trigger', desc:'Reload puzzles are smaller — but max ammo is 1 less.',
+      apply:()=>{ runModifier.smallerReload = true; maxAmmo = Math.max(2, maxAmmo-1); ammo = Math.min(ammo, maxAmmo); } },
+    { id:'stormscoming', name:"Storm's Coming", desc:'Enemies vanish faster off-screen — but score is worth +20% more.',
+      apply:()=>{ runModifier.lifetimeMult = 0.75; runScoreMult *= 1.2; } }
+  ];
+
+  function rollModifier() {
+    runModifier = null;
+    if (Math.random() < 0.45) {
+      const def = MODIFIERS[Math.floor(Math.random()*MODIFIERS.length)];
+      runModifier = { id: def.id, name: def.name, desc: def.desc, escapePenaltyMult: 1, smallerReload: false, lifetimeMult: 1 };
+      def.apply();
+    }
+  }
+
+  function showModifierBanner(callback) {
+    if (!runModifier) { callback(); return; }
+    document.getElementById('modifier-banner-name').textContent = '📜 ' + runModifier.name;
+    document.getElementById('modifier-banner-desc').textContent = runModifier.desc;
+    document.getElementById('modifier-banner-overlay').classList.remove('hidden');
+    setTimeout(()=>{
+      document.getElementById('modifier-banner-overlay').classList.add('hidden');
+      callback();
+    }, 2200);
+  }
+
+  // ===== Quickdraw Duel =====
+  // A single high-value gunslinger challenges the player once per stage
+  // (weighted chance): find the correct word before the timer bar runs out.
+  let duelActive = false;
+  let duelUsedThisStage = false;
+  let duelTimerHandle = null;
+
+  function maybeTriggerDuel() {
+    if (duelUsedThisStage || bossActive || bossPreviewActive || duelActive || !gameActive) return;
+    if (Math.random() < 0.012) triggerDuel();
+  }
+
+  function triggerDuel() {
+    duelUsedThisStage = true; duelActive = true;
+    gameActive = false; clearInterval(spawnInterval);
+    const area = document.getElementById('game-area');
+    area.querySelectorAll('.enemy-wrap').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
+    const type = ENEMY_TYPES[Math.floor(Math.random()*ENEMY_TYPES.length)];
+    const canvas = document.getElementById('duel-canvas');
+    type.draw(canvas.getContext('2d'));
+    document.getElementById('duel-name').textContent = '👤 ' + type.name + ' calls you out!';
+    const cat = QuestionManager.getNextQuestion();
+    document.getElementById('duel-category').textContent = 'Tap: ' + cat.prompt;
+    const correctWord = cat.correct[Math.floor(Math.random()*cat.correct.length)];
+    const distractors = [...cat.distractors].sort(()=>Math.random()-0.5).slice(0,5);
+    const words = [correctWord, ...distractors].sort(()=>Math.random()-0.5);
+    const grid = document.getElementById('duel-grid');
+    grid.innerHTML = '';
+    let resolved = false;
+    const duration = 2600;
+    const fill = document.getElementById('duel-timer-fill');
+    fill.style.transition = 'none'; fill.style.width = '100%';
+    requestAnimationFrame(()=>{ fill.style.transition = 'width '+duration+'ms linear'; fill.style.width = '0%'; });
+    duelTimerHandle = setTimeout(()=>resolveDuel(false, cat, correctWord), duration);
+    words.forEach(w=>{
+      const cell = document.createElement('button');
+      cell.className = 'word-cell p-2 text-xs text-center rounded font-bold';
+      cell.textContent = w;
+      cell.addEventListener('click', ()=>{
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(duelTimerHandle);
+        resolveDuel(w===correctWord, cat, correctWord);
+      });
+      grid.appendChild(cell);
+    });
+    document.getElementById('duel-overlay').classList.remove('hidden');
+  }
+
+  function resolveDuel(won, cat, correctWord) {
+    document.getElementById('duel-overlay').classList.add('hidden');
+    duelActive = false;
+    const area = document.getElementById('game-area');
+    PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, won);
+    if (won) {
+      totalCorrectAnswers++; safeSave();
+      const bonusScore = Math.round(120 * runScoreMult);
+      const bonusCoins = Math.round(40 * runCoinMult);
+      overallScore += bonusScore; sessionCoins += bonusCoins; killCount++; totalKills++;
+      showFloatingText(area.clientWidth/2-70, area.clientHeight/2, '⚡ Quickdraw Win! +'+bonusScore+' / +'+bonusCoins+'🪙', '#2ecc71', area);
+      updateHUD(); checkStageProgress();
+      if (gameActive===false && !bossActive && !bossPreviewActive) { gameActive = true; spawnInterval = setInterval(spawnEnemy, getSpawnDelay()); }
+    } else {
+      showFloatingText(area.clientWidth/2-70, area.clientHeight/2, 'Too slow! It was "'+correctWord+'"', '#e74c3c', area);
+      loseLife(1, area, area.clientWidth/2-40, area.clientHeight/2+30, 'Lost a quickdraw duel — outdrawn!');
+      if (gameActive===false && !bossActive && !bossPreviewActive && lives>0) { gameActive = true; spawnInterval = setInterval(spawnEnemy, getSpawnDelay()); }
+    }
+  }
+
   // Persistent state
   let playerData = null; // the SDK record
   // NOTE: the persistent coin balance is NOT stored in a local field — it
@@ -760,8 +1058,13 @@
       return;
     }
     killCount=0; overallScore=0; sessionCoins=0; lives=3+livesLevel;
-    ammo=maxAmmo; gameActive=false; reloadOpen=false; gameOverReason='';
+    maxAmmo=5+bulletLevel; ammo=maxAmmo; gameActive=false; reloadOpen=false; gameOverReason='';
     comboStreak=0;
+    // Reset the roguelike run layer: upgrade cards, curse flags, duel/boss-stage
+    // flags, and any leftover timers/free-shot counters all reset every run.
+    runUpgrades={}; kevlarUsedThisStage=false; secondWindUsed=false;
+    duelActive=false; duelUsedThisStage=false; freeShotsRemaining=0;
+    if (deadManHandTimer) { clearInterval(deadManHandTimer); deadManHandTimer=null; }
     if (!platformSessionStarted) {
       PlatformManager.startSession(GAME_CONFIG.id);
       platformSessionStarted = true;
@@ -772,7 +1075,10 @@
     cleanupCurrentBoss();
     clearTimeout(bossIncomingTimer); bossPreviewActive=false;
     document.getElementById('boss-incoming-overlay').classList.add('hidden');
+    document.getElementById('upgrade-pick-overlay').classList.add('hidden');
+    document.getElementById('duel-overlay').classList.add('hidden');
     clearInterval(bossWordInterval);
+    rollModifier();
     updateHUD(); showScreen('game-screen');
     const area=document.getElementById('game-area');
     area.querySelectorAll('.enemy-wrap, .falling-word').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
@@ -781,11 +1087,13 @@
     document.getElementById('reload-overlay').classList.add('hidden');
     setTimeout(()=>drawBackground(stage),50);
     updateCrosshairCursor();
-    if (activePowerupsThisRun.length > 0) {
-      startPowerupAssessment();
-    } else {
-      startEnemySpawning();
-    }
+    showModifierBanner(()=>{
+      if (activePowerupsThisRun.length > 0) {
+        startPowerupAssessment();
+      } else {
+        startEnemySpawning();
+      }
+    });
   }
 
   // ===== Pre-run powerup assessment: 2 quick rounds, accuracy+speed set this run's multipliers =====
@@ -974,9 +1282,9 @@
       }
     } else {
       const type = ENEMY_TYPES.find(t=>t.id===wrap.dataset.type) || ENEMY_TYPES[0];
-      const lost = type.escapePenaltyLives || 1;
-      lives -= lost; updateHUD();
-      if (lives<=0) { gameOverReason = buildEscapeDeathMessage(type); endGame(); }
+      let lost = type.escapePenaltyLives || 1;
+      if (runModifier && runModifier.escapePenaltyMult) lost *= runModifier.escapePenaltyMult;
+      loseLife(lost, document.getElementById('game-area'), parseInt(wrap.style.left)||null, parseInt(wrap.style.top)||null, buildEscapeDeathMessage(type));
     }
   }
   function startTeleport(wrap, areaW, areaH, intervalMs) {
@@ -1003,11 +1311,13 @@
     const isDecoy = Math.random() < DECOY_CHANCE;
     const type = isDecoy ? DECOY_TYPES[Math.floor(Math.random()*DECOY_TYPES.length)] : pickEnemyType();
 
+    const isBounty = !isDecoy && hasUp('bounty') && Math.random() < 0.06*upStack('bounty');
     const wrap=document.createElement('div');
-    wrap.className = 'enemy-wrap' + (isDecoy ? ' decoy-glow' : (type.cssClass ? ' '+type.cssClass : ''));
+    wrap.className = 'enemy-wrap' + (isDecoy ? ' decoy-glow' : (isBounty ? ' gold-glow' : (type.cssClass ? ' '+type.cssClass : '')));
     wrap.dataset.kind = isDecoy ? 'decoy' : 'enemy';
     wrap.dataset.type = type.id;
     wrap.dataset.hitsLeft = isDecoy ? '1' : String(type.hits);
+    if (isBounty) wrap.dataset.bounty = '1';
     const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;canvas.style.width='128px';canvas.style.height='128px';
     type.draw(canvas.getContext('2d'));wrap.appendChild(canvas);
     wrap.style.left=Math.random()*(areaW-150)+'px';
@@ -1020,7 +1330,8 @@
     // Card Shark drains coins every second while alive
     if (!isDecoy && type.drainsCoins) startDrain(wrap);
 
-    const lifetime = getEnemyLifetime() * (isDecoy ? 1 : type.lifetimeMult);
+    const modLifetimeMult = (runModifier && runModifier.lifetimeMult) ? runModifier.lifetimeMult : 1;
+    const lifetime = getEnemyLifetime() * (isDecoy ? 1 : type.lifetimeMult) * modLifetimeMult;
     scheduleExpiry(wrap, lifetime);
   }
 
@@ -1032,32 +1343,31 @@
     if (isDecoy) {
       // Penalize: never shoot the townsfolk!
       comboStreak = 0;
-      ammo--; el.dataset.dead='1';
+      consumeAmmo(1); el.dataset.dead='1';
       if (el._expireTimer) clearTimeout(el._expireTimer);
       stopTeleport(el); stopDrain(el);
       spawnDeathEffect(x,y,area);
       el.style.transition='transform 0.25s, opacity 0.25s';
       el.style.transform='scale(0) rotate(90deg)';el.style.opacity='0';
       overallScore -= type.penaltyScore;
-      lives = Math.max(0, lives - type.penaltyLives);
       showFloatingText(x,y,'-'+type.penaltyScore+' '+type.warning,'#e74c3c',area);
       updateHUD(); updateEnemySpawning();
       setTimeout(()=>el.remove(),300);
-      if (lives<=0) { gameOverReason = `Ran out of lives — you shot ${type.name}! ${type.warning} Watch for the townsfolk before you pull the trigger.`; endGame(); return; }
+      loseLife(type.penaltyLives, area, x, y, `Ran out of lives — you shot ${type.name}! ${type.warning} Watch for the townsfolk before you pull the trigger.`);
       return;
     }
 
-    // Armored Outlaw needs a second hit before it goes down
-    let hitsLeft = parseInt(el.dataset.hitsLeft || '1', 10) - 1;
+    // Armored Outlaw needs a second hit before it goes down (Hollow Points skips one)
+    let hitsLeft = parseInt(el.dataset.hitsLeft || '1', 10) - 1 - upStack('hollow');
     if (hitsLeft > 0) {
-      ammo--; el.dataset.hitsLeft = String(hitsLeft);
+      consumeAmmo(1); el.dataset.hitsLeft = String(hitsLeft);
       el.classList.remove('armor-flash'); void el.offsetWidth; el.classList.add('armor-flash');
       showFloatingText(x,y,'Armor cracked!','#ffffff',area);
       updateHUD();
       return;
     }
 
-    ammo--;el.dataset.dead='1';
+    consumeAmmo(1);el.dataset.dead='1';
     if (el._expireTimer) clearTimeout(el._expireTimer);
     stopTeleport(el); stopDrain(el);
     spawnDeathEffect(x,y,area);
@@ -1065,10 +1375,19 @@
     el.style.transform='scale(0) rotate(90deg)';el.style.opacity='0';
     const coinMult = runCoinMult;
     comboStreak++;
-    const mult = getComboMultiplier() * runScoreMult;
+    const isBounty = el.dataset.bounty==='1';
+    const critHit = hasUp('deadeye') && Math.random() < 0.15*upStack('deadeye');
+    let mult = getComboMultiplier() * runScoreMult * upgradeScoreMult();
+    if (critHit) mult *= 2;
+    if (isBounty) mult *= 3;
     const scoreGain = Math.round(type.score * mult);
-    killCount++;totalKills++;overallScore+=scoreGain;sessionCoins+=Math.round(type.coins*coinMult);
-    showFloatingText(x,y,'+'+scoreGain+(mult>1?' ('+mult.toFixed(1)+'x)':''),'#2ecc71',area);
+    let coinsGain = Math.round(type.coins*coinMult*upgradeCoinMult()) + upStack('magnet');
+    if (isBounty) coinsGain *= 3;
+    killCount++;totalKills++;overallScore+=scoreGain;sessionCoins+=coinsGain;
+    let label = '+'+scoreGain+(mult>1?' ('+mult.toFixed(1)+'x)':'');
+    if (critHit) label = '💥 CRIT! '+label;
+    if (isBounty) label = '⭐ BOUNTY! '+label;
+    showFloatingText(x,y,label,'#2ecc71',area);
 
     // Vulture Scout: refunds a shot when downed
     if (type.refundsAmmo && ammo < maxAmmo) {
@@ -1085,27 +1404,58 @@
         if (other===el || other.dataset.dead || other.dataset.kind==='decoy') return;
         const ox=parseInt(other.style.left), oy=parseInt(other.style.top);
         const dist=Math.hypot(ox-x, oy-y);
-        if (dist < 170) {
-          other.dataset.dead='1';
-          if (other._expireTimer) clearTimeout(other._expireTimer);
-          stopTeleport(other); stopDrain(other);
-          const otherType = ENEMY_TYPES.find(t=>t.id===other.dataset.type) || ENEMY_TYPES[0];
-          comboStreak++;
-          const otherGain = Math.round(otherType.score * getComboMultiplier() * runScoreMult);
-          killCount++; totalKills++; overallScore+=otherGain; sessionCoins+=Math.round(otherType.coins*coinMult);
-          spawnDeathEffect(ox,oy,area);
-          other.style.transition='transform 0.25s, opacity 0.25s';
-          other.style.transform='scale(0) rotate(90deg)';other.style.opacity='0';
-          setTimeout(()=>other.remove(),300);
-        }
+        if (dist < 170) finishOffEnemy(other, area);
       });
     }
 
-    updateHUD();updateEnemySpawning();checkStageProgress();setTimeout(()=>el.remove(),300);
+    // Explosive Rounds upgrade: bonus blast finishes off weak enemies nearby
+    if (hasUp('explosive')) {
+      const radius = 90 + upStack('explosive')*30;
+      area.querySelectorAll('.enemy-wrap').forEach(other=>{
+        if (other===el || other.dataset.dead || other.dataset.kind==='decoy') return;
+        const ox=parseInt(other.style.left), oy=parseInt(other.style.top);
+        if (Math.hypot(ox-x, oy-y) < radius) finishOffEnemy(other, area);
+      });
+    }
+
+    // Spread Shot upgrade: damages (doesn't always kill) a few nearby enemies
+    if (hasUp('spread')) {
+      let hitCount = 0; const maxHits = upStack('spread')*2;
+      area.querySelectorAll('.enemy-wrap').forEach(other=>{
+        if (hitCount>=maxHits || other===el || other.dataset.dead || other.dataset.kind==='decoy') return;
+        const ox=parseInt(other.style.left), oy=parseInt(other.style.top);
+        if (Math.hypot(ox-x, oy-y) < 140) { hitCount++; if (damageOtherEnemy(other)) finishOffEnemy(other, area); }
+      });
+    }
+
+    // Piercing Rounds upgrade: strike additional enemies elsewhere on screen
+    if (hasUp('piercing')) {
+      const others = [...area.querySelectorAll('.enemy-wrap')].filter(o=>o!==el && !o.dataset.dead && o.dataset.kind!=='decoy');
+      others.sort(()=>Math.random()-0.5).slice(0, upStack('piercing')).forEach(other=>{
+        if (damageOtherEnemy(other)) finishOffEnemy(other, area);
+      });
+    }
+
+    // Chain Lightning upgrade: big combos occasionally zap a bonus enemy dead
+    if (hasUp('chain') && comboStreak>=3 && Math.random() < 0.15*upStack('chain')) {
+      const others = [...area.querySelectorAll('.enemy-wrap')].filter(o=>o!==el && !o.dataset.dead && o.dataset.kind!=='decoy');
+      if (others.length) {
+        const target = others[Math.floor(Math.random()*others.length)];
+        const tx=parseInt(target.style.left), ty=parseInt(target.style.top);
+        finishOffEnemy(target, area);
+        showFloatingText(tx,ty-16,'⚡ Chain!','#00d4ff',area);
+      }
+    }
+
+    updateHUD();updateEnemySpawning();checkStageProgress();maybeTriggerDuel();setTimeout(()=>el.remove(),300);
   }
 
   async function endGame() {
     gameActive=false;clearInterval(spawnInterval);
+    if (deadManHandTimer) { clearInterval(deadManHandTimer); deadManHandTimer=null; }
+    clearTimeout(duelTimerHandle); duelActive=false;
+    document.getElementById('duel-overlay').classList.add('hidden');
+    document.getElementById('upgrade-pick-overlay').classList.add('hidden');
     clearTimeout(bossIncomingTimer); bossPreviewActive=false;
     document.getElementById('boss-incoming-overlay').classList.add('hidden');
     document.getElementById('game-area').querySelectorAll('.enemy-wrap').forEach(e=>{ if(e._teleportTimer) clearInterval(e._teleportTimer); });
@@ -1285,11 +1635,11 @@
       e.stopPropagation();
       if (!bossActive || ammo<=0) return;
       if (bossState.dodging) {
-        ammo--; updateHUD();
+        consumeAmmo(1); updateHUD();
         showFloatingText(area.clientWidth/2-30, area.clientHeight/2, 'Dodged!', '#7fdfff', area);
         return;
       }
-      ammo--;
+      consumeAmmo(1);
       let dmg = 5;
       if (bossDef.modifyDamage) dmg = bossDef.modifyDamage(dmg, bossState);
       damageBoss(dmg, area);
@@ -1354,9 +1704,8 @@
       } else {
         PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
         ammo = Math.max(0, ammo-1);
-        lives = Math.max(0, lives-1);
         showFloatingText(x,y-16,'Wrong!','#e74c3c',area);
-        if (lives<=0) { gameOverReason = 'Ran out of lives — you missed a word during the boss fight! Slow down and double-check each word before you shoot it.'; endGame(); }
+        loseLife(1, area, x, y-16, 'Ran out of lives — you missed a word during the boss fight! Slow down and double-check each word before you shoot it.');
       }
       updateHUD();
       el.remove();
@@ -1364,10 +1713,8 @@
     setTimeout(()=>{
       if (el.parentNode && !el.dataset.dead) {
         if (isBomb && bossActive) {
-          lives = Math.max(0, lives-1);
           showFloatingText(parseFloat(el.style.left), areaH-40, '💥 Boom!', '#e74c3c', area);
-          updateHUD();
-          if (lives<=0) { gameOverReason = 'Ran out of lives — a Boom Baron bomb went off! Defuse the 💣 before it lands.'; endGame(); }
+          loseLife(1, area, parseFloat(el.style.left), areaH-40, 'Ran out of lives — a Boom Baron bomb went off! Defuse the 💣 before it lands.');
         }
         el.remove();
       }
@@ -1398,10 +1745,11 @@
     }
     stage++;
     stageStartScore = overallScore;
+    duelUsedThisStage = false;
     showFloatingText(area.clientWidth/2-70, 40, '🏁 Stage ' + stage + ' — onward!', '#2ecc71', area);
     drawBackground(stage);
     updateHUD();
-    if (gameActive) spawnInterval = setInterval(spawnEnemy, getSpawnDelay());
+    setTimeout(showUpgradePicks, 900);
   }
 
   function openReload() {
@@ -1434,18 +1782,23 @@
     const cat = QuestionManager.getNextQuestion();
     document.getElementById('reload-category').textContent=cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
-    const words=[...cat.correct,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);
+    // Speed Loader / Quick Trigger shrink the grid (fewer distractors to sift through)
+    let cellCount = 16 - 2*upStack('speedload');
+    if (runModifier && runModifier.smallerReload) cellCount -= 2;
+    cellCount = Math.max(cat.correct.length + 4, Math.min(16, cellCount));
+    const words=[...cat.correct,...shuffled.slice(0,Math.max(0,cellCount-cat.correct.length))].sort(()=>Math.random()-0.5);
     const grid=document.getElementById('reload-grid');grid.innerHTML='';grid.className='grid grid-cols-4 gap-2';grid.style.pointerEvents='';
     let found=0;
     let wrongCount=0;
-    const updateScore=()=>{const t=Math.max(50,2000-(Date.now()-reloadStartTime)/4);document.getElementById('reload-score').textContent='+'+t+' Points';};
+    const masteryMult = 1 + 0.25*upStack('mastery');
+    const updateScore=()=>{const t=Math.max(50,Math.round((2000-(Date.now()-reloadStartTime)/4)*masteryMult));document.getElementById('reload-score').textContent='+'+t+' Points';};
     updateScore();const si=setInterval(updateScore,100);
-    words.slice(0,16).forEach(w=>{
+    words.slice(0,cellCount).forEach(w=>{
       const cell=document.createElement('button');
       cell.className='word-cell p-2 text-xs text-center rounded font-bold';cell.textContent=w;
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected')||cell.classList.contains('wrong'))return;
-        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){clearInterval(si);totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);const bonus=Math.max(50,2000-(Date.now()-reloadStartTime)/4);overallScore+=bonus;ammo=maxAmmo;updateHUD();closeReload();checkStageProgress();}}
+        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){clearInterval(si);totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);const bonus=Math.max(50,Math.round((2000-(Date.now()-reloadStartTime)/4)*masteryMult));overallScore+=bonus;ammo=maxAmmo;if(hasUp('hotreload'))freeShotsRemaining+=2*upStack('hotreload');updateHUD();closeReload();checkStageProgress();}}
         else{
           cell.classList.add('wrong');wrongCount++;
           PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
@@ -1465,8 +1818,27 @@
     if (!gameActive || ammo<=0) return;
     const area = document.getElementById('game-area');
     const rect = area.getBoundingClientRect();
-    ammo--; comboStreak=0; updateHUD();
-    showFloatingText(e.clientX-rect.left-30, e.clientY-rect.top-10, 'MISS', '#e74c3c', area);
+    consumeAmmo(1);
+    comboStreak = hasUp('adrenaline') ? Math.floor(comboStreak/2) : 0;
+    updateHUD();
+    const mx = e.clientX-rect.left-30, my = e.clientY-rect.top-10;
+    showFloatingText(mx, my, 'MISS', '#e74c3c', area);
+    // Ricochet upgrade: the missed shot bounces to the nearest live enemy
+    if (hasUp('ricochet')) {
+      const others = [...area.querySelectorAll('.enemy-wrap')].filter(o=>!o.dataset.dead && o.dataset.kind!=='decoy');
+      if (others.length) {
+        let nearest=null, best=Infinity;
+        others.forEach(o=>{
+          const ox=parseInt(o.style.left), oy=parseInt(o.style.top);
+          const d=Math.hypot(ox-mx, oy-my);
+          if (d<best) { best=d; nearest=o; }
+        });
+        if (nearest) {
+          showFloatingText(parseInt(nearest.style.left), parseInt(nearest.style.top)-16, '↩️ Ricochet!', '#00d4ff', area);
+          if (damageOtherEnemy(nearest)) finishOffEnemy(nearest, area);
+        }
+      }
+    }
     updateEnemySpawning();
   });
 

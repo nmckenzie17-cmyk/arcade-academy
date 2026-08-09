@@ -152,6 +152,37 @@
      <p id="boss-incoming-hint" class="subtitle-font text-center" style="font-size:clamp(15px, 3.5vw, 20px);"></p>
     </div>
    </div>
+   <!-- Run Modifier Banner -->
+   <div id="modifier-banner-overlay" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/80 p-0">
+    <div class="canva-card p-5 flex flex-col items-center gap-2" style="max-width:min(85%, 440px);">
+     <p class="title-font text-center" style="color:#d4af37;font-size:clamp(13px, 3vw, 17px);letter-spacing:2px;">📜 WANTED: SPECIAL CONDITIONS</p>
+     <p id="modifier-banner-name" class="title-font text-center" style="font-size:clamp(15px, 3.5vw, 20px);"></p>
+     <p id="modifier-banner-desc" class="canva-text desc-font text-center" style="font-size:clamp(12px, 2.6vw, 15px);"></p>
+    </div>
+   </div>
+   <!-- Run Upgrade Pick Overlay -->
+   <div id="upgrade-pick-overlay" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/85 p-0">
+    <div class="canva-card p-5 rounded flex flex-col items-center" style="width:92%;max-width:640px;max-height:90%;overflow-y:auto;">
+     <h2 class="canva-text title-font font-bold text-center mb-1" style="font-size:clamp(18px, 4vw, 26px);">🃏 Choose Your Upgrade</h2>
+     <p class="canva-text desc-font text-center mb-4 opacity-70" style="font-size:clamp(12px, 2.5vw, 15px);">Stage <span id="upgrade-stage-num">1</span> cleared!</p>
+     <div id="upgrade-pick-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full"></div>
+    </div>
+   </div>
+   <!-- Quickdraw Duel Overlay -->
+   <div id="duel-overlay" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black/85 p-0">
+    <div class="canva-card p-6 rounded flex flex-col items-center" style="width:92%;max-width:520px;">
+     <p class="title-font text-center mb-2" style="color:#e74c3c;font-size:clamp(14px, 3.2vw, 20px);letter-spacing:2px;">⚡ QUICKDRAW DUEL ⚡</p>
+     <div style="width:100px;height:100px;">
+      <canvas id="duel-canvas" width="128" height="128" style="width:100px;height:100px;image-rendering:pixelated;"></canvas>
+     </div>
+     <p id="duel-name" class="title-font text-center mt-1" style="font-size:clamp(13px, 3vw, 17px);"></p>
+     <p id="duel-category" class="canva-text desc-font text-center mt-3 mb-2 font-bold" style="font-size:clamp(14px, 3vw, 18px);"></p>
+     <div id="duel-timer-track" style="width:100%;height:10px;background:#241028;border:2px solid var(--border-purple);border-radius:6px;overflow:hidden;margin-bottom:14px;">
+      <div id="duel-timer-fill" style="height:100%;background:#e74c3c;width:100%;"></div>
+     </div>
+     <div id="duel-grid" class="grid grid-cols-3 gap-3 w-full"></div>
+    </div>
+   </div>
   </div><!-- GAME OVER -->
   <div id="gameover-screen" class="screen flex-col items-center justify-center w-full" style="width:100%;height:100%;background:rgba(0,0,0,0.85);">
    <div class="canva-card pixel-border flex-col items-center justify-center gap-4" style="display:flex;padding:32px;max-width:480px;width:90%;text-align:center;">

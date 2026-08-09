@@ -11,7 +11,114 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="site-shell">
+
+  <!-- ============================================================
+       LOADING — shown while Firebase determines whether the
+       student is already signed in. Prevents the Hub (or the
+       Login screen) flashing before Firebase has finished checking.
+       ============================================================ -->
+  <div class="app-loading" id="loading-screen">
+    <div class="loading-spinner" aria-hidden="true"></div>
+    <p class="loading-text" id="loading-text">Loading Arcade Academy…</p>
+  </div>
+
+  <!-- ============================================================
+       LOGIN — shown when signed out
+       ============================================================ -->
+  <main class="site-shell auth-shell" id="login-screen" hidden>
+    <section class="hero auth-hero" aria-labelledby="login-title">
+      <p class="eyebrow"><span aria-hidden="true">✦</span> Learning, levelled up</p>
+      <h1 id="login-title">Arcade <span>Academy</span></h1>
+      <p class="hero-copy">Sign in with your school Google account to save your progress and jump back into your games.</p>
+
+      <button type="button" class="class-btn class-btn-primary google-btn" id="google-sign-in">
+        <span class="google-btn-icon" aria-hidden="true">G</span> Sign in with Google
+      </button>
+
+      <p class="class-error" id="login-error" role="alert" hidden></p>
+
+      <div class="hero-orb orb-one" aria-hidden="true">✦</div>
+      <div class="hero-orb orb-two" aria-hidden="true">★</div>
+      <div class="hero-grid" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <!-- ============================================================
+       PROFILE SETUP — shown once, for first-time students, before
+       they ever see the Hub
+       ============================================================ -->
+  <main class="site-shell auth-shell" id="profile-setup-screen" hidden>
+    <section class="hero auth-hero" aria-labelledby="profile-setup-title">
+      <p class="eyebrow"><span aria-hidden="true">✦</span> Almost there</p>
+      <h1 id="profile-setup-title">Set up your <span>profile</span></h1>
+      <p class="hero-copy">Just a few details so your progress is saved under the right name.</p>
+      <div class="hero-orb orb-one" aria-hidden="true">✦</div>
+      <div class="hero-orb orb-two" aria-hidden="true">★</div>
+      <div class="hero-grid" aria-hidden="true"></div>
+    </section>
+
+    <section class="class-section" aria-label="Profile setup">
+      <div class="class-card profile-card">
+        <div class="class-card-icon" aria-hidden="true">🧑‍🎓</div>
+        <div class="class-card-body">
+          <form id="profile-setup-form" novalidate>
+
+            <div class="profile-field">
+              <label class="profile-label" for="profile-name-input">Display name</label>
+              <input
+                type="text"
+                id="profile-name-input"
+                class="class-input"
+                autocomplete="name"
+                maxlength="40"
+                placeholder="e.g. Alex"
+              >
+            </div>
+
+            <div class="profile-field">
+              <label class="profile-label" for="profile-year-select">Year level</label>
+              <select id="profile-year-select" class="class-input">
+                <option value="" disabled selected>Select your year level</option>
+                <option value="Year 7">Year 7</option>
+                <option value="Year 8">Year 8</option>
+                <option value="Year 9">Year 9</option>
+                <option value="Year 10">Year 10</option>
+                <option value="Year 11">Year 11</option>
+                <option value="Year 12">Year 12</option>
+                <option value="Year 13">Year 13</option>
+              </select>
+            </div>
+
+            <div class="profile-field">
+              <label class="profile-label" for="profile-class-select">Class</label>
+              <select id="profile-class-select" class="class-input" disabled>
+                <option value="" disabled selected>Select your year level first</option>
+              </select>
+            </div>
+
+            <p class="class-error" id="profile-error" role="alert" hidden></p>
+
+            <button type="submit" class="class-btn class-btn-primary profile-submit" id="profile-submit-btn">Continue to Arcade Academy</button>
+
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================
+       HUB — the existing Arcade Academy experience. Only shown once
+       the student is authenticated AND their profile exists.
+       ============================================================ -->
+  <main class="site-shell" id="hub-screen" hidden>
+
+    <div class="player-bar">
+      <p class="player-bar-name">
+        <span aria-hidden="true">👋</span> <span id="hub-player-name"></span>
+      </p>
+      <button type="button" class="class-btn class-btn-secondary" id="sign-out-btn">Sign out</button>
+    </div>
+
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow"><span aria-hidden="true">✦</span> Learning, levelled up</p>
       <h1 id="page-title">Arcade <span>Academy</span></h1>
@@ -141,8 +248,9 @@
     </div>
   </a>
 </template>
-
+  <script type="module" src="shared/js/FirebaseManager.js"></script>
   <script src="shared/js/PlatformManager.js"></script>
-  <script src="app.js"></script>
+  <script src="shared/data/classes.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

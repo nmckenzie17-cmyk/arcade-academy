@@ -1,5 +1,99 @@
 // Note Knowledge Game.js
 
+// BG Canvas (fullscreen starfield, behind everything at all times) — runs
+// first and wrapped in try/catch, deliberately isolated from all game
+// logic below so a bank/session error elsewhere can never block it.
+try {
+  var bgCanvas=document.getElementById('bg-canvas'),bgCtx=bgCanvas.getContext('2d');
+  var stars=[];
+  var initBg=function(){bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;stars=Array.from({length:60},()=>({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,s:Math.random()*2+1,sp:Math.random()*0.5+0.2}));};
+  var drawBg=function(){bgCtx.fillStyle='#0a0a1a';bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);bgCtx.fillStyle='#fff';stars.forEach(s=>{s.y+=s.sp;if(s.y>bgCanvas.height){s.y=0;s.x=Math.random()*bgCanvas.width;}bgCtx.fillRect(Math.floor(s.x),Math.floor(s.y),s.s,s.s);});};
+  initBg();
+  window.addEventListener('resize',initBg);
+  (function bgLoop(){drawBg();requestAnimationFrame(bgLoop);})();
+} catch(bgErr) {
+  console.error('BG canvas failed to start:', bgErr);
+}
+
+// Home-screen-only decoration: pixel-art notes drifting behind the menu
+// content. Uses its own canvas (#noteHomeBg) that lives *inside*
+// #menu-screen, sized to that container and painted before the header/
+// main (which are already position:relative;z-index:1 in the markup) so
+// it is structurally guaranteed to sit behind the menu, not just
+// z-index-behind the whole page like #bg-canvas. Only animates while the
+// menu is actually visible, mirroring the same technique used for the
+// idle-enemy home background in Castle Defence/Rogue Ninja.
+try {
+  var homeBgCanvas=document.getElementById('noteHomeBg');
+  var homeBgCtx=homeBgCanvas?homeBgCanvas.getContext('2d'):null;
+  var HOMEBG_NOTE_COLORS=['#00d4ff','#ffdd00','#ff6ec7','#7fffb0','#ff8fa8'];
+  // 8x8 pixel-art eighth-note glyph (1 = filled pixel block)
+  var HOMEBG_NOTE_BITMAP=[
+    [0,0,0,0,1,0,0,0,0],
+    [0,0,0,0,1,1,0,0,0],
+    [0,0,0,0,1,1,1,0,0],
+    [0,0,0,0,1,0,1,1,0],
+    [0,0,0,0,1,0,0,1,0],
+    [0,1,1,1,1,0,0,0,0],
+    [1,1,1,1,1,0,0,0,0],
+    [0,1,1,1,0,0,0,0,0]
+  ];
+  var homeBgNotes=null;
+  function makeHomeBgNotes(w,h){
+    return Array.from({length:14},()=>{
+      const angle=Math.random()*Math.PI*2;
+      const speed=Math.random()*0.35+0.15;
+      return{
+        x:Math.random()*w,
+        y:Math.random()*h,
+        vx:Math.cos(angle)*speed,
+        vy:Math.sin(angle)*speed,
+        px:Math.random()*2.2+2,
+        color:HOMEBG_NOTE_COLORS[Math.floor(Math.random()*HOMEBG_NOTE_COLORS.length)],
+        alpha:Math.random()*0.3+0.3
+      };
+    });
+  }
+  var menuScreenEl=document.getElementById('menu-screen');
+  function animateHomeBg(){
+    const menuVisible=homeBgCtx&&menuScreenEl&&getComputedStyle(menuScreenEl).display!=='none';
+    if(menuVisible){
+      const w=homeBgCanvas.clientWidth,h=homeBgCanvas.clientHeight;
+      // (Re)seed the notes once we know the real on-screen size, and again
+      // if that size changes meaningfully (rotation, resize) — spawning
+      // them against the actual canvas dimensions instead of a guessed
+      // box is what keeps them spread across the whole screen.
+      if(w>0&&h>0&&!(w===300&&h===150)&&(!homeBgNotes||Math.abs(homeBgCanvas._lastW-w)>40||Math.abs(homeBgCanvas._lastH-h)>40)){
+        homeBgNotes=makeHomeBgNotes(w,h);
+        homeBgCanvas._lastW=w;homeBgCanvas._lastH=h;
+      }
+      homeBgCanvas.width=w;
+      homeBgCanvas.height=h;
+      homeBgCtx.clearRect(0,0,homeBgCanvas.width,homeBgCanvas.height);
+      (homeBgNotes||[]).forEach(n=>{
+        n.x+=n.vx;n.y+=n.vy;
+        const w=8*n.px,h=8*n.px;
+        if(n.x<-w)n.x=homeBgCanvas.width+w;
+        if(n.x>homeBgCanvas.width+w)n.x=-w;
+        if(n.y<-h)n.y=homeBgCanvas.height+h;
+        if(n.y>homeBgCanvas.height+h)n.y=-h;
+        homeBgCtx.globalAlpha=n.alpha;
+        homeBgCtx.fillStyle=n.color;
+        for(let r=0;r<8;r++){
+          for(let c=0;c<8;c++){
+            if(HOMEBG_NOTE_BITMAP[r][c])homeBgCtx.fillRect(Math.floor(n.x+c*n.px),Math.floor(n.y+r*n.px),n.px,n.px);
+          }
+        }
+      });
+      homeBgCtx.globalAlpha=1;
+    }
+    requestAnimationFrame(animateHomeBg);
+  }
+  animateHomeBg();
+} catch(homeBgErr) {
+  console.error('Home background failed to start:', homeBgErr);
+}
+
 // ===== Teacher question banks =====
     // Category files use this shape:
     //   { "subject": "Year 9 Biology", "categories": [
@@ -199,13 +293,6 @@
       const homeNotes=document.getElementById('home-notes');if(homeNotes)homeNotes.textContent=totalNotesPlayed;
       const homeCorrect=document.getElementById('home-correct');if(homeCorrect)homeCorrect.textContent=totalCorrectAnswers;
     }
-
-    // BG Canvas
-    const bgCanvas=document.getElementById('bg-canvas'),bgCtx=bgCanvas.getContext('2d');
-    let stars=[];
-    function initBg(){bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;stars=Array.from({length:60},()=>({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,s:Math.random()*2+1,sp:Math.random()*0.5+0.2}));}
-    function drawBg(){bgCtx.fillStyle='#0a0a1a';bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);bgCtx.fillStyle='#fff';stars.forEach(s=>{s.y+=s.sp;if(s.y>bgCanvas.height){s.y=0;s.x=Math.random()*bgCanvas.width;}bgCtx.fillRect(Math.floor(s.x),Math.floor(s.y),s.s,s.s);});}
-    initBg();window.addEventListener('resize',initBg);
 
     // --- iPad/mobile Safari viewport fix ---
     // Keeps the HUD/category text from being pushed off the top of the
@@ -624,4 +711,4 @@
       osc.connect(gain);gain.connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+dur);
     }
 
-    function bgLoop(){drawBg();requestAnimationFrame(bgLoop);}bgLoop();
+

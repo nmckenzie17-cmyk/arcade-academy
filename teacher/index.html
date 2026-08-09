@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard · Arcade Academy</title>
+  <meta name="description" content="Class overview and per-student progress for Arcade Academy learning games." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="teacher.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to dashboard</a>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">AA//</span>
+        <div>
+          <p class="brand-title">Arcade Academy — Teacher Dashboard</p>
+          <p class="brand-subtitle">Fake demo data · not connected to Firebase</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="field-inline">
+          <label for="class-filter">Class</label>
+          <select id="class-filter" name="class-filter">
+            <option value="all">All classes</option>
+          </select>
+        </div>
+        <div class="field-inline">
+          <label for="student-search">Search students</label>
+          <input
+            type="search"
+            id="student-search"
+            name="student-search"
+            placeholder="Search by name…"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="app-main">
+    <h1 class="visually-hidden">Class overview</h1>
+
+    <dl class="stat-strip" aria-label="Class summary">
+      <div class="stat-card">
+        <dt>Students active now</dt>
+        <dd id="stat-active">—</dd>
+      </div>
+      <div class="stat-card">
+        <dt>Students in class</dt>
+        <dd id="stat-total">—</dd>
+      </div>
+      <div class="stat-card">
+        <dt>Average accuracy</dt>
+        <dd id="stat-accuracy">—</dd>
+      </div>
+      <div class="stat-card">
+        <dt>Questions answered today</dt>
+        <dd id="stat-questions">—</dd>
+      </div>
+    </dl>
+
+    <section class="overview-card" aria-labelledby="overview-heading">
+      <div class="overview-card-header">
+        <h2 id="overview-heading">Class overview</h2>
+      </div>
+
+      <p id="overview-status" class="table-status" role="status" aria-live="polite"></p>
+
+      <div class="table-scroll">
+        <table id="overview-table">
+          <caption class="visually-hidden">
+            Student activity and performance overview. Select a column heading to sort,
+            or select a student row to view their detailed progress.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col" data-sort-key="name" tabindex="0" aria-sort="ascending">Student</th>
+              <th scope="col" data-sort-key="active" tabindex="0" aria-sort="none">Status</th>
+              <th scope="col" data-sort-key="session" tabindex="0" aria-sort="none">Current session</th>
+              <th scope="col" data-sort-key="today" tabindex="0" aria-sort="none">Questions today</th>
+              <th scope="col" data-sort-key="accuracy" tabindex="0" aria-sort="none">Overall accuracy</th>
+              <th scope="col" data-sort-key="playtime" tabindex="0" aria-sort="none">Total playtime</th>
+              <th scope="col" data-sort-key="favourite" tabindex="0" aria-sort="none">Favourite game</th>
+              <th scope="col" data-sort-key="lastActive" tabindex="0" aria-sort="none">Last active</th>
+            </tr>
+          </thead>
+          <tbody id="overview-body">
+            <!-- Rows are rendered from fake data by teacher.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Arcade Academy Teacher Dashboard — demo build using local fake data only.</p>
+  </footer>
+
+  <!-- Student detail panel -->
+  <div id="student-panel-overlay" class="panel-overlay" hidden></div>
+  <aside
+    id="student-panel"
+    class="student-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="panel-student-name"
+    hidden
+  >
+    <div class="panel-header">
+      <div>
+        <h2 id="panel-student-name">Student</h2>
+        <p id="panel-student-meta"></p>
+      </div>
+      <button id="panel-close" class="panel-close" type="button" aria-label="Close student panel">✕</button>
+    </div>
+
+    <div class="panel-body">
+      <section class="panel-section" aria-labelledby="game-stats-heading">
+        <h3 id="game-stats-heading">Per-game statistics</h3>
+        <table id="game-stats-table">
+          <caption class="visually-hidden">Statistics for each game this student has played</caption>
+          <thead>
+            <tr>
+              <th scope="col">Game</th>
+              <th scope="col">High score</th>
+              <th scope="col">Accuracy</th>
+              <th scope="col">Questions answered</th>
+              <th scope="col">Playtime</th>
+              <th scope="col">Last played</th>
+            </tr>
+          </thead>
+          <tbody id="game-stats-body"></tbody>
+        </table>
+      </section>
+
+      <section class="panel-section" aria-labelledby="trend-heading">
+        <h3 id="trend-heading">Accuracy over time</h3>
+
+        <div class="trend-controls">
+          <div class="field-inline">
+            <label for="trend-scope">View trend by</label>
+            <select id="trend-scope">
+              <option value="overall">Overall accuracy</option>
+              <option value="game">Game</option>
+              <option value="subject">Subject / question bank</option>
+              <option value="questionType">Question type</option>
+            </select>
+          </div>
+          <div class="field-inline" id="trend-series-wrap" hidden>
+            <label for="trend-series">Series</label>
+            <select id="trend-series"></select>
+          </div>
+          <span id="trend-badge" class="trend-badge">—</span>
+        </div>
+
+        <div class="trend-graph-wrap">
+          <div id="trend-graph" aria-hidden="false"></div>
+          <p id="trend-summary" class="trend-summary" role="status"></p>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <script src="fake-data.js"></script>
+  <script src="teacher.js"></script>
+</body>
+</html>

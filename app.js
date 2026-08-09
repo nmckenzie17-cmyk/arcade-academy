@@ -49,6 +49,329 @@ async function loadGames() {
 
 
 // ------------------------------------------------------------------
+// Screens (loading / login / profile setup / hub)
+// ------------------------------------------------------------------
+//
+// Exactly one of these is visible at a time. app.js decides which one
+// based on Firebase auth state + whether a Firestore profile exists -
+// see initAuthFlow() at the bottom of this file.
+
+const screens = {
+  loading: document.querySelector("#loading-screen"),
+  login: document.querySelector("#login-screen"),
+  profileSetup: document.querySelector("#profile-setup-screen"),
+  hub: document.querySelector("#hub-screen")
+};
+
+let currentUser = null;
+let hubInitialized = false;
+
+
+function showScreen(name) {
+
+  Object.entries(screens).forEach(([key, el]) => {
+    if (el) el.hidden = key !== name;
+  });
+
+}
+
+
+const loadingTextEl = document.querySelector("#loading-text");
+const loadingSpinnerEl = document.querySelector(".loading-spinner");
+
+
+function showLoadingScreen() {
+
+  if (loadingTextEl) loadingTextEl.textContent = "Loading Arcade Academy…";
+  if (loadingSpinnerEl) loadingSpinnerEl.hidden = false;
+
+  showScreen("loading");
+
+}
+
+
+// Used when something goes wrong before we ever reach Login/Profile
+// Setup/Hub (e.g. Firebase failed to load, or never responded). Keeps
+// the loading screen up, but replaces the spinner with an explanation
+// instead of leaving the student staring at a spinner forever.
+function showLoadingError(message) {
+
+  showScreen("loading");
+
+  if (loadingTextEl) loadingTextEl.textContent = message;
+  if (loadingSpinnerEl) loadingSpinnerEl.hidden = true;
+
+}
+
+
+function showLoginScreen() {
+  clearLoginError();
+  showScreen("login");
+}
+
+
+function showProfileSetup(user) {
+
+  clearProfileError();
+  profileSetupForm.reset();
+  resetClassSelect();
+
+  // Prefill from the Google account, but the student can still edit it.
+  profileNameInput.value = user.displayName || "";
+
+  showScreen("profileSetup");
+  profileNameInput.focus();
+
+}
+
+
+// Shows the Hub, and - the first time only - kicks off the game
+// library / class-code UI that the Hub depends on. Re-showing the Hub
+// on later auth-state changes (e.g. after a sign-out/sign-in without a
+// page reload) doesn't need to redo that work.
+function showHub(profile) {
+
+  applyProfileToHub(profile);
+  showScreen("hub");
+
+  if (!hubInitialized) {
+    hubInitialized = true;
+    initClassCodeUI();
+    loadGames();
+  }
+
+}
+
+
+function applyProfileToHub(profile) {
+
+  if (hubPlayerNameEl) {
+    hubPlayerNameEl.textContent = profile?.displayName || "";
+  }
+
+}
+
+
+// ------------------------------------------------------------------
+// Login screen
+// ------------------------------------------------------------------
+
+const googleSignInButton = document.querySelector("#google-sign-in");
+const loginErrorEl = document.querySelector("#login-error");
+
+
+googleSignInButton?.addEventListener("click", async () => {
+
+  setGoogleButtonBusy(true);
+  clearLoginError();
+
+  const user = await window.FirebaseManager.signInWithGoogle();
+
+  setGoogleButtonBusy(false);
+
+  // On success, watchAuthState's callback (below) takes it from here -
+  // it'll check for a profile and move to Profile Setup or the Hub.
+  if (!user) {
+    showLoginError("Sign-in was cancelled or didn't go through. Please try again.");
+  }
+
+});
+
+
+function setGoogleButtonBusy(isBusy) {
+
+  if (!googleSignInButton) return;
+
+  googleSignInButton.disabled = isBusy;
+  googleSignInButton.textContent = isBusy ? "Signing in…" : "";
+
+  if (!isBusy) {
+    googleSignInButton.innerHTML = `<span class="google-btn-icon" aria-hidden="true">G</span> Sign in with Google`;
+  }
+
+}
+
+
+function showLoginError(message) {
+  if (!loginErrorEl) return;
+  loginErrorEl.textContent = message;
+  loginErrorEl.hidden = false;
+}
+
+
+function clearLoginError() {
+  if (!loginErrorEl) return;
+  loginErrorEl.hidden = true;
+  loginErrorEl.textContent = "";
+}
+
+
+// ------------------------------------------------------------------
+// Profile setup screen
+// ------------------------------------------------------------------
+
+const profileSetupForm = document.querySelector("#profile-setup-form");
+const profileNameInput = document.querySelector("#profile-name-input");
+const profileYearSelect = document.querySelector("#profile-year-select");
+const profileClassSelect = document.querySelector("#profile-class-select");
+const profileSubmitBtn = document.querySelector("#profile-submit-btn");
+const profileErrorEl = document.querySelector("#profile-error");
+
+
+profileSetupForm?.addEventListener("submit", handleProfileSetupSubmit);
+profileYearSelect?.addEventListener("change", () => {
+  populateClassOptions(profileYearSelect.value);
+});
+
+
+// Pulls the year number (e.g. 9) out of a "Year 9"-style select value,
+// so it can be used as a key into window.CLASS_OPTIONS.
+function parseYearNumber(yearLevelValue) {
+
+  const match = /\d+/.exec(yearLevelValue || "");
+
+  return match ? Number(match[0]) : null;
+
+}
+
+
+// Rebuilds the Class dropdown to match the chosen year level, reading
+// from the shared, easily-editable list in shared/data/classes.js.
+// Falls back to a disabled "No classes configured" option if that
+// year has no classes listed (or CLASS_OPTIONS hasn't loaded).
+function populateClassOptions(yearLevelValue) {
+
+  const yearNumber = parseYearNumber(yearLevelValue);
+  const classes = (yearNumber && window.CLASS_OPTIONS && window.CLASS_OPTIONS[yearNumber]) || [];
+
+  profileClassSelect.innerHTML = "";
+
+  if (classes.length === 0) {
+
+    const noClassesOption = document.createElement("option");
+    noClassesOption.value = "";
+    noClassesOption.textContent = "No classes configured";
+    noClassesOption.disabled = true;
+    noClassesOption.selected = true;
+
+    profileClassSelect.appendChild(noClassesOption);
+    profileClassSelect.disabled = true;
+
+    return;
+
+  }
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Select your class";
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  profileClassSelect.appendChild(placeholder);
+
+  classes.forEach((className) => {
+    const option = document.createElement("option");
+    option.value = className;
+    option.textContent = className;
+    profileClassSelect.appendChild(option);
+  });
+
+  profileClassSelect.disabled = false;
+
+}
+
+
+// Locks the Class dropdown back to its initial "pick a year first"
+// state - used whenever the profile setup screen is (re)shown.
+function resetClassSelect() {
+
+  profileClassSelect.innerHTML =
+    '<option value="" disabled selected>Select your year level first</option>';
+
+  profileClassSelect.disabled = true;
+
+}
+
+
+async function handleProfileSetupSubmit(event) {
+
+  event.preventDefault();
+
+  if (!currentUser) return;
+
+  const displayName = profileNameInput.value.trim();
+  const yearLevel = profileYearSelect.value;
+  const className = profileClassSelect.value;
+
+  if (!displayName || !yearLevel || !className) {
+    showProfileError("Please fill in every field, including your class.");
+    return;
+  }
+
+  setProfileSubmitBusy(true);
+  clearProfileError();
+
+  const profile = {
+    displayName,
+    yearLevel,
+    className,
+    email: currentUser.email || null
+  };
+
+  const created = await window.FirebaseManager.createUserProfile(currentUser.uid, profile);
+
+  setProfileSubmitBusy(false);
+
+  if (created) {
+    showHub(profile);
+  } else {
+    showProfileError("Something went wrong saving your profile. Please try again.");
+  }
+
+}
+
+
+function setProfileSubmitBusy(isBusy) {
+
+  profileSubmitBtn.disabled = isBusy;
+  profileSubmitBtn.textContent = isBusy ? "Saving…" : "Continue to Arcade Academy";
+
+}
+
+
+function showProfileError(message) {
+  profileErrorEl.textContent = message;
+  profileErrorEl.hidden = false;
+}
+
+
+function clearProfileError() {
+  profileErrorEl.hidden = true;
+  profileErrorEl.textContent = "";
+}
+
+
+// ------------------------------------------------------------------
+// Hub: sign out
+// ------------------------------------------------------------------
+
+const hubPlayerNameEl = document.querySelector("#hub-player-name");
+const signOutBtn = document.querySelector("#sign-out-btn");
+
+
+signOutBtn?.addEventListener("click", async () => {
+
+  signOutBtn.disabled = true;
+
+  await window.FirebaseManager.signOut();
+
+  // watchAuthState's callback (below) will notice the sign-out and
+  // switch back to the Login screen.
+  signOutBtn.disabled = false;
+
+});
+
+
+// ------------------------------------------------------------------
 // Class code
 // ------------------------------------------------------------------
 //
@@ -400,5 +723,69 @@ function loadScript(src) {
 }
 
 
-initClassCodeUI();
-loadGames();
+// ------------------------------------------------------------------
+// Auth flow — decides which screen to show
+// ------------------------------------------------------------------
+//
+//   Page loads -> Loading -> Firebase checks auth ->
+//     signed out       -> Login
+//     signed in, no profile yet -> Profile Setup
+//     signed in, profile exists -> Hub
+//
+// This is the only place that calls loadGames()/initClassCodeUI() -
+// they only run once the student is authenticated and has a profile.
+
+async function handleAuthStateChanged(user) {
+
+  currentUser = user;
+
+  if (!user) {
+    showLoginScreen();
+    return;
+  }
+
+  const profile = await window.FirebaseManager.getUserProfile(user.uid);
+
+  if (profile) {
+    await window.PlatformManager?.connectFirebase(user.uid);
+    showHub(profile);
+  } else {
+    showProfileSetup(user);
+  }
+
+}
+
+
+function initAuthFlow() {
+
+  showLoadingScreen();
+
+  if (!window.FirebaseManager) {
+    // Most likely cause: shared/js/FirebaseManager.js failed to load or
+    // threw before it could set window.FirebaseManager - e.g. a blocked
+    // network request to the Firebase SDK on gstatic.com (ad blocker /
+    // school content filter), a bad script path, or the local server
+    // not serving .js files as a JS module. Check DevTools > Console
+    // and Network for the actual failed request.
+    console.error("FirebaseManager is not available — shared/js/FirebaseManager.js didn't finish loading. Check the browser console and Network tab for a failed or blocked request.");
+    showLoadingError("Couldn't reach the sign-in system. Check your internet connection, then reload the page.");
+    return;
+  }
+
+  // Safety net: if Firebase never calls back (e.g. a request hangs
+  // instead of failing outright), don't leave the student stuck on
+  // the loading screen forever with no explanation.
+  const authTimeoutId = setTimeout(() => {
+    console.error("Firebase auth check timed out — watchAuthState never called back within 10s.");
+    showLoadingError("Taking longer than expected. Check your connection, then reload the page.");
+  }, 10000);
+
+  window.FirebaseManager.watchAuthState((user) => {
+    clearTimeout(authTimeoutId);
+    handleAuthStateChanged(user);
+  });
+
+}
+
+
+initAuthFlow();

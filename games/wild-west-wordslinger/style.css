@@ -40,6 +40,14 @@ h1, h2 {
 .powerup-card.equipped { border-color: #ff8fa8; box-shadow: 0 0 12px rgba(255,143,168,0.5); background: rgba(255,143,168,0.18); }
 .small-label { font-size: 13px; }
 
+/* Run-upgrade pick cards (roguelike layer) — reuse .powerup-card's base look */
+.upgrade-card { cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+.upgrade-card:hover { transform: translateY(-3px); border-color: var(--accent-blue); box-shadow: 0 0 12px rgba(0,212,255,0.4); }
+.upgrade-card.curse { border-color: #e74c3c !important; background: rgba(231,76,60,0.14) !important; }
+.upgrade-card.curse:hover { border-color: #ff6b6b; box-shadow: 0 0 12px rgba(231,76,60,0.5); }
+.upgrade-card .stack-badge { font-size: 11px; opacity: 0.7; font-weight: 600; }
+#duel-grid .word-cell { font-size: clamp(13px, 3vw, 17px) !important; }
+
 body { image-rendering: pixelated; }
 .text-xs:not(.title-font) { font-size: 13px !important; }
 .text-sm:not(.title-font) { font-size: 15px !important; }
