@@ -1,14 +1,12 @@
 /**
  * teacher.js
  * ------------------------------------------------------------------
- * All dashboard LOGIC lives here: fetching from TeacherDataProvider,
+ * All dashboard logic lives here: fetching from TeacherDataProvider,
  * rendering the overview table, the student detail panel, and the
  * accuracy trend graph.
  *
- * This file only ever talks to `window.TeacherDataProvider` (see
- * fake-data.js). It never reaches into fake student arrays directly,
- * so swapping fake-data.js for a Firebase-backed provider later
- * should not require any changes here.
+ * This file only talks to `window.TeacherDataProvider`; direct Firebase
+ * communication stays in the shared FirebaseManager.
  * ------------------------------------------------------------------
  */
 
@@ -25,9 +23,14 @@
     sortDir: 1,          // 1 asc, -1 desc
     searchTerm: "",
     selectedStudentId: null,
+    selectedStudentDetail: null,
+    pendingReset: null,
+    gameCatalog: {},
     trendScope: "overall", // 'overall' | 'game' | 'subject'
     trendSeries: null,     // gameId or subject name, when scope != overall
     sessionTimerId: null,
+    dashboardInitialized: false,
+    authCheckId: 0,
   };
 
   // ---------------------------------------------------------------
@@ -39,13 +42,28 @@
 
   async function init() {
     cacheDom();
-    bindStaticEvents();
-    await populateClassFilter();
-    await refreshOverview();
-    startSessionClock();
+    bindAuthEvents();
+    showAccessScreen("loading");
+    window.FirebaseManager.watchAuthState(handleTeacherAuthState);
   }
 
   function cacheDom() {
+    els.loadingScreen = document.getElementById("teacher-loading-screen");
+    els.loginScreen = document.getElementById("teacher-login-screen");
+    els.deniedScreen = document.getElementById("teacher-denied-screen");
+    els.dashboardScreen = document.getElementById("teacher-dashboard-screen");
+    els.googleSignIn = document.getElementById("teacher-google-sign-in");
+    els.loginError = document.getElementById("teacher-login-error");
+    els.signOut = document.getElementById("teacher-sign-out");
+    els.deniedSignOut = document.getElementById("teacher-denied-sign-out");
+    els.classResetSelect = document.getElementById("class-reset-select");
+    els.classResetCount = document.getElementById("class-reset-student-count");
+    els.classResetGameSelect = document.getElementById("class-reset-game-select");
+    els.classResetGameButton = document.getElementById("class-reset-game-button");
+    els.classResetAllButton = document.getElementById("class-reset-all-button");
+    els.classResetResult = document.getElementById("class-reset-result");
+    els.resetHistoryBody = document.getElementById("reset-history-body");
+    els.resetHistoryStatus = document.getElementById("reset-history-status");
     els.classFilter = document.getElementById("class-filter");
     els.searchInput = document.getElementById("student-search");
     els.tableBody = document.getElementById("overview-body");
@@ -62,6 +80,19 @@
     els.panelTitle = document.getElementById("panel-student-name");
     els.panelMeta = document.getElementById("panel-student-meta");
     els.gameStatsBody = document.getElementById("game-stats-body");
+    els.resetGameSelect = document.getElementById("reset-game-select");
+    els.resetGameButton = document.getElementById("reset-game-button");
+    els.resetAllButton = document.getElementById("reset-all-button");
+    els.resetResult = document.getElementById("reset-result");
+    els.resetOverlay = document.getElementById("reset-confirm-overlay");
+    els.resetTitle = document.getElementById("reset-confirm-title");
+    els.resetMessage = document.getElementById("reset-confirm-message");
+    els.resetTypeWrap = document.getElementById("reset-type-wrap");
+    els.resetTypeLabel = document.getElementById("reset-type-label");
+    els.resetInput = document.getElementById("reset-confirm-input");
+    els.resetCancel = document.getElementById("reset-cancel-button");
+    els.resetContinue = document.getElementById("reset-continue-button");
+    els.resetFinal = document.getElementById("reset-final-button");
 
     els.trendScope = document.getElementById("trend-scope");
     els.trendSeries = document.getElementById("trend-series");
@@ -69,6 +100,89 @@
     els.trendBadge = document.getElementById("trend-badge");
     els.trendGraph = document.getElementById("trend-graph");
     els.trendSummary = document.getElementById("trend-summary");
+  }
+
+  function bindAuthEvents() {
+    els.googleSignIn.addEventListener("click", async () => {
+      els.googleSignIn.disabled = true;
+      els.googleSignIn.textContent = "Signing in…";
+      els.loginError.hidden = true;
+
+      const user = await window.FirebaseManager.signInWithGoogle();
+      if (!user) {
+        els.loginError.textContent = "Google sign-in did not complete. Please try again.";
+        els.loginError.hidden = false;
+      }
+
+      els.googleSignIn.disabled = false;
+      els.googleSignIn.textContent = "Sign in with Google";
+    });
+
+    els.signOut.addEventListener("click", signOutTeacher);
+    els.deniedSignOut.addEventListener("click", signOutTeacher);
+  }
+
+  async function signOutTeacher() {
+    const returnScreen = els.deniedScreen.hidden ? "dashboard" : "denied";
+    state.authCheckId += 1;
+    showAccessScreen("loading");
+    clearDashboardData();
+    const signedOut = await window.FirebaseManager.signOut();
+    if (!signedOut) showAccessScreen(returnScreen);
+  }
+
+  async function handleTeacherAuthState(user) {
+    const checkId = ++state.authCheckId;
+    clearDashboardData();
+
+    if (!user) {
+      showAccessScreen("login");
+      return;
+    }
+
+    showAccessScreen("loading");
+    const profile = await window.FirebaseManager.getUserProfile(user.uid);
+    if (checkId !== state.authCheckId) return;
+
+    if (!profile || profile.role !== "teacher") {
+      showAccessScreen("denied");
+      return;
+    }
+
+    try {
+      if (!state.dashboardInitialized) {
+        bindStaticEvents();
+        state.dashboardInitialized = true;
+        startSessionClock();
+      }
+      await populateClassFilter();
+      await refreshOverview();
+      await initializeClassResetControls();
+      await loadResetHistory();
+      if (checkId === state.authCheckId) showAccessScreen("dashboard");
+    } catch (error) {
+      console.error("Teacher dashboard initialization failed:", error);
+      showOverviewError();
+      if (checkId === state.authCheckId) showAccessScreen("dashboard");
+    }
+  }
+
+  function showAccessScreen(name) {
+    els.loadingScreen.hidden = name !== "loading";
+    els.loginScreen.hidden = name !== "login";
+    els.deniedScreen.hidden = name !== "denied";
+    els.dashboardScreen.hidden = name !== "dashboard";
+    if (name !== "dashboard" && !els.panel.hidden) closeStudentPanel();
+  }
+
+  function clearDashboardData() {
+    state.overview = [];
+    state.selectedStudentId = null;
+    state.selectedStudentDetail = null;
+    cachedHistory = [];
+    window.TeacherDataProvider.clearCache?.();
+    if (els.tableBody) els.tableBody.innerHTML = "";
+    if (els.tableStatus) els.tableStatus.textContent = "";
   }
 
   function bindStaticEvents() {
@@ -117,6 +231,18 @@
       state.trendSeries = els.trendSeries.value;
       renderTrendGraph();
     });
+
+    els.resetGameButton.addEventListener("click", () => beginReset("game"));
+    els.resetAllButton.addEventListener("click", () => beginReset("all"));
+    els.resetCancel.addEventListener("click", closeResetConfirmation);
+    els.resetContinue.addEventListener("click", showFinalResetWarning);
+    els.resetFinal.addEventListener("click", submitProgressReset);
+    els.resetInput.addEventListener("input", () => {
+      els.resetFinal.disabled = els.resetInput.value !== state.pendingReset?.confirmText;
+    });
+    els.classResetSelect.addEventListener("change", updateClassResetCount);
+    els.classResetGameButton.addEventListener("click", () => beginClassReset("game"));
+    els.classResetAllButton.addEventListener("click", () => beginClassReset("all"));
   }
 
   // ---------------------------------------------------------------
@@ -129,6 +255,55 @@
       classes
         .map((c) => `<option value="${c.code}">${c.code} — ${escapeHtml(c.subject)}</option>`)
         .join("");
+    els.classResetSelect.innerHTML = classes.length
+      ? classes.map((c) => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.code)} — ${escapeHtml(c.subject)}</option>`).join("")
+      : '<option value="">No classes available</option>';
+  }
+
+  async function initializeClassResetControls() {
+    const games = await window.TeacherDataProvider.getGamesCatalog();
+    state.gameCatalog = Object.fromEntries(games.map((game) => [game.id, game.name]));
+    els.classResetGameSelect.innerHTML = games.length
+      ? games.map((game) => `<option value="${escapeHtml(game.id)}">${escapeHtml(game.name)}</option>`).join("")
+      : '<option value="">No games available</option>';
+    els.classResetGameButton.disabled = games.length === 0;
+    els.classResetAllButton.disabled = !els.classResetSelect.value;
+    await updateClassResetCount();
+  }
+
+  async function updateClassResetCount() {
+    const className = els.classResetSelect.value;
+    const count = className ? await window.TeacherDataProvider.getClassStudentCount(className) : 0;
+    els.classResetCount.textContent = String(count);
+    els.classResetGameButton.disabled = count === 0 || !els.classResetGameSelect.value;
+    els.classResetAllButton.disabled = count === 0;
+  }
+
+  async function loadResetHistory() {
+    els.resetHistoryStatus.textContent = "Loading reset history…";
+    els.resetHistoryStatus.hidden = false;
+    try {
+      const history = await window.TeacherDataProvider.getResetHistory();
+      if (!history.length) {
+        els.resetHistoryBody.innerHTML = "";
+        els.resetHistoryStatus.textContent = "No class reset operations have been recorded yet.";
+        return;
+      }
+      els.resetHistoryBody.innerHTML = history.map((operation) => `
+        <tr>
+          <td class="cell-numeric">${formatDateTime(operation.requestedAt)}</td>
+          <td>${escapeHtml(operation.teacherName || "Teacher")}</td>
+          <td>${escapeHtml(operation.className || "Unknown class")}</td>
+          <td class="cell-numeric">${Number(operation.studentsAffected || operation.processedStudents || 0)}</td>
+          <td>${escapeHtml(operation.resetScope === "all" ? "All progress" : gameLabel(operation.gameId || "Game"))}</td>
+          <td><span class="reset-status reset-status--${escapeHtml(operation.status || "unknown")}">${escapeHtml(operation.status || "Unknown")}</span></td>
+        </tr>
+      `).join("");
+      els.resetHistoryStatus.hidden = true;
+    } catch (error) {
+      console.error("Unable to load reset history:", error);
+      els.resetHistoryStatus.textContent = "Reset history could not be loaded.";
+    }
   }
 
   async function refreshOverview() {
@@ -138,10 +313,9 @@
       state.overview = await window.TeacherDataProvider.getClassOverview(state.classCode);
       renderTable();
       renderHeaderStats();
-      els.tableStatus.hidden = true;
     } catch (err) {
-      els.tableStatus.textContent = "Couldn't load class data. Try again shortly.";
-      els.tableStatus.hidden = false;
+      console.error("Unable to refresh student overview:", err);
+      showOverviewError();
     }
   }
 
@@ -185,6 +359,8 @@
         return row.active ? Date.now() - row.sessionStartedAt : -1;
       case "today":
         return row.today.questionsAnswered;
+      case "questions":
+        return row.overall.totalQuestionsAnswered;
       case "accuracy":
         return row.overall.accuracy;
       case "playtime":
@@ -192,7 +368,9 @@
       case "favourite":
         return row.favouriteGame.toLowerCase();
       case "lastActive":
-        return row.lastActive;
+        return row.lastActive || 0;
+      case "coins":
+        return row.coins;
       default:
         return "";
     }
@@ -211,7 +389,9 @@
 
     if (!rows.length) {
       els.tableBody.innerHTML = "";
-      els.tableStatus.textContent = "No students match your search.";
+      els.tableStatus.textContent = state.overview.length
+        ? "No students match your search."
+        : "No student data available yet.";
       els.tableStatus.hidden = false;
       return;
     }
@@ -224,7 +404,7 @@
           <tr tabindex="0" data-student-id="${row.id}" class="student-row">
             <th scope="row" class="cell-name">
               <span class="student-avatar" aria-hidden="true">${initials(row.name)}</span>
-              <span>${escapeHtml(row.name)}</span>
+              <span>${escapeHtml(row.name)}<small class="student-meta">${escapeHtml(row.yearLevel)} · ${escapeHtml(row.className)}</small></span>
             </th>
             <td>
               <span class="status-pill ${row.active ? "status-pill--active" : "status-pill--idle"}">
@@ -236,12 +416,14 @@
               ${row.active ? formatDuration(Date.now() - row.sessionStartedAt) : "—"}
             </td>
             <td class="cell-numeric">${row.today.questionsAnswered}</td>
+            <td class="cell-numeric">${row.overall.totalQuestionsAnswered}</td>
             <td class="cell-numeric">
               <span class="accuracy-badge accuracy-badge--${accClass}">${row.overall.accuracy}%</span>
             </td>
             <td class="cell-numeric">${formatMinutes(row.overall.totalPlaytimeMinutes)}</td>
             <td>${escapeHtml(row.favouriteGame)}</td>
             <td class="cell-numeric">${formatRelativeTime(row.lastActive)}</td>
+            <td class="cell-numeric">${Math.floor(row.coins).toLocaleString()}</td>
           </tr>
         `;
       })
@@ -285,15 +467,31 @@
     els.gameStatsBody.innerHTML = "";
     els.trendSummary.textContent = "";
     els.trendGraph.innerHTML = "";
+    els.resetResult.textContent = "";
     document.body.classList.add("panel-open");
 
-    const detail = await window.TeacherDataProvider.getStudentDetail(studentId);
+    let detail;
+    try {
+      detail = await window.TeacherDataProvider.getStudentDetail(studentId);
+    } catch (error) {
+      console.error("Unable to load student detail:", error);
+      if (state.selectedStudentId === studentId) {
+        els.panelTitle.textContent = "Couldn't load student data";
+        els.gameStatsBody.innerHTML = `<tr><td colspan="9">Firestore data could not be read. Check authentication and security rules.</td></tr>`;
+      }
+      return;
+    }
     if (!detail || state.selectedStudentId !== studentId) return;
+    state.selectedStudentDetail = detail;
 
     els.panelTitle.textContent = detail.name;
-    els.panelMeta.textContent = `${detail.classCode} — ${detail.subject} · Favourite game: ${detail.favouriteGame}`;
+    els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
 
     renderGameStats(detail.games);
+    const gameCatalog = await window.TeacherDataProvider.getGamesCatalog();
+    state.gameCatalog = Object.fromEntries(gameCatalog.map((game) => [game.id, game.name]));
+    if (state.selectedStudentId !== studentId) return;
+    populateResetGameOptions(gameCatalog);
 
     // Reset trend controls for the newly opened student.
     state.trendScope = "overall";
@@ -307,16 +505,18 @@
   }
 
   function closeStudentPanel() {
+    closeResetConfirmation();
     els.panel.hidden = true;
     els.panelOverlay.hidden = true;
     document.body.classList.remove("panel-open");
     state.selectedStudentId = null;
+    state.selectedStudentDetail = null;
     if (lastFocusedElement) lastFocusedElement.focus();
   }
 
   function renderGameStats(games) {
     if (!games.length) {
-      els.gameStatsBody.innerHTML = `<tr><td colspan="6">No game sessions recorded yet.</td></tr>`;
+      els.gameStatsBody.innerHTML = `<tr><td colspan="9">No game sessions recorded yet.</td></tr>`;
       return;
     }
     els.gameStatsBody.innerHTML = games
@@ -329,12 +529,149 @@
               <span class="accuracy-badge accuracy-badge--${accuracyClass(g.accuracy)}">${g.accuracy}%</span>
             </td>
             <td class="cell-numeric">${g.questionsAnswered}</td>
+            <td class="cell-numeric">${g.correct}</td>
+            <td class="cell-numeric">${g.incorrect}</td>
             <td class="cell-numeric">${formatMinutes(g.playtimeMinutes)}</td>
             <td class="cell-numeric">${formatDate(g.lastPlayed)}</td>
+            <td class="cell-numeric">${g.gamesPlayed}</td>
           </tr>
         `
       )
       .join("");
+  }
+
+  function populateResetGameOptions(games) {
+    els.resetGameSelect.innerHTML = games.length
+      ? games.map((game) => `<option value="${escapeHtml(game.id)}">${escapeHtml(game.name)}</option>`).join("")
+      : '<option value="">No games available</option>';
+    els.resetGameButton.disabled = games.length === 0;
+  }
+
+  function beginReset(type) {
+    const detail = state.selectedStudentDetail;
+    if (!detail) return;
+    const gameId = type === "game" ? els.resetGameSelect.value : null;
+    if (type === "game" && !gameId) return;
+    const gameName = type === "game"
+      ? els.resetGameSelect.options[els.resetGameSelect.selectedIndex].textContent
+      : null;
+
+    state.pendingReset = { target: "student", type, gameId, gameName, studentId: detail.id, studentName: detail.name, confirmText: type === "all" ? "RESET" : null };
+    els.resetTitle.textContent = type === "all" ? "Reset all student progress?" : `Reset ${gameName}?`;
+    els.resetMessage.textContent = type === "all"
+      ? `Reset all Arcade Academy progress for ${detail.name}? This includes coins, platform statistics, every game's statistics, and all game-specific saves. Their profile, year and class will remain.`
+      : `Reset ${gameName} progress for ${detail.name}? Other games, global coins, and the student profile will remain unchanged.`;
+    els.resetTypeWrap.hidden = true;
+    els.resetInput.value = "";
+    els.resetContinue.hidden = false;
+    els.resetFinal.hidden = true;
+    els.resetOverlay.hidden = false;
+    els.resetCancel.focus();
+  }
+
+  function beginClassReset(type) {
+    const className = els.classResetSelect.value;
+    const studentsAffected = Number(els.classResetCount.textContent || 0);
+    const gameId = type === "game" ? els.classResetGameSelect.value : null;
+    if (!className || studentsAffected < 1 || (type === "game" && !gameId)) return;
+    const gameName = type === "game"
+      ? els.classResetGameSelect.options[els.classResetGameSelect.selectedIndex].textContent
+      : null;
+
+    state.pendingReset = {
+      target: "class",
+      type,
+      gameId,
+      gameName,
+      className,
+      studentsAffected,
+      confirmText: className
+    };
+    els.resetTitle.textContent = type === "all" ? "Reset all class progress?" : "Reset class game progress?";
+    els.resetMessage.textContent = type === "all"
+      ? `Class: ${className}. Students affected: ${studentsAffected}. This will reset ALL Arcade Academy progression for every student in this class. Student profiles will not be deleted.`
+      : `Class: ${className}. Students affected: ${studentsAffected}. Reset: ${gameName}. Other game progress and global coins will not be affected.`;
+    els.resetTypeWrap.hidden = true;
+    els.resetInput.value = "";
+    els.resetContinue.hidden = false;
+    els.resetFinal.hidden = true;
+    els.resetOverlay.hidden = false;
+    els.resetCancel.focus();
+  }
+
+  function showFinalResetWarning() {
+    const reset = state.pendingReset;
+    if (!reset) return;
+    els.resetTitle.textContent = "Final warning";
+    if (reset.target === "class") {
+      els.resetMessage.textContent = `This will reset ${reset.type === "all" ? "all progress" : reset.gameName} for ${reset.studentsAffected} students. Type the exact class name to confirm.`;
+      els.resetTypeLabel.innerHTML = `Type <strong>${escapeHtml(reset.className)}</strong> to continue`;
+    } else {
+      els.resetMessage.textContent = reset.type === "all"
+        ? `This will permanently reset all progress for ${reset.studentName}. This cannot easily be undone.`
+        : `This will permanently reset ${reset.gameName} for ${reset.studentName}. This cannot easily be undone.`;
+      els.resetTypeLabel.innerHTML = "Type <strong>RESET</strong> to continue";
+    }
+    els.resetContinue.hidden = true;
+    els.resetFinal.hidden = false;
+    const requiresTyping = reset.target === "class" || reset.type === "all";
+    els.resetTypeWrap.hidden = !requiresTyping;
+    els.resetFinal.disabled = requiresTyping;
+    els.resetFinal.textContent = reset.target === "class" ? "Reset Class" : "Reset progress permanently";
+    if (requiresTyping) els.resetInput.focus();
+    else els.resetFinal.focus();
+  }
+
+  function closeResetConfirmation() {
+    if (!els.resetOverlay) return;
+    els.resetOverlay.hidden = true;
+    els.resetTypeWrap.hidden = true;
+    els.resetInput.value = "";
+    els.resetFinal.disabled = true;
+    state.pendingReset = null;
+  }
+
+  async function submitProgressReset() {
+    const reset = state.pendingReset;
+    if (!reset) return;
+    if (reset.confirmText && els.resetInput.value !== reset.confirmText) return;
+
+    els.resetFinal.disabled = true;
+    els.resetFinal.textContent = "Resetting…";
+    try {
+      if (reset.target === "class") {
+        await window.TeacherDataProvider.requestClassReset(reset.className, reset.type, reset.gameId);
+        const successMessage = `${reset.type === "all" ? "All progress" : reset.gameName} was reset for ${reset.studentsAffected} students in ${reset.className}.`;
+        closeResetConfirmation();
+        els.classResetResult.textContent = successMessage;
+        await populateClassFilter();
+        await refreshOverview();
+        await updateClassResetCount();
+        await loadResetHistory();
+        return;
+      }
+
+      await window.TeacherDataProvider.requestProgressReset(reset.studentId, reset.type, reset.gameId);
+      const successMessage = reset.type === "all"
+        ? `All progress for ${reset.studentName} was reset. Their local saves will clear next time they load Arcade Academy.`
+        : `${reset.gameName} was reset for ${reset.studentName}. Its local save will clear next time they load Arcade Academy.`;
+      const studentId = reset.studentId;
+      closeResetConfirmation();
+      await refreshOverview();
+      if (state.selectedStudentId === studentId) {
+        await openStudentPanel(studentId);
+        els.resetResult.textContent = successMessage;
+      }
+    } catch (error) {
+      console.error("Unable to reset student progress:", error);
+      els.resetMessage.textContent = reset.target === "class"
+        ? "The class reset could not be completed. Some student requests may have been processed; review Reset History before retrying."
+        : "The reset could not be saved. No local reset request was issued. Check Firestore permissions and try again.";
+      els.resetFinal.disabled = false;
+      if (reset.target === "class") await loadResetHistory();
+    } finally {
+      els.resetFinal.textContent = "Reset progress permanently";
+    }
   }
 
   // ---------------------------------------------------------------
@@ -390,6 +727,7 @@
   }
 
   function gameLabel(gameId) {
+    if (state.gameCatalog[gameId]) return state.gameCatalog[gameId];
     const known = {
       "cavern-crammer": "Cavern Crammer",
       "shuriken-scholar": "Shuriken Scholar",
@@ -606,12 +944,18 @@
   }
 
   function formatDate(isoDateStr) {
-    const d = new Date(`${isoDateStr}T00:00:00`);
+    if (!isoDateStr) return "Never";
+    const d = typeof isoDateStr === "number"
+      ? new Date(isoDateStr)
+      : new Date(String(isoDateStr).includes("T") ? isoDateStr : `${isoDateStr}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return "Never";
     return d.toLocaleDateString("en-NZ", { day: "numeric", month: "short" });
   }
 
   function formatRelativeTime(isoString) {
+    if (!isoString) return "Never";
     const then = new Date(isoString).getTime();
+    if (!Number.isFinite(then)) return "Never";
     const diffMs = Date.now() - then;
     const diffMin = Math.round(diffMs / 60000);
     if (diffMin < 1) return "Just now";
@@ -622,11 +966,31 @@
     return `${diffDay}d ago`;
   }
 
+  function formatDateTime(value) {
+    const date = new Date(Number(value));
+    if (!Number.isFinite(date.getTime())) return "Unknown";
+    return date.toLocaleString("en-NZ", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  }
+
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function showOverviewError() {
+    state.overview = [];
+    els.tableBody.innerHTML = "";
+    els.tableStatus.textContent = "Couldn't read student data from Firestore. Check that you are authenticated and that the security rules allow teacher reads.";
+    els.tableStatus.hidden = false;
+    renderHeaderStats();
   }
 })();

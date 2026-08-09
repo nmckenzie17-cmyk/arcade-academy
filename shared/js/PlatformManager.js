@@ -60,6 +60,7 @@
   const STORAGE_KEY = 'arcadeAcademy.platformStats.v1';
   const SCHEMA_VERSION = 1;
   const AUTOSAVE_INTERVAL_MS = 10000; // periodic flush while dirty, so a hard crash loses at most ~10s
+  const PLATFORM_SCRIPT_URL = typeof document !== 'undefined' ? document.currentScript?.src : null;
 
   // ---- date helpers --------------------------------------------------
 
@@ -297,6 +298,63 @@
     return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
   }
 
+  async function ensureGameSaveManager() {
+    if (global.GameSaveManager) return true;
+    if (!PLATFORM_SCRIPT_URL) return false;
+    try {
+      await import(new URL('GameSaveManager.js', PLATFORM_SCRIPT_URL).href);
+      return !!global.GameSaveManager;
+    } catch (error) {
+      console.error('Unable to load GameSaveManager:', error);
+      return false;
+    }
+  }
+
+  function resetAllProgress() {
+    const preservedClass = data.class;
+    const preservedUid = firebaseUid || data.activity.syncedUid;
+    currentSession = null;
+    data = defaultData();
+    data.class = preservedClass;
+    data.activity.syncedUid = preservedUid;
+    save();
+    queueStatsSave();
+    return true;
+  }
+
+  function resetGameStats(gameId) {
+    if (!gameId) return false;
+    if (currentSession?.gameId === gameId) currentSession = null;
+    data.games[gameId] = emptyGameStats();
+    save();
+    queueStatsSave([gameId]);
+    return true;
+  }
+
+  async function applyPendingProgressReset(uid) {
+    if (!global.FirebaseManager?.getPendingProgressReset) return true;
+    const request = await global.FirebaseManager.getPendingProgressReset(uid);
+    if (request === undefined) return false;
+    if (!request) return true;
+
+    const gameSaveManagerReady = await ensureGameSaveManager();
+    if (!gameSaveManagerReady) return false;
+
+    if (request.type === 'all') {
+      resetAllProgress();
+      global.GameSaveManager.resetAllGames();
+    } else if (request.type === 'game' && request.gameId) {
+      resetGameStats(request.gameId);
+      global.GameSaveManager.resetGame(request.gameId);
+    } else {
+      console.error('Ignoring malformed progress reset request:', request);
+      return false;
+    }
+
+    await global.FirebaseManager.completeProgressReset(uid, request.token);
+    return true;
+  }
+
   async function connectFirebase(uid) {
     if (!uid || !global.FirebaseManager) return false;
     if (firebaseUid === uid && firebaseConnectionPromise) return firebaseConnectionPromise;
@@ -306,6 +364,9 @@
     coinChangesWhileConnecting = 0;
 
     const connectionAttempt = (async () => {
+      const resetApplied = await applyPendingProgressReset(uid);
+      if (!resetApplied || firebaseUid !== uid) return false;
+
       const [platformData, cloudGames] = await Promise.all([
         global.FirebaseManager.getPlatformData(uid),
         global.FirebaseManager.getAllGameStats(uid)
@@ -765,6 +826,8 @@
     getCoins,
     connectFirebase,
     disconnectFirebase,
+    resetAllProgress,
+    resetGameStats,
 
     // questions
     recordQuestionAnswered,

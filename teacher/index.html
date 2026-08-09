@@ -15,6 +15,34 @@
   <link rel="stylesheet" href="teacher.css" />
 </head>
 <body>
+  <main id="teacher-loading-screen" class="auth-screen">
+    <section class="auth-card" aria-live="polite">
+      <span class="brand-mark" aria-hidden="true">AA//</span>
+      <h1>Teacher Dashboard</h1>
+      <p>Checking teacher access...</p>
+    </section>
+  </main>
+
+  <main id="teacher-login-screen" class="auth-screen" hidden>
+    <section class="auth-card" aria-labelledby="teacher-login-title">
+      <span class="brand-mark" aria-hidden="true">AA//</span>
+      <p class="auth-kicker">Arcade Academy</p>
+      <h1 id="teacher-login-title">Teacher Dashboard</h1>
+      <button id="teacher-google-sign-in" class="auth-button" type="button">Sign in with Google</button>
+      <p id="teacher-login-error" class="auth-error" role="alert" hidden></p>
+    </section>
+  </main>
+
+  <main id="teacher-denied-screen" class="auth-screen" hidden>
+    <section class="auth-card" aria-labelledby="teacher-denied-title">
+      <span class="brand-mark" aria-hidden="true">AA//</span>
+      <h1 id="teacher-denied-title">Access denied</h1>
+      <p>You do not have permission to access the Teacher Dashboard.</p>
+      <button id="teacher-denied-sign-out" class="auth-button auth-button--secondary" type="button">Sign out</button>
+    </section>
+  </main>
+
+  <div id="teacher-dashboard-screen" hidden>
   <a class="skip-link" href="#main-content">Skip to dashboard</a>
 
   <header class="app-header">
@@ -23,7 +51,7 @@
         <span class="brand-mark" aria-hidden="true">AA//</span>
         <div>
           <p class="brand-title">Arcade Academy — Teacher Dashboard</p>
-          <p class="brand-subtitle">Fake demo data · not connected to Firebase</p>
+          <p class="brand-subtitle">Live student data from Arcade Academy</p>
         </div>
       </div>
 
@@ -44,6 +72,7 @@
             autocomplete="off"
           />
         </div>
+        <button id="teacher-sign-out" class="header-sign-out" type="button">Sign out</button>
       </div>
     </div>
   </header>
@@ -70,6 +99,32 @@
       </div>
     </dl>
 
+    <section class="overview-card class-progress-card" aria-labelledby="class-progress-heading">
+      <div class="overview-card-header">
+        <div>
+          <h2 id="class-progress-heading">Class Progress Management</h2>
+          <p>Issue one reset operation to every student currently assigned to a class.</p>
+        </div>
+      </div>
+      <div class="class-reset-grid">
+        <div class="field-inline class-reset-field">
+          <label for="class-reset-select">Class</label>
+          <select id="class-reset-select"></select>
+        </div>
+        <div class="class-reset-count">
+          <span>Students affected</span>
+          <strong id="class-reset-student-count">0</strong>
+        </div>
+        <div class="field-inline class-reset-field">
+          <label for="class-reset-game-select">Game</label>
+          <select id="class-reset-game-select"></select>
+        </div>
+        <button id="class-reset-game-button" class="reset-button" type="button">Reset Specific Game</button>
+        <button id="class-reset-all-button" class="reset-button reset-button--danger" type="button">Reset All Class Progress</button>
+      </div>
+      <p id="class-reset-result" class="reset-result" role="status" aria-live="polite"></p>
+    </section>
+
     <section class="overview-card" aria-labelledby="overview-heading">
       <div class="overview-card-header">
         <h2 id="overview-heading">Class overview</h2>
@@ -89,22 +144,46 @@
               <th scope="col" data-sort-key="active" tabindex="0" aria-sort="none">Status</th>
               <th scope="col" data-sort-key="session" tabindex="0" aria-sort="none">Current session</th>
               <th scope="col" data-sort-key="today" tabindex="0" aria-sort="none">Questions today</th>
+              <th scope="col" data-sort-key="questions" tabindex="0" aria-sort="none">Total questions</th>
               <th scope="col" data-sort-key="accuracy" tabindex="0" aria-sort="none">Overall accuracy</th>
               <th scope="col" data-sort-key="playtime" tabindex="0" aria-sort="none">Total playtime</th>
               <th scope="col" data-sort-key="favourite" tabindex="0" aria-sort="none">Favourite game</th>
               <th scope="col" data-sort-key="lastActive" tabindex="0" aria-sort="none">Last active</th>
+              <th scope="col" data-sort-key="coins" tabindex="0" aria-sort="none">Coins</th>
             </tr>
           </thead>
           <tbody id="overview-body">
-            <!-- Rows are rendered from fake data by teacher.js -->
+            <!-- Rows are rendered from Firestore data by teacher.js -->
           </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="overview-card reset-history-card" aria-labelledby="reset-history-heading">
+      <div class="overview-card-header">
+        <h2 id="reset-history-heading">Reset History</h2>
+      </div>
+      <p id="reset-history-status" class="table-status" role="status"></p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Teacher</th>
+              <th scope="col">Class</th>
+              <th scope="col">Students</th>
+              <th scope="col">Reset</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="reset-history-body"></tbody>
         </table>
       </div>
     </section>
   </main>
 
   <footer class="app-footer">
-    <p>Arcade Academy Teacher Dashboard — demo build using local fake data only.</p>
+    <p>Arcade Academy Teacher Dashboard — live Firestore student data.</p>
   </footer>
 
   <!-- Student detail panel -->
@@ -136,12 +215,27 @@
               <th scope="col">High score</th>
               <th scope="col">Accuracy</th>
               <th scope="col">Questions answered</th>
+              <th scope="col">Correct</th>
+              <th scope="col">Incorrect</th>
               <th scope="col">Playtime</th>
               <th scope="col">Last played</th>
+              <th scope="col">Sessions played</th>
             </tr>
           </thead>
           <tbody id="game-stats-body"></tbody>
         </table>
+      </section>
+
+      <section class="panel-section progress-management" aria-labelledby="progress-management-heading">
+        <h3 id="progress-management-heading">Progress Management</h3>
+        <p>Reset requests update Firestore immediately and clear the student's local game saves when they next load Arcade Academy.</p>
+        <div class="reset-game-row">
+          <label for="reset-game-select">Game</label>
+          <select id="reset-game-select"></select>
+          <button id="reset-game-button" class="reset-button" type="button">Reset Specific Game</button>
+        </div>
+        <button id="reset-all-button" class="reset-button reset-button--danger" type="button">Reset All Progress</button>
+        <p id="reset-result" class="reset-result" role="status" aria-live="polite"></p>
       </section>
 
       <section class="panel-section" aria-labelledby="trend-heading">
@@ -172,7 +266,25 @@
     </div>
   </aside>
 
-  <script src="fake-data.js"></script>
-  <script src="teacher.js"></script>
+  <div id="reset-confirm-overlay" class="reset-confirm-overlay" hidden>
+    <section class="reset-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-confirm-title">
+      <p class="reset-warning-label">Destructive action</p>
+      <h2 id="reset-confirm-title">Confirm reset</h2>
+      <p id="reset-confirm-message"></p>
+      <div id="reset-type-wrap" class="reset-type-wrap" hidden>
+        <label id="reset-type-label" for="reset-confirm-input">Type <strong>RESET</strong> to continue</label>
+        <input id="reset-confirm-input" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="reset-confirm-actions">
+        <button id="reset-cancel-button" class="reset-button" type="button">Cancel</button>
+        <button id="reset-continue-button" class="reset-button reset-button--danger" type="button">Continue</button>
+        <button id="reset-final-button" class="reset-button reset-button--danger" type="button" hidden>Reset progress permanently</button>
+      </div>
+    </section>
+  </div>
+  </div>
+
+  <script type="module" src="firebase-data.js"></script>
+  <script type="module" src="teacher.js"></script>
 </body>
 </html>

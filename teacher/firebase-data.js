@@ -1,0 +1,225 @@
+import "../shared/js/FirebaseManager.js";
+
+const ACTIVE_WINDOW_MS = 2 * 60 * 1000;
+const gameFolders = [
+  "fortress-facts",
+  "jetpack-journey",
+  "note-knowledge",
+  "rocket-recall",
+  "shuriken-scholar",
+  "wild-west-wordslinger",
+  "cavern-crammer"
+];
+
+let studentDocuments = null;
+let gameCatalogPromise = null;
+
+function numberOrZero(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, number) : 0;
+}
+
+function timestampMs(value) {
+  if (value && typeof value.toMillis === "function") return value.toMillis();
+  const number = Number(value);
+  if (Number.isFinite(number) && number > 0) return number;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function localDateString() {
+  const date = new Date();
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function accuracy(correct, answered) {
+  const total = numberOrZero(answered);
+  return total > 0 ? Math.round((numberOrZero(correct) / total) * 1000) / 10 : 0;
+}
+
+async function loadStudents() {
+  if (studentDocuments) return studentDocuments;
+  const students = await window.FirebaseManager.getAllStudents();
+  if (!students) {
+    throw new Error("Firestore student read failed. Check authentication and Firestore read rules.");
+  }
+  studentDocuments = students;
+  return students;
+}
+
+function loadConfigScript(folder) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = new URL(`../games/${folder}/gameconfig.js`, import.meta.url).href;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function loadGameCatalog() {
+  if (gameCatalogPromise) return gameCatalogPromise;
+  gameCatalogPromise = (async () => {
+    const catalog = {};
+    const previousConfig = window.GAME_CONFIG;
+    for (const folder of gameFolders) {
+      try {
+        await loadConfigScript(folder);
+        if (window.GAME_CONFIG?.id) catalog[window.GAME_CONFIG.id] = { ...window.GAME_CONFIG };
+      } catch (error) {
+        console.warn(`Unable to load game metadata for ${folder}:`, error);
+      }
+    }
+    if (previousConfig === undefined) delete window.GAME_CONFIG;
+    else window.GAME_CONFIG = previousConfig;
+    return catalog;
+  })();
+  return gameCatalogPromise;
+}
+
+function readableGameId(gameId) {
+  return String(gameId)
+    .split(/[-_]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function mapStudent(document, catalog) {
+  const platform = document.platform || {};
+  const questions = platform.questions || {};
+  const sessions = platform.sessions || {};
+  const currentSession = platform.currentSession || null;
+  const lastActive = timestampMs(platform.lastActive);
+  const sessionStartedAt = currentSession ? timestampMs(currentSession.startedAt) : null;
+  const active = Boolean(
+    currentSession && sessionStartedAt && lastActive && Date.now() - lastActive <= ACTIVE_WINDOW_MS
+  );
+  const favouriteGameId = platform.favouriteGame || null;
+  const favouriteConfig = favouriteGameId ? catalog[favouriteGameId] : null;
+  const className = document.className || "Unassigned";
+  const yearLevel = document.yearLevel || "Year not set";
+  const answered = numberOrZero(questions.totalAnswered);
+  const correct = numberOrZero(questions.totalCorrect);
+
+  return {
+    id: document.uid,
+    name: document.displayName || document.email || "Unnamed student",
+    classCode: className,
+    className,
+    yearLevel,
+    subject: yearLevel,
+    active,
+    sessionStartedAt: active ? sessionStartedAt : null,
+    currentSessionDurationMs: active ? numberOrZero(currentSession.durationMs) : 0,
+    favouriteGame: favouriteConfig?.title || (favouriteGameId ? readableGameId(favouriteGameId) : "Not played yet"),
+    favouriteGameId,
+    lastActive,
+    coins: numberOrZero(platform.coins),
+    today: {
+      questionsAnswered: questions.date === localDateString() ? numberOrZero(questions.dailyAnswered) : 0,
+      accuracy: questions.date === localDateString()
+        ? accuracy(questions.dailyCorrect, questions.dailyAnswered)
+        : 0
+    },
+    overall: {
+      accuracy: accuracy(correct, answered),
+      totalPlaytimeMinutes: Math.floor(numberOrZero(sessions.totalPlayTimeMs) / 60000),
+      totalQuestionsAnswered: answered
+    }
+  };
+}
+
+function mapGameStats(gameStats, catalog) {
+  return Object.entries(gameStats || {}).map(([gameId, stats]) => {
+    const config = catalog[gameId];
+    const answered = numberOrZero(stats.questionsAnswered);
+    return {
+      gameId,
+      gameName: config ? `${config.icon || "🎮"} ${config.title}` : readableGameId(gameId),
+      catchphrase: config?.catchphrase || "",
+      highScore: numberOrZero(stats.highScore),
+      accuracy: accuracy(stats.correct, answered),
+      questionsAnswered: answered,
+      correct: numberOrZero(stats.correct),
+      incorrect: numberOrZero(stats.incorrect),
+      playtimeMinutes: Math.floor(numberOrZero(stats.playTimeMs) / 60000),
+      lastPlayed: timestampMs(stats.lastPlayed),
+      gamesPlayed: numberOrZero(stats.gamesPlayed)
+    };
+  }).sort((a, b) => (b.lastPlayed || 0) - (a.lastPlayed || 0));
+}
+
+window.TeacherDataProvider = {
+  clearCache() {
+    studentDocuments = null;
+  },
+
+  async requestProgressReset(studentId, resetType, gameId = null) {
+    const request = await window.FirebaseManager.requestStudentProgressReset(studentId, resetType, gameId);
+    if (!request) throw new Error("Firestore rejected the progress reset request.");
+    studentDocuments = null;
+    return request;
+  },
+
+  async requestClassReset(className, resetType, gameId = null) {
+    const operation = await window.FirebaseManager.requestClassProgressReset(className, resetType, gameId);
+    if (!operation) throw new Error("Firestore could not complete the class reset operation.");
+    studentDocuments = null;
+    return operation;
+  },
+
+  async getClassStudentCount(className) {
+    const students = await loadStudents();
+    return students.filter((student) => (student.className || "Unassigned") === className).length;
+  },
+
+  async getResetHistory() {
+    const history = await window.FirebaseManager.getClassResetHistory();
+    if (history === undefined) throw new Error("Firestore reset history could not be read.");
+    return history;
+  },
+
+  async getClassCodes() {
+    const students = await loadStudents();
+    const classes = new Map();
+    students.forEach((student) => {
+      const className = student.className || "Unassigned";
+      if (!classes.has(className)) classes.set(className, student.yearLevel || "Year not set");
+    });
+    return Array.from(classes, ([code, subject]) => ({ code, subject }))
+      .sort((a, b) => a.code.localeCompare(b.code));
+  },
+
+  async getClassOverview(classCode) {
+    const [students, catalog] = await Promise.all([loadStudents(), loadGameCatalog()]);
+    return students
+      .filter((student) => !classCode || classCode === "all" || (student.className || "Unassigned") === classCode)
+      .map((student) => mapStudent(student, catalog));
+  },
+
+  async getStudentDetail(studentId) {
+    const [students, catalog, games] = await Promise.all([
+      loadStudents(),
+      loadGameCatalog(),
+      window.FirebaseManager.getStudentGameStats(studentId)
+    ]);
+    if (games === undefined) throw new Error("Firestore game-stat read failed.");
+    const document = students.find((student) => student.uid === studentId);
+    if (!document) return null;
+    return { ...mapStudent(document, catalog), games: mapGameStats(games, catalog) };
+  },
+
+  async getStudentHistory() {
+    return [];
+  },
+
+  async getGamesCatalog() {
+    const catalog = await loadGameCatalog();
+    return Object.values(catalog).map((game) => ({ id: game.id, name: game.title }));
+  },
+
+  async getQuestionTypesCatalog() {
+    return [];
+  }
+};
