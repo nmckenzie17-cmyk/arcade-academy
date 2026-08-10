@@ -210,6 +210,13 @@ window.TeacherDataProvider = {
     return true;
   },
 
+  async deleteStudent(studentId) {
+    const deleted = await window.FirebaseManager.deleteStudentData(studentId);
+    if (!deleted) throw new Error("Firestore rejected the student deletion.");
+    studentDocuments = null;
+    return true;
+  },
+
   async requestClassReset(className, resetType, gameId = null) {
     const operation = await window.FirebaseManager.requestClassProgressReset(className, resetType, gameId);
     if (!operation) throw new Error("Firestore could not complete the class reset operation.");

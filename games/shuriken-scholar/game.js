@@ -189,21 +189,21 @@
     }
     // Cost/kill requirement to buy the *next* level for a weapon.
     function weaponLevelCost(weaponKey, nextLevel, repeatBuys) {
-      if (nextLevel === 1) return { coin: 100, kills: 0 };
-      if (nextLevel === 2) return { coin: 125, kills: 0 };
-      if (nextLevel === 3) return { coin: 150, kills: weaponKey === 'shuriken' ? 200 : 100 };
-      if (nextLevel === 4) return { coin: 300, kills: weaponKey === 'shuriken' ? 300 : 200 };
-      if (nextLevel === 5) return { coin: 500, kills: weaponKey === 'shuriken' ? 400 : 300 };
+      if (nextLevel === 1) return { coin: PlatformManager.permanentUpgradeCost(0), kills: 0 };
+      if (nextLevel === 2) return { coin: PlatformManager.permanentUpgradeCost(1), kills: 0 };
+      if (nextLevel === 3) return { coin: PlatformManager.permanentUpgradeCost(2), kills: weaponKey === 'shuriken' ? 200 : 100 };
+      if (nextLevel === 4) return { coin: PlatformManager.permanentUpgradeCost(3), kills: weaponKey === 'shuriken' ? 300 : 200 };
+      if (nextLevel === 5) return { coin: PlatformManager.permanentUpgradeCost(4), kills: weaponKey === 'shuriken' ? 400 : 300 };
       // Level 10+ is the new repeatable tier: cost grows 1.5x per purchase.
       const n = repeatBuys + 1;
-      return { coin: Math.floor(1200 * Math.pow(1.5, repeatBuys)), kills: (9 + n) * 100 };
+      return { coin: PlatformManager.permanentUpgradeCost(9 + repeatBuys), kills: (9 + n) * 100 };
     }
     // Costs for the second branch (levels 6-9), mirroring the 1-4 pattern shifted by +5.
     function weaponSubLevelCost(weaponKey, nextLevel) {
-      if (nextLevel === 6) return { coin: 250, kills: 0 };
-      if (nextLevel === 7) return { coin: 450, kills: weaponKey === 'shuriken' ? 500 : 350 };
-      if (nextLevel === 8) return { coin: 700, kills: weaponKey === 'shuriken' ? 650 : 450 };
-      return { coin: 1000, kills: weaponKey === 'shuriken' ? 800 : 550 }; // level 9
+      if (nextLevel === 6) return { coin: PlatformManager.permanentUpgradeCost(5), kills: 0 };
+      if (nextLevel === 7) return { coin: PlatformManager.permanentUpgradeCost(6), kills: weaponKey === 'shuriken' ? 500 : 350 };
+      if (nextLevel === 8) return { coin: PlatformManager.permanentUpgradeCost(7), kills: weaponKey === 'shuriken' ? 650 : 450 };
+      return { coin: PlatformManager.permanentUpgradeCost(8), kills: weaponKey === 'shuriken' ? 800 : 550 }; // level 9
     }
     function wInfo(key) { return progress.weapons[key]; }
     function wLevel(key) { return progress.weapons[key].level; }
@@ -1486,7 +1486,6 @@
       },
       { weight: 0.025, id: 'onlyGolems', message: 'In entering this dungeon, only golems were found guarding the halls...', apply: (ev) => { ev.onlyGolems = true; } },
       { weight: 0.05, id: 'slowEnemies', message: 'The enemies seem sluggish and lethargic today...', apply: (ev) => { ev.speedMult = 0.75; } },
-      { weight: 0.05, id: 'doubleCoin', message: 'The enemies are carrying unusually heavy purses...', apply: (ev) => { ev.coinMult = 2; } },
       { weight: 0.05, id: 'doubleDamage', message: 'The enemies attack with unusual ferocity...', apply: (ev) => { ev.damageMult = 2; } },
       { weight: 0.05, id: 'doubleQuestions', message: 'A heavier trial awaits at each level-up...', apply: (ev) => { ev.doubleQuestions = true; } }
     ];
@@ -5374,7 +5373,7 @@
       section1.innerHTML = '<h3 style="color: #00d4ff; margin: 5px 0 10px 0; font-size: clamp(16px,2.2vw,20px); font-family: \'Lexend\', sans-serif;">⭐ General Upgrades</h3>';
       upgradesContainer.appendChild(section1);
 
-      addShopItem(upgradesContainer, {id: 'powerup', name: '⭐ Starting Powerups', desc: 'Choose powerups before run', base: 40, mult: 1.5, owned: progress.powerupStart, canBuy: true});
+      addShopItem(upgradesContainer, {id: 'powerup', name: '⭐ Starting Powerups', desc: 'Choose powerups before run', base: 100, mult: 1.6, owned: progress.powerupStart, canBuy: true});
 
       if (progress.samuraiUnlocked) {
         const charDiv = document.createElement('div');
@@ -5844,7 +5843,7 @@
     }
     
     function addShopItem(container, item) {
-      const cost = Math.floor(item.base * Math.pow(item.mult, item.owned));
+      const cost = PlatformManager.permanentUpgradeCost(item.owned);
       const canAfford = PlatformManager.getCoins() >= cost;
       const canBuy = canAfford && item.canBuy;
 
@@ -6008,7 +6007,7 @@
     let powerupQuizState = { key: null, index: 0, correct: 0, questionCount: 4 };
 
     function beginSingleUsePowerupQuizzes() {
-      powerupQuizQueue = progress.selectedPowerups.slice();
+      powerupQuizQueue = PlatformManager.powerupsAllowed() ? progress.selectedPowerups.slice() : [];
       progress.selectedPowerups = []; // must be re-selected in the shop for each future run
       runNextPowerupUnlockQuiz();
     }
@@ -6112,7 +6111,7 @@
     }
 
     function startPowerupPhase() {
-      if (progress.powerupStart > 0) {
+      if (PlatformManager.powerupsAllowed() && progress.powerupStart > 0) {
         quiz.pending = progress.powerupStart;
         continueStartPhase();
       } else {

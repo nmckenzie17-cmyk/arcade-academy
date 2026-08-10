@@ -53,10 +53,8 @@
   const CURSE_CARDS = [
     { id:'gamble',       name:"Outlaw's Gamble",    icon:'🎲', rarity:'curse', desc:'+50% score this run — but you\'re capped at 1 life.' },
     { id:'fanning',      name:'Fanning the Hammer', icon:'🔫', rarity:'curse', desc:'Combo builds twice as fast — but every shot costs 2 ammo.' },
-    { id:'bloodmoney',   name:'Blood Money',        icon:'🩸', rarity:'curse', desc:'Double coins from every kill — but mistakes cost double lives.' },
     { id:'glasscannon',  name:'Glass Cannon',       icon:'🍾', rarity:'curse', desc:'+75% score this run — but max ammo is cut by 2, right now.' },
     { id:'triggerhappy', name:'Trigger Happy',      icon:'🌵', rarity:'curse', desc:'Never run out of ammo — but score gained is cut by 30%.' },
-    { id:'deadmanshand', name:"Dead Man's Hand",    icon:'💀', rarity:'curse', desc:'Double coins from every kill — but you lose a life every 45 seconds.' }
   ];
   const ALL_UPGRADE_CARDS = UPGRADE_CARDS.concat(CURSE_CARDS);
   const MAX_STACK = 3;
@@ -532,12 +530,12 @@
   function closeShop() { document.getElementById('shop-modal').classList.remove('open'); }
 
   function updateBulletInfo() {
-    const cost = 10 * Math.pow(10, bulletLevel);
+    const cost = PlatformManager.permanentUpgradeCost(bulletLevel);
     document.getElementById('bullet-upgrade-info').textContent = 'Level ' + bulletLevel + ' (Ammo: ' + (5+bulletLevel) + ') — Next: ' + cost + ' 🪙';
   }
 
   async function buyBulletUpgrade() {
-    const cost = 10 * Math.pow(10, bulletLevel);
+    const cost = PlatformManager.permanentUpgradeCost(bulletLevel);
     if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
     bulletLevel++;
     maxAmmo = 5 + bulletLevel;
@@ -547,7 +545,7 @@
     showLootResult('Upgraded! Ammo: ' + maxAmmo, '#2ecc71');
   }
 
-  function lifeUpgradeCost() { return Math.round(25 * Math.pow(3, livesLevel)); }
+  function lifeUpgradeCost() { return PlatformManager.permanentUpgradeCost(livesLevel); }
   function updateLifeInfo() {
     document.getElementById('life-upgrade-info').textContent = 'Start with ' + (3+livesLevel) + ' lives — Next: ' + lifeUpgradeCost() + ' 🪙';
   }
@@ -562,7 +560,7 @@
   }
 
   // Combo Master: raises how fast your streak multiplier grows and its cap. Cost rises exponentially.
-  function comboUpgradeCost() { return Math.round(20 * Math.pow(2.2, comboLevel)); }
+  function comboUpgradeCost() { return PlatformManager.permanentUpgradeCost(comboLevel); }
   function updateComboUpgradeInfo() {
     const rate = (0.1 + comboLevel*0.04).toFixed(2);
     const cap = (3 + comboLevel*0.75).toFixed(1);
@@ -578,7 +576,7 @@
     showLootResult('🔥 Combo power increased!', '#2ecc71');
   }
 
-  function lootBoxCost() { return Math.round(20 * Math.pow(1.5, lootBoxCount)); }
+  function lootBoxCost() { return PlatformManager.permanentUpgradeCost(lootBoxCount); }
   function updateLootBoxInfo() {
     document.getElementById('lootbox-info').textContent = lootBoxCost() + ' 🪙 — Common → Legendary crosshairs, effects & coin jackpots! (price rises after each box)';
   }
@@ -1071,7 +1069,7 @@
       platformSessionStarted = true;
     }
     runScoreMult=1; runCoinMult=1; runSpawnRateMult=1; runPerformance=0;
-    activePowerupsThisRun=[...equippedPowerups];
+    activePowerupsThisRun=PlatformManager.powerupsAllowed()?[...equippedPowerups]:[];
     stage=1; bossActive=false; bossHP=0; bossMaxHP=0; stageStartScore=0;
     cleanupCurrentBoss();
     clearTimeout(bossIncomingTimer); bossPreviewActive=false;
@@ -1753,7 +1751,7 @@
     showFloatingText(area.clientWidth/2-70, 40, '🏁 Stage ' + stage + ' — onward!', '#2ecc71', area);
     drawBackground(stage);
     updateHUD();
-    setTimeout(showUpgradePicks, 900);
+    if (PlatformManager.powerupsAllowed()) setTimeout(showUpgradePicks, 900);
   }
 
   function openReload() {

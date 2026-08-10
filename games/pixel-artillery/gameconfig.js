@@ -5,6 +5,7 @@ window.GAME_CONFIG = {
   description: "Create a room, ready your tank and trade turn-based cannon fire across a destructible pixel battlefield.",
   catchphrase: "Answer. Aim. Fire!",
   genre: "Multiplayer / Artillery",
+  gameModes: ["singleplayer", "multiplayer"],
   players: "2 Online",
   questionType: "host-choice",
   version: "1.0.0",

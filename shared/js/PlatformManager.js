@@ -60,6 +60,12 @@
   const STORAGE_KEY = 'arcadeAcademy.platformStats.v1';
   const SCHEMA_VERSION = 1;
   const AUTOSAVE_INTERVAL_MS = 10000; // periodic flush while dirty, so a hard crash loses at most ~10s
+  const PRACTICE_DURATION_MS = 5 * 60 * 1000;
+  const practiceMode = typeof location !== 'undefined'
+    && new URLSearchParams(location.search).get('mode') === 'practice';
+  let practiceExpired = false;
+  let practiceTimerStarted = false;
+  let practiceClaimedAt = null;
   const PLATFORM_SCRIPT_URL = typeof document !== 'undefined' ? document.currentScript?.src : null;
 
   // ---- date helpers --------------------------------------------------
@@ -84,7 +90,8 @@
       wins: 0,
       losses: 0,
       draws: 0,
-      lastPlayed: null
+      lastPlayed: null,
+      practiceUsedAt: null
     };
   }
 
@@ -229,6 +236,7 @@
       playTimeMs: stats.playTimeMs,
       activePlayTimeMs: stats.activePlayTimeMs,
       lastPlayed: stats.lastPlayed,
+      practiceUsedAt: stats.practiceUsedAt,
       currentSessionStartTime: stats.currentSessionStartTime
     };
   }
@@ -305,6 +313,13 @@
         game.playTimeMs = normalizeCount(stats.playTimeMs);
         game.activePlayTimeMs = normalizeCount(stats.activePlayTimeMs);
         game.lastPlayed = Number.isFinite(Number(stats.lastPlayed)) ? Number(stats.lastPlayed) : null;
+        const cloudPracticeUsedAt = Number.isFinite(Number(stats.practiceUsedAt)) ? Number(stats.practiceUsedAt) : null;
+        if (practiceMode && currentSession?.practice && currentSession.gameId === gameId
+          && cloudPracticeUsedAt && cloudPracticeUsedAt !== practiceClaimedAt) {
+          currentSession = null;
+          showPracticeUnavailable();
+        }
+        game.practiceUsedAt = cloudPracticeUsedAt || game.practiceUsedAt;
       });
     }
   }
@@ -482,8 +497,69 @@
   // It's reconciled into `data` (and saved) on endSession / autosave / unload.
   let currentSession = null; // { gameId, startedAt, lastReconciledAt, activeSince }
 
+  function isPracticeMode() { return practiceMode; }
+  function hasUsedPractice(gameId) {
+    return !!(gameId && Number(ensureGame(gameId).practiceUsedAt) > 0);
+  }
+  function powerupsAllowed() { return !practiceMode; }
+  function permanentUpgradeCost(level, baseCost = 100, multiplier = 1.6) {
+    return Math.max(100, Math.round(Math.max(100, Number(baseCost) || 100) * Math.pow(Math.max(1.01, Number(multiplier) || 1.6), Math.max(0, Number(level) || 0))));
+  }
+
+  function startPracticeTimer() {
+    if (!practiceMode || practiceTimerStarted || typeof document === 'undefined') return;
+    practiceTimerStarted = true;
+    const banner = document.createElement('div');
+    banner.id = 'arcade-practice-banner';
+    banner.setAttribute('role', 'status');
+    banner.style.cssText = 'position:fixed;z-index:9998;top:8px;left:50%;transform:translateX(-50%);padding:8px 14px;color:#241000;background:#ffd15c;border:2px solid #fff2a6;border-radius:9px;font:700 13px monospace;box-shadow:0 0 18px rgba(255,209,92,.55)';
+    document.body.appendChild(banner);
+    const startedAt = Date.now();
+    const update = () => {
+      const remaining = Math.max(0, PRACTICE_DURATION_MS - (Date.now() - startedAt));
+      const seconds = Math.ceil(remaining / 1000);
+      banner.textContent = `PRACTICE · ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')} · no coins, scores or power-ups`;
+      if (remaining > 0) return;
+      practiceExpired = true;
+      clearInterval(timer);
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;z-index:9999;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#fff;background:rgba(5,3,20,.96);font-family:monospace';
+      overlay.innerHTML = '<div><h1 style="color:#ffd15c">Practice complete</h1><p>Your five-minute practice session has ended.</p><a href="../../index.html" style="display:inline-block;margin-top:12px;padding:12px 18px;color:#fff;background:#a855f7;border:2px solid #ff4f9a;border-radius:9px;text-decoration:none;font-weight:bold">Return to Arcade Academy</a></div>';
+      document.body.appendChild(overlay);
+      global.dispatchEvent(new CustomEvent('arcade-practice-expired'));
+    };
+    const timer = setInterval(update, 250);
+    update();
+  }
+
+  function showPracticeUnavailable() {
+    if (typeof document === 'undefined' || document.getElementById('arcade-practice-unavailable')) return;
+    practiceExpired = true;
+    const overlay = document.createElement('div');
+    overlay.id = 'arcade-practice-unavailable';
+    overlay.style.cssText = 'position:fixed;z-index:9999;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#fff;background:rgba(5,3,20,.96);font-family:monospace';
+    overlay.innerHTML = '<div><h1 style="color:#ffd15c">Practice already used</h1><p>Each game has one five-minute practice session.</p><a href="../../index.html" style="display:inline-block;margin-top:12px;padding:12px 18px;color:#fff;background:#a855f7;border:2px solid #ff4f9a;border-radius:9px;text-decoration:none;font-weight:bold">Return to Arcade Academy</a></div>';
+    document.body.appendChild(overlay);
+  }
+
   function startSession(gameId) {
     if (!gameId) return;
+    if (practiceMode) {
+      if (hasUsedPractice(gameId)) {
+        showPracticeUnavailable();
+        return;
+      }
+      const now = Date.now();
+      practiceClaimedAt = now;
+      const game = ensureGame(gameId);
+      game.practiceUsedAt = now;
+      markDirty();
+      save();
+      queueStatsSave([gameId]);
+      currentSession = { gameId, startedAt: now, lastReconciledAt: now, activeSince: null, practice: true };
+      startPracticeTimer();
+      return;
+    }
     if (currentSession && currentSession.gameId !== gameId) {
       endSession(currentSession.gameId);
     }
@@ -506,6 +582,7 @@
   // clearing currentSession (used by autosave/unload flushes).
   function reconcileCurrentSession() {
     if (!currentSession) return;
+    if (currentSession.practice) return;
     const now = Date.now();
     const g = ensureGame(currentSession.gameId);
 
@@ -582,6 +659,7 @@
   }
 
   function addCoins(amount) {
+    if (practiceMode) return data.coins.balance;
     const n = Math.max(0, Math.floor(Number(amount) || 0));
     if (n > 0) {
       data.coins.balance += n;
@@ -596,6 +674,7 @@
 
   // Returns true and deducts the coins if affordable, false (no-op) otherwise.
   function spendCoins(amount) {
+    if (practiceMode) return false;
     const n = Math.max(0, Math.floor(Number(amount) || 0));
     if (n === 0) return true;
     if (data.coins.balance < n) return false;
@@ -611,6 +690,7 @@
   // Removes up to the requested number of coins without allowing a negative
   // balance. Intended for gameplay penalties rather than shop purchases.
   function deductCoins(amount) {
+    if (practiceMode) return 0;
     const requested = Math.max(0, Math.floor(Number(amount) || 0));
     const deducted = Math.min(requested, data.coins.balance);
     if (deducted === 0) return 0;
@@ -675,6 +755,7 @@
   }
 
   function recordMultiplayerResult(gameId, result) {
+    if (practiceMode) return false;
     if (!gameId || !['win', 'loss', 'draw'].includes(result)) return false;
     const g = ensureGame(gameId);
     g.wins = normalizeCount(g.wins);
@@ -692,6 +773,7 @@
   // ---- high scores --------------------------------------------------
 
   function setHighScore(gameId, score) {
+    if (practiceMode) return;
     if (!gameId) return;
     const n = Number(score);
     if (!isFinite(n)) return;
@@ -929,6 +1011,12 @@
 
     // high scores
     setHighScore,
+
+    // practice / economy policy
+    isPracticeMode,
+    hasUsedPractice,
+    powerupsAllowed,
+    permanentUpgradeCost,
 
     // class / question bank
     setClassCode,

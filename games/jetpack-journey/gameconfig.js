@@ -8,6 +8,7 @@ window.GAME_CONFIG = {
     catchphrase: "Fly farther. Match Smarter.",
 
     genre: "Endless Runner",
+    gameModes: ["singleplayer"],
 
     questionType: "matching",
 

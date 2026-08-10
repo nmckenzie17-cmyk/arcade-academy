@@ -168,6 +168,7 @@ h1,
 
 .question-type-select,
 .home > select,
+#single-options select,
 .room-input,
 #room-input,
 .controls select,
@@ -176,6 +177,22 @@ h1,
   background: var(--panel-dark) !important;
   border: 2px solid var(--border-purple) !important;
   border-radius: var(--radius-btn) !important;
+}
+
+#single-options {
+  margin-top: 12px;
+  text-align: center;
+}
+
+#single-options select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px;
+}
+
+#single-options button {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .action,

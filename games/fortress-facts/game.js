@@ -165,32 +165,32 @@ function saveKingdomSave(){
 let kingdomSave = loadKingdomSave();
 
 const KINGDOM_UPGRADES = [
-    { id:'soldiers',        category:'Military',  name:'⚔️ Trained Soldiers',   baseCost:20, costMult:1.5,  maxLevel:20 },
-    { id:'archives',        category:'Military',  name:'📜 Scholarly Archives', baseCost:25, costMult:1.5,  maxLevel:20 },
-    { id:'blacksmith',      category:'Military',  name:'🔨 Blacksmith',         baseCost:30, costMult:1.55, maxLevel:20 },
-    { id:'siegeengineers',  category:'Military',  name:'💣 Siege Engineers',    baseCost:25, costMult:1.5,  maxLevel:20 },
-    { id:'traininggrounds', category:'Military',  name:'🏕️ Training Grounds',   baseCost:40, costMult:1,    maxLevel:1  },
-    { id:'treasury',        category:'Economy',   name:'💰 Treasury',           baseCost:35, costMult:1.85, maxLevel:15 },
-    { id:'marketplace',     category:'Economy',   name:'🏪 Marketplace',        baseCost:35, costMult:1.85, maxLevel:10 },
-    { id:'supplydepot',     category:'Economy',   name:'📦 Supply Depot',       baseCost:30, costMult:1.85, maxLevel:9  },
-    { id:'warehouse',       category:'Economy',   name:'🏭 Warehouse',          baseCost:30, costMult:1.85, maxLevel:15 },
-    { id:'walls',           category:'Castle',    name:'🧱 Reinforced Walls',   baseCost:20, costMult:1.45, maxLevel:20 },
-    { id:'healers',         category:'Castle',    name:'✨ Royal Healers',      baseCost:35, costMult:1.5,  maxLevel:20 },
-    { id:'watchtowers',     category:'Castle',    name:'🔭 Watch Towers',       baseCost:40, costMult:1.6,  maxLevel:3  },
-    { id:'studyhall',       category:'Education', name:'🎓 Study Hall',         baseCost:25, costMult:1.5,  maxLevel:15 },
-    { id:'apprenticeships', category:'Education', name:'🛠️ Apprenticeships',    baseCost:30, costMult:1.5,  maxLevel:15 },
-    { id:'library',         category:'Education', name:'📚 Library',            baseCost:30, costMult:1.5,  maxLevel:15 },
-    { id:'academy',         category:'Education', name:'🏛️ Academy',            baseCost:35, costMult:1.55, maxLevel:10 },
+    { id:'soldiers',        category:'Military',  name:'⚔️ Trained Soldiers',   baseCost:100, costMult:1.6, maxLevel:20 },
+    { id:'archives',        category:'Military',  name:'📜 Scholarly Archives', baseCost:100, costMult:1.6, maxLevel:20 },
+    { id:'blacksmith',      category:'Military',  name:'🔨 Blacksmith',         baseCost:100, costMult:1.6, maxLevel:20 },
+    { id:'siegeengineers',  category:'Military',  name:'💣 Siege Engineers',    baseCost:100, costMult:1.6, maxLevel:20 },
+    { id:'traininggrounds', category:'Military',  name:'🏕️ Training Grounds',   baseCost:100, costMult:1.6, maxLevel:1  },
+    { id:'treasury',        category:'Economy',   name:'💰 Treasury',           baseCost:100, costMult:1.6, maxLevel:15 },
+    { id:'marketplace',     category:'Economy',   name:'🏪 Marketplace',        baseCost:100, costMult:1.6, maxLevel:10 },
+    { id:'supplydepot',     category:'Economy',   name:'📦 Supply Depot',       baseCost:100, costMult:1.6, maxLevel:9  },
+    { id:'warehouse',       category:'Economy',   name:'🏭 Warehouse',          baseCost:100, costMult:1.6, maxLevel:15 },
+    { id:'walls',           category:'Castle',    name:'🧱 Reinforced Walls',   baseCost:100, costMult:1.6, maxLevel:20 },
+    { id:'healers',         category:'Castle',    name:'✨ Royal Healers',      baseCost:100, costMult:1.6, maxLevel:20 },
+    { id:'watchtowers',     category:'Castle',    name:'🔭 Watch Towers',       baseCost:100, costMult:1.6, maxLevel:3  },
+    { id:'studyhall',       category:'Education', name:'🎓 Study Hall',         baseCost:100, costMult:1.6, maxLevel:15 },
+    { id:'apprenticeships', category:'Education', name:'🛠️ Apprenticeships',    baseCost:100, costMult:1.6, maxLevel:15 },
+    { id:'library',         category:'Education', name:'📚 Library',            baseCost:100, costMult:1.6, maxLevel:15 },
+    { id:'academy',         category:'Education', name:'🏛️ Academy',            baseCost:100, costMult:1.6, maxLevel:10 },
 ];
 
 function kingdomLevel(id){ return kingdomSave.levels[id]||0; }
 
 function kingdomUpgradeCost(upg){
     let level = kingdomLevel(upg.id);
-    let raw = upg.baseCost * Math.pow(upg.costMult, level);
+    let raw = PlatformManager.permanentUpgradeCost(level);
     let marketLevel = kingdomLevel('marketplace');
     let discount = Math.max(0.5, 1 - 0.05*marketLevel); // discount caps at 50% off
-    return Math.max(1, Math.round(raw*discount));
+    return Math.max(100, Math.round(raw*discount));
 }
 
 function buyKingdomUpgrade(id){
@@ -417,6 +417,7 @@ function showRelicSelect(onComplete){
 
 function computeRunPowerupBonuses(){
     runPowerupBonuses = { luckycharm:0, stageclear:0, increasedammo:0, goldentouch:0 };
+    if(!PlatformManager.powerupsAllowed()) return;
     let correct = prerunQuizCorrect;
     let avgTime = prerunQuizTimes.length ? prerunQuizTimes.reduce((a,b)=>a+b,0)/prerunQuizTimes.length : 10;
     // Speed multiplier: ~3s average or faster is fastest (1.5x), 10s+ average is slowest (0.7x)
@@ -432,6 +433,10 @@ function computeRunPowerupBonuses(){
 // Shared pre-run calibration quiz — only runs if at least one powerup is
 // equipped. Runs before the first wave starts.
 function runPrerunQuiz(onComplete){
+    if(!PlatformManager.powerupsAllowed()){
+        prerunQuizCorrect = 0; prerunQuizTimes = [];
+        computeRunPowerupBonuses(); onComplete(); return;
+    }
     if(kingdomSave.equippedPowerups.length===0){ computeRunPowerupBonuses(); onComplete(); return; }
     prerunQuizCorrect = 0; prerunQuizTimes = [];
     let qIndex = 0;
@@ -546,8 +551,6 @@ let runDoubleEnemies = false, runGoldMult = 1;
 let runNoCardRewards = false, runCorrectAnswersGiveGold = false;
 
 const MERCHANT_OFFERS = [
-    { name:'Double Trouble', risk:'Double enemies for the rest of the run', reward:'Double coins for the rest of the run',
-      apply(){ runDoubleEnemies=true; runGoldMult*=2; } },
     { name:'Bring the Boss', risk:'A boss fight begins immediately', reward:'Free tower once the boss falls',
       apply(){ forceBossThisWave=true; pendingFreeTowerAfterBoss=true; } },
     { name:'Fragile Kingdom', risk:'Castle max health quartered (permanent)', reward:'Ammo per correct answer doubled (permanent)',

@@ -8,6 +8,7 @@ window.GAME_CONFIG = {
     catchphrase: "Shoot fast. Reload smarter.",
 
     genre: "Shooting Gallery",
+    gameModes: ["singleplayer"],
 
     questionType: "category",
 

@@ -1199,19 +1199,19 @@ function finalizeQuizFlow(){
 /* ============================= SHOP ============================= */
 const MAGNET_BASE_RADIUS = 50;
 const UPGRADES = [
-  { id:'maxHealthBonus', name:'Heart Fragment', desc:'+1 max health, permanently.', cost:()=> 40+save.upgrades.maxHealthBonus*25, max:2,
+  { id:'maxHealthBonus', name:'Heart Fragment', desc:'+1 max health, permanently.', cost:()=> PlatformManager.permanentUpgradeCost(save.upgrades.maxHealthBonus), max:2,
     buy:()=>{ save.upgrades.maxHealthBonus++; } },
-  { id:'jumpBonus', name:'Feather Charm', desc:'+10% jump height, permanently.', cost:()=> 35+save.upgrades.jumpBonus*20, max:3,
+  { id:'jumpBonus', name:'Feather Charm', desc:'+10% jump height, permanently.', cost:()=> PlatformManager.permanentUpgradeCost(save.upgrades.jumpBonus), max:3,
     buy:()=>{ save.upgrades.jumpBonus++; } },
-  { id:'wallJump', name:'Grip Gloves', desc:'Unlock wall jump permanently.', cost:()=>70, max:1,
+  { id:'wallJump', name:'Grip Gloves', desc:'Unlock wall jump permanently.', cost:()=>PlatformManager.permanentUpgradeCost(0), max:1,
     buy:()=>{ save.upgrades.wallJump = true; } },
   { id:'magnetTier', name:'Lodestone', desc:()=> 'Passive coin magnet, always on. +10% radius per upgrade'+(save.upgrades.magnetTier>0?` (currently ${Math.round(MAGNET_BASE_RADIUS*(1+0.1*(save.upgrades.magnetTier-1)))}px)`:'')+'.',
-    cost:()=> Math.round(50*Math.pow(1.5, save.upgrades.magnetTier||0)), max:10,
+    cost:()=> PlatformManager.permanentUpgradeCost(save.upgrades.magnetTier||0), max:10,
     buy:()=>{ save.upgrades.magnetTier = (save.upgrades.magnetTier||0)+1; } },
   { id:'speedTier', name:'Swift Boots', desc:()=> 'Move speed +10% per upgrade, permanently'+(save.upgrades.speedTier>0?` (currently +${save.upgrades.speedTier*10}%)`:'')+'.',
-    cost:()=> Math.round(50*Math.pow(1.5, save.upgrades.speedTier||0)), max:10,
+    cost:()=> PlatformManager.permanentUpgradeCost(save.upgrades.speedTier||0), max:10,
     buy:()=>{ save.upgrades.speedTier = (save.upgrades.speedTier||0)+1; } },
-  { id:'extraLives', name:'Spare Heartstone', desc:'+1 starting life on future runs.', cost:()=> 90+(save.upgrades.extraLives||0)*40, max:2,
+  { id:'extraLives', name:'Spare Heartstone', desc:'+1 starting life on future runs.', cost:()=> PlatformManager.permanentUpgradeCost(save.upgrades.extraLives||0), max:2,
     buy:()=>{ save.upgrades.extraLives = (save.upgrades.extraLives||0)+1; } }
 ];
 const SKINS = [

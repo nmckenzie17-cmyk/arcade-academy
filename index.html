@@ -150,7 +150,11 @@
       <p class="eyebrow"><span aria-hidden="true">✦</span> Learning, levelled up</p>
       <h1 id="page-title">Arcade <span>Academy</span></h1>
       <p class="hero-copy">Choose a challenge, test what you know, and make every lesson a high score.</p>
-      <a class="jump-link" href="#games">Explore games <span aria-hidden="true">↓</span></a>
+      <nav class="hero-jump-links" aria-label="Explore Arcade Academy">
+        <a class="jump-link" href="#single-player-games">Explore Single Player Games <span aria-hidden="true">↓</span></a>
+        <a class="jump-link" href="#multiplayer-games">Explore Multiplayer Games <span aria-hidden="true">↓</span></a>
+        <a class="jump-link jump-link-secondary" href="#leaderboards" hidden>Leaderboards <span aria-hidden="true">↓</span></a>
+      </nav>
       <div class="hero-orb orb-one" aria-hidden="true">✦</div>
       <div class="hero-orb orb-two" aria-hidden="true">★</div>
       <div class="hero-grid" aria-hidden="true"></div>
@@ -207,7 +211,7 @@
       <div class="stat-grid" id="stat-grid"></div>
     </section>
 
-    <section class="game-section" id="games" aria-labelledby="games-title">
+    <section class="game-section" id="single-player-games" aria-labelledby="games-title">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Game library</p>
@@ -218,15 +222,35 @@
       <div class="game-grid" id="single-game-grid"></div>
     </section>
 
-    <section class="game-section multiplayer-section" aria-labelledby="multiplayer-games-title">
+    <section class="game-section multiplayer-section" id="multiplayer-games" aria-labelledby="multiplayer-games-title">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Play together</p>
-          <h2 id="multiplayer-games-title">2 Player Games</h2>
+          <h2 id="multiplayer-games-title">Multiplayer Games</h2>
         </div>
         <p class="game-count" id="multiplayer-game-count" aria-live="polite"></p>
       </div>
       <div class="game-grid" id="multiplayer-game-grid"></div>
+    </section>
+
+    <section class="leaderboard-section" id="leaderboards" aria-labelledby="leaderboards-title" hidden>
+      <div class="section-heading">
+        <div><p class="eyebrow">Top scores</p><h2 id="leaderboards-title">Leaderboards</h2></div>
+      </div>
+      <div class="leaderboard-panel">
+        <div class="leaderboard-controls">
+          <div class="leaderboard-tabs" role="group" aria-label="Leaderboard scope">
+            <button type="button" class="leaderboard-tab active" id="leaderboard-class-btn" aria-pressed="true">Class</button>
+            <button type="button" class="leaderboard-tab" id="leaderboard-overall-btn" aria-pressed="false">Overall</button>
+          </div>
+          <label for="leaderboard-game-select">Choose game</label>
+          <select id="leaderboard-game-select"></select>
+        </div>
+        <p class="leaderboard-heading" id="leaderboard-heading"></p>
+        <div class="leaderboard-results" id="leaderboard-results" aria-live="polite">
+          <p class="leaderboard-message">Choose a game to view its leaderboard.</p>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -265,14 +289,6 @@
           <dd class="stat-accuracy"></dd>
         </div>
         <div class="stat-row">
-          <dt>Questions</dt>
-          <dd class="stat-questions"></dd>
-        </div>
-        <div class="stat-row">
-          <dt>Play Time</dt>
-          <dd class="stat-playtime"></dd>
-        </div>
-        <div class="stat-row">
           <dt>Last Played</dt>
           <dd class="stat-lastplayed"></dd>
         </div>
@@ -282,6 +298,7 @@
         Play now
         <span aria-hidden="true">→</span>
       </span>
+      <span class="practice-button" role="button" tabindex="0">Practice · 5 min</span>
 
     </div>
   </a>

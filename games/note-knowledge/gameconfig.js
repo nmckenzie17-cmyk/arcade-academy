@@ -9,6 +9,7 @@ window.GAME_CONFIG = {
     catchphrase: "Tap the beat. Sort the chorus.",
 
     genre: "Rhythm Arcade",
+    gameModes: ["singleplayer"],
 
     questionType: "category",
 

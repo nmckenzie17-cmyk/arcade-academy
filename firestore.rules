@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isTeacher() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'teacher';
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isTeacher());
+      allow create: if signedIn() && request.auth.uid == uid
+        && (!('role' in request.resource.data) || request.resource.data.role == 'student');
+      allow update: if signedIn() && (isTeacher()
+        || (request.auth.uid == uid
+          && request.resource.data.get('role', null) == resource.data.get('role', null)
+          && (resource.data.get('leaderboardId', '') == request.resource.data.get('leaderboardId', '')
+            || (resource.data.get('leaderboardId', '') == ''
+              && request.resource.data.get('leaderboardId', '').matches('^[a-f0-9]{32}$')))));
+      allow delete: if isTeacher() && resource.data.get('role', 'student') != 'teacher';
+    }
+
+    // Public documents contain no names, emails, auth UIDs, or profile data.
+    match /leaderboards/{gameId}/entries/{entryKey} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && entryKey == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.leaderboardId
+        && request.resource.data.keys().hasOnly(['gameId', 'initial', 'classId', 'highScore', 'updatedAt'])
+        && request.resource.data.gameId == gameId
+        && request.resource.data.initial is string
+        && request.resource.data.initial.size() >= 1
+        && request.resource.data.initial.size() <= 2
+        && request.resource.data.classId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.className
+        && request.resource.data.highScore == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.games[gameId].highScore
+        && request.resource.data.updatedAt is number;
+      allow delete: if signedIn()
+        && entryKey == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.leaderboardId;
+    }
+
+    match /matches/{matchId} {
+      allow read, create, update: if signedIn();
+      allow delete: if false;
+    }
+
+    match /resetOperations/{operationId} {
+      allow read, write: if isTeacher();
+    }
+  }
+}

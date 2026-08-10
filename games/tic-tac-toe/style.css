@@ -26,6 +26,8 @@ h1 { margin:.2rem 0 .7rem; color:var(--ttt-cyan); font-size:clamp(2rem,8vw,4rem)
 .hub-link { margin:.45rem 0 0; }
 .hub-link a { color:var(--ttt-cyan); font-size:.82rem; font-weight:800; text-decoration:none; }
 .menu-actions { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-top:1.5rem; }
+.mode-picker { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-top:1.5rem; }
+.start-solo { width:100%; margin-top:.8rem; }
 .action { min-height:52px; padding:.8rem 1.15rem; color:#fff; font-weight:900; letter-spacing:.04em; text-transform:uppercase; border:2px solid transparent; border-radius:12px; cursor:pointer; }
 .action:disabled { opacity:.5; cursor:not-allowed; }
 .primary { background:linear-gradient(135deg,#7c42f5,var(--ttt-pink)); border-color:#ff78b3; }

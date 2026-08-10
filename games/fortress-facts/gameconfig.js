@@ -9,6 +9,7 @@ window.GAME_CONFIG = {
     catchphrase: "Defend the kingdom. Answer to arm",
 
     genre: "Strategy / Tower Defense",
+    gameModes: ["singleplayer"],
 
     questionType: "multichoice",
 

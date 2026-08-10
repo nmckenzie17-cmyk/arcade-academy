@@ -1,6 +1,6 @@
-# Integrate a New Multiplayer Game into Arcade Academy
+# Integrate a Multiplayer Game with Online and Class-Calibrated AI Modes
 
-I have created a new two-player multiplayer game and added its folder to Arcade Academy.
+I have created a new multiplayer game and added its folder to Arcade Academy.
 
 Game folder:
 [GAME FOLDER PATH]
@@ -11,27 +11,36 @@ Game name:
 Game ID:
 [LOWERCASE GAME ID]
 
+Maximum players:
+[2 / 3 / 4]
+
 Multiplayer style:
 [TURN-BASED / SIMULTANEOUS / LOBBY-BASED]
 
-Question mechanic:
-[BEFORE EACH TURN / FOR BONUSES / AT ROUND START / NONE / DESCRIBE CUSTOM RULE]
+Human question mechanic:
+[BEFORE EACH TURN / FOR BONUSES / AT ROUND START / DESCRIBE CUSTOM RULE]
 
 Supported question formats:
-[MATCHING / MULTICHOICE / CATEGORY / HOST CHOOSES / OTHER]
-
-Does each player use their own class/question bank?
-[YES / NO]
+[MATCHING / MULTICHOICE / CATEGORY / HOST CHOOSES]
 
 ## Goal
 
-Integrate the game with Arcade Academy’s existing multiplayer architecture.
+Integrate the game completely with Arcade Academy.
 
-Use Tic-Tac-Toe and Thinking Tanks as implementation references. Preserve the new game’s core mechanics and theme, but align its authentication, lobby flow, questions, Firestore matches, interface, statistics and Hub behaviour.
+The game must support:
 
-Do not create a second Firebase implementation.
+1. Student vs Student using the existing Firebase multiplayer system.
+2. Student vs Class-Calibrated Computer without requiring another student or Firebase room.
 
-## Architecture to Preserve
+Use Tic-Tac-Toe and Thinking Tanks as implementation references.
+
+Preserve the new game’s core mechanics and visual identity, but align its authentication, questions, AI, statistics, home screen, Firebase architecture, Hub presentation and responsive behaviour with the existing collection.
+
+Implement and verify the integration rather than only reviewing it.
+
+## Architecture
+
+Online multiplayer must follow:
 
 Game
 ↓
@@ -47,13 +56,25 @@ Game
 ↓
 MultiplayerQuestionHelper / QuestionManager
 ↓
-Hub-selected class code and question bank
+Student’s Hub-selected question bank
 
-The game must not make direct Firebase Auth or Firestore calls.
+AI calibration must follow:
+
+Game
+↓
+Shared AI Difficulty Manager
+↓
+FirebaseManager
+↓
+Privacy-safe class statistics
+
+Do not put direct Firebase Auth or Firestore calls inside the game.
+
+Do not create a second Firebase configuration.
 
 ## Files to Inspect
 
-Inspect:
+Before editing, inspect:
 
 - The new game’s complete folder
 - `shared/js/FirebaseManager.js`
@@ -61,64 +82,121 @@ Inspect:
 - `shared/js/MultiplayerQuestionHelper.js`
 - `shared/js/QuestionManager.js`
 - `shared/js/PlatformManager.js`
+- `shared/js/GameSaveManager.js`
 - `shared/css/global.css`
+- `shared/data/classes.js`
 - Tic-Tac-Toe
 - Thinking Tanks
 - Hub configuration and styles
 - Current `/matches` Firestore rules example
-- Existing game configuration metadata
+- Teacher Dashboard statistics architecture
+- Existing `gameconfig.js` conventions
 
-## Authentication
+Use shared managers wherever possible so future multiplayer games can reuse the same systems.
 
-The game must reuse the student’s existing Firebase Authentication session.
+## Game Configuration
 
-If the player is not authenticated:
+Add or correct the game’s `gameconfig.js`.
 
-- Do not create an anonymous account
-- Do not create another login system
-- Show a message directing them back to Arcade Academy to sign in
+Use one stable game ID across:
 
-Use the existing student profile display name in the room.
+- Hub registration
+- PlatformManager
+- Firebase statistics
+- Multiplayer match documents
+- Teacher Dashboard
+- GameSaveManager
+- Favourite-game tracking
 
-## Home Screen and Shared UI
+Include existing metadata fields where applicable:
 
-Match the Arcade Academy game home-screen conventions.
+- ID
+- Title
+- Icon
+- Catchphrase
+- Description
+- Genre
+- Path
+- Multiplayer flag
+- Maximum player count
+- Supported question formats
+- AI support
+
+## Home Screen
+
+Match Arcade Academy’s established game home-screen layout.
 
 Include:
 
 - Game title
 - Catchphrase
-- Description/instructions
-- Multiplayer record if tracked
+- Description and instructions
+- Multiplayer result statistics
+- Game-mode selection
+- Question-format selection where applicable
+- Back to Arcade Academy button
+- Creator credit where appropriate
+
+The player must first choose:
+
+- Single Player
+- Multiplayer
+
+If Multiplayer is selected, show:
+
 - Create Room
 - Join Room
 - Five-digit room-code entry
-- Question-format selector if the host chooses it
-- “Back to Arcade Academy” button
-- Creator credit where applicable
+- Lobby/readiness controls where needed
 
-Use `shared/css/global.css` and the established panel, button, typography and responsive conventions.
+If Single Player is selected, show:
 
-The entire page must be scrollable where required.
+- Computer difficulty selection
+- Low
+- Medium
+- High
+- Start Game
 
-Add accessible controls for:
+The Back to Arcade Academy button must navigate to:
 
-- Leave Room
-- Leave Game
-- Return to Menu
-- Rematch, if supported
-- Error and connection status
+`../../index.html`
 
-Leaving must stop Firestore listeners and return the player safely to the game home screen.
+The page must scroll correctly on desktop and mobile.
 
-## Match Lifecycle
+## Shared Visual Style
+
+The game must:
+
+- Load `shared/css/global.css`
+- Use the shared typography, buttons, panels, borders and responsive conventions
+- Keep its own artwork and gameplay theme
+- Avoid clipped overlays or inaccessible controls
+- Provide visible loading, connection and error states
+- Provide Leave Room, Leave Game and Return to Menu controls
+- Return to its home screen after a completed match
+
+All two-player or multiplayer Hub cards must use Arcade Academy’s approved dark-blue multiplayer background.
+
+## Authentication
+
+Reuse the existing Firebase Authentication session.
+
+If the player is not signed in:
+
+- Do not create an anonymous account
+- Do not create another login screen
+- Direct the player back to Arcade Academy to sign in
+
+Use the student’s existing profile display name and assigned class.
+
+## Online Multiplayer
 
 Use the existing `/matches/{roomCode}` architecture.
 
 Support the appropriate states:
 
 - `waiting`
-- `lobby`, if players must confirm readiness
+- `lobby`
 - `playing`
 - `finished`
 - `abandoned`
@@ -127,198 +205,30 @@ Room codes must:
 
 - Be five digits
 - Be collision-safe
-- Permit direct lookup but not collection listing
-- Reuse abandoned or stale rooms only through the approved FirebaseManager flow
+- Permit direct lookup without permitting collection listing
+- Reuse abandoned or stale rooms only through FirebaseManager
 
-Store only multiplayer information required for the match. Do not copy full user profiles or educational records into match documents.
+Store only the information required for the match. Do not copy full profiles, emails, class statistics or educational histories into match documents.
 
-## Questions
+## Online Questions
 
-Use the existing multiplayer question helper and QuestionManager.
+Use MultiplayerQuestionHelper and QuestionManager.
 
 If the host selects a question format:
 
-- Save the selected format in match settings
-- Validate that it is one of the supported formats
-- Ensure both players see the same match rule
+- Save it in the match settings
+- Validate it against the supported formats
+- Apply the same match rule to both players
 
-If each player uses their own question bank:
+Each human student must use their own Hub-selected class code and question bank.
 
-- Player A loads questions using Player A’s Hub-selected class code
-- Player B loads questions using Player B’s Hub-selected class code
-- Do not store one player’s class code as the other player’s source
-- Both banks must use the match’s selected question format
-- Show a clear error if a player’s bank lacks that format
+Player A must not inherit Player B’s class code or questions.
 
-Apply the question mechanic specified above.
+Show a clear error when:
 
-For a before-turn gate:
+- A class code is missing
+- The selected format is unavailable
+- A question bank cannot be loaded
+- An older room lacks required question settings
 
-- The active player receives one question
-- Correct answer allows the configured action or bonus
-- Incorrect answer applies the configured consequence
-- Prevent duplicate answers and repeated submissions
-- Store only the gate result required to synchronize the turn
-- Do not expose answers in Firestore
-
-Record educational answers locally through PlatformManager and QuestionManager for the student who answered them.
-
-## No Multiplayer Coins or Score Rewards
-
-Multiplayer games must not award or deduct shared coins.
-
-Do not award:
-
-- Coins for answers
-- Coins for winning
-- Coins for losing
-- Coins for draws
-- Score-based coin bonuses
-
-Record only the existing multiplayer outcome statistics where supported:
-
-- Games played
-- Wins
-- Losses
-- Draws
-- Questions and accuracy
-- Playtime
-- Last played
-
-If the game has an internal tactical score required for gameplay, keep it match-local and do not turn it into coins or persistent Arcade Academy score rewards.
-
-## PlatformManager
-
-Use:
-
-- `PlatformManager.startSession(gameId)`
-- `PlatformManager.endSession(gameId)`
-- `PlatformManager.heartbeat(gameId, active)`
-- `PlatformManager.recordQuestionAnswered(gameId, correct)`
-- Existing multiplayer result recording methods
-
-Do not count waiting in a lobby or answering menus as active gameplay.
-
-Do not start duplicate sessions after rematches.
-
-## Firestore Security Rules
-
-Check the existing `/matches` rules against the exact fields and status transitions used by this game.
-
-Do not weaken the `/users` rules.
-
-The rules should:
-
-- Require authentication
-- Allow creation only by Player 1
-- Allow Player 2 to join a waiting room
-- Restrict updates to match participants
-- Preserve core match identity
-- Allow only approved mutable fields
-- Prevent collection listing
-- Prevent client deletion
-- Support lobby status if readiness is required
-- Include the new game ID in the approved multiplayer game IDs
-
-If deployment is required, update the repository’s rule example and clearly provide the exact block that must be published. Do not claim the rules were deployed unless deployment actually succeeded.
-
-## Hub Integration
-
-Add the game under:
-
-- Two Player
-
-Its Hub card should display:
-
-- Icon
-- Title
-- Catchphrase
-- Description
-- Multiplayer genre
-- Relevant result statistics
-
-All two-player game artwork panels should use Arcade Academy’s approved dark-blue multiplayer background.
-
-Do not redesign the Hub.
-
-## Firebase and Teacher Dashboard
-
-Keep all direct Firestore operations in FirebaseManager.
-
-Ensure the Teacher Dashboard can read the student’s multiplayer statistics through the existing game catalogue.
-
-Do not sync:
-
-- Match transcripts
-- Opponents’ questions
-- Correct answers
-- Full terrain/board history after the match
-- Coins
-
-Persistent match documents may remain for room recovery/auditing only as permitted by the existing architecture.
-
-## Recovery and Edge Cases
-
-Handle:
-
-- Host leaves before another player joins
-- Player leaves during the match
-- Opponent disconnects
-- Page refresh during an active room
-- Old room stored in localStorage
-- Missing or abandoned room
-- Room already full
-- Missing class code
-- Unsupported question format
-- A player’s bank lacking compatible questions
-- Duplicate move submission
-- Duplicate reward/result claim
-- Rematch request from only one player
-- Stale room-code reuse
-- Firestore permission failure
-
-Errors must be friendly and actionable.
-
-## Verification
-
-Test or inspect:
-
-1. Game appears in the Two Player Hub section.
-2. Hub artwork uses the dark-blue multiplayer background.
-3. Signed-out users are directed to the Hub.
-4. Authenticated player can create a room.
-5. Another authenticated player can join.
-6. Lobby/readiness works if required.
-7. Both players can use different class codes and question banks.
-8. Selected question format works for both players.
-9. Turns/actions cannot be submitted by the wrong player.
-10. Question gates cannot be answered twice.
-11. Match state synchronizes across two browsers.
-12. Leave Room works from lobby and gameplay.
-13. Refresh can recover or safely exit an existing room.
-14. Match completion records win/loss/draw exactly once.
-15. No coins are awarded or deducted.
-16. Rematches work without duplicate sessions.
-17. Firestore rules match every required create/update field.
-18. Teacher Dashboard can display the appropriate statistics.
-19. Desktop and mobile layouts work and scroll correctly.
-20. JavaScript syntax and repository checks pass.
-
-## Final Report
-
-After implementation, report:
-
-- Files changed
-- Match states and transitions
-- Question mechanics implemented
-- Whether players use separate question banks
-- Platform statistics recorded
-- Confirmation that no coins are used
-- Firestore rule changes required
-- Tests performed
-- Any deployment step I must perform
-- Any unresolved design decision
-
-Implement and verify the integration rather than only reviewing the game.
-
-If something is ambiguous, inspect the established Arcade Academy conventions first. Make the safest compatible assumption, implement it, and clearly report the assumption. Ask me only when a missing choice would materially change the game’s mechanics or economy.
+Do not store

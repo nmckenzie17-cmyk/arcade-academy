@@ -21,6 +21,8 @@
   let activeQuestion = null;
   let activeQuestionNonce = null;
   let gateInitialising = false;
+  let isSinglePlayer = false;
+  let aiThinking = false;
   const claimingRounds = new Set();
 
   function showScreen(name) {
@@ -61,6 +63,9 @@
 
   function bindEvents() {
     byId('sign-in-btn').addEventListener('click', signIn);
+    byId('single-btn').addEventListener('click', () => { byId('single-options').hidden = false; byId('multiplayer-options').hidden = true; });
+    byId('multiplayer-btn').addEventListener('click', () => { byId('single-options').hidden = true; byId('multiplayer-options').hidden = false; });
+    byId('start-single-btn').addEventListener('click', startSingleGame);
     byId('create-btn').addEventListener('click', createGame);
     byId('show-join-btn').addEventListener('click', () => { setMessage('join-error'); showScreen('join'); byId('room-input').focus(); });
     byId('join-back-btn').addEventListener('click', () => showScreen('menu'));
@@ -69,6 +74,32 @@
     byId('cancel-room-btn').addEventListener('click', leaveMatch);
     byId('leave-btn').addEventListener('click', leaveMatch);
     byId('rematch-btn').addEventListener('click', requestRematch);
+  }
+
+  async function loadQuestions() {
+    const classCode = PlatformManager.getClassCode();
+    const questionType = byId('question-type').value;
+    if (!classCode) throw new Error('Return to the Hub and enter your class code before playing.');
+    const loaded = await MultiplayerQuestionHelper.load({ classCode, questionType });
+    if (!loaded.ok) throw new Error('This class does not have that question type available.');
+    questionBankKey = `${classCode}:${questionType}`;
+    return questionType;
+  }
+
+  async function startSingleGame() {
+    const button = byId('start-single-btn');
+    setBusy(button, true, 'Calibrating…', 'Play Computer');
+    setMessage('menu-error');
+    try {
+      const questionType = await loadQuestions();
+      match = await SinglePlayerManager.createMatch(GAME_ID, { ...EMPTY_STATE(), turnGate: { uid: player.uid, status: 'pending', nonce: `1-${Date.now()}` } }, { questionType }, byId('ai-difficulty').value);
+      isSinglePlayer = true;
+      matchId = match.id;
+      const ai = match.settings.aiProfile;
+      setMessage('ai-summary', `${Math.round(ai.averageAccuracy * 100)}% target · ${ai.source === 'class-data' ? `${ai.group}, ${ai.sampleSize} student${ai.sampleSize === 1 ? '' : 's'}` : 'safe fallback'}`);
+      stopListening = SinglePlayerManager.listen(handleMatchChange);
+    } catch (error) { setMessage('menu-error', error.message || 'Could not start single player.'); }
+    finally { setBusy(button, false, '', 'Play Computer'); }
   }
 
   async function signIn() {
@@ -135,6 +166,7 @@
   function connectToMatch(id) {
     if (stopListening) stopListening();
     matchId = id;
+    isSinglePlayer = false;
     stopListening = MultiplayerManager.listenToMatch(id, handleMatchChange, () => {
       setMessage('loading-message', 'Unable to read this match. It may have expired or Firebase rules may be blocking access.');
       showScreen('loading');
@@ -146,7 +178,7 @@
     const isParticipant = nextMatch.player1?.uid === player.uid || nextMatch.player2?.uid === player.uid;
     if (!isParticipant) { returnToMenu('You do not have access to this match.'); return; }
     match = nextMatch;
-    localStorage.setItem(ACTIVE_MATCH_KEY, nextMatch.id);
+    if (!isSinglePlayer) localStorage.setItem(ACTIVE_MATCH_KEY, nextMatch.id);
 
     const validQuestionSettings = nextMatch.settings
       && ['matching', 'multichoice', 'category'].includes(nextMatch.settings.questionType);
@@ -196,6 +228,7 @@
     renderMatch();
     showScreen('match');
     manageTurnQuestion();
+    if (isSinglePlayer) scheduleComputerMove();
     if (nextMatch.status === 'finished') claimReward(nextMatch);
   }
 
@@ -217,7 +250,7 @@
     const board = Array.isArray(match.gameState?.board) ? match.gameState.board : Array(9).fill(null);
     const isPlayerOne = match.player1.uid === player.uid;
     const mySymbol = isPlayerOne ? 'X' : 'O';
-    byId('match-room-code').textContent = match.roomCode;
+    byId('match-room-code').textContent = isSinglePlayer ? 'Single Player' : match.roomCode;
     byId('player-one-name').textContent = `${match.player1.displayName}${isPlayerOne ? ' (You)' : ''}`;
     byId('player-two-name').textContent = `${match.player2?.displayName || 'Waiting…'}${!isPlayerOne ? ' (You)' : ''}`;
     byId('player-one-panel').classList.toggle('active', match.currentTurn === match.player1.uid);
@@ -233,8 +266,8 @@
     });
 
     byId('result-actions').hidden = match.status !== 'finished';
-    byId('rematch-btn').disabled = Boolean(match.rematchRequests?.[player.uid]);
-    byId('rematch-btn').textContent = match.rematchRequests?.[player.uid] ? 'Rematch Requested' : 'Play Again';
+    byId('rematch-btn').disabled = !isSinglePlayer && Boolean(match.rematchRequests?.[player.uid]);
+    byId('rematch-btn').textContent = !isSinglePlayer && match.rematchRequests?.[player.uid] ? 'Rematch Requested' : 'Play Again';
     const opponentUid = isPlayerOne ? match.player2?.uid : match.player1.uid;
     setMessage('rematch-status', match.rematchRequests?.[player.uid]
       ? (match.rematchRequests?.[opponentUid] ? 'Starting rematch…' : 'Waiting for opponent…')
@@ -254,6 +287,7 @@
   function manageTurnQuestion() {
     if (!match || match.status !== 'playing') { byId('question-overlay').hidden = true; return; }
     const gate = match.gameState?.turnGate;
+    if (isSinglePlayer && match.currentTurn === match.player2.uid) { byId('question-overlay').hidden = true; return; }
     if (!gate || gate.uid !== match.currentTurn) {
       if (match.currentTurn === player.uid && !gateInitialising) initialiseTurnGate();
       return;
@@ -284,7 +318,7 @@
   async function initialiseTurnGate() {
     gateInitialising = true;
     try {
-      await MultiplayerManager.submitMove(match.id, (fresh, uid) => {
+      await submitHumanMove((fresh, uid) => {
         if (fresh.status !== 'playing' || fresh.currentTurn !== uid || fresh.gameState?.turnGate?.uid === uid) return null;
         return { gameState: { ...fresh.gameState, turnGate: { uid, status: 'pending', nonce: `${fresh.round}-${Date.now()}` } } };
       });
@@ -296,7 +330,7 @@
     MultiplayerQuestionHelper.record(activeQuestion, correct);
     setMessage('question-feedback', correct ? 'Correct — take your turn!' : 'Incorrect — your turn is skipped.');
     try {
-      await MultiplayerManager.submitMove(match.id, (fresh, uid) => {
+      await submitHumanMove((fresh, uid) => {
         const gate = fresh.gameState?.turnGate;
         if (fresh.currentTurn !== uid || gate?.nonce !== activeQuestionNonce || gate.status !== 'pending') throw new Error('QUESTION_EXPIRED');
         if (correct) return { gameState: { ...fresh.gameState, turnGate: { ...gate, status: 'passed' } } };
@@ -315,7 +349,7 @@
     if (!match || match.status !== 'playing') return;
     setMessage('match-error');
     try {
-      await MultiplayerManager.submitMove(match.id, (freshMatch, uid) => {
+      await submitHumanMove((freshMatch, uid) => {
         if (freshMatch.gameId !== GAME_ID || freshMatch.status !== 'playing') throw new Error('MATCH_NOT_PLAYING');
         if (freshMatch.currentTurn !== uid) throw new Error('NOT_YOUR_TURN');
         if (freshMatch.gameState?.turnGate?.uid !== uid || freshMatch.gameState.turnGate.status !== 'passed') throw new Error('ANSWER_REQUIRED');
@@ -354,10 +388,55 @@
     }
   }
 
+  function submitHumanMove(changes) {
+    return isSinglePlayer ? SinglePlayerManager.applyMove(player.uid, changes) : MultiplayerManager.submitMove(match.id, changes);
+  }
+
+  function scoreBoard(board, aiSymbol, humanSymbol, aiTurn, depth) {
+    if (WIN_LINES.some(line => line.every(i => board[i] === aiSymbol))) return 10 - depth;
+    if (WIN_LINES.some(line => line.every(i => board[i] === humanSymbol))) return depth - 10;
+    if (board.every(Boolean)) return 0;
+    const scores = board.map((value, index) => {
+      if (value) return null;
+      const copy = [...board]; copy[index] = aiTurn ? aiSymbol : humanSymbol;
+      return scoreBoard(copy, aiSymbol, humanSymbol, !aiTurn, depth + 1);
+    }).filter(value => value !== null);
+    return aiTurn ? Math.max(...scores) : Math.min(...scores);
+  }
+
+  function scheduleComputerMove() {
+    if (aiThinking || match.status !== 'playing' || match.currentTurn !== match.player2.uid) return;
+    aiThinking = true;
+    setTimeout(async () => {
+      try {
+        await SinglePlayerManager.applyMove(match.player2.uid, (fresh, uid) => {
+          const board = [...fresh.gameState.board], open = board.map((v, i) => v ? null : i).filter(i => i !== null);
+          const ranked = open.map(index => { const copy = [...board]; copy[index] = 'O'; return { index, score: scoreBoard(copy, 'O', 'X', false, 0) }; }).sort((a,b) => b.score-a.score);
+          const accuracy = fresh.settings.aiProfile.averageAccuracy;
+          const strong = Math.random() < accuracy;
+          const pool = strong ? ranked.filter(move => move.score === ranked[0].score) : ranked.slice(1, Math.min(4, ranked.length));
+          const move = (pool.length ? pool : ranked)[Math.floor(Math.random() * (pool.length || ranked.length))];
+          board[move.index] = 'O';
+          const winningLine = WIN_LINES.find(line => line.every(position => board[position] === 'O'));
+          const draw = !winningLine && board.every(Boolean);
+          return winningLine || draw
+            ? { gameState:{ board, winningLine:winningLine || [] }, status:'finished', currentTurn:null, winner:winningLine ? uid : 'draw', rematchRequests:{} }
+            : { gameState:{ board, winningLine:[], turnGate:{ uid:fresh.player1.uid, status:'pending', nonce:`${fresh.round}-${Date.now()}` } }, currentTurn:fresh.player1.uid };
+        });
+      } finally { aiThinking = false; }
+    }, 550);
+  }
+
   async function claimReward(finishedMatch) {
     const key = `${finishedMatch.id}:${finishedMatch.round}`;
     if (claimingRounds.has(key)) return;
     claimingRounds.add(key);
+    if (isSinglePlayer) {
+      const result = finishedMatch.winner === 'draw' ? 'draw' : finishedMatch.winner === player.uid ? 'win' : 'loss';
+      PlatformManager.recordMultiplayerResult(GAME_ID, result);
+      updateHomeStats();
+      return;
+    }
     try {
       const reward = await MultiplayerManager.claimRoundReward(finishedMatch.id, finishedMatch.round);
       if (reward) {
@@ -372,6 +451,11 @@
 
   async function requestRematch() {
     if (!match) return;
+    if (isSinglePlayer) {
+      const starter = match.startingPlayerUid === match.player1.uid ? match.player2.uid : match.player1.uid;
+      SinglePlayerManager.rematch({ ...EMPTY_STATE(), turnGate: starter === player.uid ? { uid:player.uid, status:'pending', nonce:`${match.round + 1}-${Date.now()}` } : null });
+      return;
+    }
     byId('rematch-btn').disabled = true;
     try {
       await MultiplayerManager.requestRematch(match.id, EMPTY_STATE());
@@ -384,7 +468,7 @@
   async function leaveMatch() {
     const leavingId = matchId;
     if (stopListening) { stopListening(); stopListening = null; }
-    try { if (leavingId) await MultiplayerManager.leaveMatch(leavingId); }
+    try { if (isSinglePlayer) SinglePlayerManager.close(); else if (leavingId) await MultiplayerManager.leaveMatch(leavingId); }
     catch (error) { /* Navigation should never trap a student in a dead room. */ }
     returnToMenu();
   }
@@ -393,6 +477,7 @@
     localStorage.removeItem(ACTIVE_MATCH_KEY);
     match = null;
     matchId = null;
+    isSinglePlayer = false;
     if (stopListening) { stopListening(); stopListening = null; }
     if (sessionStarted) { PlatformManager.endSession(GAME_ID); sessionStarted = false; }
     setMessage('menu-error', message);

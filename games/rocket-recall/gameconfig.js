@@ -8,6 +8,7 @@ window.GAME_CONFIG = {
     catchphrase: "Fire fast. Answer faster.",
 
     genre: "Space Invaders",
+    gameModes: ["singleplayer"],
 
     questionType: "multichoice",
 

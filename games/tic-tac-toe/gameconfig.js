@@ -5,6 +5,7 @@ window.GAME_CONFIG = {
   description: "Challenge another signed-in Arcade Academy student to a live online battle of Xs and Os using a simple five-digit room code.",
   catchphrase: "Three in a row wins the show!",
   genre: "Multiplayer / Strategy",
+  gameModes: ["singleplayer", "multiplayer"],
   players: "2 Online",
   questionType: "host-choice",
   version: "1.0.0",

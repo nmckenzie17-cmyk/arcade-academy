@@ -80,7 +80,6 @@ let highScore=parseInt(localStorage.getItem('pixelJetpackHighScore'))||0;
 // PlatformManager (shared/js/PlatformManager.js) as the single source of
 // truth for the shared coin economy. Use PlatformManager.getCoins() /
 // addCoins() / spendCoins() instead of a local field.
-let doubleCoinsNextRun=localStorage.getItem('pixelJetpackDoubleCoinsNextRun')==='1';
 
 const SHOP_STORAGE_KEY='pixelJetpackShopState';
 const DEATH_PITY_KEY='pixelJetpackDeathPity';
@@ -91,14 +90,14 @@ toggles:{doubleGas:false,halfGas:false},
 appearance:{ownedPlayerSkins:['default'],equippedPlayerSkin:'default',ownedJetpackSkins:['default'],equippedJetpackSkin:'default',ownedFireSkins:['default'],equippedFireSkin:'default'}
 };
 const SHOP_UPGRADES=[
-{id:'scoreMultiplier',name:'Increase Score Multiplier',detail:'Score grows 0.1% faster per level.',baseCost:5,cost:function(level){return 5+5*level;}},
-{id:'fuelEfficiency',name:'Increase Fuel Efficiency',detail:'Fuel drains 10% slower per level.',baseCost:10,cost:function(level){return 10+10*level*level;}},
-{id:'coinNumbers',name:'Increase Coin Numbers',detail:'+1 extra coin allowed on screen per level, and coins spawn more often so that extra coin reliably shows up. Max level 15.',baseCost:5,cost:function(level){return 5+5*level;},maxLevel:15},
-{id:'magnetTime',name:'Magnet Time',detail:'Adds 1 second to magnet duration per level. Requires Magnet.',baseCost:50,cost:function(level){return 50+Math.ceil(10*Math.pow(level,1.5));},requires:'magnet'},
-{id:'headstartBoostTime',name:'Headstart Boost Duration',detail:'+10% boost time and immunity time per level. Requires Headstart Boost.',baseCost:30,cost:function(level){return 30+20*level;},requires:'headstartBoost'}
+{id:'scoreMultiplier',name:'Increase Score Multiplier',detail:'Score grows 0.1% faster per level.',baseCost:100,cost:function(level){return PlatformManager.permanentUpgradeCost(level);}},
+{id:'fuelEfficiency',name:'Increase Fuel Efficiency',detail:'Fuel drains 10% slower per level.',baseCost:100,cost:function(level){return PlatformManager.permanentUpgradeCost(level);}},
+{id:'coinNumbers',name:'Increase Coin Numbers',detail:'+1 extra coin allowed on screen per level, and coins spawn more often so that extra coin reliably shows up. Max level 15.',baseCost:100,cost:function(level){return PlatformManager.permanentUpgradeCost(level);},maxLevel:15},
+{id:'magnetTime',name:'Magnet Time',detail:'Adds 1 second to magnet duration per level. Requires Magnet.',baseCost:100,cost:function(level){return PlatformManager.permanentUpgradeCost(level);},requires:'magnet'},
+{id:'headstartBoostTime',name:'Headstart Boost Duration',detail:'+10% boost time and immunity time per level. Requires Headstart Boost.',baseCost:100,cost:function(level){return PlatformManager.permanentUpgradeCost(level);},requires:'headstartBoost'}
 ];
 const SHOP_SINGLES=[
-{id:'silverSpawn',name:'Silver Spawn',detail:'Unlocked silver coins have a 5% chance to replace normal coins and are worth 5 coins.',cost:50},
+{id:'silverSpawn',name:'Silver Spawn',detail:'Unlocked silver coins have a 5% chance to replace normal coins and are worth 5 coins.',cost:100},
 {id:'deathCoin',name:'Death Coin',detail:'Spawns 1 per stage. Use collected ones on the Game Over screen for a prize quiz.',cost:250},
 {id:'magnet',name:'Magnet',detail:'Magnet icons can appear during a run. Collecting one starts a quiz that determines how long it lasts.',cost:100},
 {id:'startingShield',name:'Starting Shield',detail:'Begin each run with a shield that blocks 1 obstacle collision.',cost:500},
@@ -135,7 +134,7 @@ let runElapsedMs=0;
 let totalQuestionsCorrect=parseInt(localStorage.getItem('pixelJetpackQuestionsCorrect'))||0;
 let announcedPowerupUnlocks=JSON.parse(localStorage.getItem('pixelJetpackAnnouncedPowerups')||'[]');
 let powerupUnlockAlert='';
-let selectedPowerups=JSON.parse(localStorage.getItem('pixelJetpackSelectedPowerups')||'[]');
+let selectedPowerups=PlatformManager.powerupsAllowed()?JSON.parse(localStorage.getItem('pixelJetpackSelectedPowerups')||'[]'):[];
 let activePowerupEffects={};
 let powerupQuizQueue=[];
 let powerupQuizActive=null;
@@ -145,7 +144,7 @@ const POWERUP_DEFS=[
 {id:'coinValue',unlockAt:120,name:'Golden Touch',detail:'Pre-run bonus quiz (4 questions). The more you get right, the more every coin is worth this run.'},
 {id:'enemyDensity',unlockAt:160,name:'Overdrive',detail:'Pre-run bonus quiz (4 questions). The more you get right, the more enemies spawn this run - but coins and score pay out more too.'}
 ];
-function getUnlockedPowerups(){return POWERUP_DEFS.filter(function(p){return totalQuestionsCorrect>=p.unlockAt;});}
+function getUnlockedPowerups(){return PlatformManager.powerupsAllowed()?POWERUP_DEFS.filter(function(p){return totalQuestionsCorrect>=p.unlockAt;}):[];}
 function getAllowedPowerupSelections(){return 1+Math.floor(totalQuestionsCorrect/100);}
 function saveSelectedPowerups(){localStorage.setItem('pixelJetpackSelectedPowerups',JSON.stringify(selectedPowerups));}
 function togglePowerupSelection(id){
@@ -1693,7 +1692,7 @@ return false;
 }
 
 function addCoins(amount){
-PlatformManager.addCoins(amount*(doubleCoinsNextRun?2:1));
+PlatformManager.addCoins(amount);
 }
 function spawnCoin(){
 if(coins.length>=getMaxCoinsOnScreen())return;
@@ -2013,7 +2012,7 @@ if(roll<0.08+bonus){finalScore=Math.floor(finalScore*1.1);msg='Score x1.1';}
 else if(roll<0.14+bonus){finalScore=Math.floor(finalScore*1.3);msg='Score x1.3';}
 else if(roll<0.17+bonus){finalScore=Math.floor(finalScore*2);msg='Score x2';}
 else if(roll<0.18+bonus){finalScore=Math.floor(finalScore*5);msg='Score x5';}
-else if(roll<0.30+bonus){doubleCoinsNextRun=true;localStorage.setItem('pixelJetpackDoubleCoinsNextRun','1');msg='Double coins next run!';}
+else if(roll<0.30+bonus){addCoins(75);msg='+75 coins';}
 else if(roll<0.60+bonus){addCoins(25);msg='+25 coins';}
 else if(roll<0.80+bonus){addCoins(50);msg='+50 coins';}
 else if(roll<0.92+bonus){addCoins(100);msg='+100 coins';}
@@ -2037,7 +2036,6 @@ else reveal();
 deathRewardMessage='';
 finalScore=Math.floor(score);
 if(activePowerupEffects.highscore)finalScore=Math.floor(finalScore*(1+0.25*activePowerupEffects.highscore.correct));
-if(doubleCoinsNextRun){doubleCoinsNextRun=false;localStorage.setItem('pixelJetpackDoubleCoinsNextRun','0');}
 if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpackHighScore',highScore);PlatformManager.setHighScore(GAME_CONFIG.id,highScore);lastRunWasNewHigh=true;}else{lastRunWasNewHigh=false;}
 totalDeathCount++;
 localStorage.setItem('pixelJetpackDeathCount',totalDeathCount);
@@ -2136,7 +2134,7 @@ if(gameOver)showPixelGameOverPanel();
 // (same term+4-definitions format as the death coin quiz) before the run's countdown begins.
 // How many of the 4 you get right sets that powerup's strength for the run only.
 function beginPreRunSequence(){
-powerupQuizQueue=selectedPowerups.slice();
+powerupQuizQueue=PlatformManager.powerupsAllowed()?selectedPowerups.slice():[];
 selectedPowerups=[];
 saveSelectedPowerups();
 activePowerupEffects={};

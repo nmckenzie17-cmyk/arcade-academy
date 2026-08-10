@@ -53,7 +53,7 @@
             shotsFiredThisRun: 0,
             
             // Powerup spawn system
-            powerupSpawnChance: 0.1,
+            powerupSpawnChance: PlatformManager.powerupsAllowed() ? 0.1 : 0,
             powerupSpawnIncrement: 0.1,
             powerupSpawnScheduled: false,
             powerupSpawnTime: 0,
@@ -3717,12 +3717,12 @@
 
         // ===== Permanent (cross-run) upgrade shop - now lives on the Game Over screen =====
         function getPermanentUpgradeBaseCost(upgradeType) {
-            return 20;
+            return 100;
         }
 
         function getPermanentUpgradeCost(upgradeType) {
             const currentLevel = game.permanentUpgrades[upgradeType];
-            return Math.round(getPermanentUpgradeBaseCost(upgradeType) * Math.pow(1.35, currentLevel));
+            return PlatformManager.permanentUpgradeCost(currentLevel, getPermanentUpgradeBaseCost(upgradeType));
         }
 
         function loadPermanentUpgrades() {
@@ -3893,7 +3893,7 @@
             game.orbitBlades = [];
             game.volatileHazards = [];
             game.curseSeen = {};
-            game.powerupSpawnChance = 0.1;
+            game.powerupSpawnChance = PlatformManager.powerupsAllowed() ? 0.1 : 0;
             game.tripleShotActive = false;
             game.rocketActive = false;
             game.rapidFireActive = false;
@@ -4274,6 +4274,10 @@
         }
 
         function loadEquippedRunPowerups() {
+            if (!PlatformManager.powerupsAllowed()) {
+                game.equippedRunPowerups = [];
+                return;
+            }
             const saved = JSON.parse(localStorage.getItem('equippedRunPowerups') || '[]');
             game.equippedRunPowerups = Array.isArray(saved) ? saved.filter(k => RUN_POWERUP_DEFS[k]) : [];
         }
@@ -4432,9 +4436,9 @@
             game.rapidFireShotCounter = 0;
             
             game.powerupSpawnScheduled = false;
-            const upgradeBonus = game.permanentUpgrades.powerupSpawnRate * 0.05;
+            const upgradeBonus = PlatformManager.powerupsAllowed() ? game.permanentUpgrades.powerupSpawnRate * 0.05 : 0;
             const totalSpawnChance = game.powerupSpawnChance + upgradeBonus;
-            const shouldSpawn = game.powerupTestMode || Math.random() < totalSpawnChance;
+            const shouldSpawn = PlatformManager.powerupsAllowed() && (game.powerupTestMode || Math.random() < totalSpawnChance);
             if (shouldSpawn) {
                 const spawnDelay = 2000 + (Math.random() * 3000);
                 game.powerupSpawnTime = Date.now() + spawnDelay;
@@ -4660,7 +4664,7 @@
                 }
                 game.powerups.push(new Powerup(spawnX, spawnY, powerupType));
                 game.powerupSpawnScheduled = false;
-                game.powerupSpawnChance = 0.1;
+                game.powerupSpawnChance = PlatformManager.powerupsAllowed() ? 0.1 : 0;
             }
             
             game.powerups.forEach(powerup => {
@@ -5109,7 +5113,7 @@
                             updateUI();
                         }
                         
-                        game.powerupSpawnChance = 0.1;
+                        game.powerupSpawnChance = PlatformManager.powerupsAllowed() ? 0.1 : 0;
                         
                         break;
                     }

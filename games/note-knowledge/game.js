@@ -158,9 +158,9 @@ try {
     let scoreUpgradeLevel=0, chainUpgradeLevel=0, superBonusLevel=0, chain=0;
     let highScore=0, totalCorrectAnswers=0, totalNotesPlayed=0, playerData=null, notesHitSession=0;
     let gameOverReason='';
-    function upgradeCost(){return Math.floor(10*Math.pow(2,scoreUpgradeLevel));}
-    function chainCost(){return Math.floor(25*Math.pow(2,chainUpgradeLevel));}
-    function superCost(){return Math.floor(50*Math.pow(2,superBonusLevel));}
+    function upgradeCost(){return PlatformManager.permanentUpgradeCost(scoreUpgradeLevel);}
+    function chainCost(){return PlatformManager.permanentUpgradeCost(chainUpgradeLevel);}
+    function superCost(){return PlatformManager.permanentUpgradeCost(superBonusLevel);}
     function scorePerNote(){return 10+(scoreUpgradeLevel*5)+(superBonusLevel*10);}
     // Chain Multiplier: each level adds up to +1% score per consecutive hit (capped at a 20-hit streak),
     // so a maxed-out streak with Chain LV n gives up to +20n% bonus score. Resets on any miss or wrong hit.
@@ -710,4 +710,3 @@ try {
       gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
       osc.connect(gain);gain.connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+dur);
     }
-

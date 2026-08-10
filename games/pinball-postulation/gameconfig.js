@@ -5,6 +5,7 @@ window.GAME_CONFIG = {
   description: "Keep the neon pinball alive, build huge bumper combos, and answer class questions to earn every launch.",
   catchphrase: "Flip. Think. Dominate the grid.",
   genre: "Pinball / Arcade",
+  gameModes: ["singleplayer"],
   players: "1 Player",
   questionType: "mixed",
   version: "1.0.0",

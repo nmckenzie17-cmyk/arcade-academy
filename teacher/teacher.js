@@ -93,6 +93,7 @@
     els.resetGameButton = document.getElementById("reset-game-button");
     els.resetLearningButton = document.getElementById("reset-learning-button");
     els.resetAllButton = document.getElementById("reset-all-button");
+    els.deleteStudentButton = document.getElementById("delete-student-button");
     els.resetResult = document.getElementById("reset-result");
     els.resetOverlay = document.getElementById("reset-confirm-overlay");
     els.resetTitle = document.getElementById("reset-confirm-title");
@@ -245,6 +246,7 @@
     els.resetGameButton.addEventListener("click", () => beginReset("game"));
     els.resetLearningButton.addEventListener("click", () => beginReset("learning"));
     els.resetAllButton.addEventListener("click", () => beginReset("all"));
+    els.deleteStudentButton.addEventListener("click", beginStudentDeletion);
     els.studentClassSave.addEventListener("click", saveStudentClass);
     els.resetCancel.addEventListener("click", closeResetConfirmation);
     els.resetContinue.addEventListener("click", showFinalResetWarning);
@@ -638,6 +640,23 @@
     els.resetCancel.focus();
   }
 
+  function beginStudentDeletion() {
+    const detail = state.selectedStudentDetail;
+    if (!detail) return;
+    state.pendingReset = { target: "delete-student", studentId: detail.id, studentName: detail.name, confirmText: "DELETE" };
+    els.resetTitle.textContent = "Delete student data?";
+    els.resetMessage.textContent = `Permanently delete all Firestore profile and progress data for ${detail.name}? Their Google account is not deleted, and signing in again can create a new Arcade Academy profile.`;
+    els.resetTypeLabel.innerHTML = "Type <strong>DELETE</strong> to continue";
+    els.resetTypeWrap.hidden = false;
+    els.resetInput.value = "";
+    els.resetContinue.hidden = true;
+    els.resetFinal.hidden = false;
+    els.resetFinal.disabled = true;
+    els.resetFinal.textContent = "Delete student data permanently";
+    els.resetOverlay.hidden = false;
+    els.resetInput.focus();
+  }
+
   function beginClassReset(type) {
     const className = els.classResetSelect.value;
     const studentsAffected = Number(els.classResetCount.textContent || 0);
@@ -710,6 +729,14 @@
     els.resetFinal.disabled = true;
     els.resetFinal.textContent = "Resetting…";
     try {
+      if (reset.target === "delete-student") {
+        await window.TeacherDataProvider.deleteStudent(reset.studentId);
+        closeResetConfirmation();
+        closeStudentPanel();
+        await populateClassFilter();
+        await refreshOverview();
+        return;
+      }
       if (reset.target === "class") {
         await window.TeacherDataProvider.requestClassReset(reset.className, reset.type, reset.gameId);
         const successMessage = `${reset.type === "all" ? "All progress" : reset.gameName} was reset for ${reset.studentsAffected} students in ${reset.className}.`;

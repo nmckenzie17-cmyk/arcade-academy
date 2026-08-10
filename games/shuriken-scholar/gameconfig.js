@@ -9,6 +9,7 @@ window.GAME_CONFIG = {
     catchphrase: "Throw shurikens. Strengthen your mind",
 
     genre: "Survival / Horde Shooter",
+    gameModes: ["singleplayer"],
 
     questionType: "multichoice",
 

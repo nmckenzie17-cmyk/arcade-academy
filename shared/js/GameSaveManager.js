@@ -7,7 +7,6 @@
     "jetpack-journey": [
       "jetpackjourneyGameProgress",
       "pixelJetpackHighScore",
-      "pixelJetpackDoubleCoinsNextRun",
       "pixelJetpackDeathCount",
       "pixelJetpackQuestionsCorrect",
       "pixelJetpackAnnouncedPowerups",

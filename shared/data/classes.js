@@ -18,15 +18,30 @@
  * ================================================================
  */
 window.CLASS_OPTIONS = [
-  { name: "9 Tanekaha", yearLevels: [9] },
+    { name: "9 Tānekaha", yearLevels: [9] },
   { name: "9 Matai", yearLevels: [9] },
   { name: "9 Kauri", yearLevels: [9] },
   { name: "9 Rimu", yearLevels: [9] },
+  { name: "9 Kanuka", yearLevels: [9] },
+  { name: "9 Kōwhai", yearLevels: [9] },
+  { name: "9 Rātā", yearLevels: [9] },
+  { name: "9 Nīkau", yearLevels: [9] },
+  { name: "9 Manuka", yearLevels: [9] },
+  { name: "9 Kahikatea", yearLevels: [9] },
+  { name: "9 Maire", yearLevels: [9] },
 
-  { name: "10 Tanekaha", yearLevels: [10] },
+
+  { name: "10 Tānekaha", yearLevels: [10] },
   { name: "10 Matai", yearLevels: [10] },
   { name: "10 Kauri", yearLevels: [10] },
   { name: "10 Rimu", yearLevels: [10] },
+  { name: "10 Kanuka", yearLevels: [10] },
+  { name: "10 Kōwhai", yearLevels: [10] },
+  { name: "10 Rātā", yearLevels: [10] },
+  { name: "10 Nīkau", yearLevels: [10] },
+  { name: "10 Manuka", yearLevels: [10] },
+  { name: "10 Kahikatea", yearLevels: [10] },
+  { name: "10 Maire", yearLevels: [10] },
 
   { name: "11 Science", yearLevels: [11] },
   { name: "11 English", yearLevels: [11] },

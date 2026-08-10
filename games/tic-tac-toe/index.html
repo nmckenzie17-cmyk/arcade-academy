@@ -29,7 +29,7 @@
     </section>
 
     <section class="ttt-card home-page" id="menu-screen" hidden>
-      <p class="eyebrow">Arcade Academy · 2 Player Online</p>
+      <p class="eyebrow">Arcade Academy · Single Player or Multiplayer</p>
       <h1>Tic-Tac-Toe</h1>
       <p class="subtitle">Three in a row wins the show</p>
 
@@ -42,21 +42,31 @@
 
       <h2 class="section-title">Description</h2>
       <div class="description-list">
-        <p>❎ Create a private room and share its five-digit code with another signed-in student.</p>
+        <p>❎ Play a class-calibrated computer or create a private room for another signed-in student.</p>
         <p>⭕ Take turns placing X and O. Make three in a row horizontally, vertically, or diagonally to win.</p>
         <p>🔄 Both players must agree before a rematch begins.</p>
         <p>📚 Answer correctly before your turn to place a mark. A wrong answer skips your turn.</p>
         <p>🪙 Multiplayer games do not award scores or shared coins.</p>
       </div>
 
-      <label class="question-type-label" for="question-type">Room question type</label>
+      <label class="question-type-label" for="question-type">Question type</label>
       <select class="question-type-select" id="question-type">
         <option value="multichoice">Multiple Choice</option>
         <option value="matching">Matching</option>
         <option value="category">Category</option>
       </select>
 
-      <div class="menu-actions">
+      <div class="mode-picker" aria-label="Game mode">
+        <button class="action primary" id="single-btn">Single Player</button>
+        <button class="action secondary" id="multiplayer-btn">Multiplayer</button>
+      </div>
+      <div id="single-options" hidden>
+        <label class="question-type-label" for="ai-difficulty">Choose Computer Difficulty</label>
+        <select class="question-type-select" id="ai-difficulty"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
+        <button class="action primary start-solo" id="start-single-btn">Play Computer</button>
+        <p class="message" id="ai-summary"></p>
+      </div>
+      <div class="menu-actions" id="multiplayer-options" hidden>
         <button class="action primary" id="create-btn">Create Game</button>
         <button class="action secondary" id="show-join-btn">Join Game</button>
       </div>
@@ -115,6 +125,7 @@
   <script src="../../shared/js/PlatformManager.js"></script>
   <script src="../../shared/js/QuestionManager.js"></script>
   <script src="../../shared/js/MultiplayerManager.js"></script>
+  <script src="../../shared/js/SinglePlayerManager.js"></script>
   <script src="../../shared/js/MultiplayerQuestionHelper.js"></script>
   <script src="game.js"></script>
 </body>

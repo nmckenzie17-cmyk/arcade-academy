@@ -9,6 +9,7 @@ window.GAME_CONFIG = {
     catchphrase: "Climb hard. Cram harder.",
 
     genre: "Platformer / Roguelike",
+    gameModes: ["singleplayer"],
 
     questionType: "matching",
 

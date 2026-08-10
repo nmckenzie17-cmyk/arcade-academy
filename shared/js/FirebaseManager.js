@@ -14,6 +14,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  deleteDoc,
   setDoc,
   updateDoc,
   runTransaction,
@@ -48,6 +49,10 @@ export const auth = initializeAuth(app, {
 export const db = getFirestore(app);
 
 const googleProvider = new GoogleAuthProvider();
+const leaderboardProfileCache = new Map();
+const leaderboardIdPromises = new Map();
+const leaderboardCache = new Map();
+const LEADERBOARD_CACHE_MS = 60 * 1000;
 
 export async function signInWithGoogle() {
   try {
@@ -165,6 +170,23 @@ export async function updateStudentClass(uid, className) {
   }
 }
 
+export async function deleteStudentData(uid) {
+  try {
+    const teacherUid = auth.currentUser?.uid;
+    if (!teacherUid || !uid || teacherUid === uid) throw new Error("Invalid student deletion");
+    const teacherProfile = await getUserProfile(teacherUid);
+    if (teacherProfile?.role !== "teacher") throw new Error("Teacher access required");
+    const studentSnapshot = await getDoc(doc(db, "users", uid));
+    if (!studentSnapshot.exists()) return true;
+    if (studentSnapshot.data().role === "teacher") throw new Error("Teacher accounts cannot be deleted here");
+    await deleteDoc(doc(db, "users", uid));
+    return true;
+  } catch (error) {
+    console.error("Unable to delete student data:", error);
+    return false;
+  }
+}
+
 export async function getPlatformData(uid) {
   try {
     const userRef = doc(db, "users", uid);
@@ -239,9 +261,121 @@ export async function updateGameStats(uid, gameId, changes) {
     );
 
     await updateDoc(userRef, gameChanges);
+    await syncLeaderboardEntry(uid, gameId, changes.highScore);
     return true;
   } catch (error) {
     console.error(`Unable to update stats for ${gameId}:`, error);
+    return false;
+  }
+}
+
+async function leaderboardProfile(uid) {
+  if (leaderboardProfileCache.has(uid)) return leaderboardProfileCache.get(uid);
+  const profile = await getUserProfile(uid);
+  leaderboardProfileCache.set(uid, profile);
+  return profile;
+}
+
+async function ensureLeaderboardId(uid) {
+  if (leaderboardIdPromises.has(uid)) return leaderboardIdPromises.get(uid);
+  const promise = (async () => {
+  const profile = await leaderboardProfile(uid);
+  if (profile?.leaderboardId) return profile.leaderboardId;
+  const leaderboardId = globalThis.crypto.randomUUID().replaceAll("-", "");
+  const saved = await updateUserProfile(uid, { leaderboardId });
+  if (!saved) throw new Error("LEADERBOARD_ID_NOT_SAVED");
+  leaderboardProfileCache.set(uid, { ...profile, leaderboardId });
+  return leaderboardId;
+  })();
+  leaderboardIdPromises.set(uid, promise);
+  try { return await promise; }
+  catch (error) { leaderboardIdPromises.delete(uid); throw error; }
+}
+
+async function syncLeaderboardEntry(uid, gameId, highScore) {
+  try {
+    const score = Math.max(0, Math.floor(Number(highScore) || 0));
+    const profile = await leaderboardProfile(uid);
+    if (!profile || profile.role === "teacher") return;
+    const leaderboardId = await ensureLeaderboardId(uid);
+    const entryRef = doc(db, "leaderboards", gameId, "entries", leaderboardId);
+    if (profile.leaderboardOptOut === true) {
+      await deleteDoc(entryRef);
+      return true;
+    }
+    await setDoc(entryRef, {
+      gameId,
+      initial: String(profile.displayName || "").trim().match(/[\p{L}\p{N}]/u)?.[0]?.toLocaleUpperCase() || "?",
+      classId: String(profile.className || "Unassigned").slice(0, 80),
+      highScore: score,
+      updatedAt: Date.now()
+    });
+    leaderboardCache.delete(gameId);
+    return true;
+  } catch (error) {
+    // Statistics remain authoritative even if the optional public score index
+    // is temporarily unavailable or its rules have not yet been deployed.
+    console.warn(`Unable to update leaderboard for ${gameId}:`, error);
+    return false;
+  }
+}
+
+export async function syncLeaderboardEntries(uid, gameStats) {
+  if (!uid || !gameStats || typeof gameStats !== "object") return false;
+  const results = await Promise.all(Object.entries(gameStats).map(([gameId, stats]) =>
+    syncLeaderboardEntry(uid, gameId, stats?.highScore)
+  ));
+  return results.some(Boolean);
+}
+
+async function getLeaderboardEntries(gameId, forceRefresh = false) {
+  const cached = leaderboardCache.get(gameId);
+  if (!forceRefresh && cached && Date.now() - cached.loadedAt < LEADERBOARD_CACHE_MS) return cached.entries;
+  const snapshot = await getDocs(collection(db, "leaderboards", gameId, "entries"));
+  const entries = snapshot.docs.map(entryDoc => {
+    const value = entryDoc.data();
+    return {
+      entryKey: entryDoc.id,
+      gameId,
+      initial: String(value.initial || "?").slice(0, 2),
+      classId: String(value.classId || "Unassigned"),
+      highScore: Math.max(0, Math.floor(Number(value.highScore) || 0)),
+      updatedAt: Number(value.updatedAt) || 0
+    };
+  }).sort((a, b) => b.highScore - a.highScore || b.updatedAt - a.updatedAt);
+  leaderboardCache.set(gameId, { entries, loadedAt: Date.now() });
+  return entries;
+}
+
+export async function getClassLeaderboard(gameId, classId, maximum = 10) {
+  try {
+    const entries = await getLeaderboardEntries(gameId);
+    return entries.filter(entry => entry.classId === classId && entry.highScore > 0).slice(0, maximum)
+      .map(({ initial, highScore, updatedAt }) => ({ initial, highScore, updatedAt }));
+  } catch (error) {
+    console.warn("Unable to load class leaderboard:", error);
+    return undefined;
+  }
+}
+
+export async function getOverallLeaderboard(gameId, maximum = 10) {
+  try {
+    const entries = await getLeaderboardEntries(gameId);
+    return entries.filter(entry => entry.highScore > 0).slice(0, maximum)
+      .map(({ initial, highScore, updatedAt }) => ({ initial, highScore, updatedAt }));
+  } catch (error) {
+    console.warn("Unable to load overall leaderboard:", error);
+    return undefined;
+  }
+}
+
+export async function isClassHighScoreHolder(gameId, studentId, classId) {
+  try {
+    const leaders = (await getLeaderboardEntries(gameId)).filter(entry => entry.classId === classId && entry.highScore > 0);
+    if (!leaders.length || leaders[0].highScore <= 0) return false;
+    const entryKey = await ensureLeaderboardId(studentId);
+    return leaders.some(entry => entry.entryKey === entryKey && entry.highScore === leaders[0].highScore);
+  } catch (error) {
     return false;
   }
 }
@@ -257,6 +391,13 @@ export async function getAllStudents() {
     console.error("Unable to load students:", error);
     return undefined;
   }
+}
+
+/** Load an anonymous, server-generated class third for computer calibration. */
+export async function getClassAIProfile(className, difficulty) {
+  // Spark projects have no trusted server process to build this anonymous
+  // aggregate. The shared AI manager uses its central 45/65/85% fallbacks.
+  return null;
 }
 
 export function getStudentPlatformData(uid) {
@@ -648,12 +789,18 @@ window.FirebaseManager = {
   createUserProfile,
   updateUserProfile,
   updateStudentClass,
+  deleteStudentData,
   getPlatformData,
   updatePlatformData,
   getGameStats,
   getAllGameStats,
   updateGameStats,
+  getClassLeaderboard,
+  getOverallLeaderboard,
+  isClassHighScoreHolder,
+  syncLeaderboardEntries,
   getAllStudents,
+  getClassAIProfile,
   getStudentPlatformData,
   getStudentGameStats,
   requestStudentProgressReset,

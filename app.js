@@ -11,6 +11,10 @@ const gameFolders = [
   "pixel-artillery"
 ];
 
+// Temporarily disabled while the Spark-compatible leaderboard deployment is
+// being reviewed. Set to true to restore leaderboards and gold score boxes.
+const LEADERBOARDS_ENABLED = false;
+
 const singleGameGrid = document.querySelector("#single-game-grid");
 const multiplayerGameGrid = document.querySelector("#multiplayer-game-grid");
 const cardTemplate = document.querySelector("#game-card-template");
@@ -18,6 +22,14 @@ const gameCount = document.querySelector("#game-count");
 const multiplayerGameCount = document.querySelector("#multiplayer-game-count");
 const statGrid = document.querySelector("#stat-grid");
 const statCardTemplate = document.querySelector("#stat-card-template");
+const leaderboardGameSelect = document.querySelector("#leaderboard-game-select");
+const leaderboardResults = document.querySelector("#leaderboard-results");
+const leaderboardHeading = document.querySelector("#leaderboard-heading");
+const leaderboardClassBtn = document.querySelector("#leaderboard-class-btn");
+const leaderboardOverallBtn = document.querySelector("#leaderboard-overall-btn");
+let loadedGames = [];
+let leaderboardScope = "class";
+let leaderboardRequestId = 0;
 
 
 async function loadGames() {
@@ -47,8 +59,24 @@ async function loadGames() {
 
   // Build the dashboard first so it can show the favourite game's title,
   // then render the cards (each pulling in its own PlatformManager stats).
+  loadedGames = games;
   displayDashboard(buildGameTitleMap(games));
   displayGames(games);
+  if (LEADERBOARDS_ENABLED) initialiseLeaderboards(games);
+  if (LEADERBOARDS_ENABLED && currentUser) {
+    const statsByGame = Object.fromEntries(games
+      .map(game => [game.id, PlatformManager.getGameStats(game.id)])
+      .filter(([, stats]) => stats && (stats.gamesPlayed > 0 || stats.questionsAnswered > 0 || stats.highScore > 0)));
+    FirebaseManager.syncLeaderboardEntries(currentUser.uid, statsByGame)
+      .then(published => setTimeout(async () => {
+        refreshHighScoreHighlights(games);
+        await renderLeaderboard();
+        if (!published && Object.keys(statsByGame).some(gameId => statsByGame[gameId].highScore > 0)) {
+          leaderboardResults.innerHTML = '<p class="leaderboard-message">High scores could not be published. Publish the latest Firestore rules, then reload this page.</p>';
+        }
+      }, 1500))
+      .catch(() => {});
+  }
 
 }
 
@@ -729,11 +757,35 @@ function displayGames(games) {
     card.querySelector(".game-description").textContent =
       game.description;
 
-    populateGameStats(card, game.id);
+    const stats = populateGameStats(card, game.id);
+    link.dataset.gameId = game.id;
+    const practiceButton = card.querySelector(".practice-button");
+    const practiceUsed = PlatformManager.hasUsedPractice(game.id);
+    if (practiceUsed) {
+      practiceButton.textContent = "Practice used";
+      practiceButton.classList.add("practice-button-used");
+      practiceButton.setAttribute("aria-disabled", "true");
+      practiceButton.tabIndex = -1;
+    }
+    const openPractice = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (practiceUsed) return;
+      location.href = `${game.path}?mode=practice`;
+    };
+    practiceButton.addEventListener("click", openPractice);
+    practiceButton.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") openPractice(event);
+    });
 
-    const isMultiplayer = game.players === "2 Online";
+    const modes = Array.isArray(game.gameModes)
+      ? game.gameModes
+      : (game.players === "2 Online" ? ["multiplayer"] : ["singleplayer"]);
+    const isMultiplayer = modes.includes("multiplayer");
     (isMultiplayer ? multiplayerGameGrid : singleGameGrid).appendChild(card);
     if (isMultiplayer) multiplayerCount++; else singleCount++;
+
+    if (LEADERBOARDS_ENABLED && stats?.highScore > 0) highlightClassHighScore(game.id);
 
   });
 
@@ -741,6 +793,22 @@ function displayGames(games) {
   gameCount.textContent = `${singleCount} games ready to play`;
   multiplayerGameCount.textContent = `${multiplayerCount} games ready to play`;
 
+}
+
+function highlightClassHighScore(gameId) {
+  if (!currentUser?.uid || !currentProfile?.className) return;
+  FirebaseManager.isClassHighScoreHolder(gameId, currentUser.uid, currentProfile.className)
+    .then(isHolder => {
+      if (!isHolder) return;
+      document.querySelector(`.game-card[data-game-id="${gameId}"] .stat-highscore`)
+        ?.closest(".stat-row")?.classList.add("class-high-score");
+    });
+}
+
+function refreshHighScoreHighlights(games) {
+  games.forEach(game => {
+    if ((PlatformManager.getGameStats(game.id)?.highScore || 0) > 0) highlightClassHighScore(game.id);
+  });
 }
 
 
@@ -764,18 +832,12 @@ function populateGameStats(card, gameId) {
       ? `${stats.percentageCorrect}%`
       : "0%";
 
-  card.querySelector(".stat-questions").textContent =
-    stats
-      ? `${stats.questionsAnswered.toLocaleString()} Questions`
-      : "0 Questions";
-
-  card.querySelector(".stat-playtime").textContent =
-    formatDuration(stats ? stats.playTimeMs : 0);
-
   card.querySelector(".stat-lastplayed").textContent =
     stats && hasBeenPlayed && stats.lastPlayed
       ? formatLastPlayed(stats.lastPlayed)
       : "Never Played";
+
+  return stats;
 
 }
 
@@ -799,21 +861,84 @@ function formatDuration(ms) {
 
 
 function formatLastPlayed(timestamp) {
-
-  const diffMinutes = Math.floor((Date.now() - timestamp) / 60000);
-
-  if (diffMinutes < 1) return "Just now";
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
-
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
-
-  const diffDays = Math.floor(diffHours / 24);
+  const played = new Date(Number(timestamp));
+  if (Number.isNaN(played.getTime())) return "Never Played";
+  const today = new Date();
+  const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startPlayed = new Date(played.getFullYear(), played.getMonth(), played.getDate());
+  const diffDays = Math.max(0, Math.floor((startToday - startPlayed) / 86400000));
+  if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays < 14) return `${diffDays} days ago`;
+  if (diffDays < 28) return `${Math.floor(diffDays / 7)} weeks ago`;
+  if (diffDays < 60) return "1 month ago";
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+  const years = Math.floor(diffDays / 365);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
 
-  return new Date(timestamp).toLocaleDateString();
+}
 
+
+// ------------------------------------------------------------------
+// Privacy-safe leaderboards
+// ------------------------------------------------------------------
+
+function initialiseLeaderboards(games) {
+  if (!leaderboardGameSelect) return;
+  leaderboardGameSelect.innerHTML = "";
+  games.filter(game => game.supportsHighScores !== false).forEach(game => {
+    const option = document.createElement("option");
+    option.value = game.id;
+    option.textContent = game.title;
+    leaderboardGameSelect.appendChild(option);
+  });
+  leaderboardGameSelect.addEventListener("change", renderLeaderboard);
+  leaderboardClassBtn.addEventListener("click", () => setLeaderboardScope("class"));
+  leaderboardOverallBtn.addEventListener("click", () => setLeaderboardScope("overall"));
+  renderLeaderboard();
+}
+
+function setLeaderboardScope(scope) {
+  leaderboardScope = scope;
+  const isClass = scope === "class";
+  leaderboardClassBtn.classList.toggle("active", isClass);
+  leaderboardOverallBtn.classList.toggle("active", !isClass);
+  leaderboardClassBtn.setAttribute("aria-pressed", String(isClass));
+  leaderboardOverallBtn.setAttribute("aria-pressed", String(!isClass));
+  renderLeaderboard();
+}
+
+async function renderLeaderboard() {
+  const requestId = ++leaderboardRequestId;
+  const gameId = leaderboardGameSelect?.value;
+  if (!gameId || !leaderboardResults) return;
+  const game = loadedGames.find(item => item.id === gameId);
+  leaderboardHeading.textContent = `${leaderboardScope === "class" ? "CLASS" : "OVERALL"} — ${game?.title || gameId}`;
+  leaderboardResults.innerHTML = '<p class="leaderboard-message loading">Loading scores…</p>';
+  const entries = leaderboardScope === "class"
+    ? await FirebaseManager.getClassLeaderboard(gameId, currentProfile?.className)
+    : await FirebaseManager.getOverallLeaderboard(gameId);
+  if (requestId !== leaderboardRequestId) return;
+  if (!Array.isArray(entries)) {
+    leaderboardResults.innerHTML = '<p class="leaderboard-message">Scores could not be loaded right now. Please try again soon.</p>';
+    return;
+  }
+  if (!entries.length) {
+    leaderboardResults.innerHTML = '<p class="leaderboard-message">No high scores have been posted yet. Be the first!</p>';
+    return;
+  }
+  const list = document.createElement("ol");
+  list.className = "leaderboard-list";
+  entries.forEach(entry => {
+    const row = document.createElement("li");
+    const name = document.createElement("span");
+    const score = document.createElement("strong");
+    name.textContent = entry.initial;
+    score.textContent = entry.highScore.toLocaleString();
+    row.append(name, score);
+    list.appendChild(row);
+  });
+  leaderboardResults.replaceChildren(list);
 }
 
 
