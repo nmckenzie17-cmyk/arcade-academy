@@ -80,13 +80,21 @@
   <main id="main-content" class="app-main">
     <h1 class="visually-hidden">Class overview</h1>
 
-    <dl class="stat-strip" aria-label="Class summary">
+    <section class="statistics-summary" aria-labelledby="statistics-heading">
+      <div class="statistics-heading-row">
+        <div>
+          <p class="statistics-kicker">Live Firestore summary</p>
+          <h2 id="statistics-heading">Overall statistics</h2>
+        </div>
+        <p id="statistics-scope">All classes</p>
+      </div>
+    <dl class="stat-strip" aria-label="Student statistics summary">
       <div class="stat-card">
         <dt>Students active now</dt>
         <dd id="stat-active">—</dd>
       </div>
       <div class="stat-card">
-        <dt>Students in class</dt>
+        <dt id="stat-total-label">Total students</dt>
         <dd id="stat-total">—</dd>
       </div>
       <div class="stat-card">
@@ -97,32 +105,15 @@
         <dt>Questions answered today</dt>
         <dd id="stat-questions">—</dd>
       </div>
+      <div class="stat-card">
+        <dt>Total questions answered</dt>
+        <dd id="stat-total-questions">—</dd>
+      </div>
+      <div class="stat-card">
+        <dt>Total playtime</dt>
+        <dd id="stat-total-playtime">—</dd>
+      </div>
     </dl>
-
-    <section class="overview-card class-progress-card" aria-labelledby="class-progress-heading">
-      <div class="overview-card-header">
-        <div>
-          <h2 id="class-progress-heading">Class Progress Management</h2>
-          <p>Issue one reset operation to every student currently assigned to a class.</p>
-        </div>
-      </div>
-      <div class="class-reset-grid">
-        <div class="field-inline class-reset-field">
-          <label for="class-reset-select">Class</label>
-          <select id="class-reset-select"></select>
-        </div>
-        <div class="class-reset-count">
-          <span>Students affected</span>
-          <strong id="class-reset-student-count">0</strong>
-        </div>
-        <div class="field-inline class-reset-field">
-          <label for="class-reset-game-select">Game</label>
-          <select id="class-reset-game-select"></select>
-        </div>
-        <button id="class-reset-game-button" class="reset-button" type="button">Reset Specific Game</button>
-        <button id="class-reset-all-button" class="reset-button reset-button--danger" type="button">Reset All Class Progress</button>
-      </div>
-      <p id="class-reset-result" class="reset-result" role="status" aria-live="polite"></p>
     </section>
 
     <section class="overview-card" aria-labelledby="overview-heading">
@@ -180,6 +171,32 @@
         </table>
       </div>
     </section>
+
+    <section class="overview-card class-progress-card" aria-labelledby="class-progress-heading">
+      <div class="overview-card-header">
+        <div>
+          <h2 id="class-progress-heading">Class Progress Management</h2>
+          <p>Issue one reset operation to every student currently assigned to a class.</p>
+        </div>
+      </div>
+      <div class="class-reset-grid">
+        <div class="field-inline class-reset-field">
+          <label for="class-reset-select">Class</label>
+          <select id="class-reset-select"></select>
+        </div>
+        <div class="class-reset-count">
+          <span>Students affected</span>
+          <strong id="class-reset-student-count">0</strong>
+        </div>
+        <div class="field-inline class-reset-field">
+          <label for="class-reset-game-select">Game</label>
+          <select id="class-reset-game-select"></select>
+        </div>
+        <button id="class-reset-game-button" class="reset-button" type="button">Reset Specific Game</button>
+        <button id="class-reset-all-button" class="reset-button reset-button--danger" type="button">Reset All Class Progress</button>
+      </div>
+      <p id="class-reset-result" class="reset-result" role="status" aria-live="polite"></p>
+    </section>
   </main>
 
   <footer class="app-footer">
@@ -226,18 +243,6 @@
         </table>
       </section>
 
-      <section class="panel-section progress-management" aria-labelledby="progress-management-heading">
-        <h3 id="progress-management-heading">Progress Management</h3>
-        <p>Reset requests update Firestore immediately and clear the student's local game saves when they next load Arcade Academy.</p>
-        <div class="reset-game-row">
-          <label for="reset-game-select">Game</label>
-          <select id="reset-game-select"></select>
-          <button id="reset-game-button" class="reset-button" type="button">Reset Specific Game</button>
-        </div>
-        <button id="reset-all-button" class="reset-button reset-button--danger" type="button">Reset All Progress</button>
-        <p id="reset-result" class="reset-result" role="status" aria-live="polite"></p>
-      </section>
-
       <section class="panel-section" aria-labelledby="trend-heading">
         <h3 id="trend-heading">Accuracy over time</h3>
 
@@ -263,6 +268,30 @@
           <p id="trend-summary" class="trend-summary" role="status"></p>
         </div>
       </section>
+
+      <section class="panel-section student-settings" aria-labelledby="student-settings-heading">
+        <h3 id="student-settings-heading">Student Settings</h3>
+        <div class="student-class-settings">
+          <label for="student-class-select">Assigned class</label>
+          <div class="student-class-row">
+            <select id="student-class-select"></select>
+            <button id="student-class-save" class="reset-button" type="button">Save Class</button>
+          </div>
+          <p id="student-class-result" class="settings-result" role="status" aria-live="polite"></p>
+        </div>
+        <div class="progress-management" aria-labelledby="progress-management-heading">
+        <h4 id="progress-management-heading">Reset Data</h4>
+        <p>Learning statistics clears question and accuracy records but keeps coins, scores, unlocks and game saves. All progress clears everything except the student's profile, year and class.</p>
+        <div class="reset-game-row">
+          <label for="reset-game-select">Game</label>
+          <select id="reset-game-select"></select>
+          <button id="reset-game-button" class="reset-button" type="button">Reset Specific Game</button>
+        </div>
+        <button id="reset-learning-button" class="reset-button" type="button">Reset Learning Statistics Only</button>
+        <button id="reset-all-button" class="reset-button reset-button--danger" type="button">Reset All Progress</button>
+        <p id="reset-result" class="reset-result" role="status" aria-live="polite"></p>
+        </div>
+      </section>
     </div>
   </aside>
 
@@ -284,6 +313,7 @@
   </div>
   </div>
 
+  <script src="../shared/data/classes.js"></script>
   <script type="module" src="firebase-data.js"></script>
   <script type="module" src="teacher.js"></script>
 </body>

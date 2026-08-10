@@ -1,0 +1,305 @@
+# Integrate a New Single-Player Game into Arcade Academy
+
+I have created a new single-player game and added its folder to Arcade Academy.
+
+Game folder:
+[GAME FOLDER PATH]
+
+Game name:
+[GAME NAME]
+
+Game ID:
+[LOWERCASE GAME ID, e.g. asteroid-algebra]
+
+Question format supported:
+[MATCHING / MULTICHOICE / CATEGORY / MULTIPLE TYPES]
+
+Correct-answer coin reward:
+[NUMBER OR “NOT DECIDED”]
+
+Incorrect-answer coin penalty:
+[NUMBER OR “NOT DECIDED”]
+
+## Goal
+
+Inspect the new game and integrate it completely with Arcade Academy’s existing architecture, visual system, question banks, shared statistics, Firebase syncing, and Hub.
+
+Use the established single-player games—especially Shuriken Scholar and the other recently aligned games—as implementation references.
+
+Preserve the game’s core mechanics and theme. Do not redesign the gameplay unless an existing mechanic conflicts with Arcade Academy’s shared architecture.
+
+## Files and Architecture to Inspect
+
+Before editing, inspect:
+
+- The new game’s complete folder
+- `index.html`
+- `app.js`
+- `style.css`
+- `shared/css/global.css`
+- `shared/js/PlatformManager.js`
+- `shared/js/FirebaseManager.js`
+- `shared/js/QuestionManager.js`
+- `shared/js/GameSaveManager.js`
+- `shared/data/classes.js`
+- `question-banks/banks.json`
+- At least two existing aligned single-player games
+- Each existing game’s `gameconfig.js` conventions
+
+Keep this architecture:
+
+Games
+↓
+QuestionManager and PlatformManager
+↓
+FirebaseManager
+↓
+Firestore
+
+The game must not communicate with Firebase or Firestore directly.
+
+## Game Configuration
+
+Add or correct the game’s `gameconfig.js`.
+
+Use a stable ID consistently across:
+
+- Hub registration
+- PlatformManager statistics
+- GameSaveManager
+- Firebase game statistics
+- Teacher Dashboard
+- Favourite-game tracking
+
+Include the existing metadata format where applicable:
+
+- ID
+- Title
+- Icon
+- Catchphrase
+- Description
+- Genre
+- Path
+- Multiplayer flag
+
+Do not duplicate configuration if Arcade Academy already has a shared convention for it.
+
+## Shared Visual Style
+
+Align the game with Arcade Academy’s existing visual language while retaining its own theme.
+
+The game must:
+
+- Load `shared/css/global.css`
+- Use the shared fonts, colours, panels, borders, glows and button conventions
+- Have responsive scrolling where needed
+- Work on desktop and touch/mobile layouts
+- Avoid clipped overlays or inaccessible controls
+- Use readable loading, error and empty states
+- Match the general home-screen structure used by the existing games
+
+Do not copy another game’s artwork. Align the layout and interface conventions, not the game’s identity.
+
+## Game Home Screen
+
+The home screen should include:
+
+- Game title
+- Catchphrase
+- Lifetime or relevant game statistics
+- Shared coin balance
+- Description/instructions
+- Question-bank loading status
+- Press Start button
+- Shop button if the game has purchasable progression
+- “Back to Arcade Academy” button
+- Creator credit where existing games use one
+
+The Back to Arcade Academy control must navigate to:
+
+`../../index.html`
+
+This should reload the Hub so Firebase-backed values refresh.
+
+If the player dies or finishes a run, the game-over action must return them to the game’s home screen rather than immediately starting another run. The home screen and shop should display refreshed values.
+
+A run-complete summary may be shown first, but its main continuation button should be “Return Home”.
+
+## Questions
+
+Use `QuestionManager.js`.
+
+The game must:
+
+- Read the class code selected on the Hub
+- Load the correct question bank through QuestionManager
+- Support the specified question format
+- Normalize questions using the shared question architecture
+- Record every answer
+- Provide a clear message when no class code exists
+- Provide a clear message when a bank cannot be loaded
+- Avoid hardcoded question-bank paths when QuestionManager can resolve them
+- Never fetch questions directly from Firebase
+- Never maintain a separate class-code system
+
+Use friendly errors such as:
+
+“Please enter your class code on the Arcade Academy Hub.”
+
+or:
+
+“This class does not have compatible questions for this game.”
+
+If the requested question format is incompatible with the game, report the conflict clearly rather than silently returning no questions.
+
+## PlatformManager Integration
+
+Use the existing PlatformManager API.
+
+Connect:
+
+- `PlatformManager.startSession(gameId)`
+- `PlatformManager.endSession(gameId)`
+- `PlatformManager.heartbeat(gameId, isActivelyPlaying)`
+- `PlatformManager.recordQuestionAnswered(gameId, correct)`
+- `PlatformManager.setHighScore(gameId, score)`
+- `PlatformManager.getCoins()`
+- `PlatformManager.addCoins(amount)`
+- `PlatformManager.spendCoins(amount)` or the existing deduction method
+
+Active playtime must exclude time spent on:
+
+- Home screens
+- Pause screens
+- Shops
+- Question overlays
+- Game-over screens
+- Loading screens
+
+Do not create a second coin balance.
+
+## Coins
+
+Use Arcade Academy’s shared coin pool.
+
+Apply:
+
+- Correct answer: +[CORRECT-ANSWER COIN REWARD]
+- Incorrect answer: -[INCORRECT-ANSWER COIN PENALTY]
+
+Coin deductions must never make the balance negative.
+
+If either value is “NOT DECIDED”, do not invent a value. Tell me exactly which reward or penalty still needs a decision.
+
+Do not award coins independently from game score unless the game design explicitly requires it.
+
+## Saves and Firebase
+
+Use PlatformManager for shared statistics and Firebase-backed platform data.
+
+Use GameSaveManager or the existing approved local-save pattern for game-specific progression such as:
+
+- Unlocks
+- Upgrades
+- Cosmetics
+- Inventory
+- Skill trees
+- Permanent abilities
+
+Do not put direct Firestore calls inside the game.
+
+Ensure that teacher-issued resets work:
+
+- A game-specific reset clears this game’s statistics and local progression
+- A learning-statistics reset clears question and accuracy data without clearing coins, high scores or unlocks
+- An all-progress reset clears this game’s applicable local progression
+
+## Hub Integration
+
+Add the game to the correct Hub collection:
+
+- Single Player
+
+The Hub card must use the standard card structure and display:
+
+- Icon
+- Title
+- Catchphrase
+- Description
+- Genre
+- High score
+- Accuracy
+- Questions answered
+- Playtime
+- Last played
+
+Match the normal dark Hub-card artwork background unless I explicitly request another approved collection colour.
+
+Do not redesign the Hub.
+
+## Teacher Dashboard
+
+Ensure the game appears automatically through the existing configuration/catalogue system.
+
+Its statistics should be readable in the Teacher Dashboard:
+
+- High score
+- Accuracy
+- Questions answered
+- Correct answers
+- Incorrect answers
+- Playtime
+- Last played
+- Sessions played
+
+Do not add direct game-specific Firestore reads to the Teacher Dashboard.
+
+## Safety and Compatibility
+
+- Preserve existing user changes
+- Do not create a second Firebase configuration
+- Do not weaken Firestore rules
+- Do not modify unrelated games
+- Do not expose API keys beyond the existing Firebase client configuration
+- Do not delete fake/reference files unless requested
+- Avoid breaking existing local save keys
+- Add migrations or backward-compatible handling if an existing save format changes
+
+## Verification
+
+Test or inspect the following:
+
+1. Game appears under Single Player on the Hub.
+2. Game card uses the standard Hub style.
+3. Opening the game shows its aligned home screen.
+4. Back to Arcade Academy returns to and refreshes the Hub.
+5. The Hub-selected class code loads.
+6. Compatible questions appear.
+7. Correct and incorrect answers are recorded.
+8. Coin rewards and penalties use the shared balance.
+9. Refreshing preserves shared cloud values.
+10. High scores and statistics reach PlatformManager.
+11. Active playtime excludes menus and overlays.
+12. Death/run completion returns to the game home screen.
+13. Teacher Dashboard can display the game’s statistics.
+14. Teacher reset requests are respected.
+15. The game works at desktop and mobile widths.
+16. JavaScript syntax and repository checks pass.
+
+## Final Report
+
+After implementation, report:
+
+- Files changed
+- Architecture integrations completed
+- Question format used
+- Coin values applied
+- Save data that remains local
+- Data synchronized through PlatformManager/Firebase
+- Tests performed
+- Anything still requiring my decision
+- Any Firestore rule or deployment requirement
+
+Implement the integration, not just a review.
+
+If something is ambiguous, inspect the established Arcade Academy conventions first. Make the safest compatible assumption, implement it, and clearly report the assumption. Ask me only when a missing choice would materially change the game’s mechanics or economy.

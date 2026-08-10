@@ -347,6 +347,20 @@
     return true;
   }
 
+  function resetLearningStats() {
+    const fresh = defaultData();
+    data.questions = fresh.questions;
+    data.questionBanks = {};
+    Object.values(data.games).forEach(game => {
+      game.questionsAnswered = 0;
+      game.correct = 0;
+      game.incorrect = 0;
+    });
+    save();
+    queueStatsSave(Object.keys(data.games));
+    return true;
+  }
+
   async function applyPendingProgressReset(uid) {
     if (!global.FirebaseManager?.getPendingProgressReset) return true;
     const request = await global.FirebaseManager.getPendingProgressReset(uid);
@@ -359,6 +373,8 @@
     if (request.type === 'all') {
       resetAllProgress();
       global.GameSaveManager.resetAllGames();
+    } else if (request.type === 'learning') {
+      resetLearningStats();
     } else if (request.type === 'game' && request.gameId) {
       resetGameStats(request.gameId);
       global.GameSaveManager.resetGame(request.gameId);
@@ -904,6 +920,7 @@
     connectFirebase,
     disconnectFirebase,
     resetAllProgress,
+    resetLearningStats,
     resetGameStats,
 
     // questions

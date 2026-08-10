@@ -73,15 +73,25 @@
     els.statTotal = document.getElementById("stat-total");
     els.statAccuracy = document.getElementById("stat-accuracy");
     els.statQuestions = document.getElementById("stat-questions");
+    els.statTotalQuestions = document.getElementById("stat-total-questions");
+    els.statTotalPlaytime = document.getElementById("stat-total-playtime");
+    els.statTotalLabel = document.getElementById("stat-total-label");
+    els.statisticsHeading = document.getElementById("statistics-heading");
+    els.statisticsScope = document.getElementById("statistics-scope");
+    els.overviewHeading = document.getElementById("overview-heading");
 
     els.panel = document.getElementById("student-panel");
     els.panelOverlay = document.getElementById("student-panel-overlay");
     els.panelClose = document.getElementById("panel-close");
     els.panelTitle = document.getElementById("panel-student-name");
     els.panelMeta = document.getElementById("panel-student-meta");
+    els.studentClassSelect = document.getElementById("student-class-select");
+    els.studentClassSave = document.getElementById("student-class-save");
+    els.studentClassResult = document.getElementById("student-class-result");
     els.gameStatsBody = document.getElementById("game-stats-body");
     els.resetGameSelect = document.getElementById("reset-game-select");
     els.resetGameButton = document.getElementById("reset-game-button");
+    els.resetLearningButton = document.getElementById("reset-learning-button");
     els.resetAllButton = document.getElementById("reset-all-button");
     els.resetResult = document.getElementById("reset-result");
     els.resetOverlay = document.getElementById("reset-confirm-overlay");
@@ -233,7 +243,9 @@
     });
 
     els.resetGameButton.addEventListener("click", () => beginReset("game"));
+    els.resetLearningButton.addEventListener("click", () => beginReset("learning"));
     els.resetAllButton.addEventListener("click", () => beginReset("all"));
+    els.studentClassSave.addEventListener("click", saveStudentClass);
     els.resetCancel.addEventListener("click", closeResetConfirmation);
     els.resetContinue.addEventListener("click", showFinalResetWarning);
     els.resetFinal.addEventListener("click", submitProgressReset);
@@ -322,15 +334,25 @@
   function renderHeaderStats() {
     const rows = state.overview;
     const activeCount = rows.filter((r) => r.active).length;
-    const avgAccuracy = rows.length
-      ? Math.round(rows.reduce((s, r) => s + r.overall.accuracy, 0) / rows.length)
-      : 0;
+    const totalQuestions = rows.reduce((sum, row) => sum + row.overall.totalQuestionsAnswered, 0);
+    const totalCorrect = rows.reduce((sum, row) => sum + row.overall.totalCorrect, 0);
+    const avgAccuracy = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
     const questionsToday = rows.reduce((s, r) => s + r.today.questionsAnswered, 0);
+    const totalPlaytime = rows.reduce((sum, row) => sum + row.overall.totalPlaytimeMinutes, 0);
+    const allClasses = state.classCode === "all";
+    const selectedOption = els.classFilter.options[els.classFilter.selectedIndex];
+    const scopeLabel = allClasses ? "All classes" : (selectedOption?.textContent || state.classCode);
 
     els.statActive.textContent = `${activeCount}/${rows.length}`;
     els.statTotal.textContent = String(rows.length);
     els.statAccuracy.textContent = rows.length ? `${avgAccuracy}%` : "—";
     els.statQuestions.textContent = String(questionsToday);
+    els.statTotalQuestions.textContent = totalQuestions.toLocaleString();
+    els.statTotalPlaytime.textContent = formatMinutes(totalPlaytime);
+    els.statTotalLabel.textContent = allClasses ? "Total students" : "Students in class";
+    els.statisticsHeading.textContent = allClasses ? "Overall statistics" : "Class statistics";
+    els.statisticsScope.textContent = scopeLabel;
+    els.overviewHeading.textContent = allClasses ? "All students" : `Class overview — ${state.classCode}`;
   }
 
   function getFilteredSortedRows() {
@@ -468,6 +490,7 @@
     els.trendSummary.textContent = "";
     els.trendGraph.innerHTML = "";
     els.resetResult.textContent = "";
+    els.studentClassResult.textContent = "";
     document.body.classList.add("panel-open");
 
     let detail;
@@ -486,6 +509,7 @@
 
     els.panelTitle.textContent = detail.name;
     els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
+    populateStudentClassOptions(detail);
 
     renderGameStats(detail.games);
     const gameCatalog = await window.TeacherDataProvider.getGamesCatalog();
@@ -547,6 +571,47 @@
     els.resetGameButton.disabled = games.length === 0;
   }
 
+  function populateStudentClassOptions(detail) {
+    const year = Number((/\d+/.exec(detail.yearLevel || "") || [])[0]);
+    const configuredClasses = window.getClassOptionsForYear?.(year) || [];
+    const observedClasses = state.overview
+      .filter(student => student.yearLevel === detail.yearLevel)
+      .map(student => student.className)
+      .filter(Boolean);
+    const classes = [...new Set([detail.className, ...configuredClasses, ...observedClasses].filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b));
+    els.studentClassSelect.innerHTML = classes
+      .map(className => `<option value="${escapeHtml(className)}"${className === detail.className ? " selected" : ""}>${escapeHtml(className)}</option>`)
+      .join("");
+    els.studentClassSave.disabled = classes.length === 0;
+  }
+
+  async function saveStudentClass() {
+    const detail = state.selectedStudentDetail;
+    const className = els.studentClassSelect.value;
+    if (!detail || !className || className === detail.className) {
+      els.studentClassResult.textContent = className === detail?.className ? "This student is already assigned to that class." : "Choose a class first.";
+      return;
+    }
+
+    els.studentClassSave.disabled = true;
+    els.studentClassSave.textContent = "Saving…";
+    els.studentClassResult.textContent = "";
+    try {
+      await window.TeacherDataProvider.updateStudentClass(detail.id, className);
+      detail.className = className;
+      els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
+      els.studentClassResult.textContent = `Class updated to ${className}.`;
+      await refreshOverview();
+    } catch (error) {
+      console.error("Unable to change student class:", error);
+      els.studentClassResult.textContent = "The class could not be updated. Check teacher write permissions and try again.";
+    } finally {
+      els.studentClassSave.disabled = false;
+      els.studentClassSave.textContent = "Save Class";
+    }
+  }
+
   function beginReset(type) {
     const detail = state.selectedStudentDetail;
     if (!detail) return;
@@ -557,10 +622,14 @@
       : null;
 
     state.pendingReset = { target: "student", type, gameId, gameName, studentId: detail.id, studentName: detail.name, confirmText: type === "all" ? "RESET" : null };
-    els.resetTitle.textContent = type === "all" ? "Reset all student progress?" : `Reset ${gameName}?`;
+    els.resetTitle.textContent = type === "all"
+      ? "Reset all student progress?"
+      : type === "learning" ? "Reset learning statistics?" : `Reset ${gameName}?`;
     els.resetMessage.textContent = type === "all"
       ? `Reset all Arcade Academy progress for ${detail.name}? This includes coins, platform statistics, every game's statistics, and all game-specific saves. Their profile, year and class will remain.`
-      : `Reset ${gameName} progress for ${detail.name}? Other games, global coins, and the student profile will remain unchanged.`;
+      : type === "learning"
+        ? `Reset question totals, correct and incorrect answers, accuracy, and question-bank history for ${detail.name}? Coins, high scores, unlocks, playtime, and game saves will remain.`
+        : `Reset ${gameName} progress for ${detail.name}? Other games, global coins, and the student profile will remain unchanged.`;
     els.resetTypeWrap.hidden = true;
     els.resetInput.value = "";
     els.resetContinue.hidden = false;
@@ -609,7 +678,9 @@
     } else {
       els.resetMessage.textContent = reset.type === "all"
         ? `This will permanently reset all progress for ${reset.studentName}. This cannot easily be undone.`
-        : `This will permanently reset ${reset.gameName} for ${reset.studentName}. This cannot easily be undone.`;
+        : reset.type === "learning"
+          ? `This will permanently clear the recorded learning statistics for ${reset.studentName}. Coins, scores and unlocks will remain.`
+          : `This will permanently reset ${reset.gameName} for ${reset.studentName}. This cannot easily be undone.`;
       els.resetTypeLabel.innerHTML = "Type <strong>RESET</strong> to continue";
     }
     els.resetContinue.hidden = true;
@@ -654,7 +725,9 @@
       await window.TeacherDataProvider.requestProgressReset(reset.studentId, reset.type, reset.gameId);
       const successMessage = reset.type === "all"
         ? `All progress for ${reset.studentName} was reset. Their local saves will clear next time they load Arcade Academy.`
-        : `${reset.gameName} was reset for ${reset.studentName}. Its local save will clear next time they load Arcade Academy.`;
+        : reset.type === "learning"
+          ? `Learning statistics for ${reset.studentName} were reset. Coins, scores, unlocks and game saves were preserved.`
+          : `${reset.gameName} was reset for ${reset.studentName}. Its local save will clear next time they load Arcade Academy.`;
       const studentId = reset.studentId;
       closeResetConfirmation();
       await refreshOverview();

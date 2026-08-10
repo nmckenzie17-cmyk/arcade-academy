@@ -249,11 +249,49 @@ input[type="search"]:focus {
   padding: 1.5rem;
 }
 
+.statistics-summary {
+  margin-bottom: 1.5rem;
+}
+
+.statistics-heading-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.statistics-heading-row h2 {
+  margin: 0;
+  color: #f4f5ff;
+  font-size: 1.2rem;
+}
+
+.statistics-kicker,
+#statistics-scope {
+  margin: 0;
+  color: #9aa0c3;
+  font-size: 0.8rem;
+}
+
+.statistics-kicker {
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#statistics-scope {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--aa-border);
+  border-radius: 999px;
+  color: var(--aa-cyan);
+}
+
 .stat-strip {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.9rem;
-  margin-bottom: 1.5rem;
+  margin: 0;
 }
 
 .stat-card {
@@ -638,11 +676,57 @@ tbody th {
   color: var(--text-muted);
 }
 
+/* -------------------------- Student settings ---------------------- */
+
+.student-settings {
+  border: 1px solid var(--surface-border);
+  background: var(--surface-alt);
+}
+
+.student-class-settings {
+  padding-bottom: 1rem;
+}
+
+.student-class-settings > label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-weight: 600;
+}
+
+.student-class-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.student-class-row select {
+  min-width: 0;
+}
+
+.settings-result {
+  min-height: 1.2em;
+  margin: 0.55rem 0 0;
+  color: var(--good);
+  font-weight: 600;
+}
+
 /* ------------------------ Progress management --------------------- */
+
+.progress-management {
+  padding-top: 1rem;
+  border-top: 1px solid #efb2b2;
+}
+
+.progress-management h4 {
+  margin: 0 0 0.55rem;
+  font-size: 0.95rem;
+}
 
 .progress-management {
   border: 1px solid #efb2b2;
   background: #fff8f8;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
 }
 
 .progress-management > p {
@@ -849,6 +933,9 @@ tbody th {
 }
 
 @media (max-width: 640px) {
+  .student-class-row {
+    grid-template-columns: 1fr;
+  }
   .app-header {
     padding: 1rem;
   }

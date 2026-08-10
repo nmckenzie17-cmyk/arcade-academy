@@ -130,6 +130,41 @@ export async function updateUserProfile(uid, changes) {
   }
 }
 
+export async function updateStudentClass(uid, className) {
+  try {
+    const teacherUid = auth.currentUser?.uid;
+    const cleanedClassName = String(className || "").trim();
+    if (!teacherUid || !uid || !cleanedClassName) throw new Error("Invalid class update");
+
+    const teacherProfile = await getUserProfile(teacherUid);
+    if (teacherProfile?.role !== "teacher") throw new Error("Teacher access required");
+
+    const studentRef = doc(db, "users", uid);
+    const studentSnapshot = await getDoc(studentRef);
+    if (!studentSnapshot.exists()) throw new Error("Student profile not found");
+
+    const studentData = studentSnapshot.data();
+    const changes = {
+      className: cleanedClassName,
+      updatedAt: new Date().toISOString()
+    };
+    if (studentData.seniorClassSelection && typeof studentData.seniorClassSelection === "object") {
+      changes.seniorClassSelection = {
+        ...studentData.seniorClassSelection,
+        className: cleanedClassName,
+        correctedAt: Date.now(),
+        correctedBy: teacherUid
+      };
+    }
+
+    await updateDoc(studentRef, changes);
+    return true;
+  } catch (error) {
+    console.error("Unable to update student class:", error);
+    return false;
+  }
+}
+
 export async function getPlatformData(uid) {
   try {
     const userRef = doc(db, "users", uid);
@@ -298,6 +333,13 @@ function studentResetUpdate(resetType, gameId, resetRequest) {
       resetRequest
     };
   }
+  if (resetType === "learning") {
+    return {
+      "platform.questions": emptyCloudPlatformData().questions,
+      "platform.questionBanks": {},
+      resetRequest
+    };
+  }
   return {
     [`games.${gameId}`]: emptyCloudGameStats(),
     resetRequest
@@ -306,14 +348,33 @@ function studentResetUpdate(resetType, gameId, resetRequest) {
 
 export async function requestStudentProgressReset(uid, resetType, gameId = null) {
   try {
-    if (resetType !== "all" && resetType !== "game") throw new Error("Invalid reset type");
+    if (!['all', 'learning', 'game'].includes(resetType)) throw new Error("Invalid reset type");
     if (resetType === "game" && (!gameId || !/^[a-z0-9-]+$/.test(gameId))) {
       throw new Error("Invalid game ID");
     }
 
     const userRef = doc(db, "users", uid);
     const resetRequest = createResetRequest(resetType, gameId);
-    await updateDoc(userRef, studentResetUpdate(resetType, gameId, resetRequest));
+    if (resetType === "learning") {
+      await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(userRef);
+        if (!snapshot.exists()) throw new Error("Student profile not found");
+        const games = snapshot.data().games || {};
+        const learningResetGames = Object.fromEntries(Object.entries(games).map(([id, stats]) => [id, {
+          ...stats,
+          questionsAnswered: 0,
+          correct: 0,
+          incorrect: 0,
+          percentageCorrect: 0
+        }]));
+        transaction.update(userRef, {
+          ...studentResetUpdate(resetType, gameId, resetRequest),
+          games: learningResetGames
+        });
+      });
+    } else {
+      await updateDoc(userRef, studentResetUpdate(resetType, gameId, resetRequest));
+    }
 
     return resetRequest;
   } catch (error) {
@@ -586,6 +647,7 @@ window.FirebaseManager = {
   getUserProfile,
   createUserProfile,
   updateUserProfile,
+  updateStudentClass,
   getPlatformData,
   updatePlatformData,
   getGameStats,

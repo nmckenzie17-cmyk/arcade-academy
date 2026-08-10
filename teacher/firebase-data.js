@@ -125,6 +125,7 @@ function mapStudent(document, catalog) {
     },
     overall: {
       accuracy: accuracy(correct, answered),
+      totalCorrect: correct,
       totalPlaytimeMinutes: Math.floor(numberOrZero(sessions.totalPlayTimeMs) / 60000),
       totalQuestionsAnswered: answered
     }
@@ -202,6 +203,13 @@ window.TeacherDataProvider = {
     return request;
   },
 
+  async updateStudentClass(studentId, className) {
+    const updated = await window.FirebaseManager.updateStudentClass(studentId, className);
+    if (!updated) throw new Error("Firestore rejected the student class update.");
+    studentDocuments = null;
+    return true;
+  },
+
   async requestClassReset(className, resetType, gameId = null) {
     const operation = await window.FirebaseManager.requestClassProgressReset(className, resetType, gameId);
     if (!operation) throw new Error("Firestore could not complete the class reset operation.");
@@ -225,9 +233,20 @@ window.TeacherDataProvider = {
     const classes = new Map();
     students.forEach((student) => {
       const className = student.className || "Unassigned";
-      if (!classes.has(className)) classes.set(className, student.yearLevel || "Year not set");
+      if (!classes.has(className)) classes.set(className, new Set());
+      classes.get(className).add(student.yearLevel || "Year not set");
     });
-    return Array.from(classes, ([code, subject]) => ({ code, subject }))
+    return Array.from(classes, ([code, yearLevels]) => {
+      const years = [...yearLevels].sort((a, b) => {
+        const yearA = Number((/\d+/.exec(a) || [])[0]) || 999;
+        const yearB = Number((/\d+/.exec(b) || [])[0]) || 999;
+        return yearA - yearB || a.localeCompare(b);
+      });
+      return {
+        code,
+        subject: years.length > 1 ? years.join(", ") : years[0]
+      };
+    })
       .sort((a, b) => a.code.localeCompare(b.code));
   },
 
