@@ -5532,6 +5532,7 @@
         }
 
         function gameOver() {
+            PlatformManager.endPracticeRun();
             if (game.state === GameState.GAME_OVER) return;
             game.state = GameState.GAME_OVER;
             game.quizActive = false;

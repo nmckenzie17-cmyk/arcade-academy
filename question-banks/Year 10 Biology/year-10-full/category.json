@@ -1,0 +1,281 @@
+{
+  "subject": "Biology — Pathogens, Homeostasis & Ecosystems",
+  "categories": [
+    {
+      "prompt": "Types of Pathogens",
+      "correct": [
+        "Bacteria",
+        "Viruses",
+        "Fungi",
+        "Protozoa"
+      ],
+      "distractors": [
+        "Antibodies",
+        "Phagocytes",
+        "Plasmids",
+        "Toxins",
+        "Lymphocytes",
+        "Receptors",
+        "Cilia",
+        "Hormones",
+        "Enzymes",
+        "Glycogen",
+        "Histamine",
+        "Insulin"
+      ]
+    },
+    {
+      "prompt": "Ways Pathogens Can Be Transmitted",
+      "correct": [
+        "Direct contact",
+        "Contaminated water",
+        "Contaminated food",
+        "Vectors"
+      ],
+      "distractors": [
+        "Binary fission",
+        "Phagocytosis",
+        "Vasodilation",
+        "Mutation",
+        "Negative feedback",
+        "Antibody production",
+        "Glycogen storage",
+        "Insulin release",
+        "Shivering",
+        "Competitive exclusion",
+        "Osmoregulation",
+        "Decomposition"
+      ]
+    },
+    {
+      "prompt": "Non-Specific Body Defences",
+      "correct": [
+        "Skin",
+        "Stomach acid",
+        "Mucus",
+        "Cilia"
+      ],
+      "distractors": [
+        "Memory cells",
+        "Antibodies",
+        "B cells",
+        "T cells",
+        "Insulin",
+        "Glucagon",
+        "Pituitary gland",
+        "Hypothalamus",
+        "Glycogen",
+        "Thermoreceptors",
+        "Sensory neurons",
+        "Thyroxine"
+      ]
+    },
+    {
+      "prompt": "White Blood Cells",
+      "correct": [
+        "Neutrophils",
+        "Eosinophils",
+        "Basophils",
+        "Lymphocytes"
+      ],
+      "distractors": [
+        "Thermoreceptors",
+        "Motor neurons",
+        "Beta cells",
+        "Alpha cells",
+        "Platelets",
+        "Antibodies",
+        "Pathogens",
+        "Cilia",
+        "Islets of Langerhans",
+        "Sweat glands",
+        "Skin cells",
+        "Sensory neurons"
+      ]
+    },
+    {
+      "prompt": "Parts of a Homeostatic Response",
+      "correct": [
+        "Stimulus",
+        "Receptor",
+        "Control centre",
+        "Effector"
+      ],
+      "distractors": [
+        "Antibody",
+        "Pathogen",
+        "Vector",
+        "Plasmid",
+        "Glycogen",
+        "Hormone",
+        "Microbiome",
+        "Neutrophil",
+        "Turbidity",
+        "Parasite",
+        "Antigen",
+        "Mutation"
+      ]
+    },
+    {
+      "prompt": "Responses When the Body Is Too Hot",
+      "correct": [
+        "Sweating",
+        "Vasodilation",
+        "Increased skin blood flow",
+        "Increased heat loss"
+      ],
+      "distractors": [
+        "Shivering",
+        "Vasoconstriction",
+        "Reduced skin blood flow",
+        "Increased heat production",
+        "Glucagon release",
+        "Glycogen breakdown",
+        "Insulin resistance",
+        "Antibody production",
+        "Increased insulation",
+        "Muscle contractions",
+        "Reduced heat loss",
+        "Peripheral vasoconstriction"
+      ]
+    },
+    {
+      "prompt": "Endocrine Glands or Hormone-Producing Organs",
+      "correct": [
+        "Pituitary gland",
+        "Thyroid gland",
+        "Adrenal glands",
+        "Pancreas"
+      ],
+      "distractors": [
+        "Spinal cord",
+        "Sweat glands",
+        "Cilia",
+        "Thermoreceptors",
+        "Sensory neurons",
+        "Motor neurons",
+        "Phagocytes",
+        "Liver",
+        "Skin",
+        "Small intestine",
+        "Lymphocytes",
+        "Blood vessels"
+      ]
+    },
+    {
+      "prompt": "Blood Glucose Regulation",
+      "correct": [
+        "Insulin",
+        "Glucagon",
+        "Glycogen",
+        "Pancreas"
+      ],
+      "distractors": [
+        "Thyroxine",
+        "Adrenaline",
+        "Histamine",
+        "Antibody",
+        "Cilia",
+        "Vasodilation",
+        "Neutrophil",
+        "Thermoreceptor",
+        "Pituitary gland",
+        "Motor neuron",
+        "Stomach acid",
+        "Turbidity"
+      ]
+    },
+    {
+      "prompt": "Features of Type I Diabetes",
+      "correct": [
+        "Autoimmune condition",
+        "Beta cell destruction",
+        "Reduced insulin production",
+        "High blood glucose"
+      ],
+      "distractors": [
+        "Insulin resistance",
+        "Excess insulin production",
+        "Excess glucagon sensitivity",
+        "Increased glycogen storage",
+        "Bacterial infection",
+        "Viral reproduction",
+        "Increased glucose uptake",
+        "Alpha cell destruction",
+        "Low blood glucose only",
+        "Increased insulin sensitivity",
+        "Excess antibody deficiency",
+        "Increased cellular response to insulin"
+      ]
+    },
+    {
+      "prompt": "Parts of a Nervous Response Pathway",
+      "correct": [
+        "Receptor",
+        "Sensory neuron",
+        "Central nervous system",
+        "Motor neuron"
+      ],
+      "distractors": [
+        "Insulin",
+        "Glucagon",
+        "Glycogen",
+        "Antibody",
+        "Plasmid",
+        "Pathogen",
+        "Pancreas",
+        "Pituitary gland",
+        "Basophil",
+        "Microbiome",
+        "Thyroxine",
+        "Toxin"
+      ]
+    },
+    {
+      "prompt": "Measurements Used to Investigate Water Quality",
+      "correct": [
+        "pH",
+        "Turbidity",
+        "Total dissolved solids",
+        "Water clarity"
+      ],
+      "distractors": [
+        "Blood glucose",
+        "Glycogen concentration",
+        "Antibody count",
+        "Insulin sensitivity",
+        "Body temperature",
+        "White blood cell count",
+        "Vasodilation",
+        "Mutation rate",
+        "Hormone concentration",
+        "Binary fission",
+        "Nerve impulse speed",
+        "Phagocytosis"
+      ]
+    },
+    {
+      "prompt": "Factors or Processes Associated with Eutrophication",
+      "correct": [
+        "Excess nitrogen",
+        "Excess phosphorus",
+        "Increased phytoplankton",
+        "Nutrient pollution"
+      ],
+      "distractors": [
+        "Competitive exclusion",
+        "Vasoconstriction",
+        "Insulin resistance",
+        "Antibody production",
+        "Binary fission",
+        "Thermoregulation",
+        "Glycogen storage",
+        "Hormonal feedback",
+        "Sensory signalling",
+        "Phagocytosis",
+        "Blood glucose regulation",
+        "Cilia movement"
+      ]
+    }
+  ]
+}

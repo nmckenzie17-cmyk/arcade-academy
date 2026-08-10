@@ -1451,6 +1451,7 @@
   }
 
   async function endGame() {
+    PlatformManager.endPracticeRun();
     gameActive=false;clearInterval(spawnInterval);
     if (deadManHandTimer) { clearInterval(deadManHandTimer); deadManHandTimer=null; }
     clearTimeout(duelTimerHandle); duelActive=false;

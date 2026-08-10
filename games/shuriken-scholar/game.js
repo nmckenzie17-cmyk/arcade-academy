@@ -5877,6 +5877,7 @@
     }
 
     function gameOver() {
+      PlatformManager.endPracticeRun();
       game.active = false;
       game.paused = true;
       progress.deaths++;

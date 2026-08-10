@@ -2023,6 +2023,7 @@ if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpack
 return msg||'No prize this time. Next chance improved.';
 }
 function endGame(){
+PlatformManager.endPracticeRun();
 gameOver=true;
 gameOverUIReady=false;
 const wipe=document.getElementById('screenWipe');

@@ -1,0 +1,373 @@
+{
+  "name": "Year 10 Biology Vocabulary",
+  "cards": [
+    {
+      "term": "Pathogen",
+      "definition": "A microorganism or infectious agent that can cause disease."
+    },
+    {
+      "term": "Bacteria",
+      "definition": "Single-celled microorganisms; some species can cause disease."
+    },
+    {
+      "term": "Virus",
+      "definition": "An infectious agent that must use a host cell to reproduce."
+    },
+    {
+      "term": "Homeostasis",
+      "definition": "The maintenance of stable internal conditions in the body."
+    },
+    {
+      "term": "Hormone",
+      "definition": "A chemical messenger produced by a gland and transported in the blood."
+    },
+    {
+      "term": "Glucose",
+      "definition": "A simple sugar used as a major energy source by cells."
+    },
+    {
+      "term": "Brain",
+      "definition": "The main control centre of the nervous system."
+    },
+    {
+      "term": "Pollution",
+      "definition": "Contamination of the environment by harmful substances or materials."
+    },
+    {
+      "term": "Infectious disease",
+      "definition": "A disease caused by a pathogen that can potentially spread between organisms."
+    },
+    {
+      "term": "Non-infectious disease",
+      "definition": "A disease not caused by a pathogen and which cannot spread between people."
+    },
+    {
+      "term": "Fungi",
+      "definition": "Organisms with cell walls containing chitin; some species can cause infections."
+    },
+    {
+      "term": "Protozoa",
+      "definition": "Usually single-celled organisms, some of which are parasites that cause disease."
+    },
+    {
+      "term": "Parasite",
+      "definition": "An organism that lives on or inside a host and obtains resources from it."
+    },
+    {
+      "term": "Transmission",
+      "definition": "The process by which a pathogen spreads between hosts."
+    },
+    {
+      "term": "Vector",
+      "definition": "An organism, such as a mosquito, that carries a pathogen between hosts."
+    },
+    {
+      "term": "Infection",
+      "definition": "The entry and multiplication of pathogens within a host."
+    },
+    {
+      "term": "Binary fission",
+      "definition": "A form of reproduction in which one bacterial cell divides into two cells."
+    },
+    {
+      "term": "Plasmid",
+      "definition": "A small ring of bacterial DNA that can carry additional genes."
+    },
+    {
+      "term": "Mutation",
+      "definition": "A change in genetic material that can create variation."
+    },
+    {
+      "term": "Non-specific immunity",
+      "definition": "Immediate general defence mechanisms that act against many different pathogens."
+    },
+    {
+      "term": "Specific immunity",
+      "definition": "An immune response targeted toward a particular pathogen or antigen."
+    },
+    {
+      "term": "Phagocyte",
+      "definition": "An immune cell that surrounds, engulfs and digests pathogens."
+    },
+    {
+      "term": "Antibody",
+      "definition": "A protein produced by B cells that binds to a specific target on a pathogen."
+    },
+    {
+      "term": "Lymphocyte",
+      "definition": "A type of white blood cell involved in specific immunity."
+    },
+    {
+      "term": "B cell",
+      "definition": "A lymphocyte that can produce antibodies against specific pathogens."
+    },
+    {
+      "term": "T cell",
+      "definition": "A lymphocyte that can destroy infected cells or help coordinate immune responses."
+    },
+    {
+      "term": "Memory cell",
+      "definition": "A long-lasting immune cell that allows a faster response to a previously encountered pathogen."
+    },
+    {
+      "term": "Microbiome",
+      "definition": "The community of microorganisms normally living in and on the body."
+    },
+    {
+      "term": "Competitive exclusion",
+      "definition": "Protection that occurs when beneficial microbes occupy space and use resources that pathogens need."
+    },
+    {
+      "term": "Stimulus",
+      "definition": "A change in the internal or external environment that produces a response."
+    },
+    {
+      "term": "Receptor",
+      "definition": "A structure or cell that detects a change or stimulus."
+    },
+    {
+      "term": "Effector",
+      "definition": "A muscle or gland that carries out a response."
+    },
+    {
+      "term": "Control centre",
+      "definition": "The part of a regulatory system that processes information and coordinates a response."
+    },
+    {
+      "term": "Negative feedback",
+      "definition": "A control mechanism in which a change causes responses that reverse that change."
+    },
+    {
+      "term": "Positive feedback",
+      "definition": "A mechanism in which a response increases or amplifies the original change."
+    },
+    {
+      "term": "Thermoregulation",
+      "definition": "Maintenance of body temperature within a suitable range."
+    },
+    {
+      "term": "Thermoreceptor",
+      "definition": "A receptor that detects changes in temperature."
+    },
+    {
+      "term": "Hypothalamus",
+      "definition": "A region of the brain involved in regulating conditions such as body temperature."
+    },
+    {
+      "term": "Vasodilation",
+      "definition": "Widening of blood vessels near the skin, increasing heat loss."
+    },
+    {
+      "term": "Vasoconstriction",
+      "definition": "Narrowing of blood vessels near the skin, reducing heat loss."
+    },
+    {
+      "term": "Endocrine system",
+      "definition": "A system of glands that produces hormones to regulate body processes."
+    },
+    {
+      "term": "Endocrine gland",
+      "definition": "An organ that releases hormones directly into the bloodstream."
+    },
+    {
+      "term": "Pituitary gland",
+      "definition": "An endocrine gland that releases hormones controlling several other body functions and glands."
+    },
+    {
+      "term": "Pancreas",
+      "definition": "An organ that produces digestive enzymes and hormones including insulin and glucagon."
+    },
+    {
+      "term": "Insulin",
+      "definition": "A pancreatic hormone that lowers blood glucose concentration."
+    },
+    {
+      "term": "Glucagon",
+      "definition": "A pancreatic hormone that raises blood glucose concentration."
+    },
+    {
+      "term": "Glycogen",
+      "definition": "The stored form of glucose found mainly in the liver and muscles."
+    },
+    {
+      "term": "Islets of Langerhans",
+      "definition": "Clusters of hormone-producing cells within the pancreas."
+    },
+    {
+      "term": "Beta cells",
+      "definition": "Pancreatic cells within the islets of Langerhans that produce insulin."
+    },
+    {
+      "term": "Alpha cells",
+      "definition": "Pancreatic cells within the islets of Langerhans that produce glucagon."
+    },
+    {
+      "term": "Hyperglycaemia",
+      "definition": "A condition in which blood glucose concentration is too high."
+    },
+    {
+      "term": "Central nervous system (CNS)",
+      "definition": "The brain and spinal cord."
+    },
+    {
+      "term": "Peripheral nervous system (PNS)",
+      "definition": "The nerves connecting the CNS with the rest of the body."
+    },
+    {
+      "term": "Neuron",
+      "definition": "A specialised cell that carries electrical signals through the nervous system."
+    },
+    {
+      "term": "Sensory neuron",
+      "definition": "A neuron that carries information from receptors toward the CNS."
+    },
+    {
+      "term": "Motor neuron",
+      "definition": "A neuron that carries signals from the CNS to effectors."
+    },
+    {
+      "term": "Biodiversity",
+      "definition": "The variety of living organisms within an ecosystem or area."
+    },
+    {
+      "term": "Turbidity",
+      "definition": "A measure of how cloudy or unclear water is."
+    },
+    {
+      "term": "Total Dissolved Solids (TDS)",
+      "definition": "A measure of dissolved inorganic and organic substances within water."
+    },
+    {
+      "term": "Riparian zone",
+      "definition": "The strip of land alongside a river, stream or other waterway."
+    },
+    {
+      "term": "Antigen",
+      "definition": "A molecule, often on the surface of a pathogen, that can trigger a specific immune response."
+    },
+    {
+      "term": "Immunity",
+      "definition": "The body's ability to resist a particular infection, often because of immune memory."
+    },
+    {
+      "term": "Macrophage",
+      "definition": "A large phagocytic immune cell that engulfs pathogens, damaged cells and cellular debris."
+    },
+    {
+      "term": "Neutrophil",
+      "definition": "A common white blood cell that acts rapidly against invading bacteria and fungi."
+    },
+    {
+      "term": "Eosinophil",
+      "definition": "A white blood cell involved particularly in responses to parasites and allergic reactions."
+    },
+    {
+      "term": "Basophil",
+      "definition": "A white blood cell that releases substances such as histamine during inflammatory and allergic responses."
+    },
+    {
+      "term": "Histamine",
+      "definition": "A chemical involved in inflammation and allergic responses."
+    },
+    {
+      "term": "Cellular metabolism",
+      "definition": "The collection of chemical reactions occurring within cells to maintain life."
+    },
+    {
+      "term": "Osmoregulation",
+      "definition": "Regulation of water and dissolved ion concentrations within the body."
+    },
+    {
+      "term": "Set point",
+      "definition": "The target level around which a homeostatically controlled condition is maintained."
+    },
+    {
+      "term": "Hyperthermia",
+      "definition": "A condition in which the body's core temperature becomes abnormally high."
+    },
+    {
+      "term": "Hypothermia",
+      "definition": "A condition in which the body's core temperature becomes dangerously low."
+    },
+    {
+      "term": "Thyroxine",
+      "definition": "A thyroid hormone that influences metabolic activity and heat production."
+    },
+    {
+      "term": "Adrenaline",
+      "definition": "A hormone involved in preparing the body to respond rapidly to stressful situations."
+    },
+    {
+      "term": "Cortisol",
+      "definition": "A hormone produced by the adrenal glands involved in metabolism, stress and inflammation."
+    },
+    {
+      "term": "Insulin resistance",
+      "definition": "Reduced responsiveness of body cells to insulin, making blood glucose more difficult to regulate."
+    },
+    {
+      "term": "Type I diabetes",
+      "definition": "An autoimmune condition in which pancreatic beta cells are destroyed, greatly reducing insulin production."
+    },
+    {
+      "term": "Type II diabetes",
+      "definition": "A condition involving insulin resistance and sometimes insufficient insulin production."
+    },
+    {
+      "term": "Point-source pollution",
+      "definition": "Pollution entering an environment from a single identifiable source."
+    },
+    {
+      "term": "Non-point-source pollution",
+      "definition": "Pollution entering an environment from many widespread sources rather than one identifiable location."
+    },
+    {
+      "term": "Eutrophication",
+      "definition": "Excessive nutrient enrichment of water that promotes increased growth of organisms such as algae and disrupts the ecosystem."
+    },
+    {
+      "term": "Dissolved oxygen",
+      "definition": "Oxygen present in water and available for aquatic organisms to use in respiration."
+    },
+    {
+      "term": "Antibiotic resistance",
+      "definition": "The ability of bacteria to survive an antibiotic that would normally kill them or stop their growth."
+    },
+    {
+      "term": "Antigenic variation",
+      "definition": "Changes to a pathogen's surface antigens that can make existing immune responses less effective."
+    },
+    {
+      "term": "Autoimmune disease",
+      "definition": "A condition in which the immune system mistakenly attacks the body's own cells or tissues."
+    },
+    {
+      "term": "Receptor specificity",
+      "definition": "The principle that a receptor responds only to molecules or signals with a compatible structure."
+    },
+    {
+      "term": "Glycogenesis",
+      "definition": "The conversion of glucose into glycogen for storage."
+    },
+    {
+      "term": "Glycogenolysis",
+      "definition": "The breakdown of glycogen to release glucose when blood glucose is low."
+    },
+    {
+      "term": "Denaturation",
+      "definition": "A change in a protein's three-dimensional structure that can cause it to lose its normal function."
+    },
+    {
+      "term": "Hypoxia",
+      "definition": "A condition in which tissues or an environment have insufficient available oxygen."
+    },
+    {
+      "term": "Algal bloom",
+      "definition": "A rapid increase in algae, often caused by excess nutrients entering an aquatic ecosystem."
+    },
+    {
+      "term": "Decomposition",
+      "definition": "The biological breakdown of dead organic material, often by microorganisms such as bacteria and fungi."
+    }
+  ]
+}

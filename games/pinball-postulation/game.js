@@ -1124,6 +1124,7 @@ function update() {
     ballsInPlay = false;
     lives--;
     if (lives <= 0) {
+      PlatformManager.endPracticeRun();
       gameOver = true;
       document.getElementById('final-score').textContent = 'Score: ' + score;
       if (score > 0 && score === highScore) {

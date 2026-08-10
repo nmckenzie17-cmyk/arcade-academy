@@ -759,25 +759,6 @@ function displayGames(games) {
 
     const stats = populateGameStats(card, game.id);
     link.dataset.gameId = game.id;
-    const practiceButton = card.querySelector(".practice-button");
-    const practiceUsed = PlatformManager.hasUsedPractice(game.id);
-    if (practiceUsed) {
-      practiceButton.textContent = "Practice used";
-      practiceButton.classList.add("practice-button-used");
-      practiceButton.setAttribute("aria-disabled", "true");
-      practiceButton.tabIndex = -1;
-    }
-    const openPractice = event => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (practiceUsed) return;
-      location.href = `${game.path}?mode=practice`;
-    };
-    practiceButton.addEventListener("click", openPractice);
-    practiceButton.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") openPractice(event);
-    });
-
     const modes = Array.isArray(game.gameModes)
       ? game.gameModes
       : (game.players === "2 Online" ? ["multiplayer"] : ["singleplayer"]);

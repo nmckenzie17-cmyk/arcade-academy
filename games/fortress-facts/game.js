@@ -1746,6 +1746,7 @@ function showStart(){
 
 let gameOverCrownsAwarded = false, lastCrownsEarned = 0, lastRunWasVoluntary = false;
 function showGameOver(voluntary){
+    PlatformManager.endPracticeRun();
     if(voluntary!==undefined) lastRunWasVoluntary = voluntary; // remembered so returning from The Kingdom keeps the right framing
     state='gameover';
     if(!gameOverCrownsAwarded){

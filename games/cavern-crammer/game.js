@@ -1323,6 +1323,7 @@ function formatElapsed(ms){
   return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
 }
 function triggerRunOver(){
+  PlatformManager.endPracticeRun();
   STATE = 'gameover';
   // Subtly bias the very next run based on how this one went — struggled a lot (many
   // lives lost) eases the next run up slightly; breezed through tightens it up slightly.

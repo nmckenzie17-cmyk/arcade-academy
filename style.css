@@ -505,28 +505,6 @@ body {
 }
 .play-button span { transition: transform .2s ease; }
 .game-card:hover .play-button span { transform: translateX(4px); }
-.practice-button {
-  display: inline-flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: .75rem;
-  padding: .65rem .8rem;
-  color: var(--accent-blue);
-  font-size: .78rem;
-  font-weight: 800;
-  background: rgba(0,212,255,.08);
-  border: 2px solid var(--accent-blue);
-  border-radius: var(--radius-btn);
-  cursor: pointer;
-}
-.practice-button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
-.practice-button.practice-button-used {
-  color: #9189a6;
-  background: rgba(145,137,166,.08);
-  border-color: #5d566d;
-  cursor: not-allowed;
-}
-
 @media (max-width: 760px) {
   .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .game-card { min-height: 340px; }

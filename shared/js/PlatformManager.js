@@ -66,6 +66,7 @@
   let practiceExpired = false;
   let practiceTimerStarted = false;
   let practiceClaimedAt = null;
+  let practiceTimerId = null;
   const PLATFORM_SCRIPT_URL = typeof document !== 'undefined' ? document.currentScript?.src : null;
 
   // ---- date helpers --------------------------------------------------
@@ -320,6 +321,9 @@
           showPracticeUnavailable();
         }
         game.practiceUsedAt = cloudPracticeUsedAt || game.practiceUsedAt;
+        if (game.practiceUsedAt && typeof document !== 'undefined') {
+          document.getElementById('arcade-practice-button')?.remove();
+        }
       });
     }
   }
@@ -506,6 +510,25 @@
     return Math.max(100, Math.round(Math.max(100, Number(baseCost) || 100) * Math.pow(Math.max(1.01, Number(multiplier) || 1.6), Math.max(0, Number(level) || 0))));
   }
 
+  function showPracticeComplete(message) {
+    if (typeof document === 'undefined' || document.getElementById('arcade-practice-complete')) return;
+    practiceExpired = true;
+    if (practiceTimerId) clearInterval(practiceTimerId);
+    const overlay = document.createElement('div');
+    overlay.id = 'arcade-practice-complete';
+    overlay.style.cssText = 'position:fixed;z-index:9999;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#fff;background:rgba(5,3,20,.96);font-family:monospace';
+    overlay.innerHTML = `<div><h1 style="color:#ffd15c">Practice complete</h1><p>${message}</p><a href="../../index.html" style="display:inline-block;margin-top:12px;padding:12px 18px;color:#fff;background:#a855f7;border:2px solid #ff4f9a;border-radius:9px;text-decoration:none;font-weight:bold">Return to Arcade Academy</a></div>`;
+    document.body.appendChild(overlay);
+    global.dispatchEvent(new CustomEvent('arcade-practice-expired'));
+  }
+
+  function endPracticeRun() {
+    if (!practiceMode || practiceExpired) return false;
+    currentSession = null;
+    showPracticeComplete('Your first practice run has ended.');
+    return true;
+  }
+
   function startPracticeTimer() {
     if (!practiceMode || practiceTimerStarted || typeof document === 'undefined') return;
     practiceTimerStarted = true;
@@ -520,16 +543,43 @@
       const seconds = Math.ceil(remaining / 1000);
       banner.textContent = `PRACTICE · ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')} · no coins, scores or power-ups`;
       if (remaining > 0) return;
-      practiceExpired = true;
-      clearInterval(timer);
-      const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;z-index:9999;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:#fff;background:rgba(5,3,20,.96);font-family:monospace';
-      overlay.innerHTML = '<div><h1 style="color:#ffd15c">Practice complete</h1><p>Your five-minute practice session has ended.</p><a href="../../index.html" style="display:inline-block;margin-top:12px;padding:12px 18px;color:#fff;background:#a855f7;border:2px solid #ff4f9a;border-radius:9px;text-decoration:none;font-weight:bold">Return to Arcade Academy</a></div>';
-      document.body.appendChild(overlay);
-      global.dispatchEvent(new CustomEvent('arcade-practice-expired'));
+      showPracticeComplete('Your five-minute practice session has ended.');
     };
-    const timer = setInterval(update, 250);
+    practiceTimerId = setInterval(update, 250);
     update();
+  }
+
+  function installPracticeButton() {
+    if (practiceMode || typeof document === 'undefined') return;
+    const gameId = location.pathname.match(/\/games\/([^/]+)\//)?.[1];
+    if (!gameId || hasUsedPractice(gameId)) return;
+    const selectors = {
+      'cavern-crammer':'#startBtn', 'fortress-facts':'#start-btn',
+      'jetpack-journey':'#start-btn', 'note-knowledge':'#start-btn',
+      'pinball-postulation':'#start-btn', 'pixel-artillery':'#start-single-btn',
+      'rocket-recall':'#beginGameBtn', 'shuriken-scholar':'#startBtn',
+      'tic-tac-toe':'#start-single-btn', 'wild-west-wordslinger':'#start-button'
+    };
+    const attach = () => {
+      if (hasUsedPractice(gameId)) {
+        document.getElementById('arcade-practice-button')?.remove();
+        return true;
+      }
+      if (document.getElementById('arcade-practice-button')) return true;
+      const startButton = document.querySelector(selectors[gameId]);
+      if (!startButton) return false;
+      const button = document.createElement('button');
+      button.id = 'arcade-practice-button';
+      button.type = 'button';
+      button.textContent = 'Practice · one run or 5 min';
+      button.style.cssText = 'display:block;width:100%;margin:10px 0 0;padding:11px 12px;color:#00d4ff;background:rgba(0,212,255,.08);border:2px solid #00d4ff;border-radius:7px;font:700 12px "Press Start 2P",monospace;line-height:1.5;cursor:pointer';
+      button.onclick = () => { location.href = `${location.pathname}?mode=practice`; };
+      startButton.insertAdjacentElement('afterend', button);
+      return true;
+    };
+    attach();
+    const observer = new MutationObserver(attach);
+    observer.observe(document.body, { childList:true, subtree:true });
   }
 
   function showPracticeUnavailable() {
@@ -1015,6 +1065,7 @@
     // practice / economy policy
     isPracticeMode,
     hasUsedPractice,
+    endPracticeRun,
     powerupsAllowed,
     permanentUpgradeCost,
 
@@ -1033,6 +1084,11 @@
     getAllGameStats,
     getFavouriteGame
   };
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installPracticeButton);
+    else installPracticeButton();
+  }
 
   // Game pages include PlatformManager but do not need Firebase-specific
   // code. Load the adjacent manager and restore the signed-in user there.

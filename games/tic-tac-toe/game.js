@@ -428,6 +428,7 @@
   }
 
   async function claimReward(finishedMatch) {
+    PlatformManager.endPracticeRun();
     const key = `${finishedMatch.id}:${finishedMatch.round}`;
     if (claimingRounds.has(key)) return;
     claimingRounds.add(key);

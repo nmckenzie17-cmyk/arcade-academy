@@ -60,7 +60,8 @@ window.CLASS_OPTIONS = [
   { name: "13 Maths", yearLevels: [13] },
 
   // Combined class template: this same option appears for Years 11, 12 and 13.
-  { name: "Senior Dance", yearLevels: [11, 12, 13] }
+  { name: "Senior Dance", yearLevels: [11, 12, 13] },
+  { name: "Teacher", yearLevels: [11, 12, 13, 9, 10] }
 ];
 
 window.getClassOptionsForYear = function getClassOptionsForYear(yearLevel) {

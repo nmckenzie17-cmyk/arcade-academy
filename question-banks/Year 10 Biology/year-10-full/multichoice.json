@@ -1,0 +1,452 @@
+[
+  {
+    "q": "What is a pathogen?",
+    "o": [
+      "A microorganism that can cause disease",
+      "A cell that produces hormones",
+      "A nutrient dissolved in blood",
+      "A chemical that digests food"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which type of pathogen needs a host cell to reproduce?",
+    "o": [
+      "Fungus",
+      "Bacterium",
+      "Virus",
+      "Protozoan"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is homeostasis?",
+    "o": [
+      "Producing energy during exercise",
+      "Maintaining stable internal conditions",
+      "Destroying pathogens in the blood",
+      "Responding to external movement"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which hormone lowers blood glucose?",
+    "o": [
+      "Glucagon",
+      "Adrenaline",
+      "Thyroxine",
+      "Insulin"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which structures make up the central nervous system?",
+    "o": [
+      "Brain and nerves",
+      "Brain and spinal cord",
+      "Spinal cord and muscles",
+      "Nerves and receptors"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How do bacteria usually reproduce?",
+    "o": [
+      "Binary fission",
+      "Viral replication",
+      "Spore fusion",
+      "Cell fertilisation"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What are plasmids in bacteria?",
+    "o": [
+      "Proteins that destroy antibiotics",
+      "Small rings of additional DNA",
+      "Organelles that produce energy",
+      "Membranes surrounding the nucleus"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which is an example of indirect transmission?",
+    "o": [
+      "A mosquito biting a person",
+      "Bacteria entering through food",
+      "Touching a contaminated doorknob",
+      "Direct contact with infected skin"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is a vector?",
+    "o": [
+      "An organism that transmits a pathogen",
+      "A chemical produced by white blood cells",
+      "A surface contaminated with microbes",
+      "A pathogen that reproduces in water"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement best distinguishes infection from disease?",
+    "o": [
+      "Infection only occurs with viruses",
+      "Disease always occurs before infection",
+      "Infection is microbial entry and multiplication",
+      "Disease means microbes have entered the body"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which is a non-specific defence?",
+    "o": [
+      "Antibody production",
+      "Memory B cells",
+      "Skin barrier",
+      "Specific T cells"
+    ],
+    "a": 2
+  },
+  {
+    "q": "How does mucus help defend the respiratory system?",
+    "o": [
+      "It produces antibodies against viruses",
+      "It traps pathogens before they reach tissues",
+      "It destroys every bacterium using acid",
+      "It increases movement of white blood cells"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the main function of cilia in the airways?",
+    "o": [
+      "Produce mucus",
+      "Detect temperature",
+      "Sweep mucus toward the throat",
+      "Absorb pathogens into the blood"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What happens during phagocytosis?",
+    "o": [
+      "A pathogen is engulfed and digested",
+      "A virus injects DNA into a cell",
+      "An antibody becomes a memory cell",
+      "A bacterium divides into two cells"
+    ],
+    "a": 0
+  },
+  {
+    "q": "How can the microbiome protect against pathogens?",
+    "o": [
+      "By increasing blood glucose levels",
+      "By competing for space and nutrients",
+      "By producing additional red blood cells",
+      "By preventing immune cells from responding"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which white blood cells produce antibodies?",
+    "o": [
+      "B cells",
+      "Basophils",
+      "Monocytes",
+      "Neutrophils"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which white blood cells can kill infected body cells?",
+    "o": [
+      "Eosinophils",
+      "B cells",
+      "T cells",
+      "Basophils"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Why is specific immunity useful after a second exposure to a pathogen?",
+    "o": [
+      "The skin becomes physically thicker",
+      "Memory cells allow a faster response",
+      "Stomach acid becomes more acidic",
+      "Pathogens lose their genetic material"
+    ],
+    "a": 1
+  },
+  {
+    "q": "In homeostasis, what does a receptor do?",
+    "o": [
+      "Carries out the corrective response",
+      "Produces energy for the response",
+      "Detects a change in conditions",
+      "Returns conditions to the set point"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which is an effector?",
+    "o": [
+      "Sweat gland",
+      "Thermoreceptor",
+      "Sensory neuron",
+      "Hypothalamus"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What happens to skin blood vessels when the body becomes too hot?",
+    "o": [
+      "They constrict to conserve energy",
+      "They dilate to increase heat loss",
+      "They close to reduce water loss",
+      "They contract to produce heat"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why does sweating cool the body?",
+    "o": [
+      "Sweat blocks heat entering the skin",
+      "Sweat lowers the temperature of blood directly",
+      "Evaporation transfers heat away from the skin",
+      "Water in sweat prevents blood vessel dilation"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What does glucagon do when blood glucose falls?",
+    "o": [
+      "Causes cells to store more glucose",
+      "Signals the liver to release glucose",
+      "Stops glycogen from being broken down",
+      "Increases glucose absorption by muscle cells"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the main difference between Type I and Type II diabetes?",
+    "o": [
+      "Type I involves little/no insulin production; Type II involves insulin resistance",
+      "Type I involves insulin resistance; Type II involves no glucose production",
+      "Type I affects glucagon only; Type II affects insulin only",
+      "Type I is infectious; Type II is caused by bacterial toxins"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which pathway correctly describes a nervous response?",
+    "o": [
+      "Receptor → motor neuron → CNS → sensory neuron → effector",
+      "Effector → receptor → sensory neuron → CNS → motor neuron",
+      "Receptor → sensory neuron → CNS → motor neuron → effector",
+      "CNS → receptor → motor neuron → sensory neuron → effector"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A bacterial population is exposed to an antibiotic. A few bacteria survive and reproduce. Which explanation is most appropriate?",
+    "o": [
+      "The antibiotic caused every bacterium to develop resistance",
+      "Resistant variants survived and became more common",
+      "Bacteria stopped binary fission until treatment ended",
+      "Plasmids prevented all mutations in the population"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why can plasmids contribute to rapid bacterial evolution?",
+    "o": [
+      "They allow bacteria to reproduce sexually",
+      "They can carry useful genes such as antibiotic resistance",
+      "They prevent mutations in bacterial chromosomes",
+      "They allow bacteria to reproduce without DNA"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A person inhales pathogens trapped in mucus. Which sequence best describes their removal?",
+    "o": [
+      "Mucus dissolves → antibodies transport it → lungs absorb it",
+      "Cilia move mucus → throat → coughing or swallowing",
+      "Phagocytes move mucus → stomach → antibodies destroy it",
+      "Cilia digest microbes → mucus enters blood → kidneys filter it"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why can disrupting the normal gut microbiome increase the chance of infection?",
+    "o": [
+      "Pathogens face less competition for resources and space",
+      "The stomach completely stops producing hydrochloric acid",
+      "White blood cells can no longer travel through blood",
+      "Viruses gain the ability to reproduce without host cells"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A student's core temperature rises above its normal range. Which sequence best represents negative feedback?",
+    "o": [
+      "Thermoreceptor → hypothalamus → sweating → temperature falls",
+      "Hypothalamus → thermoreceptor → shivering → temperature rises",
+      "Sweat gland → hypothalamus → vasoconstriction → temperature falls",
+      "Thermoreceptor → muscle → glucagon → temperature falls"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why does vasodilation increase heat loss?",
+    "o": [
+      "It reduces the amount of blood entering the skin",
+      "It brings more warm blood near the body surface",
+      "It increases heat production by skeletal muscles",
+      "It prevents sweat evaporating from the skin"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why is shivering considered an effector response?",
+    "o": [
+      "Muscle contractions generate heat after signals from the control centre",
+      "Thermoreceptors detect temperature changes inside skeletal muscles",
+      "Muscles determine the body's temperature set point",
+      "Shivering sends sensory signals toward the hypothalamus"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which situation demonstrates positive rather than negative feedback?",
+    "o": [
+      "Insulin lowering elevated blood glucose",
+      "Sweating reducing body temperature",
+      "Oxytocin strengthening contractions during childbirth",
+      "Glucagon increasing low blood glucose"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A person's blood glucose rises sharply after a meal. What should occur next?",
+    "o": [
+      "Alpha cells release glucagon and glycogen is produced",
+      "Beta cells release insulin and glucose uptake increases",
+      "Beta cells release glucagon and glucose uptake decreases",
+      "Alpha cells release insulin and glycogen breaks down"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why does insulin cause blood glucose concentration to decrease?",
+    "o": [
+      "Glucose moves into cells and excess glucose is stored as glycogen",
+      "Glycogen is converted into glucose and released from the liver",
+      "Glucose is converted into glucagon inside the pancreas",
+      "Insulin destroys glucose molecules circulating in the blood"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A person has normal insulin production but persistently high blood glucose because their cells respond poorly to insulin. This most strongly indicates:",
+    "o": [
+      "Type I diabetes",
+      "Type II diabetes",
+      "Hypothermia",
+      "Hyperthyroidism"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why are insulin and glucagon described as antagonistic hormones?",
+    "o": [
+      "They are produced by completely different body systems",
+      "They have opposing effects on blood glucose concentration",
+      "One acts on cells while the other acts only on bacteria",
+      "They prevent each other from entering the bloodstream"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A sensory receptor detects a change, but the sensory neuron connecting it to the CNS is damaged. What is the most likely consequence?",
+    "o": [
+      "The receptor cannot detect the original stimulus",
+      "The CNS may not receive information about the stimulus",
+      "The motor neuron automatically becomes a sensory neuron",
+      "The effector produces a stronger response than normal"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why can excess nitrogen and phosphorus contribute to eutrophication?",
+    "o": [
+      "They can promote excessive growth of algae and other producers",
+      "They immediately neutralise the pH of freshwater ecosystems",
+      "They directly increase the concentration of dissolved oxygen",
+      "They remove microorganisms from freshwater environments"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which is the best example of non-point source pollution?",
+    "o": [
+      "Sewage released through one discharge pipe",
+      "Waste released from a single industrial outlet",
+      "Fertiliser runoff from many agricultural fields",
+      "Wastewater released from one treatment facility"
+    ],
+    "a": 2
+  },
+  {
+    "q": "During eutrophication, a large algal bloom eventually dies. Why can dissolved oxygen then fall dramatically?",
+    "o": [
+      "Decomposers consume oxygen while breaking down dead organic material",
+      "Dead algae release oxygen that reacts with dissolved nitrogen",
+      "Fish consume additional oxygen because algae stop producing glucose",
+      "Nitrogen molecules chemically replace oxygen molecules in the water"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why can very high body temperatures interfere with normal cell function?",
+    "o": [
+      "High temperatures can alter protein structure and enzyme function",
+      "High temperatures permanently convert glucose into glycogen",
+      "Heat prevents DNA from existing inside human cells",
+      "Heat causes all cell membranes to become completely solid"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A pathogen mutates so that its surface antigens change substantially. Why could previously acquired immunity become less effective?",
+    "o": [
+      "Existing antibodies may bind less effectively to the altered antigens",
+      "Phagocytes become incapable of engulfing any foreign material",
+      "Memory cells immediately convert into red blood cells",
+      "The pathogen can no longer be detected by non-specific barriers"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why might insulin resistance initially cause the pancreas to produce unusually high amounts of insulin?",
+    "o": [
+      "Beta cells compensate for reduced cellular response by releasing more insulin",
+      "Alpha cells convert glucagon directly into additional insulin",
+      "Liver cells signal the pancreas to stop producing all hormones",
+      "Insulin resistance causes beta cells to become sensory neurons"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A freshwater ecosystem receives continuous nutrient runoff. Algal biomass rises, water clarity falls, and dissolved oxygen later decreases. Which explanation best connects these observations?",
+    "o": [
+      "Nutrients increase producer growth; reduced light and decomposition then disrupt oxygen availability",
+      "Nutrients directly remove oxygen, while clearer water increases decomposition",
+      "Nutrients kill producers immediately, causing sunlight to warm deeper water",
+      "Nutrients increase turbidity only, without affecting biological processes"
+    ],
+    "a": 0
+  }
+]

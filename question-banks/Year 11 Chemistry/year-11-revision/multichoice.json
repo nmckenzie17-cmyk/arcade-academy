@@ -1,0 +1,402 @@
+[
+{
+    "q": "Why can solid copper conduct electricity while solid copper iodide cannot?",
+    "o": [
+      "Copper contains mobile delocalised electrons, while CuI has ions fixed within its lattice.",
+      "Copper contains mobile positive ions, while CuI contains electrons trapped between its ions.",
+      "Copper has weak metallic bonds, while CuI has strong covalent bonds preventing charge movement.",
+      "Copper contains free protons, while CuI has neutral particles arranged throughout its lattice."
+    ],
+    "a": 0
+  },
+  {
+    "q": "A student strikes samples of copper and copper iodide with a hammer. Why are their behaviours different?",
+    "o": [
+      "CuI contains molecular layers that separate, while copper contains fixed positive and negative ions.",
+      "Copper has directional covalent bonds, while CuI has metallic bonds that resist changes in shape.",
+      "Copper's bonding can remain attractive as layers shift, while displaced CuI ions can experience repulsion.",
+      "CuI has mobile electrons that weaken its lattice, while copper contains neutral atoms that remain bonded."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which combination correctly identifies the particles and attractive forces in solid iodine, I₂?",
+    "o": [
+      "Iodide ions held together by strong electrostatic attractions",
+      "I₂ molecules held together by weak intermolecular attractions",
+      "Iodine atoms connected throughout a continuous covalent network",
+      "I₂ molecules held together by strong ionic attractions"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which observation provides the strongest evidence that an unknown solid could be ionic?",
+    "o": [
+      "It conducts electricity as a solid and remains conductive when dissolved.",
+      "It is brittle and conducts electricity after its ions become mobile in solution.",
+      "It is malleable because charged particles can move through its lattice structure.",
+      "It has a low melting point because its covalent bonds require little energy to break."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why can an ionic substance conduct electricity when dissolved in water?",
+    "o": [
+      "Water converts the ions into delocalised electrons that carry electrical charge.",
+      "Dissolving breaks the ions into neutral atoms that transfer electrons between molecules.",
+      "Water removes the charges from the ions, allowing them to move through the solution.",
+      "The ions become mobile in solution and can therefore transport electrical charge."
+    ],
+    "a": 3
+  },
+  {
+    "q": "Silicon dioxide, SiO₂, has a very high melting point. Which explanation best accounts for this?",
+    "o": [
+      "Many strong covalent bonds throughout its network require substantial energy to overcome.",
+      "Individual SiO₂ molecules have strong intermolecular attractions that require substantial energy to overcome.",
+      "Silicon ions and oxide ions form a lattice containing freely moving delocalised electrons.",
+      "Weak intermolecular attractions act throughout the structure but occur in very large numbers."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement correctly distinguishes an intramolecular force from an intermolecular force in water?",
+    "o": [
+      "Intramolecular forces attract separate H₂O molecules, while intermolecular forces join H to O.",
+      "Intramolecular forces are covalent bonds within H₂O, while intermolecular forces act between molecules.",
+      "Intramolecular forces involve lone pairs only, while intermolecular forces involve bonding pairs only.",
+      "Intramolecular forces are temporary attractions, while intermolecular forces are permanent covalent bonds."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why does methane have a tetrahedral arrangement around its central carbon?",
+    "o": [
+      "Four regions of electron density repel and arrange themselves for maximum separation.",
+      "Four hydrogen nuclei attract one another and arrange themselves at maximum separation.",
+      "Carbon's four lone pairs repel one another and force the hydrogen atoms outward.",
+      "Four carbon-hydrogen bonds attract one another and form the most compact arrangement."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is the main structural difference between CH₄ and NH₃ described in the exam?",
+    "o": [
+      "CH₄ has three bonding regions and one lone pair, while NH₃ has four bonding regions.",
+      "CH₄ has four bonding regions, while NH₃ has three bonding regions and one lone pair.",
+      "CH₄ contains four electron regions, while NH₃ contains only three electron regions in total.",
+      "CH₄ contains a double bond, while NH₃ contains only single covalent bonds and lone electrons."
+    ],
+    "a": 1
+  },
+  {
+    "q": "A central atom has four regions of electron density: three bonding regions and one lone pair. Which shape best matches the exam's model?",
+    "o": [
+      "Linear because the bonding electrons arrange themselves opposite one another",
+      "Tetrahedral because all four regions contain atoms attached to the centre",
+      "Trigonal pyramidal because one of the four electron regions is non-bonding",
+      "Trigonal planar because only three regions contain covalently bonded atoms"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which substance meets the definition of a hydrocarbon used in the exam?",
+    "o": [
+      "CH₃OH, because its main structure contains carbon and hydrogen atoms",
+      "C₂H₄, because the compound contains only carbon and hydrogen atoms",
+      "CO₂, because carbon is covalently bonded to another non-metal element",
+      "CH₃COOH, because carbon and hydrogen form the molecule's main backbone"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why is fractional distillation effective for separating crude oil?",
+    "o": [
+      "Hydrocarbons have different boiling points associated with differences in their molecular structures.",
+      "Hydrocarbons have different electrical charges that cause them to migrate through the fractionating column.",
+      "Hydrocarbons react with the column at different temperatures to produce separate chemical products.",
+      "Hydrocarbons have different solubilities, causing longer molecules to dissolve near the column's base."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Where would the more volatile fractions generally be collected in a fractionating column?",
+    "o": [
+      "Nearer the bottom because volatile hydrocarbons require higher temperatures before condensing",
+      "Nearer the top because volatile hydrocarbons remain gaseous until reaching lower temperatures",
+      "Nearer the middle because all volatile compounds condense at approximately the same temperature",
+      "Nearer the bottom because short-chain molecules have stronger intermolecular attractions"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which structural feature identifies propyne rather than propane or propene?",
+    "o": [
+      "A carbon-carbon single bond within a saturated carbon backbone",
+      "A carbon-carbon double bond within an unsaturated carbon backbone",
+      "A carbon-carbon triple bond within an unsaturated carbon backbone",
+      "A carbon-hydrogen triple bond attached to a saturated carbon backbone"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Why is propane classified as saturated?",
+    "o": [
+      "Every carbon atom has formed the maximum number of hydrogen attachments possible for that structure.",
+      "The carbon chain contains enough hydrogen atoms to form a carbon-carbon double bond.",
+      "Every carbon atom contains four hydrogen atoms surrounding its outer electron shell.",
+      "The molecule contains equal numbers of carbon-carbon and carbon-hydrogen covalent bonds."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Propene reacts with hydrogen in the presence of platinum to produce propane. What happens during this reaction?",
+    "o": [
+      "Hydrogen replaces a carbon atom and the carbon-carbon double bond remains unchanged.",
+      "Hydrogen is added across the double bond, producing a more saturated hydrocarbon.",
+      "Hydrogen removes carbon atoms from the chain, producing a shorter saturated hydrocarbon.",
+      "Hydrogen causes the molecule to eliminate hydrogen atoms and form a triple bond."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which reaction type best describes the conversion of propene to propane using H₂?",
+    "o": [
+      "Substitution, because hydrogen atoms replace carbon atoms in the original hydrocarbon",
+      "Elimination, because hydrogen atoms are removed while a new carbon bond forms",
+      "Addition, because atoms are added across the carbon-carbon multiple bond",
+      "Combustion, because hydrogen reacts with the hydrocarbon and releases chemical energy"
+    ],
+    "a": 2
+  },
+  {
+    "q": "When propene reacts with water under acidic conditions, which product is identified as the major product in the exam?",
+    "o": [
+      "Propan-1-ol, because OH preferentially attaches to the more saturated carbon",
+      "Propan-2-ol, because OH preferentially attaches to the less saturated carbon",
+      "Propane, because hydrogen and hydroxide completely remove the double bond",
+      "Propanoic acid, because water oxidises the carbon-carbon double bond"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why does ethene produce only one alcohol structure when water is added across its double bond?",
+    "o": [
+      "Both carbon atoms have equivalent environments, so either orientation produces the same product.",
+      "One carbon is more saturated, but the hydroxyl group cannot attach to that carbon.",
+      "Ethene contains a triple bond, so only one hydrogen atom can enter the structure.",
+      "Both carbon atoms contain different numbers of hydrogens but identical numbers of electrons."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which products provide the clearest evidence that a hydrocarbon has undergone complete combustion?",
+    "o": [
+      "Carbon monoxide and water because sufficient oxygen was available",
+      "Carbon dioxide and water because sufficient oxygen was available",
+      "Carbon dioxide and carbon because oxygen availability was restricted",
+      "Carbon monoxide and carbon because excess oxygen was available"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which set of products is most consistent with incomplete combustion as represented in the exam?",
+    "o": [
+      "Carbon dioxide and water only",
+      "Carbon monoxide, carbon and water",
+      "Carbon dioxide and hydrogen gas",
+      "Carbon, oxygen and hydrogen gas"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Why can a combustion reaction appear to lose mass when performed in an open container?",
+    "o": [
+      "Some atoms are converted directly into thermal energy and leave the reaction mixture.",
+      "Carbon atoms are destroyed when chemical bonds release sufficient energy during combustion.",
+      "Gaseous products can escape into the surroundings and are no longer included when mass is measured.",
+      "Oxygen atoms lose their mass when they form covalent bonds with carbon and hydrogen."
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which statement best represents conservation of mass during a chemical reaction?",
+    "o": [
+      "The total number of molecules must remain unchanged throughout every chemical reaction.",
+      "The atoms are rearranged into new substances while the number of each type remains constant.",
+      "The chemical bonds remain unchanged even though the physical arrangement of particles changes.",
+      "The number of products must equal the number of reactants for mass to remain constant."
+    ],
+    "a": 1
+  },
+  {
+    "q": "For the equation CH₃CH₂OH + 3O₂ → 2CO₂ + 3H₂O, which atom count is correct on each side?",
+    "o": [
+      "2 carbon, 6 hydrogen and 7 oxygen atoms",
+      "2 carbon, 6 hydrogen and 6 oxygen atoms",
+      "2 carbon, 5 hydrogen and 7 oxygen atoms",
+      "3 carbon, 6 hydrogen and 7 oxygen atoms"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which equation represents a decomposition reaction?",
+    "o": [
+      "2CO + O₂ → 2CO₂",
+      "CO₂ + H₂O → H₂CO₃",
+      "2CO₂ → 2CO + O₂",
+      "HCl + NaOH → NaCl + H₂O"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What makes 2CO + O₂ → 2CO₂ a combination reaction?",
+    "o": [
+      "Multiple reactant substances combine to produce a single type of product.",
+      "A single reactant substance separates into multiple chemically different products.",
+      "An acid reacts with a base to produce an ionic compound and liquid water.",
+      "Two ionic solutions exchange ions and produce an insoluble solid product."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Carbonic acid is described as diprotic in the exam. What does this indicate?",
+    "o": [
+      "Each carbonic acid species can produce two hydrogen ions during dissociation.",
+      "Each carbonic acid species contains two carbonate ions capable of accepting electrons.",
+      "Carbonic acid has two carbon atoms capable of forming covalent bonds with hydrogen.",
+      "Carbonic acid requires two water molecules before it can behave as an acid."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why does increasing H⁺ concentration lower the pH of seawater?",
+    "o": [
+      "Greater hydrogen-ion concentration corresponds to more acidic conditions.",
+      "Greater hydrogen-ion concentration corresponds to more alkaline conditions.",
+      "Hydrogen ions react with water to remove all dissolved acidic substances.",
+      "Hydrogen ions increase carbonate concentration and therefore raise the solution's pH."
+    ],
+    "a": 0
+  },
+  {
+    "q": "HCl reacts with NaOH to produce NaCl and H₂O. Which classification is most appropriate?",
+    "o": [
+      "Precipitation because an insoluble ionic compound forms from two soluble substances",
+      "Neutralisation because an acid and base react to produce a salt and water",
+      "Decomposition because hydrochloric acid separates into sodium chloride and water",
+      "Addition because hydroxide ions are added directly onto hydrochloric acid molecules"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which observation would indicate that a neutral solution had been produced after the HCl/NaOH reaction described in the exam?",
+    "o": [
+      "Blue litmus becomes red while red litmus remains unchanged.",
+      "Red litmus becomes blue while blue litmus remains unchanged.",
+      "Red litmus stays red and blue litmus stays blue.",
+      "Both red and blue litmus papers become colourless."
+    ],
+    "a": 2
+  },
+  {
+    "q": "What observation is expected when blue cobalt chloride paper detects water?",
+    "o": [
+      "The blue paper becomes pink when exposed to the water product.",
+      "The blue paper becomes white when exposed to dissolved chloride ions.",
+      "The blue paper becomes red when exposed to a neutral salt solution.",
+      "The blue paper remains blue because water does not react with the indicator."
+    ],
+    "a": 0
+  },
+  {
+    "q": "What provides the strongest evidence that Reaction Two is a precipitation reaction?",
+    "o": [
+      "Two aqueous ionic substances react and an insoluble solid appears among the products.",
+      "An acidic substance reacts with hydroxide ions and produces liquid water molecules.",
+      "A covalent substance decomposes and produces two chemically simpler substances.",
+      "Two molecular substances combine and produce a single soluble ionic compound."
+    ],
+    "a": 0
+  },
+  {
+    "q": "According to collision theory, which collision is most likely to result in a reaction?",
+    "o": [
+      "Particles collide with sufficient energy and an appropriate orientation.",
+      "Particles collide at low energy but remain touching for sufficient time.",
+      "Particles collide with high frequency regardless of their energy or orientation.",
+      "Particles collide at any orientation provided their concentration remains constant."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why does increasing the concentration of a reactant generally increase reaction rate?",
+    "o": [
+      "More reactant particles occupy a given volume, increasing collision frequency.",
+      "Each reactant particle becomes larger, increasing the force of every collision.",
+      "The activation energy increases, allowing a greater proportion of collisions to succeed.",
+      "Reactant particles gain additional electrons, increasing the strength of intermolecular bonding."
+    ],
+    "a": 0
+  },
+  {
+    "q": "How does a catalyst increase the rate of a chemical reaction?",
+    "o": [
+      "It increases reactant concentration so that particles collide more frequently.",
+      "It provides a pathway requiring less activation energy for successful reaction.",
+      "It increases product energy so that the forward reaction becomes more favourable.",
+      "It permanently increases particle speed without changing the reaction temperature."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Equal concentrations of HCl and CH₃COOH react separately with sodium carbonate. Why does HCl react faster in the exam's comparison?",
+    "o": [
+      "HCl fully dissociates, producing a greater concentration of available hydrogen ions.",
+      "CH₃COOH fully dissociates, causing its hydrogen ions to collide less frequently.",
+      "HCl contains stronger covalent bonds, so its molecules collide with greater kinetic energy.",
+      "CH₃COOH produces more hydrogen ions, but these have insufficient energy for successful collisions."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why can graphite conduct electricity while diamond cannot?",
+    "o": [
+      "Graphite contains delocalised electrons able to carry charge, while diamond lacks mobile charged particles.",
+      "Graphite contains mobile carbon ions, while diamond contains carbon atoms fixed by ionic attractions.",
+      "Graphite has no covalent bonds between carbon atoms, allowing electrons to move between its layers.",
+      "Graphite contains free protons between its layers, while diamond traps its protons inside covalent bonds."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why is graphite soft compared with diamond?",
+    "o": [
+      "Graphite's layers can move over one another because relatively weak attractions act between them.",
+      "Graphite contains weak covalent bonds within each layer that readily break when force is applied.",
+      "Diamond contains mobile electrons that strengthen its lattice whenever an external force is applied.",
+      "Diamond consists of ionic carbon particles arranged in a rigid three-dimensional lattice."
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which statement best compares the structures of graphite and diamond?",
+    "o": [
+      "Both are molecular solids, but graphite contains hexagonal molecules while diamond contains tetrahedral molecules.",
+      "Both are covalent networks; graphite forms layered structures while diamond forms a three-dimensional network.",
+      "Both are ionic lattices; graphite contains mobile ions while diamond contains ions fixed in position.",
+      "Both are metallic solids; graphite has delocalised electrons while diamond has localised metal electrons."
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which statement best describes the formation of PTFE from tetrafluoroethene?",
+    "o": [
+      "Tetrafluoroethene monomers join as their C=C bonds allow formation of a repeating carbon backbone.",
+      "Tetrafluoroethene molecules release fluorine atoms before forming repeating units connected by ionic bonds.",
+      "Tetrafluoroethene monomers eliminate water molecules before forming a polymer containing carbon double bonds.",
+      "Tetrafluoroethene molecules decompose into carbon fragments that recombine into a covalent network."
+    ],
+    "a": 0
+  }
+]

@@ -634,6 +634,7 @@ try {
     }
 
     function gameOver(){
+      PlatformManager.endPracticeRun();
       gameState='over';cancelAnimationFrame(animFrame);
       PlatformManager.heartbeat(GAME_CONFIG.id, false);
 

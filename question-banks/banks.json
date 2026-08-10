@@ -3,9 +3,13 @@
     "subject": "Year 9 Biology",
     "bank": "year-9-full"
   },
-  "112mm": {
-    "subject": "Year 11 Chemistry",
-    "bank": "year-11-molar-mass"
+  "103bf": {
+    "subject": "Year 10 Biology",
+    "bank": "year-10-full"
+  },
+  "112cr": {
+    "subject": "Year 11 Chemistry Revision",
+    "bank": "year-11-revision"
   },
   "112cf": {
     "subject": "Year 11 Chemistry",
