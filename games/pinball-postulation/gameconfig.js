@@ -13,6 +13,6 @@ window.GAME_CONFIG = {
   icon: "🔮",
   requiresQuestionBank: true,
   supportsHighScores: true,
-  supportsAchievements: false,
+  supportsAchievements: true,
   createdBy: "Mr McKenzie"
 };

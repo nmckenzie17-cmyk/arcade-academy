@@ -8,6 +8,11 @@
   // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
   // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
   const GAME_CONFIG = { id: 'wild-west-wordslinger', name: 'Wild West Wordslinger' };
+  function wordslingerCosmetic(id) {
+    return typeof AchievementManager!=='undefined' && Object.values(AchievementManager.getEquipped('wild-west-wordslinger')).some(reward=>reward?.id===id);
+  }
+  function achievementAmmoBonus(){return wordslingerCosmetic('wild-west-wordslinger_loaded_chamber')?2:0;}
+  window.addEventListener('arcade-progression-changed',()=>{updateCrosshairCursor();if(document.getElementById('bg-canvas'))drawBackground(stage);});
   // One PlatformManager session per sitting — startGame() runs on every "Play"
   // AND "Play Again" click (there's no separate restart path in this game),
   // so this guards against starting a new session on every replay.
@@ -390,13 +395,14 @@
         ownedCrosshairs=[]; ownedEffects=[];
         equippedCrosshair=''; equippedEffect='';
       }
-      maxAmmo = 5 + bulletLevel;
+      maxAmmo = 5 + bulletLevel + achievementAmmoBonus();
       updateHomeStats();
       loadQuestionBank().then(updateCodeStatus);
     }
   };
 
   async function initData() {
+    if (!window.dataSdk) return;
     const r = await window.dataSdk.init(dataHandler);
     if (!r.isOk) console.error('SDK init failed');
   }
@@ -444,9 +450,10 @@
   const SHOP_TABS = ['upgrades','powerups'];
   function switchShopTab(tab) {
     SHOP_TABS.forEach(t => {
-      document.getElementById('shop-tab-'+t).classList.toggle('hidden', t!==tab);
+      const target=document.getElementById('shop-tab-'+t);target.hidden=t!==tab;target.classList.toggle('hidden', t!==tab);
       document.getElementById('shop-tab-btn-'+t).classList.toggle('shop-tab-active', t===tab);
     });
+    const cosmetics=document.getElementById('arcade-native-cosmetics-panel');if(cosmetics){cosmetics.hidden=true;cosmetics.classList.remove('active');}
   }
   function openShop() {
     document.getElementById('shop-modal').classList.add('open');
@@ -513,7 +520,7 @@
     const cost = PlatformManager.permanentUpgradeCost(bulletLevel);
     if (!PlatformManager.spendCoins(cost)) { showShopResult('Not enough coins!', '#e74c3c'); return; }
     bulletLevel++;
-    maxAmmo = 5 + bulletLevel;
+    maxAmmo = 5 + bulletLevel + achievementAmmoBonus();
     await safeSave();
     document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateBulletInfo();
@@ -608,14 +615,21 @@
   function updateCrosshairCursor() {
     const el = document.getElementById('crosshair-cursor');
     const area = document.getElementById('game-area');
-    if (!equippedCrosshair || !gameActive) {
+    const rewardCrosshair = ['fish_crosshair','sheriff_star_crosshair','musical_crosshair'].find(id=>wordslingerCosmetic('wild-west-wordslinger_'+id));
+    if ((!equippedCrosshair && !rewardCrosshair) || !gameActive) {
       el.classList.add('hidden');
       if (area) area.classList.remove('custom-cursor-active');
       return;
     }
     el.classList.remove('hidden');
-    el.innerHTML = getCrosshairSVG(equippedCrosshair);
+    el.innerHTML = rewardCrosshair ? getRewardCrosshairSVG(rewardCrosshair) : getCrosshairSVG(equippedCrosshair);
     if (area) area.classList.add('custom-cursor-active');
+  }
+
+  function getRewardCrosshairSVG(id){
+    if(id==='fish_crosshair')return '<svg width="46" height="34" viewBox="0 0 46 34"><path d="M5 17C12 5 29 5 37 17C29 29 12 29 5 17Z" fill="#4fe5ff" stroke="#fff" stroke-width="2"/><path d="M36 17L45 8V26Z" fill="#ff77c8"/><circle cx="13" cy="14" r="2" fill="#111"/><circle cx="23" cy="17" r="2" fill="#ffd15c"/></svg>';
+    if(id==='sheriff_star_crosshair')return '<svg width="42" height="42" viewBox="0 0 42 42"><polygon points="21,2 26,12 38,10 31,21 38,32 26,30 21,40 16,30 4,32 11,21 4,10 16,12" fill="#ffd15c" stroke="#fff4b0" stroke-width="2"/><circle cx="21" cy="21" r="4" fill="#5b3217"/></svg>';
+    return '<svg width="44" height="44" viewBox="0 0 44 44"><path d="M20 6V29c-8-3-14 1-12 7 2 6 15 3 15-5V15l13-3v13c-8-3-13 1-11 7 2 6 14 3 14-5V4Z" fill="#ff78cf" stroke="#fff" stroke-width="1.5"/><circle cx="22" cy="22" r="2" fill="#ffd15c"/></svg>';
   }
 
   function getCrosshairSVG(name) {
@@ -642,6 +656,7 @@
 
   // Death effect particles
   function spawnDeathEffect(x, y, area) {
+    const rewardEffect=['fish_crosshair','sheriff_star_crosshair','musical_crosshair'].find(id=>wordslingerCosmetic('wild-west-wordslinger_'+id));
     const colors = equippedEffect && EFFECT_COLORS[equippedEffect] ? EFFECT_COLORS[equippedEffect] : ['#f5c842','#f39c12','#e74c3c','#c0392b'];
     for (let i = 0; i < 16; i++) {
       const g = document.createElement('div');
@@ -650,9 +665,8 @@
       const dist = 15 + Math.random() * 40;
       g.style.left = (x + 64) + 'px';
       g.style.top = (y + 64) + 'px';
-      g.style.background = colors[Math.floor(Math.random() * colors.length)];
-      g.style.width = (4 + Math.random()*6) + 'px';
-      g.style.height = (4 + Math.random()*6) + 'px';
+      if(rewardEffect){g.textContent=rewardEffect==='fish_crosshair'?(i%2?'◆':'◀'):rewardEffect==='sheriff_star_crosshair'?'★':(i%2?'♪':'♫');g.style.color=rewardEffect==='fish_crosshair'?(i%2?'#4fe5ff':'#ff77c8'):rewardEffect==='sheriff_star_crosshair'?'#ffd15c':(i%2?'#ff78cf':'#71efff');g.style.fontSize=(10+Math.random()*9)+'px';g.style.textShadow='0 0 5px currentColor';}
+      else{g.style.background = colors[Math.floor(Math.random() * colors.length)];g.style.width = (4 + Math.random()*6) + 'px';g.style.height = (4 + Math.random()*6) + 'px';}
       g.style.setProperty('--gx', Math.cos(angle) * dist + 'px');
       g.style.setProperty('--gy', Math.sin(angle) * dist + 'px');
       area.appendChild(g);
@@ -841,6 +855,7 @@
   function drawBossBoomBaron(ctx){ drawWestern(ctx,{hatColor:'#1a0a0a',skin:'#c9915f',shirt:'#7a2510',shirtAccent:'#4a1608',pants:'#2b2b2b',boot:'#0c0c0c',maskColor:'#1a1a1a',handItem:'dynamite',glowColor:'rgba(255,136,0,0.25)',crest:'#ffb347'}); }
   function drawBossDuchess(ctx){ drawWestern(ctx,{hatColor:'#3d1155',skin:'#c9915f',shirt:'#5c1a75',shirtAccent:'#3d1155',boot:'#1a1a1a',maskColor:null,dress:true,handItem:'cards',glowColor:'rgba(168,85,247,0.2)',crest:'#d4af37'}); }
   function drawBossTalon(ctx){ drawWestern(ctx,{hatColor:'#1c1c1c',skin:'#8a7f6a',shirt:'#2b2b2b',shirtAccent:'#1c1c1c',pants:'#111111',boot:'#0a0a0a',maskColor:'#1c1c1c',eyeColor:'#f5c842',handItem:null,wings:true,wingColor:'#1c1c1c',glowColor:'rgba(46,204,113,0.2)',crest:'#2ecc71'}); }
+  function drawBossMapmaker(ctx){drawWestern(ctx,{hatColor:'#705324',skin:'#bc8a5f',shirt:'#173f45',shirtAccent:'#0e272c',pants:'#49351d',boot:'#24170b',maskColor:'#d9bd79',eyeColor:'#65f4e8',handItem:'book',glowColor:'rgba(101,244,232,.3)',crest:'#ffe08a'});ctx.save();ctx.strokeStyle='#ffe08a';ctx.lineWidth=3;ctx.strokeRect(18,18,92,92);ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(28,94);ctx.lineTo(55,60);ctx.lineTo(82,78);ctx.lineTo(103,32);ctx.stroke();ctx.restore();}
 
   // Enemies: bandit (redesigned) + 7 unique outlaws, each with its own scoring/behavior
   const ENEMY_TYPES = [
@@ -949,7 +964,25 @@
     ctx.fillStyle=pal.fenceRail;
     ctx.fillRect(0, h-34, w, 6);
     ctx.fillRect(0, h-18, w, 6);
+    if(wordslingerCosmetic('wild-west-wordslinger_cavern_prospector')){
+      const cave=ctx.createLinearGradient(0,0,0,h);cave.addColorStop(0,'rgba(5,12,28,.9)');cave.addColorStop(1,'rgba(18,40,48,.94)');ctx.fillStyle=cave;ctx.fillRect(0,0,w,h);ctx.fillStyle='#17263c';
+      for(let x=0;x<w;x+=70){const d=35+(x*17%90);ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x+35,d);ctx.lineTo(x+70,0);ctx.fill();ctx.beginPath();ctx.moveTo(x,h);ctx.lineTo(x+35,h-d*.7);ctx.lineTo(x+70,h);ctx.fill();}
+      for(let i=0;i<18;i++){const x=(i*149)%w,y=60+(i*83)%(h-120);ctx.fillStyle=i%2?'#23e4ff':'#9d5cff';ctx.beginPath();ctx.moveTo(x,y-15);ctx.lineTo(x+8,y);ctx.lineTo(x,y+15);ctx.lineTo(x-8,y);ctx.fill();}
+    }
+    if(wordslingerCosmetic('wild-west-wordslinger_ghost_town_legend')){
+      ctx.fillStyle='rgba(7,8,20,.78)';ctx.fillRect(0,0,w,h);ctx.fillStyle='rgba(160,210,220,.22)';for(let i=0;i<9;i++){const x=(i*181)%w,y=horizon-30-(i%3)*22;ctx.fillRect(x,y,105,80);ctx.beginPath();ctx.moveTo(x-10,y);ctx.lineTo(x+52,y-38);ctx.lineTo(x+115,y);ctx.fill();}
+      ctx.fillStyle='rgba(220,255,245,.2)';for(let i=0;i<20;i++){const x=(i*97+Date.now()/55)%w,y=50+(i*47)%(h-100);ctx.beginPath();ctx.arc(x,y,8,Math.PI,0);ctx.lineTo(x+8,y+16);ctx.lineTo(x,y+11);ctx.lineTo(x-8,y+16);ctx.closePath();ctx.fill();}
+    }
   }
+
+  function drawAlienOutlaw(ctx){
+    ctx.save();ctx.translate(64,64);ctx.imageSmoothingEnabled=false;
+    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(-34,45,68,8);ctx.fillStyle='#24162f';ctx.fillRect(-29,12,58,34);ctx.fillStyle='#553064';ctx.fillRect(-24,17,48,25);ctx.fillStyle='#9b6336';ctx.fillRect(-32,9,12,28);ctx.fillRect(20,9,12,28);ctx.fillStyle='#df9a4e';ctx.fillRect(-29,12,6,20);ctx.fillRect(23,12,6,20);
+    ctx.fillStyle='#59bb55';ctx.fillRect(-24,-28,48,38);ctx.fillRect(-19,-35,38,8);ctx.fillStyle='#77ef72';ctx.fillRect(-19,-25,38,29);ctx.fillStyle='#397d40';ctx.fillRect(-24,-15,5,18);ctx.fillRect(19,-15,5,18);
+    ctx.fillStyle='#10151d';ctx.fillRect(-16,-19,12,15);ctx.fillRect(4,-19,12,15);ctx.fillStyle='#d9ffff';ctx.fillRect(-13,-17,4,6);ctx.fillRect(7,-17,4,6);ctx.fillStyle='#263a31';ctx.fillRect(-5,1,10,3);
+    ctx.fillStyle='#70401f';ctx.fillRect(-34,-39,68,7);ctx.fillRect(-20,-53,40,15);ctx.fillStyle='#b87538';ctx.fillRect(-17,-50,34,9);ctx.fillStyle='#ffd15c';ctx.fillRect(-9,20,18,18);ctx.fillStyle='#6a431d';ctx.fillRect(-5,24,10,10);ctx.fillStyle='#d8edf2';ctx.fillRect(29,24,18,6);ctx.fillStyle='#46545d';ctx.fillRect(35,30,9,7);ctx.fillStyle='#ff445f';ctx.fillRect(-3,-32,6,3);ctx.restore();
+  }
+  setInterval(()=>{if(wordslingerCosmetic('wild-west-wordslinger_ghost_town_legend')&&document.getElementById('game-screen')?.classList.contains('active'))drawBackground(stage);},80);
 
   function startGame() {
     if (!QuestionManager.hasQuestions()) {
@@ -959,7 +992,7 @@
       return;
     }
     killCount=0; overallScore=0; sessionCoins=0; lives=3+livesLevel;
-    maxAmmo=5+bulletLevel; ammo=maxAmmo; gameActive=false; reloadOpen=false; gameOverReason='';
+    maxAmmo=5+bulletLevel+achievementAmmoBonus(); ammo=maxAmmo; gameActive=false; reloadOpen=false; gameOverReason='';
     comboStreak=0;
     // Reset the roguelike run layer: upgrade cards, curse flags, duel/boss-stage
     // flags, and any leftover timers/free-shot counters all reset every run.
@@ -1221,7 +1254,7 @@
     wrap.dataset.hitsLeft = isDecoy ? '1' : String(type.hits);
     if (isBounty) wrap.dataset.bounty = '1';
     const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;canvas.style.width='128px';canvas.style.height='128px';
-    type.draw(canvas.getContext('2d'));wrap.appendChild(canvas);
+    if(!isDecoy&&wordslingerCosmetic('wild-west-wordslinger_alien_outlaws'))drawAlienOutlaw(canvas.getContext('2d'));else type.draw(canvas.getContext('2d'));wrap.appendChild(canvas);
     wrap.style.left=Math.random()*(areaW-150)+'px';
     wrap.style.top=Math.random()*(areaH-150)+'px';
     wrap.addEventListener('click',(e)=>{ e.stopPropagation(); shootEnemy(wrap, type, isDecoy); });
@@ -1260,7 +1293,9 @@
     }
 
     // Armored Outlaw needs a second hit before it goes down (Hollow Points skips one)
-    let hitsLeft = parseInt(el.dataset.hitsLeft || '1', 10) - 1 - upStack('hollow');
+    const secretDouble=window.AchievementManager?.hasSecret?.('secret_twin_shot')?1:0;
+    let hitsLeft = parseInt(el.dataset.hitsLeft || '1', 10) - 1 - upStack('hollow')-secretDouble;
+    if(secretDouble)showFloatingText(x+18,y-15,'✦ DOUBLE SHOT ✦','#ffd15c',area);
     if (hitsLeft > 0) {
       consumeAmmo(1); el.dataset.hitsLeft = String(hitsLeft);
       el.classList.remove('armor-flash'); void el.offsetWidth; el.classList.add('armor-flash');
@@ -1285,7 +1320,7 @@
     const scoreGain = Math.round(type.score * mult);
     let coinsGain = Math.round(type.coins*coinMult*upgradeCoinMult()) + upStack('magnet');
     if (isBounty) coinsGain *= 3;
-    killCount++;totalKills++;overallScore+=scoreGain;sessionCoins+=coinsGain;
+    killCount++;totalKills++;overallScore+=scoreGain;sessionCoins+=coinsGain;window.AchievementManager?.notify?.('enemy_defeated',{x:x+64,y:y+64});
     let label = '+'+scoreGain+(mult>1?' ('+mult.toFixed(1)+'x)':'');
     if (critHit) label = '💥 CRIT! '+label;
     if (isBounty) label = '⭐ BOUNTY! '+label;
@@ -1418,7 +1453,8 @@
       init:bossInitDrain, cleanup:bossCleanupDrain },
     { id:'talon', name:'Talon', draw:drawBossTalon, hpMult:0.95, wordInterval:850,
       hint:'Fast and mobile — she won\'t sit still!',
-      init:bossInitTalon, cleanup:bossCleanupTalon }
+      init:bossInitTalon, cleanup:bossCleanupTalon },
+    ...(window.AchievementManager?.hasSecret?.('secret_map_border')?[{id:'mapmaker',name:'The Lost Mapmaker',draw:drawBossMapmaker,hpMult:1.25,wordInterval:760,hint:'His map shifts the battlefield constantly — track him carefully!',init:bossInitMapmaker,cleanup:bossCleanupMapmaker}]:[])
   ];
   let bossWordInterval = null;
 
@@ -1487,6 +1523,8 @@
     bossState.moveTimer = setTimeout(move, 1600);
   }
   function bossCleanupTalon() { if (bossState.moveTimer) clearTimeout(bossState.moveTimer); }
+  function bossInitMapmaker(){const move=()=>{if(!bossActive)return;const wrap=document.getElementById('boss-wrap'),area=document.getElementById('game-area');if(wrap&&area){wrap.style.left=(12+Math.random()*76)+'%';wrap.style.top=(45+Math.random()*Math.max(20,area.clientHeight*.28))+'px';wrap.style.transform=`translateX(-50%) rotate(${Math.random()<.5?-3:3}deg)`;}bossState.moveTimer=setTimeout(move,900);};bossState.moveTimer=setTimeout(move,650);}
+  function bossCleanupMapmaker(){if(bossState.moveTimer)clearTimeout(bossState.moveTimer);}
 
   let bossPreviewActive = false;
   let bossIncomingTimer = null;

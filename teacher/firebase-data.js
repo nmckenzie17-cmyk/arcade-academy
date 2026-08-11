@@ -9,7 +9,9 @@ const gameFolders = [
   "shuriken-scholar",
   "wild-west-wordslinger",
   "cavern-crammer",
-  "pinball-postulation"
+  "pinball-postulation",
+  "pixel-artillery",
+  "tic-tac-toe"
 ];
 
 let studentDocuments = null;
@@ -39,14 +41,14 @@ function accuracy(correct, answered) {
   return total > 0 ? Math.round((numberOrZero(correct) / total) * 1000) / 10 : 0;
 }
 
-async function loadStudents() {
-  if (studentDocuments) return studentDocuments;
+async function loadStudents(forceRefresh = false) {
+  if (studentDocuments && !forceRefresh) return studentDocuments;
   const students = await window.FirebaseManager.getAllStudents();
   if (!students) {
     throw new Error("Firestore student read failed. Check authentication and Firestore read rules.");
   }
-  studentDocuments = students;
-  return students;
+  studentDocuments = students.filter((student) => student.role !== "teacher");
+  return studentDocuments;
 }
 
 function loadConfigScript(folder) {
@@ -258,22 +260,25 @@ window.TeacherDataProvider = {
   },
 
   async getClassOverview(classCode) {
-    const [students, catalog] = await Promise.all([loadStudents(), loadGameCatalog()]);
+    // The overview is the dashboard's refresh boundary. Always obtain a fresh
+    // snapshot here, then reuse that exact snapshot when a student is opened.
+    const [students, catalog] = await Promise.all([loadStudents(true), loadGameCatalog()]);
     return students
       .filter((student) => !classCode || classCode === "all" || (student.className || "Unassigned") === classCode)
       .map((student) => mapStudent(student, catalog));
   },
 
   async getStudentDetail(studentId) {
-    const [students, catalog, games] = await Promise.all([
+    const [students, catalog] = await Promise.all([
       loadStudents(),
-      loadGameCatalog(),
-      window.FirebaseManager.getStudentGameStats(studentId)
+      loadGameCatalog()
     ]);
-    if (games === undefined) throw new Error("Firestore game-stat read failed.");
     const document = students.find((student) => student.uid === studentId);
     if (!document) return null;
-    return { ...mapStudent(document, catalog), games: mapGameStats(games, catalog) };
+    return {
+      ...mapStudent(document, catalog),
+      games: mapGameStats(document.games || document.platform?.games, catalog)
+    };
   },
 
   async getStudentHistory(studentId) {

@@ -59,6 +59,9 @@ body { image-rendering: pixelated; }
    come from global.css's .kingdom-tab-btn/.shop-tab-btn rules */
 
 .exit-shop-btn { margin-top: 12px; }
+#arcade-native-cosmetics-panel .arcade-native-cosmetics-grid { grid-template-columns:1fr; }
+#arcade-native-cosmetics-panel .arcade-native-cosmetic { display:grid; grid-template-columns:minmax(150px,.65fr) 1fr auto; align-items:center; gap:12px; }
+#arcade-native-cosmetics-panel .arcade-native-cosmetic span { margin:0; }
 
 /* Background/border already come from the shared .btn/.canva-button
    look; this game keeps its own blue glowing label */

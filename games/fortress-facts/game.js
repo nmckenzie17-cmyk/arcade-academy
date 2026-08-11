@@ -8,6 +8,7 @@ const modalRoot = document.getElementById('modal-root');
 // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
 // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
 const GAME_CONFIG = { id: 'fortress-facts', name: 'Fortress Facts' };
+function fortressCosmetic(id){ return typeof AchievementManager!=='undefined'&&Object.values(AchievementManager.getEquipped('fortress-facts')).some(r=>r?.id===id); }
 
 let W, H, scale;
 const GAME_W = 512, GAME_H = 288;
@@ -240,6 +241,11 @@ function applyKingdomStartBonuses(){
     castleHP = maxHP;
     maxAmmo = 10 + kingdomLevel('warehouse');
     ammo = 3 + kingdomLevel('supplydepot');
+
+    if(window.AchievementManager?.hasSecret?.('secret_skeleton')){
+        const card=allCards.find(c=>c.id==='necromancer');
+        if(card)for(let i=0;i<2;i++){const pos=getTowerPosition(towers.length);towers.push({...card,level:1,x:pos.x,y:pos.y,cooldown:0,secretStarter:true});}
+    }
 
     if(kingdomLevel('traininggrounds')>=1){
         let archerCard = allCards.find(c=>c.id==='archer');
@@ -591,6 +597,7 @@ function applyDamageToEnemy(e, rawDmg, sourceId, viaPoisonTick){
     if(e.hp<=0){
         e.dead=true;
         kills++;
+        window.AchievementManager?.notify?.('enemy_defeated',{x:e.x*scale,y:e.y*scale});
         let goldReward = e.isWagon ? treasureGoldBonus : 2;
         if(activeMutator==='gilded') goldReward *= 3;
         if(curseNoKillGold && !e.isWagon) goldReward = 0; // Starving Garrison: only wagons still pay out
@@ -722,10 +729,10 @@ const allCards = [
     {id:'curse_starving',  name:'🍞 Starving Garrison',    desc:'Enemy kills no longer drop gold (coin wagons still do). Correct answers award double ammo', type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
     {id:'curse_bell',      name:'🔔 Cracked Bell',         desc:"Upcoming wave composition is hidden. Next 3 card offers are guaranteed rare or better", type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
     {id:'curse_overgrown', name:'🌿 Overgrown Walls',      desc:'Defence cards (walls, moat, repair) removed from the pool. One random tower\'s range is permanently doubled', type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
-    {id:'curse_omen',      name:'🔮 Bad Omen',             desc:'Weather always rolls the harsher of two options. Crowns earned +20% this run', type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
+    {id:'curse_omen',      name:'🔮 Bad Omen',             desc:'Weather always rolls the harsher of two options. Coins earned +20% this run', type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
     {id:'curse_thinblood', name:'🩹 Thin Blood',           desc:"Repair Wall and Priest heals no longer stack — only the larger applies. Max ammo capacity +50% immediately", type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
     {id:'curse_shortfuse', name:'⏱️ Short Fuse',           desc:'Boss waves now arrive every 4 waves instead of 5. Every boss kill grants a guaranteed legendary card', type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
-    {id:'curse_hollow',    name:'👑 Hollow Crown',         desc:"Kingdom upgrades give no bonus for the rest of this run. Every card level you already have (and your next new card) starts at level 2", type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
+    {id:'curse_hollow',    name:'🪙 Hollow Coin',          desc:"Kingdom upgrades give no bonus for the rest of this run. Every card level you already have (and your next new card) starts at level 2", type:'curse', group:'curse', groupWeight:4, cardWeight:15, unlockAt:6},
 ];
 
 // Tower upgrade cycle definitions
@@ -1548,7 +1555,7 @@ const KINGDOM_FLAVOR = {
     siegeengineers:'Increases splash damage radius for Cannon and Alchemist towers.',
     traininggrounds:'Start every run with a free Archer Tower already built. (one-time)',
     treasury:'Increases all gold earned during a run.',
-    marketplace:'Reduces the crown cost of every permanent upgrade below.',
+    marketplace:'Reduces the coin cost of every permanent upgrade below.',
     supplydepot:'Increases your starting ammo at the beginning of a run.',
     warehouse:'Increases your maximum ammo capacity.',
     walls:'Increases your castle\'s maximum HP.',
@@ -1632,10 +1639,17 @@ function renderCardsTab(){
     return html;
 }
 
+function renderKingdomCosmeticsTab(){
+    if(typeof AchievementManager==='undefined') return '<p style="margin:14px 0;color:#888">Cosmetics are still loading…</p>';
+    const rewards=AchievementManager.getRewards({gameId:'fortress-facts'}).filter(r=>r.owned);
+    if(!rewards.length) return '<p style="margin:14px 0;color:#888">No Fortress Facts cosmetics unlocked yet.</p>';
+    return rewards.map(r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #2a2a3a;gap:10px"><div><div style="font-size:14px">${r.name}</div><div style="font-size:10px;color:#888">${r.detail}</div></div><button class="choice-btn kingdom-cosmetic-btn" data-id="${r.id}" style="width:auto;padding:8px 14px;font-size:12px;${r.equipped?'background:#8a6a16;':''}">${r.equipped?'Disable':'Enable'}</button></div>`).join('');
+}
+
 function renderKingdomHTML(){
     let html = `<div class="modal-overlay"><div class="modal-box" style="max-width:540px;max-height:85vh;overflow-y:auto;text-align:left">
         <h2 class="title-font" style="text-align:center;background:none;border:none;box-shadow:none;">The Kingdom</h2>
-        <p style="text-align:center;color:#ffcc44;font-size:20px;margin:8px 0 4px">👑 ${PlatformManager.getCoins()} Crowns</p>`;
+        <p style="text-align:center;color:#ffcc44;font-size:20px;margin:8px 0 4px">🪙 ${PlatformManager.getCoins()} Coins</p>`;
     if(!kingdomStorageOk){
         html += `<p style="text-align:center;color:#e74c3c;font-size:11px">⚠️ This browser is blocking save data — progress won't persist after you close this tab.</p>`;
     }
@@ -1643,8 +1657,9 @@ function renderKingdomHTML(){
         <button class="choice-btn kingdom-tab-btn ${kingdomActiveTab==='permanent'?'active-tab':''}" data-tab="permanent" style="width:auto;flex:1;text-align:center;padding:8px;font-size:12px;${kingdomActiveTab==='permanent'?'':'background:rgba(0,0,0,0.2);'}">Permanent Upgrades</button>
         <button class="choice-btn kingdom-tab-btn ${kingdomActiveTab==='powerups'?'active-tab':''}" data-tab="powerups" style="width:auto;flex:1;text-align:center;padding:8px;font-size:12px;${kingdomActiveTab==='powerups'?'':'background:rgba(0,0,0,0.2);'}">Single-Run Powerups</button>
         <button class="choice-btn kingdom-tab-btn ${kingdomActiveTab==='cards'?'active-tab':''}" data-tab="cards" style="width:auto;flex:1;text-align:center;padding:8px;font-size:12px;${kingdomActiveTab==='cards'?'':'background:rgba(0,0,0,0.2);'}">Unlocked Cards</button>
+        <button class="choice-btn kingdom-tab-btn ${kingdomActiveTab==='cosmetics'?'active-tab':''}" data-tab="cosmetics" style="width:auto;flex:1;text-align:center;padding:8px;font-size:12px;${kingdomActiveTab==='cosmetics'?'':'background:rgba(0,0,0,0.2);'}">Cosmetics</button>
     </div>`;
-    html += kingdomActiveTab==='permanent' ? renderPermanentTab() : (kingdomActiveTab==='powerups' ? renderPowerupsTab() : renderCardsTab());
+    html += kingdomActiveTab==='permanent' ? renderPermanentTab() : kingdomActiveTab==='powerups' ? renderPowerupsTab() : kingdomActiveTab==='cards' ? renderCardsTab() : renderKingdomCosmeticsTab();
     html += `<button class="choice-btn" id="kingdom-close-btn" style="margin-top:16px;text-align:center">Exit Kingdom</button></div></div>`;
     return html;
 }
@@ -1672,6 +1687,9 @@ function wireKingdomButtons(onClose){
             wireKingdomButtons(onClose);
         };
     });
+    modalRoot.querySelectorAll('.kingdom-cosmetic-btn').forEach(btn=>{
+        btn.onclick=()=>{AchievementManager.equip(btn.dataset.id);modalRoot.innerHTML=renderKingdomHTML();wireKingdomButtons(onClose);};
+    });
     document.getElementById('kingdom-close-btn').onclick=()=>{ modalRoot.innerHTML=''; onClose(); };
 }
 
@@ -1696,7 +1714,7 @@ function showStart(){
             🏹 Click to shoot arrows and defend your castle<br>
             📚 Press Q to answer questions and earn ammo<br>
             🏰 Survive waves and pick cards to grow stronger<br>
-            👑 Earn Crowns to unlock permanent Kingdom upgrades
+            🪙 Earn coins to unlock permanent Kingdom upgrades
         </p>
         <div id="bank-status" style="font-size:12px;margin:0 0 16px;min-height:16px;color:#aaa"></div>
         <button class="canva-button title-font" style="width:100%;padding:14px;border-radius:6px;text-align:center;font-size:clamp(13px,2vw,16px);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;cursor:pointer;" id="start-btn">Press Start</button>
@@ -1769,9 +1787,9 @@ function showGameOver(voluntary){
     let deathMsg = '';
     if(!lastRunWasVoluntary && lastDamageSource){
         const label = ENEMY_DISPLAY_NAMES[lastDamageSource.type] || lastDamageSource.type;
-        deathMsg = `<p style="color:#ff6b6b;font-weight:bold;margin:10px 0">☠️ Defeated by a ${label}${lastDamageSource.flying ? ` — a flying enemy. Next time, upgrade your Archer Tower or Ballista so you can hit flying threats.` : `. Next time, spend some Crowns in The Kingdom to boost your defenses.`}</p>`;
+        deathMsg = `<p style="color:#ff6b6b;font-weight:bold;margin:10px 0">☠️ Defeated by a ${label}${lastDamageSource.flying ? ` — a flying enemy. Next time, upgrade your Archer Tower or Ballista so you can hit flying threats.` : `. Next time, spend some coins in The Kingdom to boost your defenses.`}</p>`;
     }
-    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">👑 +${lastCrownsEarned} Crowns earned (Total: ${PlatformManager.getCoins()})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — Crowns won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">🪙 +${lastCrownsEarned} coins earned (Total: ${PlatformManager.getCoins()})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — coins won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
     document.getElementById('restart-btn').onclick=()=>{
         location.reload();
     };
@@ -1801,6 +1819,7 @@ canvas.addEventListener('click', (e)=>{
         }
     } else {
         projectiles.push({x:sx,y:sy,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,dmg:10*globalDmgMult,type:'arrow',life:80,sourceTowerId:'player'});
+        if(window.AchievementManager?.hasSecret?.('secret_twin_shot'))projectiles.push({x:sx,y:sy,vx:Math.cos(angle+.045)*spd,vy:Math.sin(angle+.045)*spd,dmg:10*globalDmgMult,type:'arrow',life:80,sourceTowerId:'player'});
     }
     updateHUD();
 });
@@ -1822,10 +1841,10 @@ function showCashOutConfirm(){
     let projected = Math.floor(wave*3 + kills*0.2 + gold*0.05);
     modalRoot.innerHTML = `<div class="modal-overlay"><div class="modal-box" style="text-align:center">
         <h2 class="title-font" style="background:none;border:none;box-shadow:none;">Coins Maxed Out</h2>
-        <p style="margin:14px 0;color:#ccc">Your coin income is capped at ${maxGold} — any more you earn is being wasted. You can end this run right now and bank what you've got as Crowns instead.</p>
-        <p style="color:#ffcc44;font-size:15px;margin:10px 0">👑 ~${projected} Crowns if you cash out now</p>
+        <p style="margin:14px 0;color:#ccc">Your run coin income is capped at ${maxGold}. You can end this run and add the earned amount to your shared coin balance.</p>
+        <p style="color:#ffcc44;font-size:15px;margin:10px 0">🪙 ~${projected} coins if you cash out now</p>
         <p style="font-size:11px;color:#888;margin-bottom:12px">Waiting costs nothing but potential — surviving further waves and getting more kills would still add to this total. This is purely your call.</p>
-        <button class="choice-btn" style="text-align:center;background:rgba(255,204,68,0.15);border-color:#ffcc44" id="cashout-confirm-btn">🏰 Cash Out & Bank Crowns</button>
+        <button class="choice-btn" style="text-align:center;background:rgba(255,204,68,0.15);border-color:#ffcc44" id="cashout-confirm-btn">🪙 Cash Out & Bank Coins</button>
         <button class="choice-btn" style="text-align:center;margin-top:8px" id="cashout-cancel-btn">⚔️ Keep Playing</button>
     </div></div>`;
     document.getElementById('cashout-confirm-btn').onclick = ()=>{
@@ -1856,12 +1875,12 @@ function updateHUD(){
 
 function drawBackground(ox, oy, s){
     let grd = ctx.createLinearGradient(0,0,0,(oy+180)*s);
-    grd.addColorStop(0,'#0b0b2a');
-    grd.addColorStop(0.4,'#1a1a3e');
-    grd.addColorStop(0.7,'#2a1a3a');
-    grd.addColorStop(1,'#3a2244');
+    const western=fortressCosmetic('fortress-facts_wild_west_kingdom'),moonlit=fortressCosmetic('fortress-facts_moonlit_battlefield'),royal=fortressCosmetic('fortress-facts_royal_aurora_keep');
+    const sky=western?['#35150c','#71341a','#b85e2a','#df9b4d']:moonlit?['#010516','#081536','#162554','#283d68']:royal?['#080526','#17104a','#34206b','#163e58']:['#0b0b2a','#1a1a3e','#2a1a3a','#3a2244'];
+    grd.addColorStop(0,sky[0]);grd.addColorStop(0.4,sky[1]);grd.addColorStop(0.7,sky[2]);grd.addColorStop(1,sky[3]);
     ctx.fillStyle=grd;
     ctx.fillRect(0,0,W,(oy+220)*s);
+    if(royal){ctx.save();ctx.globalAlpha=.22;for(let i=0;i<5;i++){const ag=ctx.createLinearGradient((i*120+animFrame*.3)%W,0,(i*120+90+animFrame*.3)%W,H);ag.addColorStop(0,'#64ffd2');ag.addColorStop(.5,'#9d65ff');ag.addColorStop(1,'#ff72cf');ctx.fillStyle=ag;ctx.beginPath();ctx.moveTo((i*130+animFrame*.15)%W-100,0);ctx.quadraticCurveTo(i*110+80,H*.35,i*140+20,H*.7);ctx.lineTo(i*140+65,H*.7);ctx.quadraticCurveTo(i*110+120,H*.35,(i*130+animFrame*.15)%W-50,0);ctx.fill();}ctx.restore();}
 
     stars.forEach(st=>{
         let twinkle = Math.sin(animFrame*0.03+st.b*10)*0.5+0.5;
@@ -1893,19 +1912,19 @@ function drawBackground(ox, oy, s){
     ctx.lineTo(W,(oy+220)*s);
     ctx.fill();
 
-    ctx.fillStyle='#2a2a18';
+    ctx.fillStyle=western?'#8a4f24':'#2a2a18';
     ctx.fillRect(0,(oy+220)*s,W,H);
-    ctx.fillStyle='#333322';
+    ctx.fillStyle=western?'#b56b32':'#333322';
     ctx.fillRect(0,(oy+230)*s,W,H);
-    ctx.fillStyle='#445522';
+    ctx.fillStyle=western?'#d6a04f':'#445522';
     for(let i=0;i<GAME_W;i+=8){
         let h=2+Math.sin(i*0.3)*1;
         ctx.fillRect((ox+i)*s,(oy+218)*s, 3*s, h*s);
     }
     // Path
-    ctx.fillStyle='#3a3520';
+    ctx.fillStyle=western?'#6f3e22':'#3a3520';
     ctx.fillRect((ox+120)*s,(oy+240)*s, (GAME_W-120)*s, 16*s);
-    ctx.fillStyle='#4a4530';
+    ctx.fillStyle=western?'#d19a59':'#4a4530';
     for(let i=120;i<GAME_W;i+=20){
         ctx.fillRect((ox+i)*s,(oy+246)*s, 8*s, 4*s);
     }
@@ -1967,12 +1986,17 @@ function drawWeatherOverlay(ox, oy, s){
 }
 
 function drawCastle(ox, oy, s){
+    const obsidian=fortressCosmetic('fortress-facts_obsidian_castle');
+    const boneKeep=window.AchievementManager?.hasSecret?.('secret_skeleton');
+    const western=fortressCosmetic('fortress-facts_wild_west_kingdom'),japanese=fortressCosmetic('fortress-facts_shuriken_scholar_standard');
+    if(obsidian||western||japanese){ctx.save();ctx.filter=obsidian?'grayscale(1) saturate(0) brightness(.62) contrast(1.18)':western?'sepia(.82) saturate(1.35) brightness(.92)':'saturate(.72) hue-rotate(305deg) contrast(1.08)';}
     let bx=ox+40, by=oy+140;
+    const renderedCastleColor=boneKeep?'#e7e0c7':obsidian?'#17141f':castleColor;
 
     // Main castle keep — layered stone shading for depth
     ctx.fillStyle='#2a2a3a';
     ctx.fillRect((bx-1)*s, (by-1)*s, 52*s, 82*s); // outline shadow
-    ctx.fillStyle=castleColor;
+    ctx.fillStyle=renderedCastleColor;
     ctx.fillRect(bx*s, by*s, 50*s, 80*s);
     ctx.fillStyle='rgba(255,255,255,0.06)';
     ctx.fillRect(bx*s, by*s, 8*s, 80*s); // left-face highlight
@@ -1996,12 +2020,12 @@ function drawCastle(ox, oy, s){
     [bx-3, bx+43].forEach(cx=>{
         ctx.fillStyle='#3a3a52';
         ctx.fillRect((cx-1)*s,(by-14)*s, 12*s, 96*s);
-        ctx.fillStyle=castleColor;
+        ctx.fillStyle=renderedCastleColor;
         ctx.fillRect(cx*s,(by-13)*s, 10*s, 94*s);
         ctx.fillStyle='rgba(255,255,255,0.08)';
         ctx.fillRect(cx*s,(by-13)*s, 3*s, 94*s);
         for(let i=0;i<3;i++){
-            ctx.fillStyle=castleColor;
+            ctx.fillStyle=renderedCastleColor;
             ctx.fillRect((cx+i*3.3)*s,(by-20)*s, 2.5*s, 8*s); // turret crenellations
         }
     });
@@ -2009,7 +2033,7 @@ function drawCastle(ox, oy, s){
     for(let i=0;i<5;i++){
         ctx.fillStyle='#3a3a52';
         ctx.fillRect((bx+i*10-0.5)*s,(by-9)*s, 8*s, 11*s);
-        ctx.fillStyle=castleColor;
+        ctx.fillStyle=renderedCastleColor;
         ctx.fillRect((bx+i*10)*s,(by-8)*s, 7*s, 10*s);
         ctx.fillStyle='rgba(255,255,255,0.1)';
         ctx.fillRect((bx+i*10)*s,(by-8)*s, 2*s, 10*s);
@@ -2173,7 +2197,8 @@ function drawCastle(ox, oy, s){
         ctx.quadraticCurveTo((bx-14)*s,(by-2)*s,(bx-13)*s,(by+6)*s);
         ctx.lineTo((bx-9)*s,(by+5)*s);
         ctx.quadraticCurveTo((bx-10)*s,(by-1)*s,(bx-1)*s,(by-1)*s);
-        ctx.fill();
+    ctx.fill();
+    if(boneKeep){ctx.save();ctx.strokeStyle='#fff6dc';ctx.lineWidth=Math.max(2,2*s);ctx.lineCap='round';for(let i=0;i<8;i++){const px=(bx-5+i*8)*s,py=(by+(i%3)*13)*s;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+(i%2?8:-7)*s,py-10*s);ctx.stroke();ctx.beginPath();ctx.arc(px+(i%2?8:-7)*s,py-10*s,2.2*s,0,Math.PI*2);ctx.stroke();}ctx.restore();}
         ctx.fillStyle='#c8a860';
         ctx.beginPath(); ctx.arc((bx-13)*s,(by+5)*s,2.5*s,0,Math.PI*2); ctx.fill(); // bell
     }
@@ -2202,6 +2227,10 @@ function drawCastle(ox, oy, s){
         ctx.fillStyle='#ff8800';
         ctx.beginPath(); ctx.arc((mx-4)*s, (my-1)*s, 1.5*s, 0, Math.PI*2); ctx.fill(); // trailing ember
     }
+    if(japanese){
+        ctx.filter='none';ctx.fillStyle='#151018';for(const yy of [by-34,by-18,by-2]){ctx.beginPath();ctx.moveTo((bx-12)*s,yy*s);ctx.quadraticCurveTo((bx+25)*s,(yy-13)*s,(bx+62)*s,yy*s);ctx.lineTo((bx+54)*s,(yy+5)*s);ctx.quadraticCurveTo((bx+25)*s,(yy-2)*s,(bx-4)*s,(yy+5)*s);ctx.fill();}ctx.fillStyle='#d43c35';ctx.fillRect((bx+22)*s,(by-44)*s,6*s,47*s);const fx=(bx+35)*s,fy=(by-42)*s;ctx.fillStyle='#f5eee2';ctx.fillRect(fx,fy,17*s,12*s);ctx.fillStyle='#d43c35';ctx.beginPath();ctx.arc(fx+8*s,fy+6*s,4*s,0,Math.PI*2);ctx.fill();
+    }else if(western){ctx.filter='none';ctx.fillStyle='#5b2e17';ctx.fillRect((bx-8)*s,(by-5)*s,66*s,11*s);ctx.fillStyle='#e5b56c';ctx.fillRect((bx+5)*s,(by-18)*s,40*s,14*s);ctx.strokeStyle='#5b2e17';ctx.lineWidth=2*s;ctx.strokeRect((bx+5)*s,(by-18)*s,40*s,14*s);ctx.fillStyle='#5b2e17';ctx.font=`${7*s}px monospace`;ctx.textAlign='center';ctx.fillText('FORT', (bx+25)*s,(by-8)*s);ctx.textAlign='left';}
+    if(obsidian||western||japanese)ctx.restore();
 }
 
 // A small bony melee minion raised by the Necromancer tower — bobs in place
@@ -2417,6 +2446,7 @@ function drawTower(t, tx, ty, s){
         ctx.fillRect(tx*s,(ty-6)*s, 18*s, 28*s);
     }
     ctx.restore();
+    if(fortressCosmetic('fortress-facts_shuriken_scholar_standard')){ctx.fillStyle='#151018';ctx.beginPath();ctx.moveTo((tx-6)*s,(ty-10)*s);ctx.quadraticCurveTo((tx+10)*s,(ty-20)*s,(tx+27)*s,(ty-10)*s);ctx.lineTo((tx+22)*s,(ty-5)*s);ctx.quadraticCurveTo((tx+10)*s,(ty-11)*s,(tx-1)*s,(ty-5)*s);ctx.fill();ctx.fillStyle='#d43c35';ctx.fillRect((tx+8)*s,(ty-9)*s,3*s,8*s);}
     // Level indicator
     if(lvlIndicator){
         ctx.fillStyle='#ffcc00';
@@ -3863,6 +3893,9 @@ function drawBossAccessory(def, e, ex, ey, s, bob, pulse){
 
 function drawProjectile(p, ox, oy, s){
     let px2=(ox+p.x)*s, py2=(oy+p.y)*s;
+    if(fortressCosmetic('fortress-facts_starburst_projectiles')){
+        ctx.save();ctx.translate(px2+3*s,py2+2*s);ctx.rotate(animFrame*.09);ctx.fillStyle='#fff4a8';ctx.shadowColor='#ff4fd8';ctx.shadowBlur=8*s;ctx.beginPath();for(let i=0;i<10;i++){const r=(i%2?2:7)*s,a=-Math.PI/2+i*Math.PI/5;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();
+    }
     if(p.crit){
         ctx.fillStyle='#ffd700';
         ctx.globalAlpha=0.6;

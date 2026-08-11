@@ -155,7 +155,7 @@ try {
     // starts, mutated locally as coins are earned/spent during play, and
     // reconciled back into PlatformManager at each commit point (game over,
     // shop purchase, cheat code) — see commitCoinsToPlatform().
-    let scoreUpgradeLevel=0, chainUpgradeLevel=0, superBonusLevel=0, chain=0;
+    let scoreUpgradeLevel=0, chainUpgradeLevel=0, superBonusLevel=0, chain=0, graceNoteUsed=false;
     let highScore=0, totalCorrectAnswers=0, totalNotesPlayed=0, playerData=null, notesHitSession=0;
     let gameOverReason='';
     function upgradeCost(){return PlatformManager.permanentUpgradeCost(scoreUpgradeLevel);}
@@ -407,7 +407,7 @@ try {
       }
       cancelAnimationFrame(animFrame);
       document.querySelectorAll('.lane-note').forEach(n=>n.remove());
-      notes=[];gameState='playing';score=0;health=100;totalCorrect=0;coins=PlatformManager.getCoins();notesHitSession=0;gameOverReason='';chain=0;
+      notes=[];gameState='playing';score=0;health=100;totalCorrect=0;coins=PlatformManager.getCoins();notesHitSession=0;gameOverReason='';chain=0;graceNoteUsed=false;
       // One PlatformManager session per sitting — playing another song after
       // this one (via backToMenu -> startGame again) doesn't start a new one.
       PlatformManager.startSession(GAME_CONFIG.id);
@@ -616,8 +616,10 @@ try {
       n.el.remove();notes.splice(idx,1);
       playTone(150,0.12);
       noteSpeed=Math.max(1.5,noteSpeed-0.12);spawnInterval=Math.min(1100,spawnInterval+12);
-      if(n.isChorus){if(n.isCorrect){resetChain();health-=20;if(health<=0){gameOverReason='Ran out of health — a correct "'+currentCategory.name+'" word slipped past you. Tap the right answers before they reach the bottom!';gameOver();}}else{score+=10;}}
-      else{resetChain();health-=10;if(health<=0){gameOverReason='Ran out of health — you let a note fall without hitting it. Keep tapping the beat as it drops!';gameOver();}}
+      const preserveChain=!graceNoteUsed&&typeof AchievementManager!=='undefined'&&AchievementManager.hasBoost('note-knowledge_grace_note');
+      if(preserveChain)graceNoteUsed=true;
+      if(n.isChorus){if(n.isCorrect){if(!preserveChain)resetChain();health-=20;if(health<=0){gameOverReason='Ran out of health — a correct "'+currentCategory.name+'" word slipped past you. Tap the right answers before they reach the bottom!';gameOver();}}else{score+=10;}}
+      else{if(!preserveChain)resetChain();health-=10;if(health<=0){gameOverReason='Ran out of health — you let a note fall without hitting it. Keep tapping the beat as it drops!';gameOver();}}
     }
 
     function updateHUD(){

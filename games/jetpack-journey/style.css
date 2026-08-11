@@ -138,3 +138,4 @@ h1, .retro-title { font-family: 'Courier New', monospace; font-weight: 700; }
    this game's own text sizing/weight/color stay here */
 .hud-row { font-size: 14px; font-weight: 600; color: #fff; }
 /* .hud-val color now comes from global.css's .hud-val rule */
+#shop-tabs [data-tab="appearance"],.shop-tab-panel[data-tab="appearance"]{display:none!important}

@@ -153,8 +153,8 @@
       <nav class="hero-jump-links" aria-label="Explore Arcade Academy">
         <a class="jump-link" href="#single-player-games">Explore Single Player Games <span aria-hidden="true">↓</span></a>
         <a class="jump-link" href="#multiplayer-games">Explore Multiplayer Games <span aria-hidden="true">↓</span></a>
-        <a class="jump-link jump-link-secondary" href="#achievements">Achievements <span aria-hidden="true">🏆</span></a>
-        <a class="jump-link jump-link-secondary" href="#hub-upgrades">Hub Upgrades <span aria-hidden="true">✨</span></a>
+        <button class="jump-link jump-link-secondary" type="button" data-open-hub-view="achievements">Achievements <span aria-hidden="true">🏆</span></button>
+        <button class="jump-link jump-link-secondary" type="button" data-open-hub-view="hub-upgrades">Hub Upgrades <span aria-hidden="true">✨</span></button>
         <a class="jump-link jump-link-secondary" href="#leaderboards" hidden>Leaderboards <span aria-hidden="true">↓</span></a>
       </nav>
       <div class="hero-orb orb-one" aria-hidden="true">✦</div>
@@ -199,6 +199,19 @@
             <p class="class-error" id="class-error" role="alert" hidden></p>
           </form>
 
+        </div>
+      </div>
+    </section>
+
+    <section class="level-section" id="player-level" aria-labelledby="player-level-title">
+      <div class="level-panel">
+        <div class="level-badge" id="level-badge" aria-hidden="true">1</div>
+        <div class="level-details">
+          <p class="eyebrow">Arcade Academy level</p>
+          <h2 id="player-level-title">Level 1</h2>
+          <p id="level-xp-text">0 / 86.2 XP</p>
+          <div class="level-track" role="progressbar" aria-labelledby="player-level-title"><span id="level-progress"></span></div>
+          <p class="next-level-reward" id="next-level-reward">Next level unlocks: 100 Coins</p>
         </div>
       </div>
     </section>
@@ -258,20 +271,22 @@
     <section class="progression-section" id="achievements" aria-labelledby="achievements-title">
       <div class="section-heading">
         <div><p class="eyebrow">Goals and experience</p><h2 id="achievements-title">Achievements</h2></div>
+        <button type="button" class="class-btn class-btn-secondary" data-close-hub-view>← Return to Home</button>
       </div>
       <div class="progression-panel">
         <div class="progression-icon" aria-hidden="true">🏆</div>
-        <div><h3>Achievement catalogue coming soon</h3><p>Complete achievements to earn XP and raise your overall Arcade Academy level. Regular achievements award XP only; Secret achievements can also unlock unique rewards.</p></div>
+        <div class="progression-content"><h3 id="achievement-summary">Loading achievements…</h3><div class="achievement-filters" id="achievement-filters"></div><div class="achievement-grid" id="achievement-grid"></div></div>
       </div>
     </section>
 
     <section class="progression-section" id="hub-upgrades" aria-labelledby="hub-upgrades-title">
       <div class="section-heading">
         <div><p class="eyebrow">Personalise the academy</p><h2 id="hub-upgrades-title">Hub Upgrades</h2></div>
+        <button type="button" class="class-btn class-btn-secondary" data-close-hub-view>← Return to Home</button>
       </div>
       <div class="progression-panel">
         <div class="progression-icon" aria-hidden="true">✨</div>
-        <div><h3>Level rewards coming soon</h3><p>View and equip hub borders, backgrounds, badges, fonts, colours and visual themes earned from player levels. Character, weapon and other in-game cosmetics remain inside their game.</p></div>
+        <div class="progression-content"><h3>Your unlocked rewards</h3><p>Equip hub effects and themes here. Game cosmetics are available through the same shared inventory inside their compatible game.</p><div class="reward-grid" id="reward-grid"></div></div>
       </div>
     </section>
   </main>
@@ -325,7 +340,8 @@
 </template>
   <script type="module" src="shared/js/FirebaseManager.js"></script>
   <script src="shared/js/GameSaveManager.js"></script>
-  <script src="shared/js/PlatformManager.js"></script>
+  <script src="shared/js/PlatformManager.js?v=20260811-achievement-reset-v5"></script>
+  <script src="shared/js/AchievementManager.js?v=20260811-achievement-reset-v5"></script>
   <script src="shared/data/classes.js"></script>
   <script type="module" src="app.js"></script>
 </body>

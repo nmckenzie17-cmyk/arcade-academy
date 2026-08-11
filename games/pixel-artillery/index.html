@@ -29,12 +29,12 @@
       <button id="left-btn">◀ Move</button><button id="right-btn">Move ▶</button>
       <label>Angle <input id="angle" type="range" min="15" max="165" value="45"><output id="angle-out">45°</output></label>
       <label>Power <input id="power" type="range" min="25" max="100" value="60"><output id="power-out">60</output></label>
-      <select id="weapon"><option value="cannon">Cannon ∞</option><option value="heavy">Heavy Bomb</option><option value="triple">Triple Shot</option><option value="rocket">Rocket</option><option value="mega">Mega Bomb</option></select>
+      <select id="weapon"><option value="cannon">Cannon ∞</option><option value="heavy">Heavy Bomb</option><option value="triple">Triple Shot</option><option value="rocket">Rocket</option><option value="mega">Mega Bomb</option><option value="teleport">Teleport Shell ×2</option></select>
       <button class="fire" id="fire-btn">Fire!</button><button id="end-btn">End Turn</button>
     </div><p class="error" id="game-error"></p>
     <div id="result" hidden><h2 id="result-text"></h2><button id="rematch-btn">Rematch</button><button class="danger" id="result-leave">Return to Menu</button><p id="rematch-status"></p></div>
   </section>
 </main>
 <section class="question" id="question-overlay" hidden><div><p class="eyebrow">Turn Question</p><h2 id="question-prompt"></h2><section id="question-options"></section><p id="question-feedback"></p></div></section>
-<script type="module" src="../../shared/js/FirebaseManager.js"></script><script src="../../shared/js/PlatformManager.js"></script><script src="../../shared/js/QuestionManager.js"></script><script src="../../shared/js/MultiplayerManager.js"></script><script src="../../shared/js/SinglePlayerManager.js"></script><script src="../../shared/js/MultiplayerQuestionHelper.js"></script><script src="game.js"></script>
+<script type="module" src="../../shared/js/FirebaseManager.js"></script><script src="../../shared/js/PlatformManager.js?v=20260811-achievement-reset-v5"></script><script src="../../shared/js/QuestionManager.js"></script><script src="../../shared/js/MultiplayerManager.js"></script><script src="../../shared/js/SinglePlayerManager.js"></script><script src="../../shared/js/MultiplayerQuestionHelper.js"></script><script src="game.js"></script>
 </body></html>

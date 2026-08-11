@@ -60,8 +60,10 @@ async function loadGames() {
   // Build the dashboard first so it can show the favourite game's title,
   // then render the cards (each pulling in its own PlatformManager stats).
   loadedGames = games;
+  window.AchievementManager?.configureGames(games);
   displayDashboard(buildGameTitleMap(games));
   displayGames(games);
+  renderProgression();
   if (LEADERBOARDS_ENABLED) initialiseLeaderboards(games);
   if (LEADERBOARDS_ENABLED && currentUser) {
     const statsByGame = Object.fromEntries(games
@@ -171,6 +173,8 @@ function showHub(profile) {
   applyProfileToHub(profile);
   showScreen("hub");
   scheduleSeniorClassExpiry(profile);
+  window.AchievementManager?.connect(currentUser?.uid, profile?.achievementSystem);
+  renderProgression();
 
   if (!hubInitialized) {
     hubInitialized = true;
@@ -179,6 +183,49 @@ function showHub(profile) {
   }
 
 }
+
+let achievementCategory = "All";
+function renderProgression() {
+  const manager = window.AchievementManager;
+  const grid = document.querySelector("#achievement-grid");
+  const rewards = document.querySelector("#reward-grid");
+  if (!manager || !grid || !rewards) return;
+  manager.evaluate();
+  const summary = manager.getSummary();
+  document.querySelector("#achievement-summary").textContent = `${summary.unlockedCount} of ${summary.totalAchievements} achievements unlocked`;
+  document.querySelector("#player-level-title").textContent = `Level ${summary.level}`;
+  document.querySelector("#level-badge").textContent = summary.level;
+  document.querySelector("#level-xp-text").textContent = `${summary.xpIntoLevel.toFixed(1)} / ${summary.xpForNext.toFixed(1)} XP · ${summary.lifetimeXp.toFixed(0)} lifetime XP`;
+  document.querySelector("#next-level-reward").textContent = `Level ${summary.nextLevel} unlocks: ${summary.nextReward.name}${summary.nextReward.gameId ? ` for ${loadedGames.find(game => game.id === summary.nextReward.gameId)?.title || summary.nextReward.gameId.replaceAll("-", " ")}` : ""}`;
+  document.querySelector("#level-progress").style.width = `${Math.min(100, summary.xpIntoLevel / summary.xpForNext * 100)}%`;
+  document.querySelector("#level-progress").parentElement.setAttribute("aria-valuenow", summary.xpIntoLevel);
+  document.querySelector("#level-progress").parentElement.setAttribute("aria-valuemax", summary.xpForNext);
+  const all = manager.getAchievements();
+  const categories = ["All", ...new Set(all.map(item => item.category))];
+  const filters = document.querySelector("#achievement-filters");
+  filters.innerHTML = categories.map(category => `<button type="button" class="progress-filter${category === achievementCategory ? " active" : ""}" data-category="${category}">${category}</button>`).join("");
+  filters.querySelectorAll("button").forEach(button => button.addEventListener("click", () => { achievementCategory = button.dataset.category; renderProgression(); }));
+  grid.innerHTML = all.filter(item => achievementCategory === "All" || item.category === achievementCategory).map(item => {
+    const hidden = item.secret && !item.unlocked;
+    const percent = Math.min(100, item.value / item.target * 100);
+    return `<article class="achievement-card ${item.unlocked ? "unlocked" : ""}"><span class="tier ${item.tier}">${item.secret ? "Secret" : item.tier}</span><h4>${hidden ? "???" : item.name}</h4><p>${hidden ? "Keep playing to discover this achievement." : item.description}</p><small>${item.unlocked ? "✓ Unlocked" : `${Math.min(item.value,item.target)} / ${item.target}`}</small><span class="mini-progress"><i style="width:${percent}%"></i></span></article>`;
+  }).join("");
+  const owned = manager.getRewards().filter(reward => reward.owned && !reward.gameId);
+  rewards.innerHTML = owned.length ? owned.map(reward => `<article class="reward-card"><span>${reward.type === "gameplay" ? "⚡" : reward.type === "theme" ? "🎨" : "✨"}</span><div><h4>${reward.name}</h4><small>${reward.gameId ? reward.gameId.replaceAll("-"," ") : reward.type}</small></div><button type="button" data-reward="${reward.id}">${reward.equipped ? "Disable" : "Enable"}</button></article>`).join("") : '<p>Reach Level 2 to earn your first reward.</p>';
+  rewards.querySelectorAll("button[data-reward]").forEach(button => button.addEventListener("click", () => { manager.equip(button.dataset.reward); renderProgression(); }));
+}
+window.addEventListener("arcade-progression-changed", renderProgression);
+
+function setHubView(viewId = null) {
+  document.querySelectorAll("#achievements,#hub-upgrades").forEach(section => {
+    section.classList.toggle("hub-fullscreen-view-open", section.id === viewId);
+  });
+  document.body.classList.toggle("hub-view-active", !!viewId);
+  if (viewId) document.querySelector(`#${viewId} h2`)?.focus?.();
+}
+document.querySelectorAll("[data-open-hub-view]").forEach(button => button.addEventListener("click", () => setHubView(button.dataset.openHubView)));
+document.querySelectorAll("[data-close-hub-view]").forEach(button => button.addEventListener("click", () => setHubView()));
+document.addEventListener("keydown", event => { if (event.key === "Escape" && document.body.classList.contains("hub-view-active")) setHubView(); });
 
 
 function applyProfileToHub(profile) {
@@ -210,6 +257,7 @@ googleSignInButton?.addEventListener("click", async () => {
   // On success, watchAuthState's callback (below) takes it from here -
   // it'll check for a profile and move to Profile Setup or the Hub.
   if (!user) {
+    window.AchievementManager?.disconnect();
     showLoginError("Sign-in was cancelled or didn't go through. Please try again.");
   }
 

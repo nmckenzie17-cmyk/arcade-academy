@@ -257,7 +257,9 @@ export async function updateGameStats(uid, gameId, changes) {
   try {
     const userRef = doc(db, "users", uid);
     const gameChanges = Object.fromEntries(
-      Object.entries(changes).map(([key, value]) => [`games.${gameId}.${key}`, value])
+      Object.entries(changes)
+        .filter(([, value]) => value !== undefined)
+        .map(([key, value]) => [`games.${gameId}.${key}`, value])
     );
 
     await updateDoc(userRef, gameChanges);

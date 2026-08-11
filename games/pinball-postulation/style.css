@@ -15,6 +15,8 @@ canvas { display:block; }
 .flipper-btn.left { left:24px; }
 .flipper-btn.right { right:24px; }
 .flipper-btn:active { background:rgba(0,212,255,.35); }
+.nudge-btn { position:absolute; z-index:12; right:24px; bottom:118px; padding:10px 14px; color:var(--gold); border-color:var(--gold); }
+.nudge-btn:disabled { opacity:.38; }
 
 .home-page { position:fixed; inset:0; z-index:50; display:flex; align-items:flex-start; overflow-y:auto; padding:clamp(24px,4vh,60px) 16px; background:var(--bg-primary); }
 #home-bg { position:absolute; inset:0; width:100%; height:100%; opacity:.45; pointer-events:none; }
@@ -25,6 +27,10 @@ canvas { display:block; }
 .home-stats div { display:grid; gap:6px; text-align:center; }
 .home-stats span { color:var(--accent-blue); font-size:clamp(11px,2vw,14px); font-weight:700; }
 .home-stats strong { color:var(--gold); font-size:clamp(18px,2.6vw,22px); text-shadow:var(--glow-gold); }
+.home-cosmetics-box { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:0 0 18px; padding:13px 15px; text-align:left; background:linear-gradient(135deg,rgba(0,212,255,.1),rgba(168,85,247,.16)); border:2px solid var(--accent-violet); border-radius:10px; box-shadow:var(--glow-card); }
+.home-cosmetics-box p { margin:0 0 5px; color:var(--gold); }
+.home-cosmetics-box span { color:#cfc4df; font-size:12px; }
+.home-cosmetics-box .btn { flex:0 0 auto; padding:10px 12px; }
 .description-list { margin:8px 0 16px; color:var(--accent-blue); font-size:clamp(13px,2vw,15px); line-height:1.7; text-align:left; }
 .description-list p { margin:2px 0; }
 .bank-message { min-height:18px; margin:0 0 14px; color:#aaa; font-size:12px; }
@@ -46,9 +52,11 @@ canvas { display:block; }
 
 @media (max-width:520px) {
   .home-stats { grid-template-columns:repeat(2,1fr); }
+  .home-cosmetics-box { align-items:stretch; flex-direction:column; }
   .game-ui { padding:8px; }
   .hud-panel h1 { display:none; }
   .flipper-btn { bottom:14px; width:70px; height:70px; }
   .flipper-btn.left { left:14px; }
   .flipper-btn.right { right:14px; }
+  .nudge-btn { right:14px; bottom:94px; }
 }

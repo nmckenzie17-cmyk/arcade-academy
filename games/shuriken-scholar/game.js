@@ -8,6 +8,8 @@
     // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
     // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
     const GAME_CONFIG = { id: 'shuriken-scholar', name: 'Shuriken Scholar' };
+    function shurikenCosmetic(id){return typeof AchievementManager!=='undefined'&&Object.values(AchievementManager.getEquipped('shuriken-scholar')).some(r=>r?.id===id);}
+    function shurikenSecret(id){return typeof AchievementManager!=='undefined'&&AchievementManager.hasSecret?.(id);}
 
     // Change this value if this game is ever updated to use a different bank type.
     // Shuriken Scholar currently supports only multiple-choice question banks.
@@ -19,6 +21,9 @@
 
     // Game state
     let game = { active: false, paused: false, time: 0, frame: 0 };
+    const secretMoveKeys={};let secretWorldX=0,secretWorldY=0;
+    addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){secretMoveKeys[e.code]=true;if(shurikenSecret('secret_map_border'))e.preventDefault();}});
+    addEventListener('keyup',e=>{secretMoveKeys[e.code]=false;});
     let player = { x: 400, y: 300, hp: 100, maxHp: 100, level: 1, exp: 0, kills: 0, character: 'ninja', facingAngle: 0 };
     const NINJA_WEAPON_KEYS = ['shuriken', 'dart', 'smoke', 'trap'];
     const SAMURAI_WEAPON_KEYS = ['katana', 'naginata', 'bow', 'servant'];
@@ -94,7 +99,7 @@
     updateHomeStats();
 
     function renderCharacterSelectors() {
-      const show = progress.samuraiUnlocked;
+      const show = progress.samuraiUnlocked||shurikenSecret('secret_skeleton')||shurikenSecret('secret_glitch_aura');
       const homeDiv = document.getElementById('charSelectHome');
       const guideDiv = document.getElementById('charSelectGuide');
       if (homeDiv) homeDiv.style.display = show ? '' : 'none';
@@ -114,9 +119,13 @@
         samuraiBtn.textContent = (progress.selectedCharacter === 'samurai' ? '✅ ' : '') + '⚔️ Samurai';
         ninjaBtn.onclick = () => setSelected('ninja');
         samuraiBtn.onclick = () => setSelected('samurai');
+        const host=ninjaBtn.parentElement;
+        for(const [id,label,secret] of [['skeleton','💀 Skeleton','secret_skeleton'],['paradox','🌀 Paradox Scholar','secret_glitch_aura']]){let btn=document.getElementById(`charBtn${id}${suffix}`);if(shurikenSecret(secret)){if(!btn){btn=document.createElement('button');btn.id=`charBtn${id}${suffix}`;btn.className=ninjaBtn.className;host.appendChild(btn);}btn.textContent=(progress.selectedCharacter===id?'✅ ':'')+label;btn.onclick=()=>setSelected(id);}else btn?.remove();}
       }
     }
     renderCharacterSelectors();
+    window.addEventListener('arcade-achievement-manager-ready',renderCharacterSelectors);
+    window.addEventListener('arcade-progression-changed',renderCharacterSelectors);
 
     function checkSamuraiUnlock() {
       if (progress.samuraiUnlocked) return;
@@ -403,8 +412,9 @@
       ctx.fillStyle = '#2a2a3e';
       ctx.fillRect(0, 0, 800, 600);
 
-      for (let y = 0; y < 600; y += 64) {
-        for (let x = 0; x < 800; x += 64) {
+      const bgOffX=shurikenSecret('secret_map_border')?((secretWorldX%64)+64)%64:0,bgOffY=shurikenSecret('secret_map_border')?((secretWorldY%64)+64)%64:0;
+      for (let y = -64+bgOffY; y < 664; y += 64) {
+        for (let x = -64+bgOffX; x < 864; x += 64) {
           ctx.fillStyle = ((x/64 + y/64) % 2 === 0) ? '#3a3a52' : '#2f2f45';
           ctx.fillRect(x, y, 64, 64);
           ctx.fillStyle = '#1a1a28';
@@ -474,6 +484,18 @@
       ctx.fillStyle = '#252535';
       for (let i = 0; i < 800; i += 40) { ctx.fillRect(i, 5, 38, 20); ctx.fillRect(i + 20, 575, 38, 20); }
       for (let i = 0; i < 600; i += 40) { ctx.fillRect(5, i, 20, 38); ctx.fillRect(775, i + 20, 20, 38); }
+      if(shurikenCosmetic('shuriken-scholar_wild_west_ronin')){
+        const g=ctx.createLinearGradient(0,0,0,600);g.addColorStop(0,'#b75a28');g.addColorStop(.55,'#df9850');g.addColorStop(1,'#75401f');ctx.fillStyle=g;ctx.fillRect(0,0,800,600);
+        ctx.fillStyle='#9b592a';ctx.fillRect(0,0,800,600);ctx.fillStyle='#6f381f';for(let i=0;i<34;i++){ctx.fillRect((i*137+43)%800,(i*211+71)%600,24+(i%5)*14,4+(i%2)*2);}
+        // Top-down terrain: cracked clay, scattered stones, wheel ruts and dry scrub.
+        ctx.strokeStyle='#603019';ctx.lineWidth=2;for(let i=0;i<18;i++){const x=(i*173+29)%760+20,y=(i*109+47)%550+25;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+8+(i%3)*4,y-7);ctx.lineTo(x+15,y+2);ctx.moveTo(x+8,y-7);ctx.lineTo(x+5,y-15);ctx.stroke();}
+        ctx.fillStyle='#7c4527';for(let i=0;i<28;i++){const x=(i*191+61)%790,y=(i*83+33)%590,r=2+(i%4);ctx.fillRect(x-r,y-r,r*2,r*2);ctx.fillStyle='#b97843';ctx.fillRect(x-r,y-r,r,1);ctx.fillStyle='#7c4527';}
+        ctx.strokeStyle='rgba(72,36,18,.52)';ctx.lineWidth=3;ctx.setLineDash([14,11]);ctx.beginPath();ctx.moveTo(-20,330);ctx.bezierCurveTo(180,275,360,390,820,295);ctx.moveTo(-20,354);ctx.bezierCurveTo(180,299,360,414,820,319);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#416b2d';for(const [x,y,s] of [[90,95,.8],[320,170,.65],[700,105,.9],[160,390,.7],[520,470,.85],[735,340,.6]]){ctx.fillRect(x-5*s,y-29*s,10*s,58*s);ctx.fillRect(x-21*s,y-11*s,16*s,8*s);ctx.fillRect(x-21*s,y-21*s,7*s,18*s);ctx.fillRect(x+5*s,y-2*s,18*s,8*s);ctx.fillRect(x+16*s,y-14*s,7*s,20*s);}
+        ctx.strokeStyle='#ead8ad';ctx.lineWidth=5;for(const [x,y] of [[205,250],[590,170],[410,520],[670,440]]){ctx.beginPath();ctx.arc(x-10,y,10,Math.PI,0);ctx.arc(x+10,y,10,Math.PI,0);ctx.stroke();ctx.beginPath();ctx.moveTo(x-20,y);ctx.lineTo(x-30,y-12);ctx.moveTo(x+20,y);ctx.lineTo(x+30,y-12);ctx.stroke();}
+        ctx.strokeStyle='#d8c28e';ctx.lineWidth=3;for(const [x,y,a] of [[120,520,.2],[455,105,-.5],[745,555,.4]]){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.beginPath();ctx.moveTo(-16,0);ctx.lineTo(16,0);ctx.moveTo(-8,-6);ctx.lineTo(-8,6);ctx.moveTo(0,-6);ctx.lineTo(0,6);ctx.moveTo(8,-6);ctx.lineTo(8,6);ctx.stroke();ctx.restore();}
+        ctx.strokeStyle='#8a5a31';ctx.lineWidth=3;for(const [x,y] of [[275,80],[620,380],[360,450]]){ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);ctx.arc(x-7,y+2,9,0,Math.PI*2);ctx.arc(x+6,y-4,8,0,Math.PI*2);ctx.stroke();}
+      }
     }
 
     function shadeColor(hex, percent) {
@@ -509,8 +531,25 @@
     }
 
     function drawPlayer() {
-      if (player.character === 'samurai') drawPlayerSamurai();
-      else drawPlayerNinja();
+      const white=shurikenCosmetic('shuriken-scholar_white_shadow_ninja'),cyber=shurikenCosmetic('shuriken-scholar_cyberpunk_scholar'),eclipse=shurikenCosmetic('shuriken-scholar_eclipse_shinobi');
+      const renderBase=()=>player.character==='skeleton'?drawPlayerSkeleton():player.character==='paradox'?drawPlayerParadox():cyber?drawCyberpunkScholar(player.character):(player.character==='samurai'?drawPlayerSamurai():drawPlayerNinja());
+      const eclipsePulse=.5+.5*Math.sin(game.frame*.016);
+      ctx.save();if(white)ctx.filter='grayscale(1) brightness(1.8) contrast(.85)';else if(eclipse)ctx.filter=`invert(1) brightness(${.5+.42*eclipsePulse}) contrast(1.65)`;renderBase();ctx.restore();
+      if(eclipse){ctx.save();ctx.globalAlpha=.15+.4*eclipsePulse;ctx.filter='brightness(0)';renderBase();ctx.restore();}
+      if(shurikenCosmetic('shuriken-scholar_academy_headband')){const bob=Math.sin(game.frame*.03)*1.5+Math.sin(game.frame*.04)*.8,hy=player.y-23+bob,hw=player.character==='samurai'?32:28;ctx.fillStyle='#00d4ff';ctx.fillRect(player.x-hw/2,hy,hw,5);ctx.fillStyle='#ffd15c';ctx.fillRect(player.x-3,hy-1,6,7);ctx.fillStyle='#1a0a2e';ctx.fillRect(player.x-1,hy+1,2,3);ctx.fillStyle='#00a6c9';ctx.fillRect(player.x+hw/2-1,hy+2,10+Math.sin(game.frame*.08)*2,3);}
+    }
+
+    function drawPlayerSkeleton(){const x=player.x,y=player.y,bob=Math.sin(game.frame*.05);ctx.save();ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x-21,y+17,42,7);ctx.fillStyle='#eee8d4';ctx.fillRect(x-14,y-28+bob,28,21);ctx.fillStyle='#16131e';ctx.fillRect(x-9,y-20+bob,6,6);ctx.fillRect(x+4,y-20+bob,6,6);ctx.fillRect(x-4,y-9+bob,8,3);ctx.fillStyle='#d8cfb6';ctx.fillRect(x-5,y-7+bob,10,25);for(let r=0;r<4;r++){ctx.fillRect(x-16,y-3+r*5+bob,32,2);}ctx.fillRect(x-23,y-1+bob,9,4);ctx.fillRect(x+14,y-1+bob,9,4);ctx.fillRect(x-11,y+17+bob,5,10);ctx.fillRect(x+6,y+17+bob,5,10);ctx.fillStyle='#7d49a8';ctx.fillRect(x-15,y-29+bob,30,4);ctx.fillRect(x+13,y-27+bob,13,3);ctx.restore();}
+    function drawPlayerParadox(){const x=player.x,y=player.y,p=.5+.5*Math.sin(game.frame*.08);ctx.save();for(let i=2;i>=0;i--){ctx.globalAlpha=.18+i*.2;ctx.fillStyle=i%2?'#ff4fc8':'#54f5ff';ctx.fillRect(x-19-i*4,y-22+i*3,38,40);}ctx.globalAlpha=1;ctx.fillStyle='#0b1027';ctx.fillRect(x-15,y-26,30,40);ctx.fillStyle='#54f5ff';ctx.fillRect(x-12,y-20,9,5);ctx.fillStyle='#ff4fc8';ctx.fillRect(x+3,y-20,9,5);ctx.globalAlpha=p;ctx.fillStyle='#ffe06c';ctx.fillRect(x-4,y-8,8,14);ctx.globalAlpha=1;ctx.strokeStyle='#ab75ff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y-4,27,game.frame*.03,game.frame*.03+Math.PI*1.4);ctx.stroke();ctx.restore();}
+
+    function drawCyberpunkScholar(kind){
+      const x=player.x,y=player.y,bob=Math.sin(game.frame*.05)*1.2,cyan='#16f7ff',pink='#ff2ca8',dark='#090b18',pulse=.65+.35*Math.sin(game.frame*.09);
+      ctx.fillStyle='rgba(0,0,0,.42)';ctx.fillRect(x-27,y+19,54,8);ctx.fillStyle=dark;ctx.fillRect(x-23,y-18+bob,46,39);ctx.fillStyle=kind==='samurai'?'#481657':'#142c58';ctx.fillRect(x-18,y-13+bob,36,31);
+      ctx.fillStyle='#282941';ctx.fillRect(x-20,y-37+bob,40,23);ctx.fillStyle='#d7a88f';ctx.fillRect(x-13,y-30+bob,26,12);ctx.fillStyle='#111424';ctx.fillRect(x-16,y-32+bob,32,7);ctx.globalAlpha=pulse;ctx.fillStyle=cyan;ctx.fillRect(x-14,y-30+bob,12,3);ctx.fillStyle=pink;ctx.fillRect(x+3,y-30+bob,11,3);ctx.globalAlpha=1;
+      ctx.fillStyle='#6b6f86';ctx.fillRect(x-18,y-17+bob,6,32);ctx.fillRect(x+12,y-17+bob,6,32);ctx.fillStyle=cyan;ctx.fillRect(x-25,y-12+bob,5,23);ctx.fillRect(x-16,y+17+bob,12,5);ctx.fillStyle=pink;ctx.fillRect(x+20,y-12+bob,5,23);ctx.fillRect(x+4,y+17+bob,12,5);ctx.fillStyle='#ffe55d';ctx.fillRect(x-4,y-7+bob,8,8);ctx.fillStyle='#111';ctx.fillRect(x-2,y-5+bob,4,4);
+      ctx.strokeStyle=cyan;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-18,y-7+bob);ctx.lineTo(x-8,y+2+bob);ctx.lineTo(x-14,y+13+bob);ctx.stroke();ctx.strokeStyle=pink;ctx.beginPath();ctx.moveTo(x+18,y-7+bob);ctx.lineTo(x+8,y+2+bob);ctx.lineTo(x+14,y+13+bob);ctx.stroke();
+      if(kind==='samurai'){ctx.fillStyle=dark;ctx.fillRect(x-29,y-41+bob,58,6);ctx.fillRect(x-18,y-51+bob,36,11);ctx.fillStyle=pink;ctx.fillRect(x-15,y-49+bob,30,3);ctx.fillStyle='#8992aa';ctx.fillRect(x+25,y-34+bob,5,39);ctx.fillStyle=cyan;ctx.fillRect(x+26,y-32+bob,2,34);ctx.fillStyle='#ffe55d';ctx.fillRect(x+22,y+2+bob,11,4);}
+      else{ctx.fillStyle=cyan;ctx.beginPath();ctx.moveTo(x-19,y-36+bob);ctx.lineTo(x-31,y-48+bob);ctx.lineTo(x-12,y-40+bob);ctx.fill();ctx.fillStyle=pink;ctx.beginPath();ctx.moveTo(x+19,y-36+bob);ctx.lineTo(x+31,y-45+bob);ctx.lineTo(x+12,y-40+bob);ctx.fill();ctx.fillStyle='#8992aa';ctx.fillRect(x-30,y-5+bob,10,5);ctx.fillRect(x+20,y+4+bob,12,5);ctx.fillStyle=cyan;ctx.fillRect(x-27,y-4+bob,4,3);ctx.fillStyle=pink;ctx.fillRect(x+23,y+5+bob,5,3);}
     }
 
     function drawPlayerNinja() {
@@ -1379,6 +1418,8 @@
       ctx.translate(b.x, b.y);
       ctx.rotate(b.rot);
       if (b.size && b.size !== 1) ctx.scale(b.size, b.size);
+      if(b.bone){ctx.fillStyle='#eee8d4';ctx.fillRect(-10,-3,20,6);ctx.beginPath();ctx.arc(-10,0,4,0,Math.PI*2);ctx.arc(10,0,4,0,Math.PI*2);ctx.fill();ctx.restore();return;}
+      if(shurikenCosmetic('shuriken-scholar_academy_headband')){ctx.fillStyle='#2458a6';ctx.fillRect(-11,-8,22,16);ctx.fillStyle='#f7e9b7';ctx.fillRect(-8,-6,7,12);ctx.fillRect(1,-6,7,12);ctx.fillStyle='#ffd15c';ctx.fillRect(-1,-7,2,14);ctx.restore();return;}
       const grad = ctx.createLinearGradient(-12, -12, 12, 12);
       grad.addColorStop(0, '#e8e8e8');
       grad.addColorStop(0.5, '#c0c0c0');
@@ -1721,7 +1762,7 @@
 
       let extra = levelB >= 1 ? 1 : 0;
       if (levelB >= 5) extra += 1; // Blade Storm
-      const numShots = 1 + extra;
+      const numShots = 1 + extra + (window.AchievementManager?.hasSecret?.('secret_twin_shot') ? 1 : 0);
       const spreadAngle = levelB >= 2 ? 0.3 : 0.1;
 
       const homingTarget = levelA >= 2 ? findHomingLockTarget() : null;
@@ -1766,6 +1807,7 @@
           hasBounced: false,
           hitIds: []
         });
+        const made=bullets[bullets.length-1];if(player.character==='skeleton'){made.bone=true;made.dmg*=player.level>=8?2:player.level>=4?1.5:1;if(player.level>=3)made.pierce=true;if(player.level>=6){made.homing=true;made.homingTargetId=homingTarget?.id||findHomingLockTarget()?.id||null;}}
       };
 
       for (let i = 0; i < numShots; i++) {
@@ -2837,6 +2879,7 @@
       e.dead = true;
       deadQueue.push(e.id);
       createDefeatParticles(e.x, e.y, e.type);
+      window.AchievementManager?.notify?.('enemy_defeated',{x:e.x,y:e.y});
 
       // Death Fog (Smoke Bomb Explosives C): poisoned enemies explode on death.
       if (e.smokeDeathFog) {
@@ -2943,7 +2986,10 @@
         game.time += 16;
         game.frame++;
 
+        if(shurikenSecret('secret_map_border')){const mx=(secretMoveKeys.ArrowRight||secretMoveKeys.KeyD?1:0)-(secretMoveKeys.ArrowLeft||secretMoveKeys.KeyA?1:0),my=(secretMoveKeys.ArrowDown||secretMoveKeys.KeyS?1:0)-(secretMoveKeys.ArrowUp||secretMoveKeys.KeyW?1:0),v=norm(mx,my),sx=v.nx*3.2,sy=v.ny*3.2;if(v.d){secretWorldX-=sx;secretWorldY-=sy;const groups=[enemies,bullets,darts,shadowTraps,poisonPools,smokeClouds,healingOrbs,trollFireballs,ectoplasmMarkers,naginataSpears,bowArrows,enemyArrows,particles];for(const group of groups)for(const item of group){if(Number.isFinite(item.x))item.x-=sx;if(Number.isFinite(item.y))item.y-=sy;}player.x=400;player.y=300;targetX-=sx;targetY-=sy;}}
+
         maintainEnemies();
+        if(player.character==='paradox'&&game.frame%120===0){for(const e of enemies){if(!e.dead&&Math.hypot(e.x-player.x,e.y-player.y)<145)dealWeaponDamage(e,Math.max(2,upgrades.damage*1.2),'shuriken');}for(let i=0;i<18;i++){const a=i*Math.PI/9;particles.push({x:player.x,y:player.y,vx:Math.cos(a)*3,vy:Math.sin(a)*3,size:4,color:i%2?'#54f5ff':'#ff4fc8',start:Date.now(),life:500});}}
         if (player.character === 'samurai') {
           const wv = norm(samuraiWalkTargetX - player.x, samuraiWalkTargetY - player.y);
           if (wv.d > 4) {
@@ -4300,11 +4346,12 @@
     }
 
     function drawSmokeCloud(cloud) {
-      ctx.globalAlpha = 0.28;
-      ctx.fillStyle = '#8899aa';
+      const neon=shurikenCosmetic('shuriken-scholar_neon_smoke');ctx.globalAlpha = neon ? .55 : .28;
+      ctx.fillStyle = neon?(Math.sin(game.frame*.12+cloud.x)>.0?'#00f5ff':'#ff39c8'):'#8899aa';
       ctx.beginPath();
       ctx.arc(cloud.x, cloud.y, cloud.radius, 0, Math.PI * 2);
       ctx.fill();
+      if(neon){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=15;ctx.stroke();ctx.shadowBlur=0;}
       ctx.globalAlpha = 1;
     }
 
@@ -4375,6 +4422,7 @@
       ctx.save();
       ctx.translate(bx, by);
       ctx.rotate(currentAngle + Math.PI / 2);
+      if(shurikenCosmetic('shuriken-scholar_academy_headband')){ctx.fillStyle='#2458a6';ctx.fillRect(-15,-11,30,22);ctx.fillStyle='#f7e9b7';ctx.fillRect(-12,-8,10,16);ctx.fillRect(2,-8,10,16);ctx.fillStyle='#ffd15c';ctx.fillRect(-2,-9,4,18);ctx.restore();ctx.globalAlpha=1;return;}
       ctx.fillStyle = '#f0f0ff';
       ctx.beginPath();
       ctx.moveTo(0, -18);
@@ -4697,6 +4745,7 @@
       progress.questionWeights = QuestionManager.getWeightsSnapshot();
     }
 
+    let tacticalRethinkUsed=false;
     function startQuiz(forPowerup) {
       game.paused = true;
       quiz.index = 0;
@@ -4704,6 +4753,7 @@
       quiz.forPowerup = forPowerup;
       quiz.usedQuestions = [];
       quiz.questionCount = activeEvent.doubleQuestions ? 8 : 4;
+      tacticalRethinkUsed=false;
       document.getElementById('quizOverlay').classList.add('show');
       document.getElementById('quizResult').style.display = 'none';
       showQuestion();
@@ -4745,7 +4795,7 @@
         checkSamuraiUnlock();
       }
       else { btn.classList.add('wrong'); saveProgress(); }
-      setTimeout(() => { quiz.index++; showQuestion(); }, 1000);
+      const rethink=!correct&&!tacticalRethinkUsed&&window.AchievementManager?.hasBoost?.('shuriken-scholar_tactical_rethink');if(rethink){tacticalRethinkUsed=true;document.getElementById('quizNum').textContent='Tactical Rethink — replacement question';setTimeout(()=>showQuestion(),1000);}else setTimeout(() => { quiz.index++; showQuestion(); }, 1000);
     }
 
     function showQuizResult() {
@@ -5375,17 +5425,21 @@
 
       addShopItem(upgradesContainer, {id: 'powerup', name: '⭐ Starting Powerups', desc: 'Choose powerups before run', base: 100, mult: 1.6, owned: progress.powerupStart, canBuy: true});
 
-      if (progress.samuraiUnlocked) {
+      if (progress.samuraiUnlocked||shurikenSecret('secret_skeleton')||shurikenSecret('secret_glitch_aura')) {
         const charDiv = document.createElement('div');
         charDiv.className = 'shop-item';
         charDiv.innerHTML = `
           <div class="shop-header"><div class="shop-name">Shop weapons for:</div></div>
           <button class="shop-btn" id="shopCharNinja" style="margin-bottom:6px;">${progress.selectedCharacter === 'ninja' ? '✅ ' : ''}🥷 Ninja</button>
           <button class="shop-btn" id="shopCharSamurai">${progress.selectedCharacter === 'samurai' ? '✅ ' : ''}⚔️ Samurai</button>
+          ${shurikenSecret('secret_skeleton')?`<button class="shop-btn" id="shopCharSkeleton">${progress.selectedCharacter==='skeleton'?'✅ ':''}💀 Skeleton — Bone Path</button>`:''}
+          ${shurikenSecret('secret_glitch_aura')?`<button class="shop-btn" id="shopCharParadox">${progress.selectedCharacter==='paradox'?'✅ ':''}🌀 Paradox Scholar — Mixed Arsenal</button>`:''}
         `;
         upgradesContainer.appendChild(charDiv);
         document.getElementById('shopCharNinja').onclick = () => { progress.selectedCharacter = 'ninja'; renderShop(); };
         document.getElementById('shopCharSamurai').onclick = () => { progress.selectedCharacter = 'samurai'; renderShop(); };
+        if(document.getElementById('shopCharSkeleton'))document.getElementById('shopCharSkeleton').onclick=()=>{progress.selectedCharacter='skeleton';renderShop();};
+        if(document.getElementById('shopCharParadox'))document.getElementById('shopCharParadox').onclick=()=>{progress.selectedCharacter='paradox';renderShop();};
       }
 
       const weaponKeys = progress.selectedCharacter === 'samurai' ? SAMURAI_WEAPON_KEYS : NINJA_WEAPON_KEYS;
@@ -5400,8 +5454,8 @@
 
     function switchShopTab(tab) {
       document.querySelectorAll('.shop-tab-btn').forEach(btn => btn.classList.toggle('active-tab', btn.dataset.tab === tab));
-      document.querySelectorAll('.shop-tab-content').forEach(el => el.classList.remove('active'));
-      document.getElementById('shopTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+      document.querySelectorAll('.shop-tab-content').forEach(el => {el.classList.remove('active');el.hidden=true;});
+      const target=document.getElementById('shopTab' + tab.charAt(0).toUpperCase() + tab.slice(1));target.hidden=false;target.classList.add('active');
     }
 
     let shopReturnScreen = 'startOverlay';
@@ -5911,7 +5965,9 @@
       samuraiWalkTargetX = 400; samuraiWalkTargetY = 300;
       player.hp = 100; player.maxHp = 100;
       player.level = 1; player.exp = 0; player.kills = 0;
-      player.character = progress.selectedCharacter === 'samurai' && progress.samuraiUnlocked ? 'samurai' : 'ninja';
+      player.character = progress.selectedCharacter==='skeleton'&&shurikenSecret('secret_skeleton')?'skeleton':progress.selectedCharacter==='paradox'&&shurikenSecret('secret_glitch_aura')?'paradox':progress.selectedCharacter === 'samurai' && progress.samuraiUnlocked ? 'samurai' : 'ninja';
+      if(player.character==='skeleton'){player.maxHp=50;player.hp=50;}
+      if(player.character==='paradox'){player.maxHp=70;player.hp=70;}
 
       enemies = []; bullets = []; particles = []; enemyArrows = []; shadowTraps = []; darts = []; rootSpikes = [];
       smokeClouds = []; poisonPools = [];
@@ -5928,10 +5984,12 @@
       lastKatana = 0; lastNaginata = 0; lastBow = 0; lastServant = 0;
       shadowReady = true; servantReady = true;
       targetX = 401; targetY = 300;
+      secretWorldX=0;secretWorldY=0;
 
       upgrades.projSpeed = 5;
       upgrades.damage = 1;
       upgrades.cooldown = 900;
+      if(player.character==='paradox')upgrades.cooldown*=.72;
       if (pathLevel('shuriken', 'A') >= 1) upgrades.cooldown *= 0.9;
 
       upgrades.smokeUnlocked = wUnlocked('smoke');

@@ -23,6 +23,7 @@
 
   <button class="flipper-btn left" id="left-flip-btn">◄ Left</button>
   <button class="flipper-btn right" id="right-flip-btn">Right ►</button>
+  <button class="btn nudge-btn hidden" id="table-nudge-btn" type="button">✦ Nudge</button>
 
   <div id="game-over-overlay" class="hidden overlay-screen">
     <div class="box result-box">
@@ -46,6 +47,14 @@
         <div><span>Correct</span><strong id="home-correct">0</strong></div>
         <div><span>Games</span><strong id="home-games">0</strong></div>
       </div>
+
+      <section class="home-cosmetics-box" aria-labelledby="home-cosmetics-title">
+        <div>
+          <p class="section-label-font" id="home-cosmetics-title">Cosmetics</p>
+          <span>Equip your unlocked table, ball and effect rewards.</span>
+        </div>
+        <button class="btn" id="home-cosmetics-btn" type="button">✨ Open Cosmetics</button>
+      </section>
 
       <p class="section-label-font">Description</p>
       <div class="description-list">
@@ -73,7 +82,7 @@
     </div>
   </div>
 
-  <script src="../../shared/js/PlatformManager.js"></script>
+  <script src="../../shared/js/PlatformManager.js?v=20260811-achievement-reset-v5"></script>
   <script src="../../shared/js/QuestionManager.js"></script>
   <script src="game.js"></script>
 </body>

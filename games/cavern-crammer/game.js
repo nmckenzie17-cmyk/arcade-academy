@@ -213,9 +213,13 @@ const CHARACTERS = [
   { id:'ninja', name:'Ninja', tagline:'Silent blade', desc:'Starts with Dash already unlocked, lands soft (half knockback/fall damage). -1 max health.',
     gravityMult:1, speedMult:1, jumpMult:1, maxHealthDelta:-1, windImmune:false, startDash:true, magnetBonus:0, coinsSurvive:false, fallDamageMult:0.5, knockbackMult:0.6, hidden:true },
   { id:'king', name:'King', tagline:'Royal treasury', desc:'Passive coin magnet and coins always survive death. -10% jump height (heavy robes).',
-    gravityMult:1, speedMult:1, jumpMult:0.9, maxHealthDelta:0, windImmune:false, startDash:false, magnetBonus:30, coinsSurvive:true, fallDamageMult:1, knockbackMult:1, hidden:true }
+    gravityMult:1, speedMult:1, jumpMult:0.9, maxHealthDelta:0, windImmune:false, startDash:false, magnetBonus:30, coinsSurvive:true, fallDamageMult:1, knockbackMult:1, hidden:true },
+  {id:'skeleton',name:'Skeleton',tagline:'Light-footed revenant',desc:'Half health, double jump height, and collapsing ledges ignore you.',gravityMult:1,speedMult:1,jumpMult:2,maxHealthDelta:0,windImmune:false,startDash:false,magnetBonus:0,coinsSurvive:false,fallDamageMult:1,knockbackMult:1,secret:'secret_skeleton'},
+  {id:'riftwalker',name:'Riftwalker',tagline:'Reality skips a beat',desc:'Moves 35% faster, ignores wind and fall damage, but has only one health.',gravityMult:.8,speedMult:1.35,jumpMult:1.2,maxHealthDelta:-99,windImmune:true,startDash:true,magnetBonus:18,coinsSurvive:true,fallDamageMult:0,knockbackMult:.25,secret:'secret_glitch_aura'}
 ];
-function currentCharacter(){ return CHARACTERS.find(c=>c.id===save.character) || CHARACTERS[0]; }
+function cavernSecret(id){return typeof AchievementManager!=='undefined'&&AchievementManager.hasSecret?.(id);}
+function characterAvailable(c){return !c.hidden&&(!c.secret||cavernSecret(c.secret));}
+function currentCharacter(){const c=CHARACTERS.find(c=>c.id===save.character);return c&&characterAvailable(c)?c:CHARACTERS[0];}
 function applyCharacterStats(){
   const c = currentCharacter();
   session.charGravityMult = c.gravityMult;
@@ -350,7 +354,8 @@ const ZONES = [
     ground:'#5c2417', groundEdge:'#7a3520', walkway:'#8a4426', wall:'#6b2e1a', spike:'#ff8a3d',
     enemyHues:['#e0564f','#ff8a3d','#c0563f'], fallDamage:2, icy:false, trapMult:1.6, bossName:'Cinder Warden',
     frozenChance:0, hasWind:false, crumbleChance:0.7, heatingChance:0.35, growthChance:0,
-    ambientColor:'#ffb066', hillShape:'volcanic', texture:'ember', bossSpecial:'fire', verticalClimb:true }
+    ambientColor:'#ffb066', hillShape:'volcanic', texture:'ember', bossSpecial:'fire', verticalClimb:true },
+  ...(cavernSecret('secret_map_border')?[{name:'Astral Lost Ruin',bg:['#080d27','#11163d','#050817'],hill1:'#151b46',hill2:'#25285f',ground:'#34335f',groundEdge:'#d9b85f',walkway:'#625f91',wall:'#29294f',spike:'#74f4e8',enemyHues:['#f2d06b','#7ce8db','#ba82ff'],fallDamage:1,icy:false,trapMult:1.8,bossName:'The Ruin Cartographer',frozenChance:0,hasWind:true,crumbleChance:0.45,heatingChance:0,growthChance:0.2,ambientColor:'#ffe39a',hillShape:'round',texture:'moss',bossSpecial:'vines',verticalClimb:true}]:[])
 ];
 function getZoneIndex(li){ return Math.floor(li/(ZONE_LENGTH+1)); }
 function getPositionInZone(li){ return li%(ZONE_LENGTH+1); }
@@ -818,7 +823,9 @@ function startLevel(idx){
   } else {
     document.getElementById('levelLabel').textContent = 'RUIN ' + (getPositionInZone(idx)+1) + ' · ' + zone.name;
   }
-  player.maxHealth = Math.max(1, 3 + save.upgrades.maxHealthBonus + currentCharacter().maxHealthDelta);
+  const reinforcedStep = typeof AchievementManager!=='undefined' && AchievementManager.hasBoost('cavern-crammer_reinforced_step');
+  player.maxHealth = Math.max(1, 3 + save.upgrades.maxHealthBonus + currentCharacter().maxHealthDelta + (reinforcedStep?1:0));
+  if(currentCharacter().id==='skeleton')player.maxHealth=Math.max(1,Math.ceil(player.maxHealth*.5));
   player.health = player.maxHealth;
   player.x = level.spawn.x; player.y = level.spawn.y; player.vx=0; player.vy=0;
   player.pounding=false; player.dashTimer=0; player.dashCooldown=0; player.hoverFuel=0; player.airDashUsed=0;
@@ -1452,11 +1459,11 @@ function collideY(){
       if(player.vy>0){
         player.y = p.y-player.h; player.vy=0; landed=true;
         player.jumpsUsed=0; player.coyote=COYOTE_MAX; player.standingPlatform=p;
-        if(p.crumble && p.crumbleTimer===undefined) p.crumbleTimer = 22;
+        if(p.crumble && p.crumbleTimer===undefined && currentCharacter().id!=='skeleton') p.crumbleTimer = 22;
         if(p.heats && !p.onFire && p.coolTimer<=0 && p.heatTimer===undefined) p.heatTimer = 42;
       } else if(player.vy<0){
         player.y = p.y+p.h; player.vy=0;
-        if(p.crumble && p.crumbleTimer===undefined) p.crumbleTimer = 16;
+        if(p.crumble && p.crumbleTimer===undefined && currentCharacter().id!=='skeleton') p.crumbleTimer = 16;
       }
     }
   }
@@ -1655,6 +1662,7 @@ function damagePlayer(n, silent){
 
 function onEnemyDefeated(){
   session.stats.enemiesDefeated++;
+  window.AchievementManager?.notify?.('enemy_defeated',{x:player.x-camX,y:player.y-camY});
   if(session.curseGlassCannon) addCoins(1);
   if(session.curseVampiric) player.health = Math.min(player.maxHealth, player.health+1);
 }
@@ -1929,10 +1937,13 @@ function updateFlags(){
 }
 
 /* ============================= RENDER ============================= */
+function cavernReward(slot){ return typeof AchievementManager!=='undefined' ? AchievementManager.getEquipped('cavern-crammer')[slot] : null; }
 function drawBackground(){
   const z = level && level.zone ? level.zone : ZONES[0];
   const grad = ctx.createLinearGradient(0,0,0,VH);
-  grad.addColorStop(0,z.bg[0]); grad.addColorStop(0.6,z.bg[1]); grad.addColorStop(1,z.bg[2]);
+  const deepCrystal=cavernReward('theme')?.id==='cavern-crammer_deep_crystal_explorer';
+  const wildWest=cavernReward('world')?.id==='cavern-crammer_wild_west_hazards';
+  grad.addColorStop(0,deepCrystal?'#07182f':wildWest?'#5b2414':z.bg[0]); grad.addColorStop(0.6,deepCrystal?'#163760':wildWest?'#b15b2d':z.bg[1]); grad.addColorStop(1,deepCrystal?'#32165d':wildWest?'#e29b52':z.bg[2]);
   ctx.fillStyle = grad; ctx.fillRect(0,0,VW,VH);
 
   drawHillLayer(z.hill1, camX*0.25, 140, 150, 50, z.hillShape);
@@ -1963,6 +1974,16 @@ function drawBackground(){
     ctx.fillRect(fx,fy,size,size);
   }
   ctx.globalAlpha=1;
+  if(deepCrystal){
+    ctx.save();
+    // Layered crystal walls, faceted clusters and slow moving shafts of refracted light.
+    const shimmer=.55+.45*Math.sin(time*1.4);ctx.globalAlpha=.16+.1*shimmer;
+    for(let i=0;i<5;i++){const bx=(i*137-camX*.08)%(VW+180)-90;const beam=ctx.createLinearGradient(bx,0,bx+90,VH);beam.addColorStop(0,'rgba(120,250,255,.85)');beam.addColorStop(1,'rgba(135,70,255,0)');ctx.fillStyle=beam;ctx.beginPath();ctx.moveTo(bx,0);ctx.lineTo(bx+32,0);ctx.lineTo(bx+125,VH);ctx.lineTo(bx+82,VH);ctx.fill();}
+    ctx.globalAlpha=.48;for(let i=0;i<12;i++){const x=(i*101-camX*.16)%(VW+120)-40,base=145+(i%3)*12,h=28+(i*17)%48,w=8+(i%4)*3;ctx.fillStyle=i%3===0?'#64f4ff':i%3===1?'#a56cff':'#4c8fff';ctx.beginPath();ctx.moveTo(x,base);ctx.lineTo(x+w*.45,base-h);ctx.lineTo(x+w,base);ctx.closePath();ctx.fill();ctx.fillStyle='rgba(235,255,255,.72)';ctx.beginPath();ctx.moveTo(x+w*.45,base-h);ctx.lineTo(x+w*.45,base-4);ctx.lineTo(x+w*.7,base);ctx.closePath();ctx.fill();}
+    ctx.globalAlpha=.7;for(let i=0;i<18;i++){const x=(i*83-camX*.12)%(VW+80)-30,y=24+(i*41)%128,s=7+(i%4)*3;ctx.fillStyle=i%2?'#7ff7ff':'#c47dff';ctx.beginPath();ctx.moveTo(x,y-s);ctx.lineTo(x+s*.6,y);ctx.lineTo(x,y+s);ctx.lineTo(x-s*.6,y);ctx.fill();ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillRect(x-1,y-s+3,2,Math.max(2,s*.45));}
+    ctx.globalAlpha=.25+.2*shimmer;ctx.strokeStyle='#b6ffff';ctx.lineWidth=1;for(let y=34;y<170;y+=27){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(VW,y+Math.sin(time+y)*4);ctx.stroke();}
+    ctx.restore();
+  }
 }
 
 function drawHillLayer(color, scrollX, period, baseY, riseH, shape){
@@ -2208,7 +2229,8 @@ function drawPlatforms(){
   });
 }
 function drawSpikes(){
-  ctx.fillStyle = (level.zone ? level.zone.spike : '#c94a44');
+  const western=cavernReward('world')?.id==='cavern-crammer_wild_west_hazards';
+  ctx.fillStyle = western ? '#4b8a36' : (level.zone ? level.zone.spike : '#c94a44');
   level.spikes.forEach(sp=>{
     const sx = sp.x-camX, sy = sp.y-camY;
     if(sx+sp.w<0||sx>VW||sy+sp.h<0||sy>VH) return;
@@ -2220,19 +2242,21 @@ function drawSpikes(){
       ctx.lineTo(sx+i*tw+tw/2, sy);
       ctx.lineTo(sx+i*tw+tw, sy+sp.h);
       ctx.closePath(); ctx.fill();
+      if(western){ctx.fillStyle='#8fd36b';ctx.fillRect(sx+i*tw+tw*.45,sy+sp.h*.34,1,sp.h*.45);ctx.fillStyle='#4b8a36';}
     }
   });
 }
 function drawCoins(){
+  const silver=cavernReward('coins')?.id==='cavern-crammer_silver_cavern_coins';
   level.coins.forEach(c=>{
     if(c.collected) return;
     const sx = c.x-camX, sy = c.y-camY;
     if(sx<-10||sx>VW+10||sy<-10||sy>VH+10) return;
     const bob = Math.sin(c.phase)*2;
     const w = 6+Math.sin(c.phase*1.3)*2;
-    ctx.fillStyle = '#f2b84b';
+    ctx.fillStyle = silver ? '#aebdca' : '#f2b84b';
     ctx.fillRect(sx-w/2, sy+bob-3, w, 6);
-    ctx.fillStyle = '#fff3c9';
+    ctx.fillStyle = silver ? '#f2fbff' : '#fff3c9';
     ctx.fillRect(sx-1, sy+bob-2, 1,1);
   });
 }
@@ -2620,11 +2644,33 @@ function drawHat(topY){
 
 function drawPlayer(){
   if(player.invincTimer>0 && Math.floor(player.invincTimer/4)%2===0) return;
-  const ch = save.character;
-  if(ch==='astronaut') drawPlayerAstronaut();
+  const relic=cavernReward('companion')?.id==='cavern-crammer_rocket_recall_relic';
+  const orbitTime=performance.now()/650,orbitDepth=Math.sin(orbitTime);
+  if(relic&&orbitDepth<0)drawRocketRelic(orbitTime,orbitDepth);
+  const ch = typeof AchievementManager!=='undefined'&&AchievementManager.getEquipped('cavern-crammer').skin?.id==='cavern-crammer_ninja_outfit' ? 'ninja' : save.character;
+  if(ch==='skeleton') drawPlayerSkeleton();
+  else if(ch==='riftwalker') drawPlayerRiftwalker();
+  else if(ch==='astronaut') drawPlayerAstronaut();
   else if(ch==='ninja') drawPlayerNinja();
   else if(ch==='king') drawPlayerKing();
   else drawPlayerWisp();
+  const trail=cavernReward('trail');
+  if(trail?.id==='cavern-crammer_gem_spark_jump_trail'&&!player.onGround){
+    const t=performance.now()/90;for(let i=0;i<5;i++){const x=player.x-camX+player.w/2-Math.sin(t+i)*10-i*3,y=player.y-camY+player.h+((t*2+i*7)%18);ctx.fillStyle=['#67f5ff','#d66bff','#fff3a0'][i%3];ctx.fillRect(Math.round(x),Math.round(y),i%2?2:3,i%2?2:3);}
+  }
+  if(relic&&orbitDepth>=0)drawRocketRelic(orbitTime,orbitDepth);
+}
+
+function drawPlayerSkeleton(){
+  const cx=Math.round(player.x-camX+player.w/2),y=Math.round(player.y-camY),step=Math.round(Math.sin(player.walkAnim)*2);ctx.save();ctx.translate(cx,0);ctx.scale(player.facing,1);ctx.fillStyle='#efe8d0';ctx.fillRect(-5,y,10,8);ctx.fillStyle='#17131f';ctx.fillRect(-3,y+2,2,2);ctx.fillRect(2,y+2,2,2);ctx.fillRect(-1,y+6,2,1);ctx.fillStyle='#d9d0b7';ctx.fillRect(-2,y+8,4,7);ctx.fillRect(-6,y+9,4,2);ctx.fillRect(2,y+9,4,2);ctx.fillRect(-5+step,y+15,3,4);ctx.fillRect(2-step,y+15,3,4);ctx.fillStyle='#17131f';ctx.fillRect(-1,y+10,2,1);ctx.fillRect(-1,y+13,2,1);ctx.restore();
+}
+function drawPlayerRiftwalker(){const cx=Math.round(player.x-camX+player.w/2),y=Math.round(player.y-camY),p=.55+.45*Math.sin(performance.now()/130);ctx.save();ctx.globalAlpha=.35;ctx.fillStyle='#ff54ca';ctx.fillRect(cx-10-player.vx*2,y+2,20,15);ctx.globalAlpha=1;ctx.fillStyle='#101329';ctx.fillRect(cx-7,y,14,18);ctx.fillStyle='#56f5ff';ctx.fillRect(cx-8,y+3,16,3);ctx.globalAlpha=p;ctx.fillStyle='#ffdb62';ctx.fillRect(cx-4,y+8,8,7);ctx.fillStyle='#56f5ff';ctx.fillRect(cx-11,y+17,7,3);ctx.fillRect(cx+4,y+17,7,3);ctx.restore();}
+
+function drawRocketRelic(t,depth){
+  const cx=player.x-camX+player.w/2+Math.cos(t)*24,cy=player.y-camY+player.h*.52+depth*4;
+  const scale=.48+(depth+1)*.26;
+  ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);ctx.globalAlpha=.58+(depth+1)*.21;ctx.rotate(-.15*Math.cos(t));
+  ctx.fillStyle='#26334d';ctx.fillRect(-8,-4,15,8);ctx.fillStyle='#dce9f3';ctx.fillRect(-6,-3,11,6);ctx.fillStyle='#76efff';ctx.fillRect(-3,-2,4,3);ctx.fillStyle='#ff5b55';ctx.fillRect(5,-5,4,10);ctx.fillStyle='#ffd15c';ctx.fillRect(-10,-2,4,4);ctx.fillStyle='rgba(101,232,255,.7)';ctx.fillRect(-14,-1,4,2);ctx.restore();
 }
 
 function drawPlayerWisp(){
@@ -3031,10 +3077,10 @@ function renderCharGrid(){
   grid.innerHTML = '';
   // Safety net: if a save has a now-hidden character selected (e.g. from before this
   // change), fall back to Wisp rather than leaving an unselectable character active.
-  if(!CHARACTERS.some(c=>c.id===save.character && !c.hidden)){
+  if(!CHARACTERS.some(c=>c.id===save.character && characterAvailable(c))){
     save.character = 'wisp'; saveDirty=true; persistSave();
   }
-  CHARACTERS.filter(c=>!c.hidden).forEach(c=>{
+  CHARACTERS.filter(characterAvailable).forEach(c=>{
     const active = save.character === c.id;
     const div = document.createElement('div');
     div.className = 'shopItem';

@@ -69,6 +69,11 @@
   let practiceTimerId = null;
   const PLATFORM_SCRIPT_URL = typeof document !== 'undefined' ? document.currentScript?.src : null;
 
+  function achievementEvent(name, payload) {
+    if (practiceMode) return;
+    if (global.AchievementManager) global.AchievementManager.notify(name, payload);
+  }
+
   // ---- date helpers --------------------------------------------------
 
   function todayString() {
@@ -353,6 +358,7 @@
     data.class = preservedClass;
     data.activity.syncedUid = preservedUid;
     save();
+    global.AchievementManager?.reset?.();
     queueStatsSave();
     return true;
   }
@@ -626,6 +632,7 @@
     markDirty();
     save();
     queueStatsSave([gameId]);
+    achievementEvent('game_started', { facts: { sessions: data.sessions.totalSessions } });
   }
 
   // Folds the in-progress session's elapsed time into `data` without
@@ -658,6 +665,7 @@
     currentSession = null;
     save();
     queueStatsSave([endedGameId]);
+    achievementEvent('run_completed');
   }
 
   // Call every frame/tick with whether the player is actively playing right
@@ -708,16 +716,20 @@
     return data.coins.balance;
   }
 
-  function addCoins(amount) {
+  function addCoins(amount, options) {
     if (practiceMode) return data.coins.balance;
-    const n = Math.max(0, Math.floor(Number(amount) || 0));
+    const base = Math.max(0, Math.floor(Number(amount) || 0));
+    const n = global.AchievementManager?.hasSecret?.('secret_lucky_badge')
+      ? Math.floor(base * 1.5)
+      : base;
     if (n > 0) {
       data.coins.balance += n;
-      data.coins.totalEarned += n;
+      if (options?.countsTowardLifetime !== false) data.coins.totalEarned += n;
       touchActivity();
       save();
       if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting += n;
       queueStatsSave();
+      achievementEvent('coins_earned', { amount: n });
     }
     return data.coins.balance;
   }
@@ -802,6 +814,7 @@
     touchActivity();
     save();
     queueStatsSave(gameId ? [gameId] : undefined);
+    achievementEvent('question_answered', { correct: !!wasCorrect });
   }
 
   function recordMultiplayerResult(gameId, result) {
@@ -817,6 +830,8 @@
     touchActivity();
     save();
     queueStatsSave([gameId]);
+    achievementEvent('multiplayerMatches');
+    if (result === 'win') achievementEvent('multiplayerWins');
     return true;
   }
 
@@ -833,6 +848,7 @@
       touchActivity();
       save();
       queueStatsSave([gameId]);
+      achievementEvent('personal_best');
     }
   }
 
@@ -901,6 +917,10 @@
   async function setClassCode(code) {
     const trimmed = (typeof code === 'string') ? code.trim().toLowerCase() : '';
     if (!trimmed) return false;
+
+    if(trimmed==='mr mckenzie'&&global.AchievementManager?.hasSecret?.('secret_cabinet_pet')){
+      data.class.code='Mr Mckenzie';data.class.subject='Secret Cabinet';data.class.bankPath=null;data.class.bank=null;markDirty();save();global.AchievementManager.applyEquipped?.();return true;
+    }
 
     try {
       const banksIndex = await loadBanksIndex();
@@ -1027,6 +1047,9 @@
       draws: normalizeCount(g.draws),
       percentageCorrect: pct(g.correct, g.questionsAnswered),
       lastPlayed: g.lastPlayed,
+      practiceUsedAt: g.practiceUsedAt != null && Number.isFinite(Number(g.practiceUsedAt))
+        ? Number(g.practiceUsedAt)
+        : null,
       currentSessionStartTime: isCurrent ? currentSession.startedAt : null
     };
   }
@@ -1085,6 +1108,22 @@
     getFavouriteGame
   };
 
+  // AchievementManager is shared by every game and hooks the platform events
+  // above. Loading it here prevents each game from growing its own save format.
+  if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && !global.AchievementManager && /\/games\//.test(location.pathname)) {
+    const achievementScript = document.createElement('script');
+    const achievementUrl = new URL('AchievementManager.js', PLATFORM_SCRIPT_URL);
+    achievementUrl.searchParams.set('v','20260811-achievement-reset-v5');
+    achievementScript.src = achievementUrl.href;
+    achievementScript.defer = true;
+    document.head.appendChild(achievementScript);
+    global.addEventListener('arcade-achievement-manager-ready', async () => {
+      if (!firebaseUid) return;
+      const profile = await global.FirebaseManager?.getUserProfile?.(firebaseUid);
+      global.AchievementManager?.connect?.(firebaseUid, profile?.achievementSystem);
+    }, { once: true });
+  }
+
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installPracticeButton);
     else installPracticeButton();
@@ -1097,9 +1136,15 @@
     import(firebaseManagerUrl)
       .then(() => {
         if (!global.FirebaseManager) return;
-        global.FirebaseManager.watchAuthState(user => {
-          if (user) connectFirebase(user.uid);
-          else disconnectFirebase();
+        global.FirebaseManager.watchAuthState(async user => {
+          if (user) {
+            await connectFirebase(user.uid);
+            const profile = await global.FirebaseManager.getUserProfile?.(user.uid);
+            global.AchievementManager?.connect?.(user.uid, profile?.achievementSystem);
+          } else {
+            disconnectFirebase();
+            global.AchievementManager?.disconnect?.();
+          }
         });
       })
       .catch(error => console.error('Unable to start Firebase coin sync:', error));

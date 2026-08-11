@@ -23,7 +23,20 @@
   let gateInitialising = false;
   let isSinglePlayer = false;
   let aiThinking = false;
+  let secondThoughtUsed = false;
+  let celebratedRound = null;
   const claimingRounds = new Set();
+  function tttReward(slot){ return typeof AchievementManager!=='undefined' ? AchievementManager.getEquipped(GAME_ID)[slot] : null; }
+  function tttBoost(id){ return typeof AchievementManager!=='undefined'&&AchievementManager.hasBoost(id); }
+  function applyCosmetics(){
+    const root=document.documentElement,e=typeof AchievementManager!=='undefined'?AchievementManager.getEquipped(GAME_ID):{};
+    ['holographic','gemstone','chalk','tanks','quantum'].forEach(n=>root.classList.remove('ttt-'+n));
+    if(e.board?.id==='tic-tac-toe_holographic_board')root.classList.add('ttt-holographic');
+    if(e.pieces?.id==='tic-tac-toe_gemstone_pieces')root.classList.add('ttt-gemstone');
+    if(e.theme?.id==='tic-tac-toe_classroom_chalk')root.classList.add('ttt-chalk');
+    if(e.board?.id==='tic-tac-toe_thinking_tanks_grid')root.classList.add('ttt-tanks');
+    if(e.pieces?.id==='tic-tac-toe_quantum_noughts')root.classList.add('ttt-quantum');
+  }
 
   function showScreen(name) {
     screens.forEach(screen => { byId(`${screen}-screen`).hidden = screen !== name; });
@@ -45,6 +58,7 @@
   async function init() {
     buildBoard();
     bindEvents();
+    applyCosmetics();window.addEventListener('arcade-progression-changed',applyCosmetics);
     try {
       await MultiplayerManager.initialiseAuth();
       player = await MultiplayerManager.requirePlayer();
@@ -91,6 +105,7 @@
     setBusy(button, true, 'Calibrating…', 'Play Computer');
     setMessage('menu-error');
     try {
+      secondThoughtUsed=false;celebratedRound=null;
       const questionType = await loadQuestions();
       match = await SinglePlayerManager.createMatch(GAME_ID, { ...EMPTY_STATE(), turnGate: { uid: player.uid, status: 'pending', nonce: `1-${Date.now()}` } }, { questionType }, byId('ai-difficulty').value);
       isSinglePlayer = true;
@@ -247,6 +262,7 @@
   }
 
   function renderMatch() {
+    applyCosmetics();
     const board = Array.isArray(match.gameState?.board) ? match.gameState.board : Array(9).fill(null);
     const isPlayerOne = match.player1.uid === player.uid;
     const mySymbol = isPlayerOne ? 'X' : 'O';
@@ -258,7 +274,8 @@
 
     byId('board').querySelectorAll('.cell').forEach((cell, index) => {
       const value = board[index];
-      cell.textContent = value || '';
+      const pieceReward=tttReward('pieces')?.id;
+      cell.innerHTML = value==='O'&&pieceReward==='tic-tac-toe_quantum_noughts'?'<span class="quantum-o"><i></i></span>':value&&pieceReward==='tic-tac-toe_gemstone_pieces'?`<span class="gem-piece ${value.toLowerCase()}">${value}</span>`:(value || '');
       cell.className = `cell${value ? ` ${value.toLowerCase()}` : ''}${match.gameState?.winningLine?.includes(index) ? ' winning' : ''}`;
       cell.setAttribute('aria-label', value ? `Square ${index + 1}: ${value}` : `Square ${index + 1}: empty`);
       cell.disabled = match.status !== 'playing' || match.currentTurn !== player.uid || Boolean(value);
@@ -280,6 +297,7 @@
         : `Opponent's Turn · You are ${mySymbol}`);
     } else if (match.status === 'finished') {
       setMessage('turn-status', match.winner === 'draw' ? 'DRAW' : match.winner === player.uid ? 'YOU WIN!' : 'YOU LOSE');
+      if(match.gameState?.winningLine?.length&&celebratedRound!==match.round&&tttReward('winEffect')?.id==='tic-tac-toe_confetti_line_win'){celebratedRound=match.round;launchWinConfetti(match.gameState.winningLine);}
     }
     setMessage('match-error');
   }
@@ -328,6 +346,7 @@
   async function answerTurnQuestion(correct) {
     byId('question-options').querySelectorAll('button').forEach(button => { button.disabled = true; });
     MultiplayerQuestionHelper.record(activeQuestion, correct);
+    if(!correct&&isSinglePlayer&&!secondThoughtUsed&&tttBoost('tic-tac-toe_second_thought')){secondThoughtUsed=true;setMessage('question-feedback','Second Thought saved your turn — try a new question!');activeQuestionNonce=null;setTimeout(manageTurnQuestion,500);return;}
     setMessage('question-feedback', correct ? 'Correct — take your turn!' : 'Incorrect — your turn is skipped.');
     try {
       await submitHumanMove((fresh, uid) => {
@@ -388,8 +407,10 @@
     }
   }
 
-  function submitHumanMove(changes) {
-    return isSinglePlayer ? SinglePlayerManager.applyMove(player.uid, changes) : MultiplayerManager.submitMove(match.id, changes);
+  async function submitHumanMove(changes) {
+    const updated=isSinglePlayer ? await SinglePlayerManager.applyMove(player.uid, changes) : await MultiplayerManager.submitMove(match.id, changes);
+    if(!isSinglePlayer&&updated)await handleMatchChange(updated);
+    return updated;
   }
 
   function scoreBoard(board, aiSymbol, humanSymbol, aiTurn, depth) {
@@ -453,6 +474,7 @@
   async function requestRematch() {
     if (!match) return;
     if (isSinglePlayer) {
+      secondThoughtUsed=false;celebratedRound=null;
       const starter = match.startingPlayerUid === match.player1.uid ? match.player2.uid : match.player1.uid;
       SinglePlayerManager.rematch({ ...EMPTY_STATE(), turnGate: starter === player.uid ? { uid:player.uid, status:'pending', nonce:`${match.round + 1}-${Date.now()}` } : null });
       return;
@@ -464,6 +486,10 @@
       byId('rematch-btn').disabled = false;
       setMessage('match-error', 'Could not request a rematch. Please try again.');
     }
+  }
+
+  function launchWinConfetti(line){
+    const board=byId('board');line.forEach(index=>{const r=board.children[index].getBoundingClientRect();for(let i=0;i<14;i++){const p=document.createElement('i');p.className='ttt-confetti';p.style.left=(r.left+r.width/2)+'px';p.style.top=(r.top+r.height/2)+'px';p.style.background=['#4de8ff','#ff4f9a','#fff36d','#a970ff'][i%4];p.style.setProperty('--x',((i%7)-3)*22+'px');p.style.setProperty('--y',(-35-(i%5)*18)+'px');document.body.appendChild(p);setTimeout(()=>p.remove(),900);}});
   }
 
   async function leaveMatch() {

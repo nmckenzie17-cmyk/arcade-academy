@@ -338,6 +338,13 @@ button:disabled:hover {
     align-items: center;
 }
 
+/* Permanent upgrades are intentionally a single, readable roadmap. */
+#gameOverShopUpgrades {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .upgrade-item.cant-afford {
     background: rgba(231, 76, 60, 0.08);
     border-color: var(--red-damage);

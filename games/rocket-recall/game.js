@@ -11,6 +11,13 @@
 
         // Top border that aliens can't spawn past (highest/most-negative allowed spawn Y).
         const TOP_BORDER = -250;
+        function rocketCosmetic(id){return typeof AchievementManager!=='undefined'&&Object.values(AchievementManager.getEquipped('rocket-recall')).some(r=>r?.id===id);}
+        let secretRocketCharacter=localStorage.getItem('rocketSecretCharacter')||'fighter';
+        function isRocketCharacter(id){return secretRocketCharacter===id;}
+        function setRocketCharacter(id){secretRocketCharacter=id;localStorage.setItem('rocketSecretCharacter',id);renderSecretRocketCharacters();}
+        function renderSecretRocketCharacters(){const host=document.getElementById('gameOverShopUpgrades');if(!host)return;document.getElementById('secretRocketCharacters')?.remove();const choices=[['fighter','Academy Fighter','Standard controls.'],...(window.AchievementManager?.hasSecret?.('secret_skeleton')?[['bone','Bone Revenant','Half hull, bone ammunition and alien resurrection.']]:[]),...(window.AchievementManager?.hasSecret?.('secret_glitch_aura')?[['phase','Phase Weaver','40% faster, wraps across screen edges and fires dimensional side shots.']]:[])];if(choices.length<2)return;const box=document.createElement('div');box.id='secretRocketCharacters';box.className='shop-item';box.innerHTML='<p class="shop-name">Secret Ships</p>'+choices.map(c=>`<button class="shop-btn" data-character="${c[0]}" style="width:100%;margin:4px 0">${isRocketCharacter(c[0])?'✅ ':''}${c[1]} — ${c[2]}</button>`).join('');host.prepend(box);box.querySelectorAll('[data-character]').forEach(b=>b.onclick=()=>setRocketCharacter(b.dataset.character));}
+        window.addEventListener('arcade-achievement-manager-ready',()=>{if(document.getElementById('shopScreen')?.style.display==='block')renderSecretRocketCharacters();});
+        window.addEventListener('arcade-progression-changed',()=>{if(document.getElementById('shopScreen')?.style.display==='block')renderSecretRocketCharacters();});
 
         // Definitions for the run-specific bonus power-ups (see POWERUP_DEFS below the game object).
         // Main game object
@@ -45,6 +52,7 @@
             lastBossType: -1,
             powerups: [],
             orbitBlades: [],
+            necromancerAllies: [],
             
             // Enemy defeat tracking
             enemiesDefeatedThisRun: 0,
@@ -291,7 +299,7 @@
                 const shipSpeedMultiplier = 1 + (game.permanentUpgrades.shipSpeed * 0.1);
                 const twinBarrelLevel = game.runPowerups.twinBarrelCurse || 0;
                 const twinBarrelPenalty = Math.max(0.4, 1 - twinBarrelLevel * 0.15);
-                return game.baseSpeed * shipSpeedMultiplier * (1 + thrusterLevel * 0.1) * twinBarrelPenalty;
+                return game.baseSpeed * shipSpeedMultiplier * (1 + thrusterLevel * 0.1) * twinBarrelPenalty*(isRocketCharacter('phase')?1.4:1);
             }
 
             update() {
@@ -310,6 +318,7 @@
                     
                     this.x = Math.max(0, Math.min(game.width - this.width, this.x));
                 }
+                if(isRocketCharacter('phase')){if(this.x<=0)this.x=game.width-this.width-2;else if(this.x>=game.width-this.width)this.x=2;}
                 else {
                     if (game.keys['ArrowLeft'] || game.keys['a'] || game.keys['A']) {
                         this.x = Math.max(0, this.x - this.speed);
@@ -350,7 +359,7 @@
                     currentFireRate = currentFireRate / 3;
                 }
                 
-                if (now - game.lastShot > currentFireRate && game.ammo > 0 &&
+                if (!window.AchievementManager?.hasSecret?.('secret_map_border') && now - game.lastShot > currentFireRate && game.ammo > 0 &&
                     !(game.fireJammedUntil && now < game.fireJammedUntil)) {
                     if (this.shoot()) {
                         game.lastShot = now;
@@ -378,6 +387,11 @@
                 }
 
                 const baseType = specs[0].type;
+                // Two at Once is a free second forward barrel; it never increases ammo cost.
+                if (window.AchievementManager?.hasSecret?.('secret_twin_shot')) {
+                    specs.push({dx: 12, dir: 0, type: baseType});
+                }
+                if(isRocketCharacter('phase')){specs.push({dx:-18,dir:-1.25,type:baseType});specs.push({dx:18,dir:1.25,type:baseType});}
 
                 // Extra Shot (Forward): parallel shots beside existing ones
                 const fwdLevel = game.runPowerups.extraShotForward || 0;
@@ -529,17 +543,18 @@
                     ? `rgb(${Math.round(102 + hullSaturation * 40)}, ${Math.round(102 + hullSaturation * 90)}, ${Math.round(102 + hullSaturation * 40)})`
                     : '#666666';
 
+                const stealth=rocketCosmetic('rocket-recall_stealth_temple_fighter'),western=rocketCosmetic('rocket-recall_wild_west_fighter'),voidShip=rocketCosmetic('rocket-recall_void_vanguard'),boneShip=isRocketCharacter('bone');
                 const colors = {
-                    '#': hullColor,
-                    'F': '#00ccff',
-                    'B': '#0066cc',
-                    'Q': '#ffff00',
-                    'M': '#ff0066',
-                    'Y': '#ffcc00',
-                    'A': '#ff6600',
-                    'E': '#ff0000',
-                    'U': '#00ff00',
-                    'X': '#00ff00',
+                    '#': stealth?'#12151b':voidShip?'#21113f':western?'#7a4a22':hullColor,
+                    'F': stealth?'#cbd5e1':voidShip?'#9c6bff':western?'#f2c26b':'#00ccff',
+                    'B': stealth?'#343b46':voidShip?'#3a176b':western?'#3d2515':'#0066cc',
+                    'Q': stealth?'#e8edf2':voidShip?'#66f7ff':western?'#fff0aa':'#ffff00',
+                    'M': stealth?'#8b1d2c':voidShip?'#f04cff':western?'#bd3d2d':'#ff0066',
+                    'Y': stealth?'#8b1d2c':voidShip?'#66f7ff':western?'#e5a845':'#ffcc00',
+                    'A': stealth?'#d9e0e8':voidShip?'#7b45db':western?'#e87831':'#ff6600',
+                    'E': stealth?'#64748b':voidShip?'#17072f':western?'#7d251b':'#ff0000',
+                    'U': stealth?'#d6dde7':voidShip?'#e9d4ff':western?'#f1c75b':'#00ff00',
+                    'X': stealth?'#d6dde7':voidShip?'#e9d4ff':western?'#f1c75b':'#00ff00',
                     'T': '#ffaa33'
                 };
                 
@@ -552,6 +567,12 @@
                         }
                     }
                 }
+                if(boneShip){game.ctx.save();game.ctx.strokeStyle='#f1ead3';game.ctx.fillStyle='#f1ead3';game.ctx.lineWidth=6;game.ctx.lineCap='round';const cx=px+this.width/2,cy=py+this.height/2;game.ctx.beginPath();game.ctx.moveTo(cx,py+5);game.ctx.lineTo(cx,py+this.height-5);game.ctx.moveTo(px+8,cy);game.ctx.lineTo(px+this.width-8,cy);game.ctx.moveTo(px+14,py+12);game.ctx.lineTo(px+this.width-14,py+this.height-10);game.ctx.moveTo(px+this.width-14,py+12);game.ctx.lineTo(px+14,py+this.height-10);game.ctx.stroke();for(const [bx,by] of [[cx,py+7],[cx,py+this.height-7],[px+10,cy],[px+this.width-10,cy]]){game.ctx.beginPath();game.ctx.arc(bx,by,5,0,Math.PI*2);game.ctx.fill();}game.ctx.restore();}
+                if(isRocketCharacter('phase')){const pulse=.3+.35*Math.sin(Date.now()/100);game.ctx.save();game.ctx.globalAlpha=.55;game.ctx.strokeStyle='#54f5ff';game.ctx.lineWidth=4;game.ctx.strokeRect(px-7-pulse*10,py+8,this.width+14+pulse*20,this.height-16);game.ctx.strokeStyle='#ff4fc8';game.ctx.beginPath();game.ctx.moveTo(px-18,py+this.height/2);game.ctx.lineTo(px+this.width+18,py+this.height/2);game.ctx.stroke();game.ctx.restore();}
+                if(stealth){game.ctx.fillStyle='#8b1d2c';game.ctx.fillRect(px-7,py+28,12,4);game.ctx.fillRect(px+this.width-5,py+28,12,4);game.ctx.fillStyle='#111';game.ctx.beginPath();game.ctx.moveTo(px+this.width/2-20,py+8);game.ctx.lineTo(px+this.width/2,py-12);game.ctx.lineTo(px+this.width/2+20,py+8);game.ctx.fill();}
+                if(western){game.ctx.fillStyle='#f6cf61';game.ctx.save();game.ctx.translate(px+this.width/2,py+31);game.ctx.rotate(Date.now()/1300);game.ctx.beginPath();for(let i=0;i<10;i++){const r=i%2?5:11,a=i*Math.PI/5;game.ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}game.ctx.closePath();game.ctx.fill();game.ctx.restore();}
+                if(rocketCosmetic('rocket-recall_twin_ion_trail')){const phase=(Date.now()/18)%56,pulse=.55+.4*Math.sin(Date.now()/120);for(let i=0;i<8;i++){const travel=(phase+i*9)%64,a=pulse*(1-travel/76);game.ctx.fillStyle=`rgba(70,235,255,${a})`;game.ctx.fillRect(px+18,py+this.height+travel,6,10);game.ctx.fillStyle=`rgba(180,90,255,${a})`;game.ctx.fillRect(px+this.width-24,py+this.height+travel,6,10);}}
+                if(rocketCosmetic('rocket-recall_jetpack_journey_escort')){const ex=px-34+Math.sin(Date.now()/350)*4,ey=py+18+Math.cos(Date.now()/420)*6;game.ctx.fillStyle='#4c2f7a';game.ctx.fillRect(ex,ey,18,22);game.ctx.fillStyle='#ffd15c';game.ctx.fillRect(ex+5,ey-6,9,8);game.ctx.fillStyle='#00d4ff';game.ctx.fillRect(ex+17,ey+8,6,8);game.ctx.fillStyle='#ff6b3d';game.ctx.fillRect(ex+19,ey+17,4,10);}
 
                 // Thruster particle effect, grows with Stronger Thrusters level
                 if (this.thrusting) {
@@ -761,6 +782,8 @@
             }
 
             draw() {
+                if(!this.isFragment&&isRocketCharacter('bone')){const cx=this.x+this.width/2,cy=this.y+this.height/2;game.ctx.save();game.ctx.strokeStyle='#f1ead3';game.ctx.fillStyle='#f1ead3';game.ctx.lineWidth=Math.max(2,this.width*.28);game.ctx.lineCap='round';game.ctx.beginPath();game.ctx.moveTo(cx,cy-this.height*.45);game.ctx.lineTo(cx,cy+this.height*.45);game.ctx.stroke();game.ctx.beginPath();game.ctx.arc(cx,cy-this.height*.45,Math.max(2,this.width*.28),0,Math.PI*2);game.ctx.arc(cx,cy+this.height*.45,Math.max(2,this.width*.28),0,Math.PI*2);game.ctx.fill();game.ctx.restore();return;}
+                if(!this.isFragment&&rocketCosmetic('rocket-recall_wild_west_fighter')){const cx=this.x+this.width/2,cy=this.y+this.height/2;game.ctx.save();game.ctx.translate(cx,cy);game.ctx.scale(this.width/18,this.height/18);game.ctx.fillStyle='#ffd84d';game.ctx.strokeStyle='#9b5b00';game.ctx.lineWidth=1.5;game.ctx.beginPath();for(let i=0;i<10;i++){const r=i%2?4:9,a=-Math.PI/2+i*Math.PI/5;game.ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}game.ctx.closePath();game.ctx.fill();game.ctx.stroke();game.ctx.restore();return;}
                 if (this.isFragment) {
                     game.ctx.fillStyle = '#ffaa33';
                     game.ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -3027,6 +3050,7 @@
             }
 
             draw() {
+                if(rocketCosmetic('rocket-recall_nova_explosion')){const life=Math.max(0,this.life/this.maxLife),r=(1-life)*54+8;game.ctx.save();game.ctx.globalAlpha=life;game.ctx.strokeStyle='#fff7b0';game.ctx.shadowColor='#ff48dd';game.ctx.shadowBlur=18;game.ctx.lineWidth=4;game.ctx.beginPath();game.ctx.arc(this.x,this.y,r,0,Math.PI*2);game.ctx.stroke();game.ctx.translate(this.x,this.y);game.ctx.rotate(Date.now()/300);game.ctx.fillStyle='#7cf8ff';for(let i=0;i<12;i++){game.ctx.rotate(Math.PI/6);game.ctx.fillRect(r*.35,-2,r*.7,4);}game.ctx.restore();}
                 if (this.type === 'particle') {
                     const alpha = Math.max(0, this.life / this.maxLife);
                     this.particles.forEach(p => {
@@ -3878,7 +3902,8 @@
             const savedTotalEnemiesDefeated = parseInt(localStorage.getItem('totalEnemiesDefeated') || '0');
             
             game.wave = game.secretCodeActive ? game.startingWave : 1;
-            game.baseLives = 15 + game.permanentUpgrades.extraLife;
+            game.baseLives = 15 + game.permanentUpgrades.extraLife + (window.AchievementManager?.hasBoost?.('rocket-recall_emergency_plating')?3:0);
+            if(isRocketCharacter('bone'))game.baseLives=Math.max(1,Math.ceil(game.baseLives*.5));
             game.lives = game.baseLives;
             game.score = 0;
             game.coins = PlatformManager.getCoins();
@@ -3891,6 +3916,7 @@
             game.explosions = [];
             game.powerups = [];
             game.orbitBlades = [];
+            game.necromancerAllies = [];
             game.volatileHazards = [];
             game.curseSeen = {};
             game.powerupSpawnChance = PlatformManager.powerupsAllowed() ? 0.1 : 0;
@@ -3953,7 +3979,7 @@
             game.totalEnemiesDefeatedAllTime = savedTotalEnemiesDefeated;
             game.coins = PlatformManager.getCoins();
             game.score = 0;
-            game.baseLives = 15 + game.permanentUpgrades.extraLife;
+            game.baseLives = 15 + game.permanentUpgrades.extraLife + (window.AchievementManager?.hasBoost?.('rocket-recall_emergency_plating')?3:0);
             game.lives = game.baseLives;
             game.shields = 0;
             game.runPowerups = {};
@@ -4677,6 +4703,7 @@
             });
             
             updateVolatileCoreHazards();
+            updateNecromancerAllies();
             
             checkCollisions();
             if (game.pendingBullets.length) {
@@ -4687,6 +4714,7 @@
             if (game.enemies.length === 0 && !game.waveComplete && game.state === GameState.PLAYING) {
                 game.waveComplete = true;
                 const wasBossWave = game.currentWaveIsBoss;
+                game.necromancerAllies=[];
                 game.wave++;
                 setTimeout(() => {
                     if (wasBossWave) {
@@ -4850,6 +4878,10 @@
             game.coins += (enemy.coinValue !== undefined ? enemy.coinValue : 1);
             game.coins += (game.runPowerups.bloodMagnet || 0) * 2;
             game.enemiesDefeatedThisRun++;
+            window.AchievementManager?.notify?.('enemy_defeated',{x:cx,y:cy});
+            if(isRocketCharacter('bone')&&enemy.type!=='boss'&&Math.random()<0.12){
+                game.necromancerAllies.push({x:cx-18,y:cy-12,w:36,h:24,lastShot:0,bob:Math.random()*Math.PI*2});
+            }
 
             // Volatile Core: chance for a kill to leave behind a brief hazard cloud that
             // also damages the player if they're standing in it.
@@ -5320,12 +5352,17 @@
             }
         }
 
+        function updateNecromancerAllies(){const now=Date.now();for(const ally of game.necromancerAllies){ally.bob+=.04;ally.y-=.08;const target=game.enemies.filter(e=>e.deployed!==false).sort((a,b)=>Math.hypot(a.x-ally.x,a.y-ally.y)-Math.hypot(b.x-ally.x,b.y-ally.y))[0];if(target){ally.x+=(target.x-ally.x)*.006;if(now-ally.lastShot>850){const b=new Bullet(ally.x+ally.w/2,ally.y,0,'normal',0,buildBulletMods());b.speed=7;b.width=8;b.height=14;game.pendingBullets.push(b);ally.lastShot=now;}}}game.necromancerAllies=game.necromancerAllies.filter(a=>a.y>-60);}
+        function drawNecromancerAllies(){for(const a of game.necromancerAllies){const y=a.y+Math.sin(a.bob)*3;game.ctx.save();game.ctx.fillStyle='#d8f0d0';game.ctx.strokeStyle='#7ce58d';game.ctx.lineWidth=2;game.ctx.fillRect(a.x+8,y+5,20,12);game.ctx.strokeRect(a.x+7,y+4,22,14);game.ctx.fillStyle='#17131f';game.ctx.fillRect(a.x+12,y+8,4,4);game.ctx.fillRect(a.x+21,y+8,4,4);game.ctx.fillStyle='#efe8d0';game.ctx.fillRect(a.x+16,y+17,5,9);game.ctx.fillRect(a.x+4,y+20,12,3);game.ctx.fillRect(a.x+21,y+20,12,3);game.ctx.restore();}}
+
         function draw() {
             game.ctx.clearRect(0, 0, game.width, game.height);
+            const voidWorld=rocketCosmetic('rocket-recall_void_vanguard');
+            if(voidWorld){const vg=game.ctx.createLinearGradient(0,0,0,game.height);vg.addColorStop(0,'#03010c');vg.addColorStop(.65,'#16052d');vg.addColorStop(1,'#2d0b46');game.ctx.fillStyle=vg;game.ctx.fillRect(0,0,game.width,game.height);for(let i=0;i<80;i++){const a=.15+.7*Math.abs(Math.sin(Date.now()/900+i));game.ctx.globalAlpha=a;game.ctx.fillStyle=i%9?'#dff9ff':'#d678ff';game.ctx.fillRect((i*97)%game.width,(i*173)%game.height,i%9?2:4,i%9?2:4);}game.ctx.globalAlpha=1;}
             
             const landscapeY = game.height - game.landscapeHeight;
             
-            game.ctx.fillStyle = '#2d5016';
+            game.ctx.fillStyle = voidWorld?'#12091f':'#2d5016';
             game.ctx.fillRect(0, landscapeY, game.width, game.landscapeHeight);
             
             const pixelSize = 4;
@@ -5365,10 +5402,12 @@
                 game.ctx.fillRect(x + 90, landscapeY + 4, 4, 8);
                 game.ctx.fillRect(x + 100, landscapeY + 2, 4, 12);
             }
+            if(rocketCosmetic('rocket-recall_stealth_temple_fighter')){for(let x=30;x<game.width;x+=180){const base=landscapeY+14;game.ctx.fillStyle='#22151a';game.ctx.fillRect(x+42,base-66,10,66);game.ctx.fillStyle='#8b1d2c';game.ctx.fillRect(x,base-58,94,8);game.ctx.fillRect(x+10,base-82,74,7);game.ctx.fillRect(x+22,base-103,50,6);game.ctx.fillStyle='#131017';game.ctx.beginPath();game.ctx.moveTo(x-8,base-58);game.ctx.lineTo(x+47,base-78);game.ctx.lineTo(x+102,base-58);game.ctx.fill();game.ctx.beginPath();game.ctx.moveTo(x+3,base-82);game.ctx.lineTo(x+47,base-101);game.ctx.lineTo(x+91,base-82);game.ctx.fill();game.ctx.beginPath();game.ctx.moveTo(x+15,base-103);game.ctx.lineTo(x+47,base-119);game.ctx.lineTo(x+79,base-103);game.ctx.fill();game.ctx.fillStyle='#f0c86d';game.ctx.fillRect(x+43,base-49,8,14);}}
             
             game.player.draw();
             game.bullets.forEach(bullet => bullet.draw());
-            game.enemies.forEach(enemy => enemy.draw());
+            game.enemies.forEach(enemy=>{if(rocketCosmetic('rocket-recall_void_vanguard')){game.ctx.save();game.ctx.filter='invert(1)';enemy.draw();game.ctx.restore();}else enemy.draw();});
+            drawNecromancerAllies();
             game.enemyBullets.forEach(bullet => bullet.draw());
             game.powerups.forEach(powerup => powerup.draw());
             game.explosions.forEach(explosion => explosion.draw());
@@ -5499,6 +5538,7 @@
             document.getElementById('shields').textContent = game.shields;
             document.getElementById('enemies').textContent = game.enemies.length;
             document.getElementById('kills').textContent = game.enemiesDefeatedThisRun;
+            const secretFire=document.getElementById('secretFireBtn');if(secretFire)secretFire.style.display=window.AchievementManager?.hasSecret?.('secret_map_border')?'block':'none';
             updateEmergencyAmmoButton();
         }
 
@@ -5562,6 +5602,7 @@
             document.getElementById('deathCauseMessage').textContent = buildDeathMessage();
             
             renderGameOverShop();
+            renderSecretRocketCharacters();
             
             hideAllModals();
             const wipe = document.getElementById('screenWipe');
@@ -5639,6 +5680,11 @@
                 targetX = null;
             }
         }
+
+        window.manualSecretFire = function(){
+            if(!window.AchievementManager?.hasSecret?.('secret_map_border')||game.state!==GameState.PLAYING||!game.player)return;
+            const now=Date.now();if(now-game.lastShot<180)return;if(game.player.shoot())game.lastShot=now;
+        };
 
         document.addEventListener('touchstart', (e) => {
             if (game.state === GameState.PLAYING) {

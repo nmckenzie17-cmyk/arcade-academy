@@ -161,6 +161,9 @@ totalQuestionsCorrect++;
 localStorage.setItem('pixelJetpackQuestionsCorrect',totalQuestionsCorrect);
 }
 let shopMessageTimer=0;
+let secretJetCharacter=localStorage.getItem('jetpackSecretCharacter')||'pilot';
+function setSecretJetCharacter(id){secretJetCharacter=id;localStorage.setItem('jetpackSecretCharacter',id);renderShop();}
+function isJetCharacter(id){return secretJetCharacter===id;}
 
 // --- Appearance (cosmetic only, zero gameplay effect): player/jetpack skins recolor the exact
 // same detailed base sprite (guaranteeing identical size/shape), and fire effects swap the trail
@@ -191,17 +194,25 @@ const FIRE_SKINS=[
 {id:'snowman',name:'Snow Trail',stage:'Snow Cave Stage',cost:6500},
 {id:'wizard',name:'Rainbow Flame',stage:'Rainbow Madness Stage',cost:15000}
 ];
+function sharedJetpackReward(slot){
+if(typeof AchievementManager==='undefined')return null;
+return AchievementManager.getEquipped('jetpack-journey')[slot]||null;
+}
 function getActivePlayerColorMap(){
-const id=shopState.appearance.equippedPlayerSkin||'default';
-if(id==='wizard')return{'p':hslToHex(rainbowHue,80,55),'a':'#c68642','u':'#4a1a6a','x':'#cccccc','w':'#ffffff'};
-const skin=PLAYER_SKINS.find(function(s){return s.id===id;});
-return skin?skin.cmap:DEFAULT_PLAYER_CMAP;
+const shared=sharedJetpackReward('skin');
+if(shared?.id==='jetpack-journey_vampire_flyer')return PLAYER_SKINS.find(function(s){return s.id==='vampire';}).cmap;
+if(shared?.id==='jetpack-journey_alien_flyer')return PLAYER_SKINS.find(function(s){return s.id==='alien';}).cmap;
+if(shared?.id==='jetpack-journey_time_traveller_outfit')return{'p':'#24364b','a':'#d9b08c','u':'#8f5d2d','x':'#e9c46a','w':'#8ff6ff'};
+if(shared?.id==='jetpack-journey_temporal_ace')return{'p':'#6b3f22','a':'#d9b08c','u':'#d59b3d','x':'#80ecff','w':'#fff6cf'};
+return DEFAULT_PLAYER_CMAP;
 }
 function getActiveJetpackColorMap(){
-const id=shopState.appearance.equippedJetpackSkin||'default';
-if(id==='wizard')return{'y':hslToHex(rainbowHue,75,65),'b':'#333333','g':'#4a1a6a','i':'#ffffff','t':'#4a4a33'};
-const skin=JETPACK_SKINS.find(function(s){return s.id===id;});
-return skin?skin.cmap:DEFAULT_JETPACK_CMAP;
+const shared=sharedJetpackReward('skin');
+if(shared?.id==='jetpack-journey_vampire_flyer')return JETPACK_SKINS.find(function(s){return s.id==='vampire';}).cmap;
+if(shared?.id==='jetpack-journey_alien_flyer')return JETPACK_SKINS.find(function(s){return s.id==='alien';}).cmap;
+if(shared?.id==='jetpack-journey_time_traveller_outfit')return{'y':'#d6a94f','b':'#151c26','g':'#38576d','i':'#8ff6ff','t':'#73451f'};
+if(shared?.id==='jetpack-journey_temporal_ace')return{'y':'#d59b3d','b':'#2c1b12','g':'#6b3f22','i':'#aaf7ff','t':'#ad7934'};
+return DEFAULT_JETPACK_CMAP;
 }
 const FIRE_SKIN_COLOR_MAPS={
 'caveman':{'d':'#5a5a5a','l':'#c8c8c8','r':'#8a8a8a','w':'#f0f0f0','y':'#aaaaaa','b':'#1a1a1a','q':'#e8e8e8'},
@@ -211,16 +222,26 @@ const FIRE_SKIN_COLOR_MAPS={
 'snowman':{'d':'#8fb8d8','l':'#ffffff','r':'#bcd8ee','w':'#ffffff','y':'#dceeff','b':'#4a6a8a','q':'#e8f6ff'}
 };
 function drawFireEffect(fx,fy){
-const id=shopState.appearance.equippedFireSkin||'default';
+const sharedTrail=sharedJetpackReward('trail');
+const sharedBoost=sharedJetpackReward('boostEffect');
+const sharedSkin=sharedJetpackReward('skin');
 const fireFrames=[fireFrame1,fireFrame2,fireFrame3,fireFrame4];
 const frame=fireFrames[Math.max(0,player.fireFrame-1)];
-if(id==='wizard'){
-const rcmap={'d':hslToHex((rainbowHue+40)%360,80,45),'l':hslToHex(rainbowHue,90,60),'r':hslToHex((rainbowHue+300)%360,85,55),'w':'#ffffff','y':'#cccccc','b':'#000000','q':hslToHex((rainbowHue+180)%360,90,70)};
-drawPixelArt(frame,fx,fy,FIRE_SCALE,rcmap);
-}else if(FIRE_SKIN_COLOR_MAPS[id]){
-drawPixelArt(frame,fx,fy,FIRE_SCALE,FIRE_SKIN_COLOR_MAPS[id]);
+if(sharedTrail?.id==='jetpack-journey_note_knowledge_flight'){
+ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';for(let i=0;i<4;i++){const age=(performance.now()/7+i*29)%110;ctx.globalAlpha=1-age/120;ctx.font=`bold ${12+i*2}px sans-serif`;ctx.fillStyle=hslToHex((rainbowHue+i*78)%360,85,62);ctx.fillText(i%2?'♪':'♫',fx-age*.52,fy+9+Math.sin(age*.12+i)*12);}ctx.restore();
+}else if(sharedSkin?.id==='jetpack-journey_vampire_flyer'){
+drawPixelArt(frame,fx,fy,FIRE_SCALE,FIRE_SKIN_COLOR_MAPS.vampire);
+}else if(sharedSkin?.id==='jetpack-journey_alien_flyer'){
+drawPixelArt(frame,fx,fy,FIRE_SCALE,FIRE_SKIN_COLOR_MAPS.alien);
+}else if(sharedSkin?.id==='jetpack-journey_time_traveller_outfit'){
+ctx.save();ctx.translate(fx+4,fy+12);ctx.strokeStyle='#8ff6ff';ctx.lineWidth=2;ctx.globalAlpha=.8;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(-i*8,0,5+i*2,0,Math.PI*2);ctx.stroke();}ctx.fillStyle='#e9c46a';ctx.fillRect(-2,-2,4,4);ctx.restore();
+}else if(sharedSkin?.id==='jetpack-journey_temporal_ace'){
+drawPixelArt(frame,fx,fy,FIRE_SCALE,{'d':'#6b3f22','l':'#ffd15c','r':'#bd7b2d','w':'#fff6cf','y':'#7eeeff','b':'#21130c','q':'#bffaff'});
 }else{
 drawPixelArt(frame,fx,fy,FIRE_SCALE);
+}
+if(sharedBoost?.id==='jetpack-journey_pixel_ring_boost'){
+ctx.save();ctx.strokeStyle=player.fireFrame%2?'#00d4ff':'#ff6ec7';ctx.lineWidth=2;ctx.globalAlpha=.75;ctx.beginPath();ctx.arc(fx+6,fy+18,10+player.fireFrame*4,0,Math.PI*2);ctx.stroke();ctx.restore();
 }
 }
 
@@ -271,7 +292,7 @@ let m=1+(shopState.levels.scoreMultiplier||0)*0.001;
 if(activePowerupEffects.enemyDensity)m*=(1+0.25*activePowerupEffects.enemyDensity.correct);
 return m;
 }
-function getFuelDrainCost(){return BOOST_FUEL_COST*Math.pow(0.9,shopState.levels.fuelEfficiency||0);}
+function getFuelDrainCost(){const earnedEfficiency=(typeof AchievementManager!=='undefined'&&AchievementManager.hasBoost('jetpack-journey_efficient_ignition'))?0.9:1;const skeletonEfficiency=isJetCharacter('skeleton')?0.5:1;return BOOST_FUEL_COST*Math.pow(0.9,shopState.levels.fuelEfficiency||0)*earnedEfficiency*skeletonEfficiency;}
 function getGasMode(){
 if(shopState.owned.doubleGas&&shopState.toggles.doubleGas)return 'double';
 if(shopState.owned.halfGas&&shopState.toggles.halfGas)return 'half';
@@ -284,6 +305,7 @@ if(mode==='half')return MAX_FUEL*0.5;
 return MAX_FUEL;
 }
 function getGravity(){
+if(isJetCharacter('chimera'))return GRAVITY*(.35+1.25*(.5+.5*Math.sin(performance.now()/900)));
 const mode=getGasMode();
 if(mode==='double')return GRAVITY*2;
 if(mode==='half')return GRAVITY*0.5;
@@ -377,17 +399,9 @@ saveShopState();setShopMessage(skin.name+' equipped!',false);renderShop();
 });
 }
 function renderAppearanceShop(){
-renderSkinShopSection(shopPlayerSkins,PLAYER_SKINS,'Default Pilot','ownedPlayerSkins','equippedPlayerSkin',function(pctx,w,h,skinId){
-const cmap=skinId?(PLAYER_SKINS.find(function(s){return s.id===skinId;}).cmap||{'p':'#ff66cc','a':'#c68642','u':'#4a1a6a','x':'#66ccff','w':'#ffffff'}):DEFAULT_PLAYER_CMAP;
-drawPixelArtCtx(pctx,playerData1,(w-21*1.3)/2,2,1.3,cmap);
-});
-renderSkinShopSection(shopJetpackSkins,JETPACK_SKINS,'Default Jetpack','ownedJetpackSkins','equippedJetpackSkin',function(pctx,w,h,skinId){
-const cmap=skinId?(JETPACK_SKINS.find(function(s){return s.id===skinId;}).cmap||{'y':'#ff99dd','b':'#333333','g':'#4a1a6a','i':'#ffffff','t':'#4a4a33'}):DEFAULT_JETPACK_CMAP;
-drawPixelArtCtx(pctx,jetpackData,(w-12*2.8)/2,(h-20*2.8)/2,2.8,cmap);
-});
-renderSkinShopSection(shopFireSkins,FIRE_SKINS,'Default Flame','ownedFireSkins','equippedFireSkin',function(pctx,w,h,skinId){
-drawFirePreview(pctx,w,h,skinId);
-});
+// Legacy coin-purchased appearances are intentionally hidden. Earned level
+// cosmetics are rendered by AchievementManager in the Level Rewards section.
+shopPlayerSkins.innerHTML='';shopJetpackSkins.innerHTML='';shopFireSkins.innerHTML='';
 }
 function spendCoins(cost){
 return PlatformManager.spendCoins(cost);
@@ -395,6 +409,8 @@ return PlatformManager.spendCoins(cost);
 function renderShop(){
 shopSummary.innerHTML='COINS: '+PlatformManager.getCoins()+'<br>UPGRADES PURCHASED: '+getUpgradePurchaseCount();
 shopUpgrades.innerHTML='';shopSingles.innerHTML='';shopToggles.innerHTML='';
+const secretCharacters=[['pilot','Academy Pilot','Standard flight controls.'],...(typeof AchievementManager!=='undefined'&&AchievementManager.hasSecret?.('secret_skeleton')?[['skeleton','Skeleton Flyer','Half fuel drain, bone exhaust and more Horror stages.']]:[]),...(typeof AchievementManager!=='undefined'&&AchievementManager.hasSecret?.('secret_glitch_aura')?[['chimera','Gravity Chimera','Gravity changes rhythmically and fuel regenerates while gliding.']]:[])];
+if(secretCharacters.length>1){for(const c of secretCharacters)shopUpgrades.appendChild(makeShopItem(c[1],c[2],isJetCharacter(c[0])?'SELECTED':'CHOOSE',isJetCharacter(c[0]),()=>setSecretJetCharacter(c[0])));}
 SHOP_UPGRADES.forEach(function(up){
 const level=shopState.levels[up.id]||0;
 const atMax=up.maxLevel!==undefined&&level>=up.maxLevel;
@@ -476,7 +492,7 @@ let sessionLoading=false;
 
 // Stage identities. 5 = Rainbow Madness, a bonus stage outside the normal rotation.
 const BASE_STAGE_ORDER=[0,1,3,4]; // Dinosaur -> Desert -> Horror -> Snow -> repeat
-const ALL_REAL_STAGES=[0,1,2,3,4]; // every "normal" stage, used by the 5% wildcard jump
+const ALL_REAL_STAGES=[0,1,2,3,4,6]; // every normal/secret stage used by wildcard jumps
 let currentStageId=0;
 let nextStageId=null;
 let lastStageBoundaryCount=0;
@@ -486,6 +502,8 @@ let forceRainbowNextRun=false;
 // should be part of the normal rotation) to be picked up by this system automatically.
 function resolveNextStage(){
 if(forceRainbowNextRun){forceRainbowNextRun=false;return 5;}
+if(typeof AchievementManager!=='undefined'&&AchievementManager.hasSecret?.('secret_map_border')&&rng()<0.10)return 6;
+if(isJetCharacter('skeleton')&&rng()<0.10)return 3;
 if(rng()<0.02)return 5; // Rainbow Madness: 2% chance to appear instead of the next stage.
 if(rng()<0.05)return ALL_REAL_STAGES[Math.floor(rng()*ALL_REAL_STAGES.length)]; // 5% wildcard
 baseProgressIndex++;
@@ -525,7 +543,7 @@ ctx.fillText(text,x,y);
 }
 function getStageName(idx){
 if(idx===undefined)idx=getCurrentStageIndex();
-return idx===0?'Dinosaur':idx===1?'Desert':idx===2?'Space':idx===3?'Horror':idx===4?'Snow Cave':'Rainbow Madness';
+return idx===0?'Dinosaur':idx===1?'Desert':idx===2?'Space':idx===3?'Horror':idx===4?'Snow Cave':idx===6?'Lost Archive':'Rainbow Madness';
 }
 function formatRunTime(ms){
 const totalSec=Math.floor(Math.max(0,ms)/1000);
@@ -540,6 +558,7 @@ function isSpace(){return getCurrentStageIndex()===2;}
 function isHorror(){return getCurrentStageIndex()===3;}
 function isSnow(){return getCurrentStageIndex()===4;}
 function isRainbowMadness(){return getCurrentStageIndex()===5;}
+function isLostArchive(){return getCurrentStageIndex()===6;}
 function getTransitionInfo(){
 const t=score-lastStageBoundaryCount*STAGE_DURATION;
 if(t>=STAGE_DURATION-TRANSITION_DURATION){
@@ -946,6 +965,8 @@ const speed=groundOffset*0.6;
 const baseY=groundY();
 if(isDesert()){
 desertCacti.forEach(t=>{const x=t.offset-speed;if(x>-200&&x<canvas.width+200)drawDesertCactus(x,baseY,t.height);});
+}else if(isLostArchive()){
+for(let i=0;i<12;i++){const x=((i*190-groundOffset*.42)%2300+2300)%2300-120,h=55+(i%4)*22;ctx.fillStyle='#29264f';ctx.fillRect(x,baseY-h,42,h);ctx.fillStyle='#d9ba68';ctx.fillRect(x-8,baseY-h,58,7);ctx.fillRect(x-5,baseY-8,52,8);ctx.fillStyle='#79e5db';for(let r=0;r<3;r++)ctx.fillRect(x+8+r*10,baseY-h+18+(r%2)*13,5,9);const fy=baseY-h-24+Math.sin(performance.now()/500+i)*10;ctx.fillStyle=i%2?'#ffe08a':'#9bf5ec';ctx.fillRect(x+12,fy,22,4);ctx.fillRect(x+15,fy-3,16,3);}
 }else if(isHorror()){
 const tSpeed=groundOffset*0.55;
 horrorTombstones.forEach(t=>{const x=t.offset-tSpeed;if(x>-200&&x<canvas.width+200)drawHorrorTombstone(x,baseY,t.type);});
@@ -1015,8 +1036,8 @@ if(h<60){r=c;g=x;b=0;}else if(h<120){r=x;g=c;b=0;}else if(h<180){r=0;g=c;b=x;}el
 r=Math.round((r+m)*255);g=Math.round((g+m)*255);b=Math.round((b+m)*255);
 return '#'+r.toString(16).padStart(2,'0')+g.toString(16).padStart(2,'0')+b.toString(16).padStart(2,'0');
 }
-function getStageSkyTop(idx){return idx===2?'#000005':idx===1?'#f0c040':idx===3?'#0d0221':idx===4?'#e8e8e8':idx===5?hslToHex(rainbowHue,80,72):'#55ccff';}
-function getStageSkyBottom(idx){return idx===2?'#0a0a1a':idx===1?'#e8a020':idx===3?'#1a0a2e':idx===4?'#d4d4d4':idx===5?hslToHex(rainbowHue,85,42):'#aaeeff';}
+function getStageSkyTop(idx){return idx===2?'#000005':idx===1?'#f0c040':idx===3?'#0d0221':idx===4?'#e8e8e8':idx===6?'#111338':idx===5?hslToHex(rainbowHue,80,72):'#55ccff';}
+function getStageSkyBottom(idx){return idx===2?'#0a0a1a':idx===1?'#e8a020':idx===3?'#1a0a2e':idx===4?'#d4d4d4':idx===6?'#493263':idx===5?hslToHex(rainbowHue,85,42):'#aaeeff';}
 function getGroundTopColor(stageIdx,i){
 if(stageIdx===0||stageIdx===5)return(i%3===0)?'#22cc44':(i%3===1)?'#33dd55':'#44ee66';
 if(stageIdx===1)return(i%3===0)?'#e8c86a':(i%3===1)?'#dbb855':'#c9a844';
@@ -2247,6 +2268,7 @@ return;
 if(headstartBoostTimer>0){headstartBoostTimer=Math.max(0,headstartBoostTimer-delta);}
 if(headstartImmuneTimer>0){headstartImmuneTimer=Math.max(0,headstartImmuneTimer-delta);}
 score+=delta*getScoreMultiplier();runElapsedMs+=delta;checkStageChange();
+if(isJetCharacter('chimera')&&!player.isClicking)fuel=Math.min(getFuelCapacity(),fuel+delta*.003);
 if(player.isClicking&&!player.inputDisabled)applyBoost();
 if(player.isClicking){player.fireFrame=(player.fireFrame+1)%4;}else{player.fireFrame=0;}
 player.vy+=getGravity();
@@ -2325,13 +2347,19 @@ drawPixelArt(jetpackData, jetpackX, jetpackY, JETPACK_SCALE, getActiveJetpackCol
 
 const fi = Math.floor(player.frameCounter/6)%2;
 let cf = fi===0 ? playerData1 : playerData2;
-drawPixelArt(cf, player.x, player.y, PLAYER_SCALE, getActivePlayerColorMap());
+if(isJetCharacter('chimera')){const sx=player.x+10*PLAYER_SCALE,sy=player.y+7*PLAYER_SCALE,p=.5+.5*Math.sin(performance.now()/120);ctx.save();ctx.fillStyle='#11152d';ctx.fillRect(sx-10,sy-5,28,34);ctx.globalAlpha=.45;ctx.fillStyle='#ff4fc8';ctx.fillRect(sx-15,sy+p*8,10,26);ctx.fillStyle='#55f4ff';ctx.fillRect(sx+18,sy+(1-p)*8,10,26);ctx.globalAlpha=1;ctx.fillStyle='#55f4ff';ctx.fillRect(sx-5,sy,8,5);ctx.fillStyle='#ff4fc8';ctx.fillRect(sx+8,sy,8,5);ctx.fillStyle='#ffe36e';ctx.fillRect(sx+3,sy+12,7,10);ctx.restore();
+}else if(isJetCharacter('skeleton')){
+const sx=player.x+10*PLAYER_SCALE,sy=player.y+4*PLAYER_SCALE,ps=Math.max(2,PLAYER_SCALE*2);ctx.save();ctx.fillStyle='#eee7d0';ctx.fillRect(sx-4*ps,sy,8*ps,6*ps);ctx.fillStyle='#16131c';ctx.fillRect(sx-2.5*ps,sy+2*ps,1.5*ps,1.5*ps);ctx.fillRect(sx+1*ps,sy+2*ps,1.5*ps,1.5*ps);ctx.fillStyle='#d7ceb5';ctx.fillRect(sx-1.5*ps,sy+6*ps,3*ps,9*ps);ctx.fillRect(sx-5*ps,sy+7*ps,3.5*ps,1.5*ps);ctx.fillRect(sx+1.5*ps,sy+7*ps,3.5*ps,1.5*ps);ctx.fillRect(sx-4*ps,sy+15*ps,2*ps,8*ps);ctx.fillRect(sx+2*ps,sy+15*ps,2*ps,8*ps);ctx.restore();
+}else drawPixelArt(cf, player.x, player.y, PLAYER_SCALE, getActivePlayerColorMap());
+if(sharedJetpackReward('skin')?.id==='jetpack-journey_time_traveller_outfit'){
+const cx=player.x+10*PLAYER_SCALE,cy=player.y+8*PLAYER_SCALE,t=performance.now()/700;ctx.save();ctx.strokeStyle='#e9c46a';ctx.lineWidth=2;ctx.shadowColor='#8ff6ff';ctx.shadowBlur=7;ctx.beginPath();ctx.arc(cx,cy,8*PLAYER_SCALE,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(t)*6*PLAYER_SCALE,cy+Math.sin(t)*6*PLAYER_SCALE);ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(-t*2)*4*PLAYER_SCALE,cy+Math.sin(-t*2)*4*PLAYER_SCALE);ctx.stroke();ctx.fillStyle='#8ff6ff';ctx.fillRect(player.x+2*PLAYER_SCALE,player.y-2*PLAYER_SCALE,5*PLAYER_SCALE,2*PLAYER_SCALE);ctx.restore();
+}
 
 if(player.isClicking&&player.fireFrame>0){
 const fireX = jetpackX - 9 * PLAYER_SCALE;
 const fireY = jetpackY + 3 * PLAYER_SCALE;
 
-drawFireEffect(fireX,fireY);
+if(isJetCharacter('skeleton')){ctx.save();ctx.fillStyle='#efe8d0';for(let i=0;i<7;i++){const bx=fireX-i*8-((player.fireFrame+i)%2)*3,by=fireY+((i*5)%15);ctx.fillRect(bx,by,8,3);ctx.fillRect(bx-2,by-2,3,3);ctx.fillRect(bx+7,by+2,3,3);}ctx.restore();}else drawFireEffect(fireX,fireY);
 }
 
 drawSnowstormOverlay();

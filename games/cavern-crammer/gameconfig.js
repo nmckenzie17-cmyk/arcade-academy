@@ -25,7 +25,7 @@ window.GAME_CONFIG = {
 
     supportsHighScores: true,
 
-    supportsAchievements: false,
+    supportsAchievements: true,
 
     createdBy: "Mr McKenzie",
 

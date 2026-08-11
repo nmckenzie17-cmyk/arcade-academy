@@ -14,6 +14,6 @@ window.GAME_CONFIG = {
   saveKey: null,
   requiresQuestionBank: true,
   supportsHighScores: false,
-  supportsAchievements: false,
+  supportsAchievements: true,
   createdBy: "Mr McKenzie"
 };

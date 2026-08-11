@@ -1,6 +1,8 @@
 const canvas = document.getElementById('pinball');
 const ctx = canvas.getContext('2d');
 const GAME_CONFIG = { id: 'pinball-postulation', name: 'Pinball Postulation' };
+function pinballCosmetic(id){ return typeof AchievementManager!=='undefined'&&Object.values(AchievementManager.getEquipped('pinball-postulation')).some(r=>r?.id===id); }
+function pinballSecret(id){ return typeof AchievementManager!=='undefined'&&AchievementManager.hasSecret?.(id); }
 let platformSessionStarted = false;
 
 let W, H, scale;
@@ -14,12 +16,19 @@ resize();
 window.addEventListener('resize', resize);
 
 let ball = null, balls = [], ballsInPlay = false, lockedBalls = [], score = 0, lives = 3, gameStarted = false;
+let uWellDestroyed=false,uWellPixels=[],nudgeUsed=false,tableShakeFrames=0;
 const initialPlatformStats = PlatformManager.getGameStats(GAME_CONFIG.id);
 let highScore = initialPlatformStats?.highScore || 0;
 document.getElementById('high-score-value').textContent = highScore;
 document.getElementById('home-high-score').textContent = highScore;
 document.getElementById('home-correct').textContent = initialPlatformStats?.correct || 0;
 document.getElementById('home-games').textContent = initialPlatformStats?.gamesPlayed || 0;
+document.getElementById('home-cosmetics-btn').addEventListener('click', function(){
+  window.AchievementManager?.renderGameRewardShop?.();
+  const shop=document.getElementById('arcade-generated-shop');
+  if(shop)shop.hidden=false;
+  else setTimeout(()=>document.getElementById('arcade-generated-shop-button')?.click(),0);
+});
 let coins = PlatformManager.getCoins();
 document.getElementById('coins-value').textContent = coins;
 document.getElementById('home-coins').textContent = coins;
@@ -352,13 +361,14 @@ const U_WELL = { x1: 20, x2: 50, yTop: 495, yBottom: 550 };
 function makeBall(x, y, vx, vy, canTriggerWell = true) {
   return {
     x, y, vx, vy, rampScored: false, gatesScored: new Set(), rampMouthsScored: new Set(),
-    wellFreeze: false, wellTimer: 0, wellExitVX: 0, wellExitVY: 0, uWellRest: 0, canTriggerWell
+    wellFreeze: false, wellTimer: 0, wellExitVX: 0, wellExitVY: 0, uWellRest: 0, canTriggerWell, cosmeticTrail:[]
   };
 }
 function launchBall() {
   if (!gameStarted || gameOver || balls.length > 0) return;
   const dropX = 80 + Math.random() * (TW - 160);
   balls.push(makeBall(dropX, 35, (Math.random() - 0.5) * 1.5, 1.125 + Math.random() * 1.125));
+  if (pinballSecret('secret_twin_shot')) balls.push(makeBall(dropX + 18, 35, (Math.random() - 0.5) * 1.5, 1.125 + Math.random() * 1.125));
   ballsInPlay = true;
 }
 
@@ -474,8 +484,8 @@ function answerQuestion(selectedIndex) {
   const correct = selectedIndex === q.correctIndex;
   const buttons = document.querySelectorAll('#question-options button');
   buttons.forEach(b => b.style.pointerEvents = 'none');
-  buttons[selectedIndex].style.borderColor = correct ? '#00ff88' : '#ff3b3b';
-  if (!correct && q.correctIndex >= 0) buttons[q.correctIndex].style.borderColor = '#00ff88';
+  buttons[selectedIndex].style.borderColor = correct ? 'var(--arcade-answer-correct, #00ff88)' : 'var(--arcade-answer-incorrect, #ff3b3b)';
+  if (!correct && q.correctIndex >= 0) buttons[q.correctIndex].style.borderColor = 'var(--arcade-answer-correct, #00ff88)';
   const feedback = document.getElementById('question-feedback');
   if (correct) {
     addCoins(10);
@@ -508,7 +518,7 @@ function restartGame() {
   bumpers = randomBumpers();
   dropTargets = freshDropTargets();
   dropTargetsResetTimer = 0;
-  spinner.spin = 0;
+  spinner.spin = 0;uWellDestroyed=false;uWellPixels=[];nudgeUsed=false;tableShakeFrames=0;
   generateSpinnerPosition();
   generateRandomElements();
   generateWells();
@@ -517,6 +527,7 @@ function restartGame() {
   document.getElementById('game-over-overlay').classList.add('hidden');
   document.getElementById('question-overlay').classList.add('hidden');
   questionModalOpen = false;
+  syncNudgeButton();
 }
 
 function returnToHome() {
@@ -540,6 +551,8 @@ function startFromHomeScreen() {
   document.getElementById('home-screen').classList.add('hidden');
   restartGame();
 }
+function syncNudgeButton(){const btn=document.getElementById('table-nudge-btn'),enabled=window.AchievementManager?.hasBoost?.('pinball-postulation_table_nudge');btn.classList.toggle('hidden',!enabled||!gameStarted);btn.disabled=nudgeUsed||!balls.length;}
+document.getElementById('table-nudge-btn').onclick=()=>{if(nudgeUsed||!balls.length)return;nudgeUsed=true;tableShakeFrames=28;syncNudgeButton();};
 
 const keys = {};
 document.addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'Space') requestLaunch(); });
@@ -685,8 +698,17 @@ function resolveSegment(x1, y1, x2, y2, br) {
     if (dot < 0) {
       ball.vx -= 0.9 * dot * nx;
       ball.vy -= 0.9 * dot * ny;
+      applyNudgeCollisionImpulse();
     }
   }
+}
+
+// The nudge moves the table, never the ball directly. Its momentum is only
+// transferred when the ball actually makes contact with table geometry.
+function applyNudgeCollisionImpulse() {
+  if (tableShakeFrames <= 0) return;
+  ball.vx += Math.sin(tableShakeFrames * 2.8) * 0.85;
+  ball.vy += Math.cos(tableShakeFrames * 2.15) * 0.55;
 }
 
 // Forces the ball toward the middle of the table when it's within ~2px of a guard segment's
@@ -749,16 +771,11 @@ function addScore(basePts) {
   } else {
     comboLabel.classList.add('hidden');
   }
-  if (score > highScore) {
-    highScore = score;
-    document.getElementById('high-score-value').textContent = highScore;
-    document.getElementById('home-high-score').textContent = highScore;
-    PlatformManager.setHighScore(GAME_CONFIG.id, highScore);
-  }
   if (ball) {
     scorePopups.push({ x: ball.x, y: ball.y, text: mult > 1 ? `+${pts} x${mult.toFixed(2)}` : '+' + pts, life: 40 });
   }
 }
+function saveScoreAfterDrain(){if(score>highScore){highScore=score;document.getElementById('high-score-value').textContent=highScore;document.getElementById('home-high-score').textContent=highScore;PlatformManager.setHighScore(GAME_CONFIG.id,highScore);}}
 
 function update() {
   const lActive = keys['KeyZ'] || keys['ArrowLeft'] || leftPressed;
@@ -824,6 +841,7 @@ function update() {
     ball.vy *= friction;
     ball.x += ball.vx;
     ball.y += ball.vy;
+    if(pinballCosmetic('pinball-postulation_fireball_trail')){ball.cosmeticTrail.push({x:ball.x,y:ball.y,life:20});if(ball.cosmeticTrail.length>20)ball.cosmeticTrail.shift();ball.cosmeticTrail.forEach(p=>p.life--);}
 
     const br = 8;
 
@@ -912,6 +930,7 @@ function update() {
       const reboundSpeed = Math.max(speed * 0.5, 3);
       ball.vx = Math.cos(angle) * reboundSpeed;
       ball.vy = Math.sin(angle) * reboundSpeed;
+      applyNudgeCollisionImpulse();
       ball.x = b.x + Math.cos(angle) * (b.r + br + 1);
       ball.y = b.y + Math.sin(angle) * (b.r + br + 1);
       addScore(100);
@@ -931,6 +950,7 @@ function update() {
       const reboundSpeed = Math.max(speed * 0.6, 3);
       ball.vx = Math.cos(angle) * reboundSpeed;
       ball.vy = Math.sin(angle) * reboundSpeed;
+      applyNudgeCollisionImpulse();
       ball.x = wx + Math.cos(angle) * (w.r + br + 1);
       ball.y = w.y + Math.sin(angle) * (w.r + br + 1);
       addScore(50);
@@ -1071,9 +1091,7 @@ function update() {
 
   // U-well pocket walls (an indent in the left wall): open at the top so a ball can fall
   // in, walled on the sides and bottom so it settles rather than rolling back out
-  resolveSegment(U_WELL.x1, U_WELL.yTop, U_WELL.x1, U_WELL.yBottom, br);
-  resolveSegment(U_WELL.x2, U_WELL.yTop, U_WELL.x2, U_WELL.yBottom, br);
-  resolveSegment(U_WELL.x1, U_WELL.yBottom, U_WELL.x2, U_WELL.yBottom, br);
+  if(!uWellDestroyed){resolveSegment(U_WELL.x1,U_WELL.yTop,U_WELL.x1,U_WELL.yBottom,br);resolveSegment(U_WELL.x2,U_WELL.yTop,U_WELL.x2,U_WELL.yBottom,br);resolveSegment(U_WELL.x1,U_WELL.yBottom,U_WELL.x2,U_WELL.yBottom,br);}
 
   // If the ball has settled (come to rest) inside the U-well, lock it there and drop 2
   // fresh balls from the top to start multiball — but only if this ball hasn't already used
@@ -1086,6 +1104,7 @@ function update() {
       balls.splice(__bi, 1);
       balls.push(makeBall(120 + Math.random() * 40, 35, (Math.random() - 0.5) * 1.5, 1.125 + Math.random() * 1.125, false));
       balls.push(makeBall(240 + Math.random() * 40, 35, (Math.random() - 0.5) * 1.5, 1.125 + Math.random() * 1.125, false));
+      uWellDestroyed=true;for(let i=0;i<34;i++)uWellPixels.push({x:U_WELL.x1+Math.random()*(U_WELL.x2-U_WELL.x1),y:U_WELL.yTop+Math.random()*(U_WELL.yBottom-U_WELL.yTop),vx:(Math.random()-.5)*5,vy:-Math.random()*4,life:35+Math.random()*30});
       __locked = true;
     }
   } else if (ball.canTriggerWell) {
@@ -1095,6 +1114,7 @@ function update() {
   // Game over: entire bottom, including gutters
   if (!__locked && ball.y > TH - 20) {
     balls.splice(__bi, 1);
+    saveScoreAfterDrain();nudgeUsed=false;
   }
   }
 
@@ -1119,6 +1139,7 @@ function update() {
   }
 
   ball = balls[0] || null;
+  syncNudgeButton();
 
   if (balls.length === 0 && ballsInPlay) {
     ballsInPlay = false;
@@ -1136,11 +1157,16 @@ function update() {
 }
 
 function draw() {
-  ctx.fillStyle = '#0a0014';
+  const neonTable=pinballCosmetic('pinball-postulation_neon_academy_table'),fortressTable=pinballCosmetic('pinball-postulation_fortress_facts_table'),cosmic=pinballCosmetic('pinball-postulation_cosmic_multiball');
+  ctx.fillStyle = cosmic?'#020817':neonTable?'#05051e':fortressTable?'#120d18':'#0a0014';
   ctx.fillRect(0, 0, W, H);
   ctx.save();
   ctx.translate(ox(), oy());
   ctx.scale(scale, scale);
+  const tableShakeX=tableShakeFrames>0?Math.sin(tableShakeFrames*2.8)*5:0,tableShakeY=tableShakeFrames>0?Math.cos(tableShakeFrames*2.15)*3:0;if(tableShakeFrames>0)tableShakeFrames--;ctx.translate(tableShakeX,tableShakeY);
+  if(cosmic){ctx.fillStyle='#d9f7ff';for(let i=0;i<55;i++){const x=(i*73)%TW,y=(i*137)%TH,a=.25+.65*Math.sin(performance.now()/700+i);ctx.globalAlpha=Math.abs(a);ctx.fillRect(x,y,i%8===0?2:1,i%8===0?2:1);}for(let i=0;i<6;i++){const x=45+(i*67)%320,y=75+(i*109)%520,a=.18+.35*Math.abs(Math.sin(performance.now()/1100+i));ctx.globalAlpha=a;ctx.fillStyle=`hsl(${i*58+190} 70% 55%)`;ctx.beginPath();ctx.arc(x,y,7+i%3*3,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#d7efff';ctx.beginPath();ctx.ellipse(x,y,13+i%3*3,3+i%2,-.3,0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;}
+  if(neonTable){ctx.save();ctx.strokeStyle='rgba(0,245,255,.13)';ctx.lineWidth=1;for(let x=20;x<TW;x+=25){ctx.beginPath();ctx.moveTo(x,10);ctx.lineTo(x,TH-10);ctx.stroke();}for(let y=10;y<TH;y+=25){ctx.beginPath();ctx.moveTo(10,y);ctx.lineTo(TW-10,y);ctx.stroke();}ctx.restore();}
+  if(fortressTable){const stone=ctx.createLinearGradient(0,0,TW,TH);stone.addColorStop(0,'#20263c');stone.addColorStop(.5,'#3d4965');stone.addColorStop(1,'#171c2d');ctx.fillStyle=stone;ctx.fillRect(18,14,TW-36,TH-28);ctx.strokeStyle='#7d8aa8';ctx.lineWidth=1;for(let y=24;y<TH-22;y+=24){ctx.beginPath();ctx.moveTo(20,y);ctx.lineTo(TW-20,y);ctx.stroke();for(let x=20+((y/24)%2)*18;x<TW-20;x+=36){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+24);ctx.stroke();}}ctx.fillStyle='#101526';ctx.fillRect(42,92,72,118);ctx.fillRect(TW-114,92,72,118);for(const tx of [42,TW-114]){ctx.fillStyle='#586682';for(let i=0;i<4;i++)ctx.fillRect(tx+i*18,76,12,24);ctx.fillRect(tx,94,72,8);ctx.fillStyle='#ffd15c';ctx.fillRect(tx+29,128,14,38);}ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(TW/2,TH-85,48,Math.PI,0);ctx.fill();ctx.fillRect(TW/2-48,TH-85,96,72);ctx.strokeStyle='#ffd15c';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#ffd15c';ctx.font='bold 18px monospace';ctx.textAlign='center';ctx.fillText('FORTRESS FACTS',TW/2,45);ctx.textAlign='left';}
 
   // Table border
   ctx.strokeStyle = '#7a1fff';
@@ -1371,16 +1397,8 @@ function draw() {
   drawTriangleWithLightning(sideTriangle, 2, '#0d3312', '#2ecc40');
 
   // U-well pocket (multiball lock)
-  ctx.fillStyle = '#331f00';
-  ctx.fillRect(U_WELL.x1, U_WELL.yTop, U_WELL.x2 - U_WELL.x1, U_WELL.yBottom - U_WELL.yTop);
-  ctx.strokeStyle = '#cc8800';
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(U_WELL.x1, U_WELL.yTop);
-  ctx.lineTo(U_WELL.x1, U_WELL.yBottom);
-  ctx.lineTo(U_WELL.x2, U_WELL.yBottom);
-  ctx.lineTo(U_WELL.x2, U_WELL.yTop);
-  ctx.stroke();
+  if(!uWellDestroyed){ctx.fillStyle='#331f00';ctx.fillRect(U_WELL.x1,U_WELL.yTop,U_WELL.x2-U_WELL.x1,U_WELL.yBottom-U_WELL.yTop);ctx.strokeStyle='#cc8800';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(U_WELL.x1,U_WELL.yTop);ctx.lineTo(U_WELL.x1,U_WELL.yBottom);ctx.lineTo(U_WELL.x2,U_WELL.yBottom);ctx.lineTo(U_WELL.x2,U_WELL.yTop);ctx.stroke();}
+  for(let i=uWellPixels.length-1;i>=0;i--){const p=uWellPixels[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.16;p.life--;ctx.globalAlpha=Math.max(0,p.life/60);ctx.fillStyle=i%3?'#cc8800':'#fff1a6';ctx.fillRect(p.x,p.y,3,3);if(p.life<=0)uWellPixels.splice(i,1);}ctx.globalAlpha=1;
 
   // Wells
   for (const w of wells) {
@@ -1410,7 +1428,8 @@ function draw() {
   for (const b of bumpers) {
     ctx.beginPath();
     ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-    ctx.fillStyle = b.hit > 0 ? '#ffb0b0' : '#330d0d';
+    const starFlash=pinballCosmetic('pinball-postulation_star_bumper_flashes')&&b.hit>0,planetBumper=cosmic;
+    ctx.fillStyle = planetBumper?`hsl(${(b.x*2+b.y+performance.now()/80)%360} 65% 45%)`:starFlash ? '#fff5a8' : b.hit > 0 ? '#ffb0b0' : '#330d0d';
     ctx.fill();
     ctx.strokeStyle = b.hit > 0 ? '#ffb0b0' : '#ff3b3b';
     ctx.lineWidth = 2;
@@ -1420,6 +1439,8 @@ function draw() {
     ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
     ctx.fill();
+    if(planetBumper){ctx.strokeStyle='rgba(210,240,255,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(b.x,b.y,b.r+8,5,-.35,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.35;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(b.x-5,b.y-4,3,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+    if(starFlash){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(performance.now()/160);ctx.fillStyle='#fff36b';ctx.shadowColor='#ff57d5';ctx.shadowBlur=14;ctx.beginPath();for(let i=0;i<10;i++){const r=i%2?b.r+3:b.r+13,a=i*Math.PI/5;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();}
   }
 
   // Drop targets
@@ -1488,6 +1509,8 @@ function draw() {
     drawRampCheckpoint(ramp3Quarter2, '#ff6f61');
   }
 
+  // The table and obstacles shake, but balls retain their real position and velocity.
+  ctx.translate(-tableShakeX,-tableShakeY);
   // Locked balls resting in the U-well (decorative — no physics)
   for (const lb of lockedBalls) {
     ctx.beginPath();
@@ -1501,13 +1524,17 @@ function draw() {
 
   // Balls
   for (const b of balls) {
+    if(pinballCosmetic('pinball-postulation_fireball_trail')){for(let i=0;i<b.cosmeticTrail.length;i++){const p=b.cosmeticTrail[i],r=2+5*i/Math.max(1,b.cosmeticTrail.length);ctx.globalAlpha=Math.max(0,p.life/20);ctx.fillStyle=i%3===0?'#fff06a':i%2?'#ff9b2f':'#ef342a';ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;}
     ctx.beginPath();
     ctx.arc(b.x, b.y, 8, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = '#ff2d95';
+    const prism=pinballCosmetic('pinball-postulation_prismatic_pinball'),cosmicBall=pinballCosmetic('pinball-postulation_cosmic_multiball');
+    const hue=(performance.now()/12+b.x+b.y)%360;ctx.fillStyle=prism?`hsl(${hue} 95% 72%)`:cosmicBall?'#17285c':'#ffffff';
+    ctx.shadowColor = prism?`hsl(${(hue+90)%360} 100% 60%)`:cosmicBall?'#7adfff':'#ff2d95';
     ctx.shadowBlur = 12;
     ctx.fill();
     ctx.shadowBlur = 0;
+    if(prism){ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(b.x,b.y,5,Math.PI*1.05,Math.PI*1.65);ctx.stroke();}
+    if(cosmicBall){ctx.strokeStyle='#a9e8ff';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(b.x,b.y,13,4,-.35,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(b.x-2,b.y-3,2,2);}
 
     if (b.wellFreeze) {
       const ang = Math.atan2(b.wellExitVY, b.wellExitVX);
