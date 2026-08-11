@@ -3,7 +3,7 @@
   'use strict';
 
   // Master kill switch. Set false to remove all Challenge Mode UI and network activity.
-  const CHALLENGE_MODE_ENABLED = false;
+  const CHALLENGE_MODE_ENABLED = true;
   const UPDATE_INTERVAL_MS = 400;
   const DISCONNECT_TIMEOUT_MS = 30000;
   const ACTIVE_ROOM_KEY = 'arcadeAcademy.activeChallenge';
