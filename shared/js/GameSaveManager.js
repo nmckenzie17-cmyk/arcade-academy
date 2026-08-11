@@ -18,6 +18,8 @@
     // Pinball progression is entirely PlatformManager-owned; the empty list
     // still registers the game so teacher resets report success.
     "pinball-postulation": [],
+    "angler-answerer": ["anglers_ascent_save_v1"],
+    "dot-n-box-deducer": [],
     "rocket-recall": [
       "rocketrecallGameProgress",
       "totalQuestionsCorrect",

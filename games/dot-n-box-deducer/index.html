@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Answer class questions and complete boxes against a class-calibrated computer or another student.">
+<title>Dot-n-Box Deducer | Arcade Academy</title>
+<link rel="stylesheet" href="../../shared/css/global.css?v=20260812-dot-box-v1">
+<link rel="stylesheet" href="../../shared/css/multiplayer-game.css">
+<link rel="stylesheet" href="style.css?v=20260812-dot-box-v1">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============================================================
+       HOME SCREEN
+       ============================================================ -->
+  <div class="screen active" id="screen-home">
+    <p class="section-label-font">ARCADE ACADEMY · MULTIPLAYER</p>
+    <h1 class="title title-font">DOT-N-BOX DEDUCER</h1>
+    <div class="subtitle subtitle-font">Think. Connect. Complete the box.</div>
+
+    <div class="panel description-panel">
+      <h2>HOW TO PLAY</h2>
+      <p>Answer a class question correctly, then connect two neighbouring dots. Complete a box to score it and take another turn. The player with the most boxes wins.</p>
+      <p>Play against class-calibrated computer opponents or create a live five-digit room for another signed-in student.</p>
+      <div id="home-stats" class="home-stats"></div>
+    </div>
+
+    <div class="panel">
+      <h2>MODE</h2>
+      <div class="btn-row">
+        <button class="opt-btn selected" data-mode="single">Single Player</button>
+        <button class="opt-btn" data-mode="multiplayer">Multiplayer</button>
+      </div>
+    </div>
+
+    <div class="panel" id="single-player-options">
+      <h2>TOTAL PLAYERS</h2>
+      <div class="btn-row" id="player-count-row">
+        <button class="opt-btn selected" data-count="2">2 Players</button>
+        <button class="opt-btn" data-count="3">3 Players</button>
+        <button class="opt-btn" data-count="4">4 Players</button>
+      </div>
+      <div class="hint">You occupy Player 1. The rest are computer opponents.</div>
+    </div>
+
+    <div class="panel" id="difficulty-panel">
+      <h2>COMPUTER DIFFICULTY</h2>
+      <div class="btn-row" id="difficulty-row">
+        <button class="opt-btn" data-diff="low">Low</button>
+        <button class="opt-btn selected" data-diff="medium">Medium</button>
+        <button class="opt-btn" data-diff="high">High</button>
+      </div>
+      <div class="hint">Applies to every computer opponent this match.</div>
+    </div>
+
+    <div class="panel">
+      <h2>QUESTION TYPE</h2>
+      <div class="btn-row" id="qtype-row">
+        <button class="opt-btn selected" data-qtype="multichoice">Multi Choice</button>
+        <button class="opt-btn" data-qtype="matching">Matching</button>
+        <button class="opt-btn" data-qtype="category">Category</button>
+      </div>
+      <div class="hint">Questions come from the class selected on the Hub.</div>
+    </div>
+
+    <button class="big-btn btn" id="start-btn">START VS COMPUTER</button>
+    <div class="panel" id="multiplayer-actions" hidden>
+      <h2>ONLINE ROOM</h2>
+      <div class="btn-row">
+        <button class="big-btn btn" id="create-room-btn">CREATE ROOM</button>
+        <button class="big-btn btn secondary" id="show-join-btn">JOIN ROOM</button>
+      </div>
+      <div id="join-controls" hidden>
+        <label for="room-code-input">Five-digit room code</label>
+        <input class="text-input" id="room-code-input" inputmode="numeric" maxlength="5" placeholder="00000">
+        <button class="big-btn btn" id="join-room-btn">JOIN</button>
+      </div>
+      <div id="room-waiting" hidden><p>Room code</p><strong id="room-code-display">00000</strong><p>Waiting for Player 2…</p></div>
+    </div>
+    <p class="message" id="menu-message" role="alert"></p>
+    <a class="big-btn secondary hub-link" href="../../index.html">← ARCADE ACADEMY</a>
+    <p class="creator-credit">Created by Mr McKenzie</p>
+  </div>
+
+  <!-- ============================================================
+       GAME SCREEN
+       ============================================================ -->
+  <div class="screen" id="screen-game">
+    <button class="big-btn secondary leave-game-btn" id="leave-game-btn">LEAVE GAME</button>
+    <div id="hud"></div>
+    <div id="canvas-wrap">
+      <div id="turn-banner"></div>
+      <canvas id="gameCanvas" width="600" height="600"></canvas>
+      <div id="feedback-toast"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       GAME OVER SCREEN
+       ============================================================ -->
+  <div class="screen" id="screen-gameover">
+    <h1 class="title" style="color:var(--p3);text-shadow:var(--glow-yellow);">MATCH COMPLETE</h1>
+    <div id="gameover-rankings" style="width:100%;display:flex;flex-direction:column;align-items:center;margin-top:10px;"></div>
+    <div class="final-actions">
+      <button class="big-btn" id="rematch-btn">REMATCH</button>
+      <button class="big-btn secondary" id="lobby-btn">LOBBY</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       QUESTION MODAL
+       ============================================================ -->
+  <div class="modal-overlay" id="question-modal">
+    <div class="modal-box" id="question-modal-box">
+      <div class="who" id="question-who">PLAYER 1</div>
+      <div id="question-body"></div>
+    </div>
+  </div>
+
+</div>
+<script type="module" src="../../shared/js/FirebaseManager.js"></script>
+<script src="../../shared/js/GameSaveManager.js"></script>
+<script src="../../shared/js/PlatformManager.js"></script>
+<script src="../../shared/js/QuestionManager.js"></script>
+<script src="../../shared/js/MultiplayerManager.js"></script>
+<script src="../../shared/js/SinglePlayerManager.js"></script>
+<script src="../../shared/js/MultiplayerQuestionHelper.js"></script>
+<script src="gameconfig.js"></script>
+<script src="game.js?v=20260812-shared-multiplayer-v1"></script>
+</body>
+</html>

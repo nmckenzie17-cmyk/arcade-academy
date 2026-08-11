@@ -11,8 +11,9 @@
     <p class="subtitle">Answer. Aim. Fire. Be the last tank standing!</p>
     <div class="stats"><div><b id="wins">0</b><span>Wins</span></div><div><b id="losses">0</b><span>Losses</span></div><div><b id="draws">0</b><span>Draws</span></div><div><b id="games">0</b><span>Games</span></div></div>
     <h2>Description</h2><div class="description">
-      <p>🏞️ Battle across randomly generated destructible hills.</p><p>📚 Correct turn questions grant combat bonuses; wrong answers grant no bonus.</p>
-      <p>🎯 Move, aim and fire before the 20-second timer expires.</p><p>🪙 Multiplayer games award no score or coins.</p>
+      <p>🏞️ Battle a class-calibrated computer or a live online opponent across randomly generated destructible hills.</p><p>📚 Correct turn questions grant combat bonuses; a wrong answer grants no bonus but still allows the turn.</p>
+      <p>🛡️ Each side commands two tanks. Tap a living tank on the battlefield to make it active.</p><p>💥 Aim six different weapons, including a damage-free Teleport Shell, before the 20-second timer expires.</p>
+      <p>🔄 Online turns update live without refreshing the page.</p><p>🪙 Multiplayer games award no score or coins.</p>
     </div>
     <label for="question-type">Question type</label><select id="question-type"><option value="multichoice">Multiple Choice</option><option value="matching">Matching</option><option value="category">Category</option></select>
     <div class="actions"><button id="single-btn">Single Player</button><button id="multiplayer-btn">Multiplayer</button></div>
@@ -24,7 +25,7 @@
   <section class="panel" id="room-screen" hidden><p class="eyebrow">Room Code</p><div class="code" id="room-code"></div><p id="room-status">Waiting for opponent…</p><button id="ready-btn" hidden>Ready</button><button class="danger" id="leave-room-btn">Leave Room</button></section>
   <section class="game" id="game-screen" hidden>
     <header><b id="turn-label">PLAYER TURN</b><span id="timer">20</span><button class="danger" id="leave-game-btn">Leave Room</button></header>
-    <canvas id="battlefield" width="800" height="450" aria-label="Pixel artillery battlefield"></canvas>
+    <canvas id="battlefield" width="800" height="450" aria-label="Thinking Tanks battlefield"></canvas>
     <div class="controls">
       <button id="left-btn">◀ Move</button><button id="right-btn">Move ▶</button>
       <label>Angle <input id="angle" type="range" min="15" max="165" value="45"><output id="angle-out">45°</output></label>
@@ -36,5 +37,5 @@
   </section>
 </main>
 <section class="question" id="question-overlay" hidden><div><p class="eyebrow">Turn Question</p><h2 id="question-prompt"></h2><section id="question-options"></section><p id="question-feedback"></p></div></section>
-<script type="module" src="../../shared/js/FirebaseManager.js"></script><script src="../../shared/js/PlatformManager.js?v=20260811-achievement-reset-v5"></script><script src="../../shared/js/QuestionManager.js"></script><script src="../../shared/js/MultiplayerManager.js"></script><script src="../../shared/js/SinglePlayerManager.js"></script><script src="../../shared/js/MultiplayerQuestionHelper.js"></script><script src="game.js"></script>
+<script type="module" src="../../shared/js/FirebaseManager.js"></script><script src="../../shared/js/PlatformManager.js?v=20260811-angler-answerer-v6"></script><script src="../../shared/js/QuestionManager.js"></script><script src="../../shared/js/MultiplayerManager.js"></script><script src="../../shared/js/SinglePlayerManager.js"></script><script src="../../shared/js/MultiplayerQuestionHelper.js"></script><script src="game.js"></script>
 </body></html>

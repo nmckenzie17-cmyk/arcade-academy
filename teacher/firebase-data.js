@@ -10,8 +10,11 @@ const gameFolders = [
   "wild-west-wordslinger",
   "cavern-crammer",
   "pinball-postulation",
+  "angler-answerer",
   "pixel-artillery",
-  "tic-tac-toe"
+  "tic-tac-toe",
+  "pool-practice"
+  ,"dot-n-box-deducer"
 ];
 
 let studentDocuments = null;

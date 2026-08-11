@@ -563,6 +563,7 @@
       'cavern-crammer':'#startBtn', 'fortress-facts':'#start-btn',
       'jetpack-journey':'#start-btn', 'note-knowledge':'#start-btn',
       'pinball-postulation':'#start-btn', 'pixel-artillery':'#start-single-btn',
+      'angler-answerer':'#homeStartBtn',
       'rocket-recall':'#beginGameBtn', 'shuriken-scholar':'#startBtn',
       'tic-tac-toe':'#start-single-btn', 'wild-west-wordslinger':'#start-button'
     };
@@ -1113,7 +1114,7 @@
   if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && !global.AchievementManager && /\/games\//.test(location.pathname)) {
     const achievementScript = document.createElement('script');
     const achievementUrl = new URL('AchievementManager.js', PLATFORM_SCRIPT_URL);
-    achievementUrl.searchParams.set('v','20260811-achievement-reset-v5');
+    achievementUrl.searchParams.set('v','20260812-dot-box-achievements-v10');
     achievementScript.src = achievementUrl.href;
     achievementScript.defer = true;
     document.head.appendChild(achievementScript);

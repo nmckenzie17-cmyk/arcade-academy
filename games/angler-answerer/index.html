@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="description" content="Answer class questions, earn casts and reel in a growing Fishdex in Angler Answerer.">
+<title>Angler Answerer | Arcade Academy</title>
+<link rel="stylesheet" href="../../shared/css/global.css?v=20260812-shared-fonts-v2">
+<link rel="stylesheet" href="style.css?v=20260812-global-design-v2">
+</head>
+<body>
+
+<div id="game-wrap">
+  <div id="homeScreen">
+    <canvas id="homeFishCanvas"></canvas>
+    <div id="homeContent" class="panel">
+      <p class="section-label-font">ARCADE ACADEMY · SINGLE PLAYER</p>
+      <h1 id="homeTitle" class="title-font">🎣 ANGLER ANSWERER</h1>
+      <p id="homeCatch" class="subtitle-font">Question to Catch. Reel to score.</p>
+
+      <div id="homeStats" aria-label="Angler Answerer statistics">
+        <span>🏆 High <b id="homeHighScore">0</b></span>
+        <span>🎣 Caught <b id="homeCaught">0</b></span>
+        <span>🪙 Coins <b id="homeCoins">0</b></span>
+      </div>
+
+      <p id="questionBankStatus" role="status">Loading your class questions…</p>
+
+      <div id="homeButtonRow">
+        <button class="homeSecondaryBtn btn" id="homeShopBtn">🛒 SHOP</button>
+        <button class="homeSecondaryBtn btn" id="homeFishdexBtn">📖 FISHDEX</button>
+      </div>
+
+      <div id="homeDescription" class="canva-card">
+        <h3>HOW TO PLAY</h3>
+        <ol>
+          <li><b>Answer questions</b> to earn bait — every correct answer gives 1 bait and no coins; an incorrect answer costs 5 shared coins.</li>
+          <li><b>Cast your line:</b> hold to charge your power, release to throw.</li>
+          <li><b>Hook it:</b> when a fish bites, tap fast before it gets away.</li>
+          <li><b>Reel it in:</b> hold to raise the marker and keep it inside the moving catch zone — that's what pulls the distance bar down to zero.</li>
+          <li><b>Level up</b> to unlock new fishing grounds, discover every species for your Fishdex, and spend coins in the Shop on permanent upgrades.</li>
+        </ol>
+      </div>
+
+      <button id="homeStartBtn" class="btn">PRESS START</button>
+      <button id="homeArcadeBtn" class="btn">← Return to Arcade Academy</button>
+      <p id="creatorCredit">Created by Mr McKenzie</p>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="biteBang">!</div>
+  <div id="surgeFlash">⚡</div>
+
+  <div id="hud">
+    <div class="hud-left hud-panel">
+      <div class="hud-stat"><span class="hud-icon">🪙</span><span>Coins</span><b class="hud-value" id="coinsText">0</b></div>
+      <div class="hud-stat"><span class="hud-icon">🪱</span><span>Bait</span><b class="hud-value" id="baitText">0</b></div>
+      <div class="hud-stat"><span class="hud-icon">📍</span><b class="hud-value" id="zoneLabel">Pond</b></div>
+    </div>
+    <div id="topButtons">
+      <button class="icon-btn btn" id="btnFishdex">FISHDEX</button>
+      <button class="icon-btn btn" id="btnZones">ZONES</button>
+      <button class="icon-btn btn" id="btnCooler">🧊 COOLER <span id="coolerCount">0</span></button>
+      <button class="icon-btn btn" id="btnShop">SHOP</button>
+    </div>
+  </div>
+
+  <div id="xpBarWrap">
+    <div id="xpBarOuter"><div id="xpBarInner"></div></div>
+    <div id="lvlText">LVL 1</div>
+  </div>
+
+  <div id="bannerWrap"></div>
+
+  <div id="reelUI">
+    <div id="bossTag">⚠ BOSS ENCOUNTER ⚠</div>
+    <div class="meterRow">
+      <div class="meterLabel">DISTANCE</div>
+      <div class="meterOuter"><div class="meterInner" id="distanceInner"></div></div>
+    </div>
+    <div class="meterRow">
+      <div class="meterLabel">TENSION</div>
+      <div class="meterOuter"><div class="meterInner" id="tensionInner"></div><div class="catchZone" id="tensionCatchZone"></div></div>
+    </div>
+    <div id="reelHelp">HOLD to raise the marker — keep it inside the moving zone!</div>
+  </div>
+
+  <div id="bottomBar">
+    <div id="actionZone">
+      <div id="powerMeterWrap"><div id="powerMeterInner"></div></div>
+      <button id="mainActionBtn">CAST LINE</button>
+      <div id="hintText">Hold to charge your cast, release to throw</div>
+    </div>
+  </div>
+
+  <div id="catchPopup">
+    <div class="box">
+      <div class="ctitle" id="catchTitle">FISH CAUGHT!</div>
+      <canvas id="catchFishCanvas" width="140" height="96"></canvas>
+      <div class="cfish" id="catchFishName">—</div>
+      <div class="cstats" id="catchStats">—</div>
+      <div class="ccoins" id="catchCoins">Added to cooler</div>
+    </div>
+  </div>
+</div>
+
+<!-- Level up upgrade modal -->
+<div class="modalOverlay" id="modalUpgrade">
+  <div class="modalBox">
+    <div class="modalTitle">LEVEL UP!</div>
+    <div class="modalSub">Choose one upgrade for this run</div>
+    <div id="upgradeCards"></div>
+  </div>
+</div>
+
+<!-- Shop modal -->
+<div class="modalOverlay" id="modalShop">
+  <div class="modalBox">
+    <div class="modalTitle">TACKLE SHOP</div>
+    <div class="modalSub">Spend coins on permanent upgrades</div>
+    <div id="shopGrid"></div>
+    <button class="closeModalBtn" id="closeShop">CLOSE</button>
+  </div>
+</div>
+
+<!-- Zones modal -->
+<div class="modalOverlay" id="modalZones">
+  <div class="modalBox">
+    <div class="modalTitle">FISHING GROUNDS</div>
+    <div class="modalSub">Travel between unlocked locations</div>
+    <div id="zoneGrid"></div>
+    <button class="closeModalBtn" id="closeZones">CLOSE</button>
+  </div>
+</div>
+
+<!-- Fishdex modal -->
+<div class="modalOverlay" id="modalFishdex">
+  <div class="modalBox">
+    <div class="modalTitle">FISHDEX</div>
+    <div class="modalSub" id="dexProgress">0 / 0 discovered</div>
+    <div id="fishdexGrid"></div>
+    <button class="closeModalBtn" id="closeFishdex">CLOSE</button>
+  </div>
+</div>
+
+<!-- Cooler modal -->
+<div class="modalOverlay" id="modalCooler">
+  <div class="modalBox">
+    <div class="modalTitle">🧊 THE COOLER</div>
+    <div class="modalSub">Prices drift on their own and dip if you sell too many of one species at once</div>
+    <div id="coolerTotalRow">
+      <span id="coolerTotalText">0 fish · worth ~0 coins</span>
+      <button class="shopBtn" id="btnSellAll">SELL ALL</button>
+    </div>
+    <div id="coolerGrid"></div>
+    <button class="closeModalBtn" id="closeCooler">CLOSE</button>
+  </div>
+</div>
+
+<!-- Run summary modal -->
+<div class="modalOverlay" id="modalRunEnd">
+  <div class="modalBox">
+    <div class="modalTitle">OUT OF BAIT</div>
+    <div class="modalSub">Trip summary</div>
+    <div id="runSummaryBody" style="font-size:11px;line-height:1.8;text-align:center;"></div>
+    <button class="closeModalBtn" id="btnGoCooler" style="border-color:var(--bait);color:var(--bait);">🧊 VISIT COOLER</button>
+    <button class="closeModalBtn" id="btnGoShop" style="border-color:var(--coin);color:var(--coin);">VISIT SHOP</button>
+    <button class="closeModalBtn" id="btnNewRun">RETURN HOME</button>
+  </div>
+</div>
+
+<div class="modalOverlay" id="modalQuestion">
+  <div class="modalBox questionBox">
+    <div class="modalTitle">ANSWER FOR BAIT</div>
+    <div class="modalSub" id="questionProgress">Correct: +1 bait · Incorrect: −5 coins</div>
+    <p id="questionPrompt"></p>
+    <div id="questionOptions"></div>
+    <p id="questionFeedback" role="status"></p>
+  </div>
+</div>
+
+<script type="module" src="../../shared/js/FirebaseManager.js"></script>
+<script src="../../shared/js/GameSaveManager.js"></script>
+<script src="../../shared/js/PlatformManager.js?v=20260811-angler-secrets-v7"></script>
+<script src="../../shared/js/QuestionManager.js"></script>
+<script src="gameconfig.js"></script>
+<script src="game.js?v=20260812-question-bait-hud-v1"></script>
+</body>
+</html>

@@ -7,8 +7,11 @@ const gameFolders = [
   "wild-west-wordslinger",
   "cavern-crammer",
   "pinball-postulation",
+  "angler-answerer",
   "tic-tac-toe",
-  "pixel-artillery"
+  "pixel-artillery",
+  "pool-practice"
+  ,"dot-n-box-deducer"
 ];
 
 // Temporarily disabled while the Spark-compatible leaderboard deployment is
@@ -810,9 +813,18 @@ function displayGames(games) {
     const modes = Array.isArray(game.gameModes)
       ? game.gameModes
       : (game.players === "2 Online" ? ["multiplayer"] : ["singleplayer"]);
-    const isMultiplayer = modes.includes("multiplayer");
-    (isMultiplayer ? multiplayerGameGrid : singleGameGrid).appendChild(card);
-    if (isMultiplayer) multiplayerCount++; else singleCount++;
+    const supportsSinglePlayer = modes.includes("singleplayer");
+    const supportsMultiplayer = modes.includes("multiplayer");
+    const primaryMode = game.primaryMode || (supportsMultiplayer ? "multiplayer" : "singleplayer");
+
+    if (primaryMode === "singleplayer") {
+      singleGameGrid.appendChild(card);
+      singleCount++;
+    }
+    if (primaryMode === "multiplayer") {
+      multiplayerGameGrid.appendChild(card);
+      multiplayerCount++;
+    }
 
     if (LEADERBOARDS_ENABLED && stats?.highScore > 0) highlightClassHighScore(game.id);
 

@@ -14,6 +14,7 @@
     // Change this value if this game is ever updated to use a different bank type.
     // Shuriken Scholar currently supports only multiple-choice question banks.
     const QUESTION_BANK_TYPE = 'multichoice';
+    const SPAWNING_ADDS_UPGRADE_AMOUNT = false;
 
     let ctx;
     const canvas = document.getElementById('canvas');
@@ -1731,7 +1732,10 @@
     }
 
     function maintainEnemies() {
-      const target = Math.max(1, Math.round((player.level + Math.pow(1.15, currentCharUpgrades() / 2)) * curseEffects.spawnRateMult));
+      const upgradeSpawnAmount = SPAWNING_ADDS_UPGRADE_AMOUNT
+        ? Math.pow(1.15, currentCharUpgrades() / 2)
+        : 0;
+      const target = Math.max(1, Math.round((player.level + upgradeSpawnAmount) * curseEffects.spawnRateMult));
       if (enemies.length < target && (game.frame % 5 === 0)) spawnEnemy();
     }
 

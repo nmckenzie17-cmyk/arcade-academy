@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>8-Ball Arcade</title>
+<link rel="stylesheet" href="../../shared/css/global.css?v=20260812-shared-fonts-v2">
+<link rel="stylesheet" href="style.css?v=20260812-global-design-v2">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ HOME SCREEN ============ -->
+  <section id="screen-menu" class="screen active">
+    <div class="menu-wrap home-wrap">
+      <h1 class="arcade-heading title-glow">POOL PRACTICE</h1>
+      <p class="tagline">Sink the balls. Answer the questions.</p>
+
+      <div class="home-stats-row arcade-panel" id="home-stats-row"></div>
+
+      <button class="arcade-btn secondary shop-btn" id="btn-shop">
+        🛒 SHOP <span id="home-coin-balance" class="coin-balance">0 coins</span>
+      </button>
+
+      <p class="game-description">
+        A retro arcade 8-ball pool game with an educational twist. Answer questions correctly to
+        earn your shot — or rack up random bonus advantages — while you play real physics-based
+        pool against the computer or a friend online.
+      </p>
+
+      <div class="setup-panel arcade-panel">
+        <div class="setup-group">
+          <p class="setup-label">MATCH TYPE</p>
+          <div class="toggle-row">
+            <button class="toggle-btn active" data-player-mode="single">🤖 SINGLE PLAYER</button>
+            <button class="toggle-btn" data-player-mode="multiplayer">🌐 MULTIPLAYER</button>
+          </div>
+        </div>
+
+        <div class="setup-group" id="difficulty-group">
+          <p class="setup-label">DIFFICULTY</p>
+          <div class="toggle-row">
+            <button class="toggle-btn" data-difficulty="easy">🙂 EASY <span class="coin-tag">100c</span></button>
+            <button class="toggle-btn active" data-difficulty="medium">😐 MEDIUM <span class="coin-tag">200c</span></button>
+            <button class="toggle-btn" data-difficulty="hard">😤 HARD <span class="coin-tag">300c</span></button>
+          </div>
+        </div>
+
+        <div class="setup-group">
+          <p class="setup-label">QUESTION MODE</p>
+          <div class="toggle-row">
+            <button class="toggle-btn active" data-qmode="earn_your_shot">🎯 EARN YOUR SHOT</button>
+            <button class="toggle-btn" data-qmode="bonus_pool">🎁 BONUS POOL</button>
+          </div>
+        </div>
+
+        <div class="setup-group">
+          <label class="setup-label" for="question-type">QUESTION TYPE</label>
+          <select class="question-type-select" id="question-type">
+            <option value="multichoice">Multiple Choice</option>
+            <option value="matching">Matching</option>
+            <option value="category">Category</option>
+          </select>
+        </div>
+        <p class="lobby-status" id="menu-error" role="alert"></p>
+
+        <button class="arcade-btn big" id="btn-start-single">PRESS START</button>
+
+        <div id="multiplayer-actions" class="hidden">
+          <div class="choice-grid">
+            <button class="arcade-btn" id="btn-create-room">CREATE GAME</button>
+            <button class="arcade-btn secondary" id="btn-join-room">JOIN GAME</button>
+          </div>
+          <div id="lobby-create-panel" class="arcade-panel lobby-panel hidden">
+            <p class="lobby-label">ROOM CODE</p>
+            <p class="room-code" id="room-code-display">-----</p>
+            <p class="lobby-status" id="lobby-status">Waiting for Player 2...</p>
+          </div>
+          <div id="lobby-join-panel" class="arcade-panel lobby-panel hidden">
+            <p class="lobby-label">ENTER 5-DIGIT CODE</p>
+            <input id="join-code-input" class="code-input" maxlength="5" inputmode="numeric" pattern="[0-9]*" placeholder="00000">
+            <button class="arcade-btn" id="btn-submit-join">JOIN</button>
+            <p class="lobby-status" id="join-status"></p>
+          </div>
+        </div>
+      </div>
+
+      <button class="arcade-btn secondary hub-btn" id="btn-return-hub-home">⬅ RETURN TO ARCADE ACADEMY</button>
+
+      <p class="author-credit">Made by Mr McKenzie</p>
+    </div>
+  </section>
+
+  <!-- ============ SHOP SCREEN ============ -->
+  <section id="screen-shop" class="screen">
+    <div class="menu-wrap">
+      <h2 class="arcade-heading sub-heading">SHOP</h2>
+      <p class="coin-balance-big" id="shop-coin-balance">0 COINS</p>
+      <div class="arcade-panel shop-panel" id="shop-items"></div>
+      <button class="arcade-btn secondary" data-back="screen-menu">BACK</button>
+    </div>
+  </section>
+
+  <!-- ============ GAMEPLAY SCREEN ============ -->
+  <section id="screen-game" class="screen">
+    <div id="hud-top" class="hud-top">
+      <div class="hud-player" id="hud-p1">
+        <span class="hud-name">P1</span>
+        <span class="hud-group" id="hud-p1-group">—</span>
+      </div>
+      <div class="hud-center">
+        <span class="hud-mode-label" id="hud-mode-label">MODE</span>
+        <span class="hud-turn" id="hud-turn">Player 1's Turn</span>
+        <span class="hud-timer hidden" id="hud-timer"></span>
+      </div>
+      <div class="hud-player right" id="hud-p2">
+        <span class="hud-name">P2</span>
+        <span class="hud-group" id="hud-p2-group">—</span>
+      </div>
+    </div>
+
+    <div id="table-wrap">
+      <canvas id="table-canvas"></canvas>
+      <div id="bonus-banner" class="bonus-banner hidden"></div>
+      <div id="foul-banner" class="foul-banner hidden"></div>
+    </div>
+
+    <div id="ball-tray" class="ball-tray"></div>
+
+    <div id="controls-bar" class="controls-bar">
+      <div class="power-wrap">
+        <label class="power-label">POWER</label>
+        <input type="range" id="power-slider" min="0" max="100" value="55">
+        <span id="power-value" class="power-value">55%</span>
+      </div>
+      <button class="arcade-btn shoot-btn" id="btn-shoot">SHOOT</button>
+    </div>
+
+    <button class="arcade-btn secondary sound-toggle" id="btn-mute">🔊</button>
+  </section>
+
+  <!-- ============ QUESTION OVERLAY ============ -->
+  <section id="overlay-question" class="overlay hidden">
+    <div class="arcade-panel question-panel">
+      <p class="question-eyebrow">QUESTION</p>
+      <p class="question-text" id="question-text">—</p>
+      <div class="answer-grid" id="answer-grid"></div>
+      <div id="question-feedback" class="question-feedback hidden"></div>
+    </div>
+  </section>
+
+  <!-- ============ MULLIGAN OVERLAY ============ -->
+  <section id="overlay-mulligan" class="overlay hidden">
+    <div class="arcade-panel mulligan-panel">
+      <p class="question-eyebrow">MULLIGAN BONUS</p>
+      <p class="mulligan-text">Keep this shot, or retry it from scratch?</p>
+      <div class="mulligan-buttons">
+        <button class="arcade-btn" id="btn-keep-shot">KEEP SHOT</button>
+        <button class="arcade-btn magenta" id="btn-retry-shot">RETRY SHOT</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAME OVER OVERLAY ============ -->
+  <section id="overlay-gameover" class="overlay hidden">
+    <div class="arcade-panel gameover-panel">
+      <h2 class="arcade-heading gameover-title" id="gameover-title">PLAYER 1 WINS!</h2>
+      <div class="gameover-stats" id="gameover-stats"></div>
+      <div class="gameover-buttons">
+        <button class="arcade-btn" id="btn-rematch">REMATCH</button>
+        <button class="arcade-btn secondary" id="btn-return-hub">MAIN MENU</button>
+      </div>
+      <p class="lobby-status" id="rematch-status"></p>
+    </div>
+  </section>
+
+  <!-- ============ OPPONENT DISCONNECTED BANNER ============ -->
+  <div id="disconnect-banner" class="disconnect-banner hidden">
+    <span>⚠️ Opponent disconnected. Waiting for them to reconnect…</span>
+  </div>
+
+</div>
+
+<script type="module" src="../../shared/js/FirebaseManager.js"></script>
+<script src="../../shared/js/PlatformManager.js"></script>
+<script src="../../shared/js/QuestionManager.js"></script>
+<script src="../../shared/js/MultiplayerManager.js"></script>
+<script src="../../shared/js/MultiplayerQuestionHelper.js"></script>
+<script src="gameconfig.js"></script>
+<script src="poolPhysics.js"></script>
+<script src="poolAI.js"></script>
+<script src="multiplayer.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
