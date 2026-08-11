@@ -679,6 +679,8 @@ export async function completeProgressReset(uid, token) {
 
 const ACTIVE_MATCH_STATUSES = new Set(["waiting", "lobby", "playing", "finished"]);
 const MATCH_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
+const ACTIVE_CHALLENGE_STATUSES = new Set(["waiting", "ready", "countdown", "playing", "finished"]);
+const CHALLENGE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 function requireAuthenticatedUser() {
   const user = auth.currentUser;
@@ -688,6 +690,135 @@ function requireAuthenticatedUser() {
 
 function publicMatch(snapshot) {
   return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
+}
+
+function cleanChallengeProgress(value = {}) {
+  const number = key => Math.max(0, Number(value[key]) || 0);
+  return {
+    score: number("score"), distance: number("distance"), wave: number("wave"), waveProgress: number("waveProgress"),
+    questionsCorrect: number("questionsCorrect"), questionsAnswered: number("questionsAnswered"),
+    survivalTimeMs: number("survivalTimeMs"), alive: value.alive !== false, finished: !!value.finished,
+    updatedAt: Date.now()
+  };
+}
+
+function challengeResult(room) {
+  const p1 = room.player1?.progress || {}, p2 = room.player2?.progress || {}, type = room.selectedChallenge?.type;
+  const draw = () => "draw";
+  const higher = (a, b, fallbacks = []) => {
+    if (Number(a) !== Number(b)) return Number(a) > Number(b) ? room.player1.uid : room.player2.uid;
+    for (const [x, y] of fallbacks) if (Number(x) !== Number(y)) return Number(x) > Number(y) ? room.player1.uid : room.player2.uid;
+    return draw();
+  };
+  if (type === "questionRace") {
+    const target = Number(room.selectedChallenge.targetCorrect || 25);
+    if (p1.questionsCorrect >= target || p2.questionsCorrect >= target) return higher(p1.questionsCorrect, p2.questionsCorrect, [[-p1.updatedAt, -p2.updatedAt]]);
+  }
+  if (type === "timeAttack") {
+    const target = Number(room.selectedChallenge.targetScore || 10000);
+    if (p1.score >= target || p2.score >= target) return higher(p1.score, p2.score, [[-p1.updatedAt, -p2.updatedAt]]);
+  }
+  if (type === "survival" && p1.alive !== p2.alive) return p1.alive ? room.player1.uid : room.player2.uid;
+  if (!p1.finished || !p2.finished) return null;
+  if (type === "accuracyChallenge") {
+    const minimum = Number(room.selectedChallenge.minimumQuestions || 20);
+    const a = p1.questionsAnswered >= minimum ? p1.questionsCorrect / Math.max(1, p1.questionsAnswered) : -1;
+    const b = p2.questionsAnswered >= minimum ? p2.questionsCorrect / Math.max(1, p2.questionsAnswered) : -1;
+    return higher(a, b, [[p1.questionsCorrect, p2.questionsCorrect], [p1.score, p2.score]]);
+  }
+  if (type === "distanceRace") return higher(p1.distance, p2.distance, [[p1.score, p2.score], [p1.survivalTimeMs, p2.survivalTimeMs]]);
+  if (type === "waveRace") return higher(p1.wave, p2.wave, [[p1.waveProgress, p2.waveProgress], [p1.score, p2.score], [p1.survivalTimeMs, p2.survivalTimeMs]]);
+  if (type === "survival") return higher(p1.survivalTimeMs, p2.survivalTimeMs, [[p1.score, p2.score]]);
+  return higher(p1.score, p2.score, [[p1.questionsCorrect, p2.questionsCorrect], [p1.survivalTimeMs, p2.survivalTimeMs]]);
+}
+
+export async function createChallengeRoom(gameId, player, validTypes) {
+  const user = requireAuthenticatedUser();
+  const types = Array.isArray(validTypes) ? validTypes.filter(item => item?.type && item?.config?.enabled).slice(0, 8) : [];
+  if (!gameId || player?.uid !== user.uid || !types.length) throw new Error("Invalid challenge configuration.");
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const roomCode = String(Math.floor(10000 + Math.random() * 90000));
+    const ref = doc(db, "challenges", roomCode);
+    const created = await runTransaction(db, async transaction => {
+      const snapshot = await transaction.get(ref), existing = snapshot.data();
+      if (existing && ACTIVE_CHALLENGE_STATUSES.has(existing.status) && Date.now() - Number(existing.updatedAt || 0) < CHALLENGE_STALE_AFTER_MS) return false;
+      const now = Date.now(), progress = cleanChallengeProgress();
+      transaction.set(ref, { challengeId: roomCode, roomCode, gameId, status:"waiting", validTypes:types, selectedChallenge:null,
+        player1:{uid:user.uid,displayName:String(player.displayName||"Player 1").slice(0,40),ready:false,wager:0,wagerLocked:false,connected:true,progress}, player2:null,
+        winnerUid:null, previousChallengeType:null, round:1, startedAt:null, finishedAt:null, economyProcessed:{}, createdAt:now, updatedAt:now });
+      return true;
+    });
+    if (created) return roomCode;
+  }
+  throw new Error("Unable to create a challenge room. Please try again.");
+}
+
+export async function joinChallengeRoom(roomCode, player) {
+  const user = requireAuthenticatedUser(), code = String(roomCode || "");
+  if (!/^\d{5}$/.test(code) || player?.uid !== user.uid) throw new Error("Enter a valid 5-digit room code.");
+  const ref = doc(db, "challenges", code);
+  return runTransaction(db, async transaction => {
+    const snapshot = await transaction.get(ref); if (!snapshot.exists()) throw new Error("ROOM_NOT_FOUND");
+    const room = snapshot.data();
+    if (room.player1?.uid === user.uid) throw new Error("CREATOR_CANNOT_JOIN");
+    if (room.player2 || room.status !== "waiting") throw new Error("ROOM_FULL");
+    transaction.update(ref,{player2:{uid:user.uid,displayName:String(player.displayName||"Player 2").slice(0,40),ready:false,wager:0,wagerLocked:false,connected:true,progress:cleanChallengeProgress()},status:"ready",updatedAt:Date.now()});
+    return code;
+  });
+}
+
+export function watchChallengeRoom(roomCode, onChange, onError) {
+  requireAuthenticatedUser();
+  return onSnapshot(doc(db,"challenges",String(roomCode)),snapshot=>onChange(publicMatch(snapshot)),onError);
+}
+
+export async function updateChallengeRoom(roomCode, action = {}) {
+  const user = requireAuthenticatedUser(), ref = doc(db,"challenges",String(roomCode));
+  return runTransaction(db, async transaction => {
+    const snapshot = await transaction.get(ref); if (!snapshot.exists()) throw new Error("ROOM_NOT_FOUND");
+    const room = {id:snapshot.id,...snapshot.data()}, slot = room.player1?.uid===user.uid?"player1":room.player2?.uid===user.uid?"player2":null;
+    if (!slot) throw new Error("NOT_A_PARTICIPANT");
+    const changes = {}, now = Date.now();
+    if (action.type === "wager") {
+      if (!["waiting","ready"].includes(room.status) || room[slot].ready) throw new Error("WAGER_LOCKED");
+      const userSnapshot = await transaction.get(doc(db,"users",user.uid));
+      const balance = Math.max(0,Number(userSnapshot.data()?.platform?.coins?.balance)||0), wager = Math.floor(Number(action.wager)||0);
+      if (wager < 0 || wager > balance) throw new Error("INVALID_WAGER"); changes[`${slot}.wager`] = wager;
+    } else if (action.type === "ready") {
+      if (!["waiting","ready"].includes(room.status)) throw new Error("CHALLENGE_ALREADY_STARTED");
+      changes[`${slot}.ready`] = !!action.ready; changes[`${slot}.wagerLocked`] = !!action.ready;
+    } else if (action.type === "start") {
+      if (slot!=="player1" || room.status!=="ready" || !room.player1.ready || !room.player2?.ready) throw new Error("NOT_READY");
+      const selected = room.validTypes.find(item=>item.type===action.challengeType); if (!selected) throw new Error("INVALID_CHALLENGE_TYPE");
+      changes.selectedChallenge={type:selected.type,...selected.config};changes.status="countdown";changes.startedAt=now+5000;
+      changes["player1.wagerLocked"]=true;changes["player2.wagerLocked"]=true;
+    } else if (action.type === "progress") {
+      if (!["countdown","playing"].includes(room.status)) return room;
+      const old=room[slot].progress||{}, next=cleanChallengeProgress(action.progress);
+      ["score","distance","wave","waveProgress","questionsCorrect","questionsAnswered","survivalTimeMs"].forEach(key=>{next[key]=Math.max(Number(old[key])||0,Number(next[key])||0);});
+      next.questionsCorrect=Math.min(next.questionsCorrect,next.questionsAnswered); changes[`${slot}.progress`]=next;
+      if (room.status==="countdown"&&now>=Number(room.startedAt)) changes.status="playing";
+      const projected={...room,[slot]:{...room[slot],progress:next},status:changes.status||room.status}; const winner=challengeResult(projected);
+      if (winner){changes.status="finished";changes.winnerUid=winner;changes.finishedAt=now;}
+    } else if (action.type === "forfeit") {
+      if (!["countdown","playing"].includes(room.status)) throw new Error("NOT_ACTIVE"); changes.status="finished";changes.winnerUid=slot==="player1"?room.player2.uid:room.player1.uid;changes.finishedAt=now;changes.forfeitedBy=user.uid;
+    } else if (action.type === "presence") {
+      changes[`${slot}.connected`]=!!action.connected;changes[`${slot}.disconnectedAt`]=action.connected?null:now;
+    } else if (action.type === "disconnectForfeit") {
+      if (!["countdown","playing"].includes(room.status)) throw new Error("NOT_ACTIVE");const otherSlot=slot==="player1"?"player2":"player1",disconnectedAt=Number(room[otherSlot]?.disconnectedAt)||0;if(room[otherSlot]?.connected!==false||now-disconnectedAt<30000)throw new Error("RECONNECT_PENDING");changes.status="finished";changes.winnerUid=user.uid;changes.finishedAt=now;changes.forfeitedBy=room[otherSlot].uid;
+    } else if (action.type === "leave") {
+      if (!["waiting","ready"].includes(room.status)) throw new Error("ACTIVE_CHALLENGE_REQUIRES_FORFEIT");if(slot==="player2"){changes.player2=null;changes.status="waiting";changes["player1.ready"]=false;changes["player1.wagerLocked"]=false;}else{changes.status="abandoned";changes.leftBy=user.uid;}
+    } else if (action.type === "rematch") {
+      if (room.status!=="finished") throw new Error("NOT_FINISHED"); const requests={...(room.rematchRequests||{}),[user.uid]:true};changes.rematchRequests=requests;
+      if (room.player1&&room.player2&&requests[room.player1.uid]&&requests[room.player2.uid]) { const progress=cleanChallengeProgress();Object.assign(changes,{status:"ready",selectedChallenge:null,winnerUid:null,previousChallengeType:room.selectedChallenge?.type||null,startedAt:null,finishedAt:null,rematchRequests:{},economyProcessed:{},round:Number(room.round||1)+1});["player1","player2"].forEach(key=>{changes[`${key}.ready`]=false;changes[`${key}.wager`]=0;changes[`${key}.wagerLocked`]=false;changes[`${key}.progress`]=progress;}); }
+    }
+    changes.updatedAt=now;transaction.update(ref,changes);return {...room,...changes};
+  });
+}
+
+export async function claimChallengeEconomy(roomCode) {
+  const user=requireAuthenticatedUser(),challengeRef=doc(db,"challenges",String(roomCode)),userRef=doc(db,"users",user.uid);
+  return runTransaction(db,async transaction=>{const challengeSnapshot=await transaction.get(challengeRef),userSnapshot=await transaction.get(userRef);if(!challengeSnapshot.exists()||!userSnapshot.exists())throw new Error("CLAIM_NOT_FOUND");const room=challengeSnapshot.data(),slot=room.player1?.uid===user.uid?"player1":room.player2?.uid===user.uid?"player2":null;if(!slot||room.status!=="finished"||!room.startedAt||room.economyProcessed?.[user.uid])throw new Error("CLAIM_INVALID");const wager=Math.max(0,Math.floor(Number(room[slot].wager)||0)),result=room.winnerUid==="draw"?"draw":room.winnerUid===user.uid?"win":"loss",delta=result==="win"?Math.floor(wager*.5):result==="loss"?-wager:0,userData=userSnapshot.data(),coins=userData.platform?.coins||{},balance=Math.max(0,(Number(coins.balance)||0)+delta),totalEarned=(Number(coins.totalEarned)||0)+Math.max(0,delta),totalSpent=(Number(coins.totalSpent)||0)+Math.max(0,-delta);transaction.update(userRef,{"platform.coins.balance":balance,"platform.coins.totalEarned":totalEarned,"platform.coins.totalSpent":totalSpent});transaction.update(challengeRef,{[`economyProcessed.${user.uid}`]:{result,wager,delta,balance,processedAt:Date.now()},updatedAt:Date.now()});return{result,wager,delta,balance};});
 }
 
 export async function createMultiplayerMatch(gameId, player, initialGameState, settings = {}) {
@@ -840,6 +971,11 @@ window.FirebaseManager = {
   getClassResetHistory,
   getPendingProgressReset,
   completeProgressReset,
+  createChallengeRoom,
+  joinChallengeRoom,
+  watchChallengeRoom,
+  updateChallengeRoom,
+  claimChallengeEconomy,
   createMultiplayerMatch,
   joinMultiplayerMatch,
   watchMultiplayerMatch,

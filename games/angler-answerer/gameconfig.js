@@ -5,7 +5,7 @@ window.GAME_CONFIG = {
   description: "Answer class questions to earn casts, hook pixel fish, master the tension meter and fill your Fishdex across five unlockable fishing grounds.",
   catchphrase: "Question to catch. Reel to score.",
   genre: "Fishing / Roguelike",
-  gameModes: ["singleplayer"],
+  gameModes: ["singleplayer", "challenge"],
   players: "1 Player",
   questionType: "multichoice",
   version: "1.0.0",
@@ -20,6 +20,7 @@ window.GAME_CONFIG = {
     { id:"angler_answerer_perfect_school", name:"Perfect School", description:"Answer ten class questions correctly in a row while fishing.", tier:"silver", scope:"game", requirement:{ stat:"run.correctStreak", operator:">=", value:10 } },
     { id:"angler_answerer_boss_landed", name:"Boss on the Line", description:"Land a boss fish during a valid fishing trip.", tier:"gold", scope:"game", requirement:{ event:"angler_boss_caught", value:true } }
   ],
+  challengeMode:{enabled:true,types:{scoreAttack:{enabled:true},timeAttack:{enabled:true,targetScore:40},questionRace:{enabled:true,targetCorrect:25},accuracyChallenge:{enabled:true,minimumQuestions:20,durationSeconds:300}}},
   levelRewards: [
     { id:"angler-answerer_lucky_rod", name:"Lucky Rod", type:"cosmetic", slot:"rod" },
     { id:"angler-answerer_bioluminescent_line", name:"Bioluminescent Line", type:"cosmetic", slot:"line" },

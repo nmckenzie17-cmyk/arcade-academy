@@ -1171,6 +1171,7 @@
   }
 
   function updateHUD() {
+    if(gameActive)window.ChallengeManager?.update?.({score:overallScore,wave:1+Math.floor(overallScore/100),waveProgress:killCount,alive:lives>0});
     document.getElementById('kill-val').textContent=killCount;
     document.getElementById('score-val').textContent=overallScore;
     document.getElementById('coins-val').textContent=sessionCoins;
@@ -1390,6 +1391,7 @@
   async function endGame() {
     PlatformManager.endPracticeRun();
     gameActive=false;clearInterval(spawnInterval);
+    window.ChallengeManager?.finish?.({score:overallScore,wave:1+Math.floor(overallScore/100),waveProgress:killCount,alive:false});
     if (deadManHandTimer) { clearInterval(deadManHandTimer); deadManHandTimer=null; }
     clearTimeout(duelTimerHandle); duelActive=false;
     document.getElementById('duel-overlay').classList.add('hidden');

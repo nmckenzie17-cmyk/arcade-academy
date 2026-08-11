@@ -29,6 +29,7 @@ const CONFIG = {
   saveKey: "anglers_ascent_save_v1"
 };
 const GAME_ID = "angler-answerer";
+let challengeRunCaught = 0;
 const QUESTION_TYPE = "multichoice";
 let questionBankReady = false;
 let currentQuestion = null;
@@ -761,6 +762,8 @@ function onFishCaught(){
   const twinCatch=hasAnglerSecret("secret_twin_shot");
   if(twinCatch)state.inventory.push({...invItem,uid:"f"+Date.now()+"_twin",name:"Twin "+invItem.name});
   state.stats.totalCaught += twinCatch?2:1;
+  challengeRunCaught += twinCatch?2:1;
+  window.ChallengeManager?.update?.({score:challengeRunCaught,alive:true});
   PlatformManager.setHighScore(GAME_ID,state.stats.totalCaught);
   if(RT.isBoss) window.AchievementManager?.notify?.("angler_boss_caught",{facts:{angler_boss_caught:1,mastery_angler_answerer:1}});
 
@@ -968,6 +971,7 @@ function onOutOfBait(){
   $("modalRunEnd").classList.add("show");
   RT.paused = true;
   PlatformManager.endSession(GAME_ID);
+  window.ChallengeManager?.finish?.({score:challengeRunCaught,alive:false});
   platformSessionStarted=false;
   window.AchievementManager?.notify?.("run_completed");
 }
@@ -2776,6 +2780,7 @@ async function init(){
 }
 function startGame(){
   if(!questionBankReady)return;
+  challengeRunCaught=0;
   stopHomeFishAnim();
   $("homeScreen").classList.remove("show");
   RT.paused=false;gameStarted=true;

@@ -2057,6 +2057,7 @@ if(wipe){wipe.classList.add('wipe');setTimeout(reveal,750);}
 else reveal();
 deathRewardMessage='';
 finalScore=Math.floor(score);
+window.ChallengeManager?.finish?.({score:finalScore,distance:Math.floor(score),alive:false});
 if(activePowerupEffects.highscore)finalScore=Math.floor(finalScore*(1+0.25*activePowerupEffects.highscore.correct));
 if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpackHighScore',highScore);PlatformManager.setHighScore(GAME_CONFIG.id,highScore);lastRunWasNewHigh=true;}else{lastRunWasNewHigh=false;}
 totalDeathCount++;
@@ -2514,11 +2515,14 @@ if(shopMessageTimer>0){shopMessageTimer--;if(shopMessageTimer===0)shopMessage.te
 // from total session time. Cheap - in-memory only, safe every frame.
 const isActivelyPlaying=gameStarted&&!showHome&&!gameOver&&!memoryGame.active&&!deathQuiz.active&&!powerupQuizActive&&!postQuizCountdownActive;
 PlatformManager.heartbeat(GAME_CONFIG.id,isActivelyPlaying);
+if(isActivelyPlaying)window.ChallengeManager?.update?.({score:Math.floor(score),distance:Math.floor(score),alive:true});
 update();draw();
 if(showHome)drawHomeBg();
 requestAnimationFrame(loop);
 }
 showHomeScreen();
+const registerJetpackChallenge=()=>window.ChallengeManager?.register?.({start:()=>{if(showHome&&!sessionLoading)startBtn.click();},snapshot:()=>({score:Math.floor(score),distance:Math.floor(score),alive:!gameOver})});
+if(window.ChallengeManager)registerJetpackChallenge();else window.addEventListener('arcade-challenge-manager-ready',registerJetpackChallenge,{once:true});
 loadCurrentQuestionPack().then(
   () => setSessionMessage('QUESTION BANK READY',false),
   error => setSessionMessage(error.message,true)

@@ -1332,6 +1332,7 @@ function formatElapsed(ms){
 function triggerRunOver(){
   PlatformManager.endPracticeRun();
   STATE = 'gameover';
+  window.ChallengeManager?.finish?.({score:levelIndex,distance:levelIndex,alive:false});
   // Subtly bias the very next run based on how this one went — struggled a lot (many
   // lives lost) eases the next run up slightly; breezed through tightens it up slightly.
   // This is consumed once (see resetSession) and never compounds across multiple runs.
@@ -3024,6 +3025,7 @@ function loop(ts){
   // Tells PlatformManager whether the player is actively playing right now (not paused,
   // not sat on the title/quiz/shop/game-over screens), for accurate play-time tracking.
   PlatformManager.heartbeat(GAME_CONFIG.id, STATE==='playing' && !!level);
+  if(STATE==='playing'&&level)window.ChallengeManager?.update?.({score:levelIndex,distance:levelIndex,alive:true});
 }
 
 /* ============================= BOOT ============================= */

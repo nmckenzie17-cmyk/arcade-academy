@@ -172,6 +172,7 @@ window.GAME_CONFIG = {
   supportsHighScores: false,
   supportsAchievements: true,
   createdBy: 'Mr McKenzie',
+  challengeMode:{enabled:false,types:{}},
   achievements: [
     { id:'pool_practice_run_the_table', name:'Run the Table', description:'Win a Pool Practice match after pocketing at least seven balls.', tier:'gold', scope:'game', requirement:{ event:'mastery_pool_practice', value:true } }
   ],

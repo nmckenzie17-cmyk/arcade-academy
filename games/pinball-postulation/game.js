@@ -763,6 +763,7 @@ function addScore(basePts) {
   const mult = comboMultiplier();
   const pts = Math.round(basePts * mult);
   score += pts;
+  window.ChallengeManager?.update?.({score,alive:true});
   document.getElementById('score-value').textContent = score;
   const comboLabel = document.getElementById('combo-label');
   if (mult > 1) {
@@ -1147,6 +1148,7 @@ function update() {
     if (lives <= 0) {
       PlatformManager.endPracticeRun();
       gameOver = true;
+      window.ChallengeManager?.finish?.({score,alive:false});
       document.getElementById('final-score').textContent = 'Score: ' + score;
       if (score > 0 && score === highScore) {
         document.getElementById('new-high-score').classList.remove('hidden');

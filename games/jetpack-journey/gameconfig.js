@@ -8,7 +8,7 @@ window.GAME_CONFIG = {
     catchphrase: "Fly farther. Match Smarter.",
 
     genre: "Endless Runner",
-    gameModes: ["singleplayer"],
+    gameModes: ["singleplayer", "challenge"],
 
     questionType: "matching",
 
@@ -27,5 +27,6 @@ window.GAME_CONFIG = {
     supportsAchievements: true,
 
     createdBy: "Mr McKenzie",
+    challengeMode:{enabled:true,types:{scoreAttack:{enabled:true},survival:{enabled:true},distanceRace:{enabled:true},timeAttack:{enabled:true,targetScore:10000},questionRace:{enabled:true,targetCorrect:25},accuracyChallenge:{enabled:true,minimumQuestions:20,durationSeconds:300}}},
 
 };

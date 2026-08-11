@@ -4713,6 +4713,7 @@
     }
 
     function updateUI() {
+      if(game.active&&!game.paused)window.ChallengeManager?.update?.({score:player.kills*100+player.level,wave:player.level,waveProgress:player.kills,alive:player.hp>0});
       const expReq = getExpReq(player.level);
       document.getElementById('hpText').textContent = `${Math.max(0, player.hp)}/${player.maxHp}`;
       document.getElementById('xpText').textContent = `${player.exp}/${expReq}`;
@@ -5937,6 +5938,7 @@
     function gameOver() {
       PlatformManager.endPracticeRun();
       game.active = false;
+      window.ChallengeManager?.finish?.({score:player.kills*100+player.level,wave:player.level,waveProgress:player.kills,alive:false});
       game.paused = true;
       progress.deaths++;
 

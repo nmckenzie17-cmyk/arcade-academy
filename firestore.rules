@@ -42,6 +42,35 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /challenges/{challengeId} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && request.resource.data.player1.uid == request.auth.uid
+        && request.resource.data.player2 == null
+        && request.resource.data.status == 'waiting';
+      allow update: if signedIn()
+        && ((resource.data.player2 == null
+            && request.resource.data.player2 != null
+            && request.resource.data.player2.uid == request.auth.uid
+            && resource.data.status == 'waiting'
+            && request.resource.data.status == 'ready')
+          || resource.data.player1.uid == request.auth.uid
+          || (resource.data.player2 != null
+            && resource.data.player2.uid == request.auth.uid))
+        && request.resource.data.challengeId == resource.data.challengeId
+        && request.resource.data.gameId == resource.data.gameId
+        && request.resource.data.player1.uid == resource.data.player1.uid
+        && request.resource.data.validTypes == resource.data.validTypes
+        && request.resource.data.createdAt == resource.data.createdAt
+        && ((resource.data.player2 == null
+            && request.resource.data.player2 != null
+            && request.resource.data.player2.uid == request.auth.uid)
+          || resource.data.player1.uid == request.auth.uid
+          || request.resource.data.player1 == resource.data.player1);
+      allow delete: if false;
+    }
+
     match /resetOperations/{operationId} {
       allow read, write: if isTeacher();
     }

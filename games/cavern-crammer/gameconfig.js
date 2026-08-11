@@ -9,7 +9,7 @@ window.GAME_CONFIG = {
     catchphrase: "Climb hard. Cram harder.",
 
     genre: "Platformer / Roguelike",
-    gameModes: ["singleplayer"],
+    gameModes: ["singleplayer", "challenge"],
 
     questionType: "matching",
 
@@ -28,5 +28,6 @@ window.GAME_CONFIG = {
     supportsAchievements: true,
 
     createdBy: "Mr McKenzie",
+    challengeMode:{enabled:true,types:{scoreAttack:{enabled:true},survival:{enabled:true},distanceRace:{enabled:true},timeAttack:{enabled:true,targetScore:12},questionRace:{enabled:true,targetCorrect:25},accuracyChallenge:{enabled:true,minimumQuestions:20,durationSeconds:300}}},
 
 };

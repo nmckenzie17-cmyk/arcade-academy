@@ -1767,6 +1767,7 @@ function showGameOver(voluntary){
     PlatformManager.endPracticeRun();
     if(voluntary!==undefined) lastRunWasVoluntary = voluntary; // remembered so returning from The Kingdom keeps the right framing
     state='gameover';
+    window.ChallengeManager?.finish?.({score:wave*100+kills,wave,waveProgress:kills,alive:!!voluntary});
     if(!gameOverCrownsAwarded){
         lastCrownsEarned = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCrownBonus));
         PlatformManager.addCoins(lastCrownsEarned);
@@ -1859,6 +1860,7 @@ function showCashOutConfirm(){
 }
 
 function updateHUD(){
+    if(state==='playing')window.ChallengeManager?.update?.({score:wave*100+kills,wave,waveProgress:kills,alive:castleHP>0});
     document.getElementById('hud-wave').textContent='⭐ Wave: '+wave;
     document.getElementById('hud-hp').textContent='❤️ HP: '+Math.floor(castleHP)+'/'+maxHP;
     document.getElementById('hud-ammo').textContent='🏹 Ammo: '+ammo+'/'+maxAmmo;

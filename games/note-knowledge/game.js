@@ -260,7 +260,7 @@ try {
         loadQuestionBank().then(updateCodeStatus);
       }
     };
-    (async()=>{await window.dataSdk.init(dataHandler);})();
+    if(window.dataSdk?.init)(async()=>{await window.dataSdk.init(dataHandler);})();
     loadQuestionBank().then(updateCodeStatus);
 
     function recalcUnlocks(){
@@ -623,6 +623,7 @@ try {
     }
 
     function updateHUD(){
+      if(gameState==='playing')window.ChallengeManager?.update?.({score,alive:health>0});
       document.getElementById('score-display').textContent=score;
       document.getElementById('coin-display').textContent=coins;
       document.getElementById('health-bar').style.width=Math.max(0,health)+'%';
@@ -638,6 +639,7 @@ try {
     function gameOver(){
       PlatformManager.endPracticeRun();
       gameState='over';cancelAnimationFrame(animFrame);
+      window.ChallengeManager?.finish?.({score,alive:false});
       PlatformManager.heartbeat(GAME_CONFIG.id, false);
 
       // Update persisted per-song stats

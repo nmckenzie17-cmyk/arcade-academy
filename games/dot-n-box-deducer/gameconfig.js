@@ -24,6 +24,7 @@ window.GAME_CONFIG = {
     { id:'dot_n_box_smart_victory', name:'Proof by Boxes', description:'Win a valid match with at least 80% question accuracy over five questions.', tier:'gold', scope:'game', requirement:{ all:[{event:'match_completed',result:'win'},{stat:'match.questionsAnswered',operator:'>=',value:5},{stat:'match.accuracy',operator:'>=',value:80}] } },
     { id:'dot_n_box_chain_master', name:'Chain Reaction', description:'Claim at least four boxes from one uninterrupted sequence of bonus turns.', tier:'gold', scope:'game', requirement:{ event:'dot_box_chain_mastery', value:true } }
   ],
+  challengeMode:{enabled:false,types:{}},
   levelRewards: [
     { id:'dot-n-box-deducer_neon_dots', name:'Neon Dots', type:'cosmetic', slot:'dots' },
     { id:'dot-n-box-deducer_prismatic_lines', name:'Prismatic Lines', type:'cosmetic', slot:'lines' },

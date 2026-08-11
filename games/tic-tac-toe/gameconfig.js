@@ -16,5 +16,6 @@ window.GAME_CONFIG = {
   requiresQuestionBank: true,
   supportsHighScores: false,
   supportsAchievements: true,
-  createdBy: "Mr McKenzie"
+  createdBy: "Mr McKenzie",
+  challengeMode:{enabled:false,types:{}}
 };

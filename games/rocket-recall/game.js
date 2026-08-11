@@ -5529,6 +5529,7 @@
         }
 
         function updateUI() {
+            if(game.state===GameState.PLAYING)window.ChallengeManager?.update?.({score:game.score,wave:game.wave,waveProgress:game.enemiesDefeatedThisRun,alive:game.lives>0});
             document.getElementById('wave').textContent = game.wave;
             document.getElementById('lives').textContent = game.lives;
             document.getElementById('score').textContent = game.score;
@@ -5575,6 +5576,7 @@
             PlatformManager.endPracticeRun();
             if (game.state === GameState.GAME_OVER) return;
             game.state = GameState.GAME_OVER;
+            window.ChallengeManager?.finish?.({score:game.score,wave:game.wave,waveProgress:game.enemiesDefeatedThisRun,alive:false});
             game.quizActive = false;
             clearInterval(game.quizTimer);
             

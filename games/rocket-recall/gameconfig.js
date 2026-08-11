@@ -8,7 +8,7 @@ window.GAME_CONFIG = {
     catchphrase: "Fire fast. Answer faster.",
 
     genre: "Space Invaders",
-    gameModes: ["singleplayer"],
+    gameModes: ["singleplayer", "challenge"],
 
     questionType: "multichoice",
 
@@ -27,5 +27,6 @@ window.GAME_CONFIG = {
     supportsAchievements: true,
 
     createdBy: "Mr McKenzie",
+    challengeMode:{enabled:true,types:{scoreAttack:{enabled:true},survival:{enabled:true},waveRace:{enabled:true},timeAttack:{enabled:true,targetScore:15000},questionRace:{enabled:true,targetCorrect:25},accuracyChallenge:{enabled:true,minimumQuestions:20,durationSeconds:300}}},
 
 };

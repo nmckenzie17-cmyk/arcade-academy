@@ -836,6 +836,28 @@
     return true;
   }
 
+  function recordChallengeResult(gameId, claim, challengeType) {
+    if (!gameId || !claim || !['win','loss','draw'].includes(claim.result)) return false;
+    const g = ensureGame(gameId);
+    g.challengesPlayed = normalizeCount(g.challengesPlayed) + 1;
+    g.challengesWon = normalizeCount(g.challengesWon) + (claim.result === 'win' ? 1 : 0);
+    g.challengesLost = normalizeCount(g.challengesLost) + (claim.result === 'loss' ? 1 : 0);
+    g.challengesDrawn = normalizeCount(g.challengesDrawn) + (claim.result === 'draw' ? 1 : 0);
+    g.challengeCoinsWon = normalizeCount(g.challengeCoinsWon) + Math.max(0, Number(claim.delta) || 0);
+    g.challengeCoinsLost = normalizeCount(g.challengeCoinsLost) + Math.max(0, -(Number(claim.delta) || 0));
+    g.challengeWinStreak = claim.result === 'win' ? normalizeCount(g.challengeWinStreak) + 1 : 0;
+    g.highestChallengeWinStreak = Math.max(normalizeCount(g.highestChallengeWinStreak), g.challengeWinStreak);
+    g.challengeTypes = { ...(g.challengeTypes || {}), [challengeType || 'unknown']: normalizeCount(g.challengeTypes?.[challengeType || 'unknown']) + 1 };
+    const favourite = Object.entries(g.challengeTypes).sort((a,b)=>b[1]-a[1])[0];
+    g.favouriteChallengeType = favourite?.[0] || null;
+    data.coins.balance = Math.max(0, Math.floor(Number(claim.balance) || 0));
+    if (claim.delta > 0) data.coins.totalEarned += claim.delta;
+    if (claim.delta < 0) data.coins.totalSpent += -claim.delta;
+    touchActivity(); save(); queueStatsSave([gameId]);
+    achievementEvent('challenge_completed', { result: claim.result, challengeType, amount: 1 });
+    return true;
+  }
+
   // ---- high scores --------------------------------------------------
 
   function setHighScore(gameId, score) {
@@ -1082,6 +1104,7 @@
     // questions
     recordQuestionAnswered,
     recordMultiplayerResult,
+    recordChallengeResult,
 
     // high scores
     setHighScore,
@@ -1123,6 +1146,19 @@
       const profile = await global.FirebaseManager?.getUserProfile?.(firebaseUid);
       global.AchievementManager?.connect?.(firebaseUid, profile?.achievementSystem);
     }, { once: true });
+  }
+
+  if (typeof document !== 'undefined'
+      && PLATFORM_SCRIPT_URL
+      && !global.ChallengeManager
+      && /\/games\//.test(location.pathname)
+      && global.GAME_CONFIG?.challengeMode?.enabled === true) {
+    const challengeScript = document.createElement('script');
+    const challengeUrl = new URL('ChallengeManager.js', PLATFORM_SCRIPT_URL);
+    challengeUrl.searchParams.set('v','20260812-challenge-mode-v1');
+    challengeScript.src = challengeUrl.href;
+    challengeScript.defer = true;
+    document.head.appendChild(challengeScript);
   }
 
   if (typeof document !== 'undefined') {

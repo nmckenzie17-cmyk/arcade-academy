@@ -853,7 +853,12 @@ function displayGames(games) {
       ? game.gameModes
       : (game.players === "2 Online" ? ["multiplayer"] : ["singleplayer"]);
     const supportsSinglePlayer = modes.includes("singleplayer");
+    const supportsChallenge = modes.includes("challenge");
     const supportsMultiplayer = modes.includes("multiplayer");
+    if (supportsChallenge) {
+      link.dataset.supportsChallenge = "true";
+      card.querySelector(".game-genre").textContent += " · Challenge Mode";
+    }
     const primaryMode = game.primaryMode || (supportsMultiplayer ? "multiplayer" : "singleplayer");
 
     if (primaryMode === "singleplayer") {
