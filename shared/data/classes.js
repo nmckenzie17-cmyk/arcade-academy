@@ -44,6 +44,7 @@ window.CLASS_OPTIONS = [
   { name: "10 Maire", yearLevels: [10] },
 
   { name: "11 Science", yearLevels: [11] },
+   { name: "11 Supported Science", yearLevels: [11] },
   { name: "11 English", yearLevels: [11] },
   { name: "11 Maths", yearLevels: [11] },
 
