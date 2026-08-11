@@ -112,6 +112,27 @@ body {
 }
 .jump-link-secondary { background: rgba(168,85,247,.2); border-color: var(--accent-violet); }
 
+.progression-section {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  scroll-margin-top: 1rem;
+}
+.progression-panel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  background: var(--gradient-panel);
+  border: var(--border-width-panel) solid var(--border-purple);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--glow-card);
+}
+.progression-icon { font-size: clamp(2rem, 7vw, 3.5rem); }
+.progression-panel h3 { margin: 0 0 .45rem; color: var(--gold); font-family: var(--font-title); font-size: clamp(.72rem, 2vw, .9rem); line-height: 1.5; }
+.progression-panel p { margin: 0; color: #d9d0ee; line-height: 1.65; }
+@media (max-width: 480px) { .progression-panel { align-items: flex-start; } }
+
 .hero-orb {
   position: absolute;
   z-index: 0;

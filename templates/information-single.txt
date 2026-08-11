@@ -296,6 +296,52 @@ After implementation, report:
 - Coin values applied
 - Save data that remains local
 - Data synchronized through PlatformManager/Firebase
+
+## Achievement and Level Integration
+
+Every new game must integrate with the shared AchievementManager when it becomes available. Do not create a separate achievement save system.
+
+- Practice mode must not advance achievements, XP, level rewards, coins, scores, or cosmetic progress.
+- Reuse PlatformManager statistics wherever possible; emit only game-specific events that shared statistics cannot derive.
+- Game events must use stable names and data-only payloads, for example: run completed, enemy defeated, boss defeated, damage taken, stage reached, cosmetic equipped, and special challenge completed.
+- Bronze, Silver, Gold, and Platinum achievements grant XP only. They do not directly grant cosmetics.
+- Cosmetics may be unlocked only by player levels or Secret achievements.
+- Register in-game cosmetics in GameConfig and show them in a Cosmetics tab only after the player owns at least one cosmetic for this game.
+- In-game cosmetics include player/character sprites, alternate characters, weapons, projectiles, trails, game backgrounds, effects, and game-specific HUD appearances.
+- Hub fonts, global style themes, hub borders, badges, and other shared aesthetics belong to Hub Upgrades, not the game shop.
+- Any level reward that affects gameplay must be small, single-player only, and declared explicitly. Target approximately 80% cosmetic and 20% gameplay rewards in each game's configured reward pool.
+- Gameplay-changing rewards must never affect multiplayer and should be excluded from ranked/leaderboard challenge runs.
+
+Add at least two original game-specific achievements to `gameconfig.js`. Each needs a globally unique stable ID, name, description, tier, scope, and declarative requirement/event conditions. Regular game achievements have no direct reward field because their tier determines XP centrally. At least one should reward educational performance or improvement; the other should reward mastery of the game's distinctive mechanics. Do not make either achievement farmable in Practice mode.
+
+Example shape:
+
+```javascript
+achievements: [
+  {
+    id: "example_game_accurate_run",
+    name: "Focused Finish",
+    description: "Complete a valid run with at least 85% accuracy over 10 questions.",
+    tier: "silver",
+    scope: "game",
+    requirement: { all: [
+      { event: "run_completed", value: true },
+      { stat: "run.questionsAnswered", operator: ">=", value: 10 },
+      { stat: "run.accuracy", operator: ">=", value: 85 }
+    ] }
+  },
+  {
+    id: "example_game_mastery_challenge",
+    name: "Game Specialist",
+    description: "Complete this game's distinctive mastery challenge.",
+    tier: "gold",
+    scope: "game",
+    requirement: { event: "game_mastery_challenge_completed", value: true }
+  }
+]
+```
+
+Also register a `levelRewards` pool in GameConfig. Use a stable reward ID and type, and maintain an approximate four-cosmetic-to-one-gameplay ratio. The central level manager dynamically rotates otherwise-unreserved levels across enabled games and persists the resolved level-to-reward assignment so later catalogue changes do not revoke rewards.
 - Tests performed
 - Anything still requiring my decision
 - Any Firestore rule or deployment requirement

@@ -108,6 +108,49 @@ Use one stable game ID across:
 - GameSaveManager
 - Favourite-game tracking
 
+## Achievement and Level Integration
+
+Use the future shared AchievementManager; never create per-game achievement persistence.
+
+- Practice and test matches award no achievements, XP, levels, coins, scores, or cosmetic progress.
+- Human multiplayer and CPU matches must be distinguishable in emitted events.
+- Include stable match-completion facts needed for achievements: result, CPU difficulty where relevant, question totals/accuracy, comeback state, close-match state, and damage/score summary. Never include opponent names, email addresses, or UIDs in achievement display data.
+- Prevent farming by limiting repeat-opponent credit according to the central manager's policy.
+- Bronze, Silver, Gold, and Platinum achievements grant XP only. Cosmetics come only from level rewards and Secret achievements.
+- In-game cosmetics belong in the game's Cosmetics tab, hidden until at least one compatible item is owned. Hub/global aesthetics belong in Hub Upgrades.
+- Gameplay-changing level rewards must be disabled in every human multiplayer match. If offered for a multiplayer-capable game, they may affect CPU mode only and must not affect leaderboard eligibility.
+
+Add at least two original game-specific achievements to `gameconfig.js`: one educational/multiplayer-performance achievement and one distinctive game-mastery achievement. Each requires a globally unique stable ID, name, description, tier, scope, and declarative multi-condition requirement. They must not grant direct regular-achievement cosmetics and must not be earnable in Practice mode.
+
+Example shape:
+
+```javascript
+achievements: [
+  {
+    id: "example_multiplayer_smart_win",
+    name: "Thinking Champion",
+    description: "Win a valid match with at least 85% accuracy over 10 questions.",
+    tier: "gold",
+    scope: "game",
+    requirement: { all: [
+      { event: "match_completed", result: "win" },
+      { stat: "match.questionsAnswered", operator: ">=", value: 10 },
+      { stat: "match.accuracy", operator: ">=", value: 85 }
+    ] }
+  },
+  {
+    id: "example_multiplayer_mastery",
+    name: "Tactical Master",
+    description: "Complete this game's distinctive mastery condition.",
+    tier: "gold",
+    scope: "game",
+    requirement: { event: "game_mastery_challenge_completed", value: true }
+  }
+]
+```
+
+Register an optional `levelRewards` pool using stable reward IDs. Maintain roughly 80% cosmetics and 20% small CPU-only gameplay rewards. The central level manager resolves and permanently records the dynamic enabled-game rotation.
+
 Include existing metadata fields where applicable:
 
 - ID

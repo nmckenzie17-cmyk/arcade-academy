@@ -330,33 +330,11 @@
   // lives in PlatformManager (shared/js/PlatformManager.js) as the single
   // source of truth for the shared coin economy. `sessionCoins` above is
   // this run's ephemeral, not-yet-banked earnings, which stays local.
-  let highScore=0, bulletLevel=0, livesLevel=0, lootBoxCount=0, comboLevel=0;
+  let highScore=0, bulletLevel=0, livesLevel=0, comboLevel=0;
   let totalCorrectAnswers=0, totalKills=0;
   let equippedPowerups=[]; // ids from POWERUPS the player has selected to run with
   let ownedCrosshairs=[], ownedEffects=[];
   let equippedCrosshair='', equippedEffect='';
-
-  const ALL_CROSSHAIRS = ['Cross','Circle','Dot','Sheriff Badge','Horseshoe','Star','Skull','Bullseye'];
-  const ALL_EFFECTS = ['Smoke','Fire','Rainbow','Stars','Lightning','Hearts','Coins','Green Plasma','Blue Ice'];
-
-  // Loot box rarity system
-  const RARITY = {
-    common:    { chance:0.55, color:'#9aa0a6', glow:'rgba(154,160,166,0.6)',  label:'Common' },
-    rare:      { chance:0.28, color:'#00d4ff', glow:'rgba(0,212,255,0.7)',   label:'Rare' },
-    epic:      { chance:0.13, color:'#a855f7', glow:'rgba(168,85,247,0.75)', label:'Epic' },
-    legendary: { chance:0.04, color:'#d4af37', glow:'rgba(212,175,55,0.85)', label:'Legendary' }
-  };
-  const RARITY_ORDER = ['common','rare','epic','legendary'];
-  const RARITY_COIN_BONUS = { common:15, rare:35, epic:75, legendary:200 };
-  const ITEM_RARITY = {
-    'Cross':'common','Dot':'common','Circle':'common',
-    'Horseshoe':'rare','Star':'rare','Sheriff Badge':'rare',
-    'Skull':'epic','Bullseye':'epic',
-    'Smoke':'common','Stars':'common','Coins':'common',
-    'Fire':'rare','Hearts':'rare','Blue Ice':'rare',
-    'Lightning':'epic','Green Plasma':'epic',
-    'Rainbow':'legendary'
-  };
 
   const EFFECT_COLORS = {
     'Smoke':['#888','#aaa','#ccc','#666'],
@@ -397,7 +375,6 @@
         highScore = playerData.high_score || 0;
         bulletLevel = playerData.bullet_upgrade_level || 0;
         livesLevel = playerData.lives_upgrade_level || 0;
-        lootBoxCount = playerData.loot_box_count || 0;
         totalCorrectAnswers = playerData.total_correct_answers || 0;
         totalKills = playerData.total_kills || 0;
         equippedPowerups = playerData.equipped_powerups ? playerData.equipped_powerups.split(',').filter(Boolean) : [];
@@ -408,7 +385,7 @@
         equippedEffect = playerData.equipped_effect || '';
       } else {
         playerData = null;
-        highScore=0; bulletLevel=0; livesLevel=0; lootBoxCount=0; comboLevel=0;
+        highScore=0; bulletLevel=0; livesLevel=0; comboLevel=0;
         totalCorrectAnswers=0; totalKills=0; equippedPowerups=[];
         ownedCrosshairs=[]; ownedEffects=[];
         equippedCrosshair=''; equippedEffect='';
@@ -432,7 +409,6 @@
       high_score: highScore,
       bullet_upgrade_level: bulletLevel,
       lives_upgrade_level: livesLevel,
-      loot_box_count: lootBoxCount,
       total_correct_answers: totalCorrectAnswers,
       total_kills: totalKills,
       equipped_powerups: equippedPowerups.join(','),
@@ -465,7 +441,7 @@
   function goHome() { showScreen('home-screen'); updateHomeStats(); }
 
   // Shop
-  const SHOP_TABS = ['upgrades','powerups','loot'];
+  const SHOP_TABS = ['upgrades','powerups'];
   function switchShopTab(tab) {
     SHOP_TABS.forEach(t => {
       document.getElementById('shop-tab-'+t).classList.toggle('hidden', t!==tab);
@@ -478,10 +454,9 @@
     updateBulletInfo();
     updateLifeInfo();
     updateComboUpgradeInfo();
-    updateLootBoxInfo();
     renderPowerups();
     switchShopTab('upgrades');
-    document.getElementById('loot-result').classList.add('hidden');
+    document.getElementById('shop-result').classList.add('hidden');
   }
 
   function renderPowerups() {
@@ -518,7 +493,7 @@
       equippedPowerups = equippedPowerups.filter(x => x!==id);
     } else {
       if (equippedPowerups.length >= maxEquippedSlots()) {
-        showLootResult('No free powerup slots! Unequip one first.', '#e74c3c');
+        showShopResult('No free powerup slots! Unequip one first.', '#e74c3c');
         return;
       }
       equippedPowerups.push(id);
@@ -536,13 +511,13 @@
 
   async function buyBulletUpgrade() {
     const cost = PlatformManager.permanentUpgradeCost(bulletLevel);
-    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
+    if (!PlatformManager.spendCoins(cost)) { showShopResult('Not enough coins!', '#e74c3c'); return; }
     bulletLevel++;
     maxAmmo = 5 + bulletLevel;
     await safeSave();
     document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateBulletInfo();
-    showLootResult('Upgraded! Ammo: ' + maxAmmo, '#2ecc71');
+    showShopResult('Upgraded! Ammo: ' + maxAmmo, '#2ecc71');
   }
 
   function lifeUpgradeCost() { return PlatformManager.permanentUpgradeCost(livesLevel); }
@@ -551,12 +526,12 @@
   }
   async function buyLifeUpgrade() {
     const cost = lifeUpgradeCost();
-    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
+    if (!PlatformManager.spendCoins(cost)) { showShopResult('Not enough coins!', '#e74c3c'); return; }
     livesLevel++;
     await safeSave();
     document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateLifeInfo();
-    showLootResult('❤️ Now starting with ' + (3+livesLevel) + ' lives!', '#2ecc71');
+    showShopResult('❤️ Now starting with ' + (3+livesLevel) + ' lives!', '#2ecc71');
   }
 
   // Combo Master: raises how fast your streak multiplier grows and its cap. Cost rises exponentially.
@@ -568,92 +543,19 @@
   }
   async function buyComboUpgrade() {
     const cost = comboUpgradeCost();
-    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
+    if (!PlatformManager.spendCoins(cost)) { showShopResult('Not enough coins!', '#e74c3c'); return; }
     comboLevel++;
     await safeSave();
     document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
     updateComboUpgradeInfo();
-    showLootResult('🔥 Combo power increased!', '#2ecc71');
+    showShopResult('🔥 Combo power increased!', '#2ecc71');
   }
 
-  function lootBoxCost() { return PlatformManager.permanentUpgradeCost(lootBoxCount); }
-  function updateLootBoxInfo() {
-    document.getElementById('lootbox-info').textContent = lootBoxCost() + ' 🪙 — Common → Legendary crosshairs, effects & coin jackpots! (price rises after each box)';
-  }
-
-  function pickRarity() {
-    const r = Math.random();
-    let cum = 0;
-    for (const key of RARITY_ORDER) { cum += RARITY[key].chance; if (r <= cum) return key; }
-    return 'common';
-  }
-
-  async function buyLootBox() {
-    const cost = lootBoxCost();
-    if (!PlatformManager.spendCoins(cost)) { showLootResult('Not enough coins!', '#e74c3c'); return; }
-    lootBoxCount++;
-    const rarityKey = pickRarity();
-    const poolNames = Object.keys(ITEM_RARITY).filter(n => ITEM_RARITY[n] === rarityKey);
-    const availCross = poolNames.filter(n => ALL_CROSSHAIRS.includes(n) && !ownedCrosshairs.includes(n));
-    const availEffect = poolNames.filter(n => ALL_EFFECTS.includes(n) && !ownedEffects.includes(n));
-    const pool = [...availCross.map(n=>({type:'crosshair',name:n})), ...availEffect.map(n=>({type:'effect',name:n}))];
-    if (pool.length > 0) {
-      const pick = pool[Math.floor(Math.random()*pool.length)];
-      if (pick.type==='crosshair') ownedCrosshairs.push(pick.name); else ownedEffects.push(pick.name);
-      const emoji = pick.type==='crosshair' ? '🎯' : '💥';
-      showLootReveal(rarityKey, emoji + ' ' + pick.name, false, 0);
-    } else {
-      // Everything in this tier is already owned — convert to a coin jackpot instead of a dud
-      const bonus = RARITY_COIN_BONUS[rarityKey];
-      PlatformManager.addCoins(bonus);
-      showLootReveal(rarityKey, '', true, bonus);
-    }
-    await safeSave();
-    document.getElementById('shop-coins-display').textContent = '🪙 ' + PlatformManager.getCoins();
-    updateLootBoxInfo();
-  }
-
-  function burstConfetti(container, color) {
-    for (let i=0;i<16;i++) {
-      const p = document.createElement('div');
-      const angle = Math.random()*Math.PI*2, dist = 24+Math.random()*54;
-      p.style.cssText = 'position:absolute;left:50%;top:38%;width:5px;height:5px;border-radius:50%;pointer-events:none;';
-      p.style.background = color;
-      p.style.setProperty('--cx', Math.cos(angle)*dist+'px');
-      p.style.setProperty('--cy', Math.sin(angle)*dist+'px');
-      p.style.animation = 'confettiPop 0.8s ease-out forwards';
-      container.appendChild(p);
-      setTimeout(()=>p.remove(),800);
-    }
-  }
-
-  function showLootReveal(rarityKey, itemLabel, isCoinBonus, coinAmount) {
-    const rarity = RARITY[rarityKey];
-    const el = document.getElementById('loot-result');
-    el.innerHTML = '';
-    el.classList.remove('hidden');
-    el.classList.remove('loot-reveal-anim'); void el.offsetWidth; el.classList.add('loot-reveal-anim');
-    el.style.position = 'relative';
-    el.style.border = '2px solid ' + rarity.color;
-    el.style.borderRadius = '10px';
-    el.style.padding = '12px';
-    el.style.background = 'rgba(0,0,0,0.35)';
-    el.style.boxShadow = '0 0 22px ' + rarity.glow;
-    const banner = document.createElement('div');
-    banner.textContent = rarity.label.toUpperCase() + (rarityKey==='legendary' ? ' — JACKPOT!' : '!');
-    banner.style.cssText = 'font-family:"Press Start 2P",cursive;font-size:11px;color:'+rarity.color+';text-shadow:0 0 10px '+rarity.glow+';margin-bottom:8px;letter-spacing:1px;';
-    const body = document.createElement('div');
-    body.textContent = isCoinBonus ? ('Already own everything here — 🪙 +' + coinAmount + ' bonus coins!') : (itemLabel + ' unlocked!');
-    body.style.cssText = 'font-size:14px;color:#fff;font-weight:700;';
-    el.appendChild(banner); el.appendChild(body);
-    if (rarityKey==='epic' || rarityKey==='legendary') burstConfetti(el, rarity.color);
-  }
-
-  function showLootResult(msg, color) {
-    const el = document.getElementById('loot-result');
-    el.style.cssText = ''; // clear any leftover rarity-reveal styling
+  function showShopResult(msg, color) {
+    const el = document.getElementById('shop-result');
+    el.style.cssText = '';
     el.textContent = msg; el.style.color = color;
-    el.classList.remove('hidden'); el.classList.remove('loot-reveal-anim'); el.classList.add('loot-result');
+    el.classList.remove('hidden');
   }
 
   function goToShopFromGameOver() { goHome(); openShop(); }

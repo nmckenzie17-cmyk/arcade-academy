@@ -143,11 +143,6 @@ body {
 /* Base show/hide (.open) behavior now comes from global's .modal-overlay;
    this game keeps a slightly lighter backdrop */
 .modal-overlay { background: rgba(0,0,0,0.8); }
-.loot-result { animation: lootPop 0.3s ease-out; }
-.loot-reveal-anim { animation: lootRevealPop 0.55s cubic-bezier(.2,1.4,.4,1); }
-@keyframes lootRevealPop { 0%{ transform: scale(0.4) rotate(-4deg); opacity:0; } 60%{ transform: scale(1.08) rotate(1deg); opacity:1; } 100%{ transform: scale(1) rotate(0); } }
-@keyframes confettiPop { to { transform: translate(var(--cx), var(--cy)); opacity: 0; } }
-@keyframes lootPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .crosshair-overlay { position: fixed; pointer-events: none; z-index: 999; width: 32px; height: 32px; transform: translate(-50%, -50%); }
 
 /* ===== HUD — always top corners, never moves between games =====

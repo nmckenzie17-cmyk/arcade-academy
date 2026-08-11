@@ -44,7 +44,7 @@
       🤠 Aim and shoot outlaws before they reach you<br>
       🔫 Reload by solving word puzzles under pressure<br>
       🏆 Answer quiz questions to earn upgrades and grow stronger<br>
-      💰 Collect coins to unlock new crosshairs and death effects
+      ✨ Earn crosshairs and effects through levels and Secret achievements
      </p>
     </div>
     <p id="code-status" class="text-xs desc-font text-center mb-4" style="color:#9aa0a6;"></p><button id="start-button" class="canva-button title-font w-full py-3 pixel-border rounded uppercase tracking-widest" style="font-size:16px;" onclick="startGame()">Press Start</button>
@@ -61,7 +61,6 @@
     <div class="flex gap-2 mb-3">
      <button id="shop-tab-btn-upgrades" onclick="switchShopTab('upgrades')" class="canva-button flex-1 py-2 pixel-border rounded font-bold text-xs uppercase">Upgrades</button>
      <button id="shop-tab-btn-powerups" onclick="switchShopTab('powerups')" class="canva-button flex-1 py-2 pixel-border rounded font-bold text-xs uppercase">Powerups</button>
-     <button id="shop-tab-btn-loot" onclick="switchShopTab('loot')" class="canva-button flex-1 py-2 pixel-border rounded font-bold text-xs uppercase">Loot Box</button>
     </div>
     <div class="flex-1 overflow-y-auto">
      <div id="shop-tab-upgrades" class="shop-tab-content"><!-- Bullet Upgrade -->
@@ -82,13 +81,7 @@
       <p id="powerup-slots-info" class="text-xs text-gray-400 desc-font mb-3 text-center">1 powerup slot — equip up to 1 for your next run</p>
       <div id="powerup-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
      </div>
-     <div id="shop-tab-loot" class="shop-tab-content hidden"><!-- Loot Box -->
-      <div class="p-3 rounded" style="background:rgba(255,143,168,0.12);border:1px solid #ff8fa8;">
-       <p class="canva-text desc-font font-bold text-sm mb-1">Loot Box</p>
-       <p id="lootbox-info" class="text-xs text-gray-400 desc-font mb-2">20 🪙 — Random crosshair or death effect!</p><button id="buy-loot-btn" onclick="buyLootBox()" class="canva-button w-full py-2 pixel-border rounded font-bold text-sm">Open Loot Box</button>
-       <div id="loot-result" class="mt-3 text-center text-sm font-bold hidden"></div>
-      </div>
-     </div>
+     <div id="shop-result" class="mt-3 text-center text-sm font-bold hidden"></div>
     </div>
     <button onclick="closeShop()" class="canva-button exit-shop-btn w-full py-2 pixel-border rounded font-bold text-sm uppercase">Exit Shop</button>
    </div>
