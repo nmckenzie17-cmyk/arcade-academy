@@ -170,6 +170,35 @@ export async function updateStudentClass(uid, className) {
   }
 }
 
+export async function updateStudentProfile(uid, profileChanges = {}) {
+  try {
+    const teacherUid = auth.currentUser?.uid;
+    const displayName = String(profileChanges.displayName || "").trim();
+    const yearLevel = String(profileChanges.yearLevel || "").trim();
+    if (!teacherUid || !uid || !displayName || !/^Year (9|10|11|12|13)$/.test(yearLevel)) {
+      throw new Error("Invalid student profile update");
+    }
+
+    const teacherProfile = await getUserProfile(teacherUid);
+    if (teacherProfile?.role !== "teacher") throw new Error("Teacher access required");
+
+    const studentRef = doc(db, "users", uid);
+    const studentSnapshot = await getDoc(studentRef);
+    if (!studentSnapshot.exists()) throw new Error("Student profile not found");
+    if (studentSnapshot.data()?.role === "teacher") throw new Error("Teacher profiles cannot be edited here");
+
+    await updateDoc(studentRef, {
+      displayName: displayName.slice(0, 80),
+      yearLevel,
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  } catch (error) {
+    console.error("Unable to update student profile:", error);
+    return false;
+  }
+}
+
 export async function deleteStudentData(uid) {
   try {
     const teacherUid = auth.currentUser?.uid;
@@ -790,6 +819,7 @@ window.FirebaseManager = {
   getUserProfile,
   createUserProfile,
   updateUserProfile,
+  updateStudentProfile,
   updateStudentClass,
   deleteStudentData,
   getPlatformData,

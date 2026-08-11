@@ -683,14 +683,58 @@ tbody th {
   background: var(--surface-alt);
 }
 
+.student-profile-settings,
 .student-class-settings {
   padding-bottom: 1rem;
 }
 
+.student-profile-settings {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.student-profile-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(140px, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.student-profile-fields > div {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.student-profile-fields label,
 .student-class-settings > label {
   display: block;
-  margin-bottom: 0.45rem;
   font-weight: 600;
+}
+
+.student-class-settings > label {
+  margin-bottom: 0.45rem;
+}
+
+.student-profile-fields input,
+.student-profile-fields select {
+  width: 100%;
+  min-width: 0;
+}
+
+.student-profile-fields input {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--aa-border);
+  border-radius: var(--radius-sm);
+  background: var(--aa-panel-alt);
+  color: #f4f5ff;
+}
+
+.student-profile-fields input:focus {
+  border-color: var(--aa-cyan);
+  outline: 2px solid color-mix(in srgb, var(--aa-cyan) 35%, transparent);
+  outline-offset: 1px;
 }
 
 .student-class-row {
@@ -933,6 +977,7 @@ tbody th {
 }
 
 @media (max-width: 640px) {
+  .student-profile-fields,
   .student-class-row {
     grid-template-columns: 1fr;
   }

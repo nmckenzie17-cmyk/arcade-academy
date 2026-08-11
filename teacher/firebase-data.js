@@ -215,6 +215,13 @@ window.TeacherDataProvider = {
     return true;
   },
 
+  async updateStudentProfile(studentId, changes) {
+    const updated = await window.FirebaseManager.updateStudentProfile(studentId, changes);
+    if (!updated) throw new Error("Firestore rejected the student profile update.");
+    studentDocuments = null;
+    return true;
+  },
+
   async deleteStudent(studentId) {
     const deleted = await window.FirebaseManager.deleteStudentData(studentId);
     if (!deleted) throw new Error("Firestore rejected the student deletion.");

@@ -85,6 +85,10 @@
     els.panelClose = document.getElementById("panel-close");
     els.panelTitle = document.getElementById("panel-student-name");
     els.panelMeta = document.getElementById("panel-student-meta");
+    els.studentNameInput = document.getElementById("student-name-input");
+    els.studentYearSelect = document.getElementById("student-year-select");
+    els.studentProfileSave = document.getElementById("student-profile-save");
+    els.studentProfileResult = document.getElementById("student-profile-result");
     els.studentClassSelect = document.getElementById("student-class-select");
     els.studentClassSave = document.getElementById("student-class-save");
     els.studentClassResult = document.getElementById("student-class-result");
@@ -247,6 +251,7 @@
     els.resetLearningButton.addEventListener("click", () => beginReset("learning"));
     els.resetAllButton.addEventListener("click", () => beginReset("all"));
     els.deleteStudentButton.addEventListener("click", beginStudentDeletion);
+    els.studentProfileSave.addEventListener("click", saveStudentProfile);
     els.studentClassSave.addEventListener("click", saveStudentClass);
     els.resetCancel.addEventListener("click", closeResetConfirmation);
     els.resetContinue.addEventListener("click", showFinalResetWarning);
@@ -492,6 +497,7 @@
     els.trendSummary.textContent = "";
     els.trendGraph.innerHTML = "";
     els.resetResult.textContent = "";
+    els.studentProfileResult.textContent = "";
     els.studentClassResult.textContent = "";
     document.body.classList.add("panel-open");
 
@@ -511,6 +517,8 @@
 
     els.panelTitle.textContent = detail.name;
     els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
+    els.studentNameInput.value = detail.name;
+    els.studentYearSelect.value = detail.yearLevel;
     populateStudentClassOptions(detail);
 
     renderGameStats(detail.games);
@@ -586,6 +594,42 @@
       .map(className => `<option value="${escapeHtml(className)}"${className === detail.className ? " selected" : ""}>${escapeHtml(className)}</option>`)
       .join("");
     els.studentClassSave.disabled = classes.length === 0;
+  }
+
+  async function saveStudentProfile() {
+    const detail = state.selectedStudentDetail;
+    const displayName = els.studentNameInput.value.trim();
+    const yearLevel = els.studentYearSelect.value;
+    if (!detail) return;
+    if (!displayName) {
+      els.studentProfileResult.textContent = "Enter a student name first.";
+      els.studentNameInput.focus();
+      return;
+    }
+    if (displayName === detail.name && yearLevel === detail.yearLevel) {
+      els.studentProfileResult.textContent = "The name and year level are already up to date.";
+      return;
+    }
+
+    els.studentProfileSave.disabled = true;
+    els.studentProfileSave.textContent = "Saving…";
+    els.studentProfileResult.textContent = "";
+    try {
+      await window.TeacherDataProvider.updateStudentProfile(detail.id, { displayName, yearLevel });
+      detail.name = displayName;
+      detail.yearLevel = yearLevel;
+      els.panelTitle.textContent = detail.name;
+      els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
+      populateStudentClassOptions(detail);
+      els.studentProfileResult.textContent = `Updated ${detail.name} to ${detail.yearLevel}.`;
+      await refreshOverview();
+    } catch (error) {
+      console.error("Unable to update student profile:", error);
+      els.studentProfileResult.textContent = "The student profile could not be updated. Check teacher write permissions and try again.";
+    } finally {
+      els.studentProfileSave.disabled = false;
+      els.studentProfileSave.textContent = "Save Name & Year";
+    }
   }
 
   async function saveStudentClass() {

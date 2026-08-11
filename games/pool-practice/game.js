@@ -311,7 +311,12 @@
     const playerId = PoolMultiplayer.generatePlayerId();
     const res = await PoolMultiplayer.joinRoom(code);
     if (!res.ok) {
-      $('join-status').textContent = res.reason === 'not_found' ? 'Room not found.' : 'That room is full.';
+      const joinMessages = {
+        ROOM_NOT_FOUND: 'Room not found. Check the code and try again.',
+        ROOM_FULL: 'That room already has two players.',
+        CREATOR_CANNOT_JOIN: 'You created this room. Wait for another player to join.'
+      };
+      $('join-status').textContent = joinMessages[res.reason] || res.reason || 'Could not join that room.';
       return;
     }
     S.mp = { roomCode: code, playerId, localSeat: 1, lastAppliedVersion: -1 };
@@ -336,6 +341,22 @@
     }
     if (match && S.mp) S.mp.localSeat = match.player1?.uid === S.mp.playerId ? 0 : 1;
     $('disconnect-banner').classList.toggle('hidden', !isOpponentDisconnected(room));
+
+    // A newly-created room has no table state until a second player joins.
+    // Do not pass that waiting snapshot to PoolTable.deserialize(null).
+    if (room.status === 'waiting' || room.status === 'lobby') {
+      if (S.mp?.localSeat === 0) {
+        $('lobby-create-panel').classList.remove('hidden');
+        $('room-code-display').textContent = room.roomCode;
+        $('lobby-status').textContent = 'Waiting for Player 2…';
+      }
+      return;
+    }
+
+    if (room.status === 'abandoned') {
+      $('disconnect-banner').classList.remove('hidden');
+      return;
+    }
 
     // Lobby: host waiting screen updates when guest joins & match kicks off.
     if (room.status === 'active' && room.balls === null && S.mp && S.mp.localSeat === 0) {
@@ -412,6 +433,7 @@
   }
 
   function applyRemoteRoomState(room) {
+    if (!Array.isArray(room.balls)) return;
     const previousBalls = S.table.balls.map(b => ({ n: b.number, x: b.x, y: b.y, pocketed: b.pocketed }));
     S.table.deserialize(room.balls);
     S.questionMode = room.questionMode;

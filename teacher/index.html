@@ -271,6 +271,26 @@
 
       <section class="panel-section student-settings" aria-labelledby="student-settings-heading">
         <h3 id="student-settings-heading">Student Settings</h3>
+        <div class="student-profile-settings">
+          <div class="student-profile-fields">
+            <div>
+              <label for="student-name-input">Student name</label>
+              <input id="student-name-input" type="text" maxlength="80" autocomplete="off" />
+            </div>
+            <div>
+              <label for="student-year-select">Year level</label>
+              <select id="student-year-select">
+                <option value="Year 9">Year 9</option>
+                <option value="Year 10">Year 10</option>
+                <option value="Year 11">Year 11</option>
+                <option value="Year 12">Year 12</option>
+                <option value="Year 13">Year 13</option>
+              </select>
+            </div>
+          </div>
+          <button id="student-profile-save" class="reset-button" type="button">Save Name &amp; Year</button>
+          <p id="student-profile-result" class="settings-result" role="status" aria-live="polite"></p>
+        </div>
         <div class="student-class-settings">
           <label for="student-class-select">Assigned class</label>
           <div class="student-class-row">
