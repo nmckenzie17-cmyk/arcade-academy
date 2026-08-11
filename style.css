@@ -148,6 +148,13 @@ body.hub-view-active{overflow:hidden}
 .achievement-grid,.reward-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:.75rem; max-height:520px; overflow:auto; padding-right:.25rem; }
 .achievement-card,.reward-card { padding:.85rem; background:rgba(9,6,20,.6); border:1px solid #51406d; border-radius:10px; }
 .achievement-card.unlocked { border-color:var(--gold); box-shadow:0 0 12px rgba(255,209,92,.18); }
+.achievement-unlock-overlay{position:fixed;z-index:3000;inset:0;display:grid;place-items:center;overflow:hidden;padding:1rem;pointer-events:none;isolation:isolate;animation:achievementOverlayIn 3.4s both}
+.achievement-unlock-overlay::before{position:absolute;z-index:-2;inset:0;content:"";background:linear-gradient(90deg,transparent,rgba(5,18,54,.9) 16%,rgba(14,49,105,.96) 50%,rgba(5,18,54,.9) 84%,transparent);transform:scaleX(0);animation:achievementScreenSweep 3.4s ease-in-out both}
+.achievement-unlock-card{width:min(760px,calc(100vw - 2rem));padding:clamp(1.25rem,4vw,2.25rem);text-align:center;color:#fff;background:#091537;border:4px solid var(--gold);box-shadow:0 0 0 5px #142d68,0 0 42px rgba(0,212,255,.55);clip-path:polygon(12px 0,calc(100% - 12px) 0,calc(100% - 12px) 6px,100% 6px,100% calc(100% - 12px),calc(100% - 6px) calc(100% - 12px),calc(100% - 6px) 100%,12px 100%,12px calc(100% - 6px),0 calc(100% - 6px),0 12px,6px 12px,6px 6px,12px 6px);animation:achievementCardPop 3.4s both}
+.achievement-unlock-card small{display:block;color:var(--gold);font-family:var(--font-title);font-size:clamp(.65rem,2vw,.9rem);letter-spacing:.12em;text-transform:uppercase}.achievement-unlock-card h2{margin:.85rem 0 .65rem;color:var(--accent-blue);font-family:var(--font-title);font-size:clamp(1rem,4vw,1.8rem);line-height:1.5;text-shadow:var(--glow-title)}.achievement-unlock-card p{margin:0;color:#fff;font:700 clamp(.9rem,2.4vw,1.15rem)/1.5 var(--font-body)}.achievement-unlock-tier{display:inline-block;margin-top:.9rem;padding:.35rem .65rem;color:#130d26;background:var(--gold);font-weight:900;text-transform:uppercase}
+.achievement-unlock-pixel{position:absolute;width:var(--size);height:var(--size);left:var(--left);top:var(--top);background:var(--colour);box-shadow:calc(var(--size) * 1.5) 0 var(--colour);animation:achievementPixelBurst 2.6s ease-out var(--delay) both}
+@keyframes achievementScreenSweep{0%,100%{transform:scaleX(0)}15%,86%{transform:scaleX(1)}}@keyframes achievementCardPop{0%,12%{opacity:0;transform:scale(.65)}22%,82%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.08)}}@keyframes achievementPixelBurst{0%{opacity:0;transform:translate(0,0) scale(0)}16%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--travel-x),var(--travel-y)) rotate(180deg)}}@keyframes achievementOverlayIn{0%,100%{visibility:hidden}1%,99%{visibility:visible}}
+@media(prefers-reduced-motion:reduce){.achievement-unlock-overlay,.achievement-unlock-overlay::before,.achievement-unlock-card,.achievement-unlock-pixel{animation-duration:.01ms!important}.achievement-unlock-overlay{animation-duration:2.5s!important}.achievement-unlock-card{animation:none;opacity:1}.achievement-unlock-pixel{display:none}}
 .achievement-card h4,.reward-card h4 { margin:.4rem 0; color:#fff; }
 .achievement-card p { min-height:3.2em; font-size:.83rem; }
 .tier { display:inline-block; font-size:.68rem; text-transform:uppercase; color:#ddd; }
@@ -428,6 +435,7 @@ html[data-arcade-cosmetics~="hub_cabinet_headers"] .game-title { padding:.55rem;
   padding: clamp(2.5rem, 6vw, 4.5rem) 1.5rem 5rem;
 }
 .multiplayer-section { padding-top:0; }
+.multiplayer-section .game-art { background:linear-gradient(130deg,#071a42,#174f91); }
 .theme-pixel-artillery { background: linear-gradient(130deg, #081a42, #173f78); }
 .theme-pinball-postulation { background: transparent; }
 

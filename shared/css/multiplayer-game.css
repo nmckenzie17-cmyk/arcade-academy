@@ -7,9 +7,20 @@ body {
   min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto !important;
-  background: var(--bg-primary) !important;
+  background-color: #071b4a !important;
+  background-image: linear-gradient(145deg, #061332 0%, #0b2f6b 52%, #081d4e 100%) !important;
   color: var(--accent-blue) !important;
   font-family: var(--font-body);
+}
+
+html:not([data-arcade-theme]) #app {
+  background-color: #071b4a !important;
+  background-image: radial-gradient(circle at 18% 16%, rgba(0, 212, 255, .16), transparent 28%), linear-gradient(145deg, #061332 0%, #0b2f6b 52%, #081d4e 100%) !important;
+}
+
+html[data-arcade-theme] #app {
+  background-color: var(--arcade-theme-bg) !important;
+  background-image: var(--arcade-theme-bg-art) !important;
 }
 
 body::before {

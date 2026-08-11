@@ -176,7 +176,8 @@ function showHub(profile) {
   applyProfileToHub(profile);
   showScreen("hub");
   scheduleSeniorClassExpiry(profile);
-  window.AchievementManager?.connect(currentUser?.uid, profile?.achievementSystem);
+  Promise.resolve(window.AchievementManager?.connect(currentUser?.uid, profile?.achievementSystem))
+    .then(showPendingAchievementUnlocks);
   renderProgression();
 
   if (!hubInitialized) {
@@ -185,6 +186,41 @@ function showHub(profile) {
     loadGames();
   }
 
+}
+
+let achievementAnnouncementActive = false;
+async function showPendingAchievementUnlocks() {
+  if (achievementAnnouncementActive || screens.hub?.hidden) return;
+  const pending = window.AchievementManager?.takePendingUnlocks?.() || [];
+  if (!pending.length) return;
+  achievementAnnouncementActive = true;
+  for (const achievement of pending) {
+    const overlay = document.createElement("section");
+    overlay.className = "achievement-unlock-overlay";
+    overlay.setAttribute("role", "status");
+    overlay.setAttribute("aria-live", "assertive");
+    overlay.innerHTML = `<div class="achievement-unlock-card"><small>Achievement Unlocked</small><h2></h2><p></p><span class="achievement-unlock-tier"></span></div>`;
+    overlay.querySelector("h2").textContent = achievement.name;
+    overlay.querySelector("p").textContent = achievement.description;
+    overlay.querySelector(".achievement-unlock-tier").textContent = achievement.secret ? "Secret" : achievement.tier;
+    const colours = ["#00d4ff", "#ffd15c", "#ff4f9a", "#a855f7", "#fff"];
+    for (let index = 0; index < 72; index += 1) {
+      const pixel = document.createElement("i");
+      pixel.className = "achievement-unlock-pixel";
+      pixel.style.setProperty("--size", `${4 + index % 3 * 3}px`);
+      pixel.style.setProperty("--left", `${(index * 37) % 101}%`);
+      pixel.style.setProperty("--top", `${(index * 61) % 101}%`);
+      pixel.style.setProperty("--colour", colours[index % colours.length]);
+      pixel.style.setProperty("--delay", `${(index % 12) * 35}ms`);
+      pixel.style.setProperty("--travel-x", `${((index % 9) - 4) * 28}px`);
+      pixel.style.setProperty("--travel-y", `${-70 - (index % 7) * 24}px`);
+      overlay.appendChild(pixel);
+    }
+    document.body.appendChild(overlay);
+    await new Promise(resolve => setTimeout(resolve, 3400));
+    overlay.remove();
+  }
+  achievementAnnouncementActive = false;
 }
 
 let achievementCategory = "All";
@@ -217,7 +253,10 @@ function renderProgression() {
   rewards.innerHTML = owned.length ? owned.map(reward => `<article class="reward-card"><span>${reward.type === "gameplay" ? "⚡" : reward.type === "theme" ? "🎨" : "✨"}</span><div><h4>${reward.name}</h4><small>${reward.gameId ? reward.gameId.replaceAll("-"," ") : reward.type}</small></div><button type="button" data-reward="${reward.id}">${reward.equipped ? "Disable" : "Enable"}</button></article>`).join("") : '<p>Reach Level 2 to earn your first reward.</p>';
   rewards.querySelectorAll("button[data-reward]").forEach(button => button.addEventListener("click", () => { manager.equip(button.dataset.reward); renderProgression(); }));
 }
-window.addEventListener("arcade-progression-changed", renderProgression);
+window.addEventListener("arcade-progression-changed", () => {
+  renderProgression();
+  queueMicrotask(showPendingAchievementUnlocks);
+});
 
 function setHubView(viewId = null) {
   document.querySelectorAll("#achievements,#hub-upgrades").forEach(section => {
