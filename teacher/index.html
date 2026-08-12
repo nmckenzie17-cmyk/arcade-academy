@@ -299,6 +299,15 @@
           </div>
           <p id="student-class-result" class="settings-result" role="status" aria-live="polite"></p>
         </div>
+        <div class="student-coin-settings">
+          <label for="student-coins-input">Shared coin balance</label>
+          <p>Ask the student to close Arcade Academy before saving so an open game cannot overwrite the correction.</p>
+          <div class="student-coin-row">
+            <input id="student-coins-input" type="number" inputmode="numeric" min="0" max="999999999" step="1" />
+            <button id="student-coins-save" class="reset-button" type="button">Save Coins</button>
+          </div>
+          <p id="student-coins-result" class="settings-result" role="status" aria-live="polite"></p>
+        </div>
         <div class="progress-management" aria-labelledby="progress-management-heading">
         <h4 id="progress-management-heading">Reset Data</h4>
         <p>Learning statistics clears question and accuracy records but keeps coins, scores, unlocks and game saves. All progress clears everything except the student's profile, year and class.</p>

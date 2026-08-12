@@ -222,6 +222,13 @@ window.TeacherDataProvider = {
     return true;
   },
 
+  async updateStudentCoins(studentId, coins) {
+    const updated = await window.FirebaseManager.updateStudentCoins(studentId, coins);
+    if (!updated) throw new Error("Firestore rejected the student coin update.");
+    studentDocuments = null;
+    return true;
+  },
+
   async deleteStudent(studentId) {
     const deleted = await window.FirebaseManager.deleteStudentData(studentId);
     if (!deleted) throw new Error("Firestore rejected the student deletion.");

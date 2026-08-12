@@ -92,6 +92,9 @@
     els.studentClassSelect = document.getElementById("student-class-select");
     els.studentClassSave = document.getElementById("student-class-save");
     els.studentClassResult = document.getElementById("student-class-result");
+    els.studentCoinsInput = document.getElementById("student-coins-input");
+    els.studentCoinsSave = document.getElementById("student-coins-save");
+    els.studentCoinsResult = document.getElementById("student-coins-result");
     els.gameStatsBody = document.getElementById("game-stats-body");
     els.resetGameSelect = document.getElementById("reset-game-select");
     els.resetGameButton = document.getElementById("reset-game-button");
@@ -253,6 +256,7 @@
     els.deleteStudentButton.addEventListener("click", beginStudentDeletion);
     els.studentProfileSave.addEventListener("click", saveStudentProfile);
     els.studentClassSave.addEventListener("click", saveStudentClass);
+    els.studentCoinsSave.addEventListener("click", saveStudentCoins);
     els.resetCancel.addEventListener("click", closeResetConfirmation);
     els.resetContinue.addEventListener("click", showFinalResetWarning);
     els.resetFinal.addEventListener("click", submitProgressReset);
@@ -499,6 +503,7 @@
     els.resetResult.textContent = "";
     els.studentProfileResult.textContent = "";
     els.studentClassResult.textContent = "";
+    els.studentCoinsResult.textContent = "";
     document.body.classList.add("panel-open");
 
     let detail;
@@ -519,6 +524,7 @@
     els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
     els.studentNameInput.value = detail.name;
     els.studentYearSelect.value = detail.yearLevel;
+    els.studentCoinsInput.value = Math.max(0,Math.floor(Number(detail.coins)||0));
     populateStudentClassOptions(detail);
 
     renderGameStats(detail.games);
@@ -655,6 +661,38 @@
     } finally {
       els.studentClassSave.disabled = false;
       els.studentClassSave.textContent = "Save Class";
+    }
+  }
+
+  async function saveStudentCoins() {
+    const detail = state.selectedStudentDetail;
+    const coins = Number(els.studentCoinsInput.value);
+    if (!detail) return;
+    if (!Number.isSafeInteger(coins) || coins < 0 || coins > 999999999) {
+      els.studentCoinsResult.textContent = "Enter a whole number from 0 to 999,999,999.";
+      els.studentCoinsInput.focus();
+      return;
+    }
+    if (coins === Math.floor(Number(detail.coins)||0)) {
+      els.studentCoinsResult.textContent = "The coin balance is already up to date.";
+      return;
+    }
+
+    els.studentCoinsSave.disabled = true;
+    els.studentCoinsSave.textContent = "Saving…";
+    els.studentCoinsResult.textContent = "";
+    try {
+      await window.TeacherDataProvider.updateStudentCoins(detail.id, coins);
+      detail.coins = coins;
+      els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${coins.toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
+      els.studentCoinsResult.textContent = `Coin balance updated to ${coins.toLocaleString()}.`;
+      await refreshOverview();
+    } catch (error) {
+      console.error("Unable to update student coins:", error);
+      els.studentCoinsResult.textContent = "The coin balance could not be updated. Check teacher write permissions and try again.";
+    } finally {
+      els.studentCoinsSave.disabled = false;
+      els.studentCoinsSave.textContent = "Save Coins";
     }
   }
 

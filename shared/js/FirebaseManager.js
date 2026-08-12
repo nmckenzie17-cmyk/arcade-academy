@@ -199,6 +199,37 @@ export async function updateStudentProfile(uid, profileChanges = {}) {
   }
 }
 
+export async function updateStudentCoins(uid, coinAmount) {
+  try {
+    const teacherUid = auth.currentUser?.uid;
+    const coins = Number(coinAmount);
+    if (!teacherUid || !uid || !Number.isSafeInteger(coins) || coins < 0 || coins > 999999999) {
+      throw new Error("Invalid student coin amount");
+    }
+
+    const teacherProfile = await getUserProfile(teacherUid);
+    if (teacherProfile?.role !== "teacher") throw new Error("Teacher access required");
+
+    const studentRef = doc(db, "users", uid);
+    const studentSnapshot = await getDoc(studentRef);
+    if (!studentSnapshot.exists()) throw new Error("Student profile not found");
+    if (studentSnapshot.data()?.role === "teacher") throw new Error("Teacher profiles cannot be edited here");
+
+    const now = Date.now();
+    await updateDoc(studentRef, {
+      "platform.coins": coins,
+      "platform.lastActive": now,
+      coinCorrectedAt: now,
+      coinCorrectedBy: teacherUid,
+      updatedAt: new Date(now).toISOString()
+    });
+    return true;
+  } catch (error) {
+    console.error("Unable to update student coins:", error);
+    return false;
+  }
+}
+
 export async function deleteStudentData(uid) {
   try {
     const teacherUid = auth.currentUser?.uid;
@@ -960,6 +991,7 @@ window.FirebaseManager = {
   createUserProfile,
   updateUserProfile,
   updateStudentProfile,
+  updateStudentCoins,
   updateStudentClass,
   deleteStudentData,
   getPlatformData,

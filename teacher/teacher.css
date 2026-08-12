@@ -684,7 +684,8 @@ tbody th {
 }
 
 .student-profile-settings,
-.student-class-settings {
+.student-class-settings,
+.student-coin-settings {
   padding-bottom: 1rem;
 }
 
@@ -746,6 +747,18 @@ tbody th {
 .student-class-row select {
   min-width: 0;
 }
+
+.student-coin-settings {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.student-coin-settings > label { font-weight: 600; }
+.student-coin-settings > p:not(.settings-result) { margin: 0.35rem 0 0.65rem; color: var(--text-muted); font-size: 0.88rem; }
+.student-coin-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:0.65rem; }
+.student-coin-row input { min-width:0; padding:0.5rem 0.7rem; border:1px solid var(--aa-border); border-radius:var(--radius-sm); background:var(--aa-panel-alt); color:#f4f5ff; font:600 0.92rem var(--font-body); }
+.student-coin-row input:focus { border-color:var(--aa-cyan); outline:2px solid color-mix(in srgb,var(--aa-cyan) 35%,transparent); outline-offset:1px; }
 
 .settings-result {
   min-height: 1.2em;
@@ -978,7 +991,8 @@ tbody th {
 
 @media (max-width: 640px) {
   .student-profile-fields,
-  .student-class-row {
+  .student-class-row,
+  .student-coin-row {
     grid-template-columns: 1fr;
   }
   .app-header {
