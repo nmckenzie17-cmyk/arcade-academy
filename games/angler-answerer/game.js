@@ -26,8 +26,8 @@ const CONFIG = {
   marketRecoveryPerSec: 0.012, // fraction of the gap back to 1.0 recovered per second
   marketDriftAmplitude: 0.12,  // ambient +/- price wobble per species, independent of selling
   marketDriftPeriodMs: 70000,  // roughly how long one ambient price cycle takes
-  bulkSaleDropPerFish: 0.97,
-  bulkSaleFloor: 0.55,
+  bulkSaleDropPerFish: 0.947,
+  bulkSaleFloor: 0.40,
   coinCurveBase: 0.5,          // shared-coin economy: useful common catches without runaway late-game payouts
   coinCurveScale: 1,
   maxFishCoinValue: 38,
