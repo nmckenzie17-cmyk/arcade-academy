@@ -783,7 +783,7 @@ export async function updateChallengeRoom(roomCode, action = {}) {
     if (action.type === "wager") {
       if (!["waiting","ready"].includes(room.status) || room[slot].ready) throw new Error("WAGER_LOCKED");
       const userSnapshot = await transaction.get(doc(db,"users",user.uid));
-      const balance = Math.max(0,Number(userSnapshot.data()?.platform?.coins?.balance)||0), wager = Math.floor(Number(action.wager)||0);
+      const balance = Math.max(0,Number(userSnapshot.data()?.platform?.coins)||0), wager = Math.floor(Number(action.wager)||0);
       if (wager < 0 || wager > balance) throw new Error("INVALID_WAGER"); changes[`${slot}.wager`] = wager;
     } else if (action.type === "ready") {
       if (!["waiting","ready"].includes(room.status)) throw new Error("CHALLENGE_ALREADY_STARTED");
@@ -819,7 +819,7 @@ export async function updateChallengeRoom(roomCode, action = {}) {
 
 export async function claimChallengeEconomy(roomCode) {
   const user=requireAuthenticatedUser(),challengeRef=doc(db,"challenges",String(roomCode)),userRef=doc(db,"users",user.uid);
-  return runTransaction(db,async transaction=>{const challengeSnapshot=await transaction.get(challengeRef),userSnapshot=await transaction.get(userRef);if(!challengeSnapshot.exists()||!userSnapshot.exists())throw new Error("CLAIM_NOT_FOUND");const room=challengeSnapshot.data(),slot=room.player1?.uid===user.uid?"player1":room.player2?.uid===user.uid?"player2":null;if(!slot||room.status!=="finished"||!room.startedAt||room.economyProcessed?.[user.uid])throw new Error("CLAIM_INVALID");const wager=Math.max(0,Math.floor(Number(room[slot].wager)||0)),result=room.winnerUid==="draw"?"draw":room.winnerUid===user.uid?"win":"loss",delta=result==="win"?Math.floor(wager*.5):result==="loss"?-wager:0,userData=userSnapshot.data(),coins=userData.platform?.coins||{},balance=Math.max(0,(Number(coins.balance)||0)+delta),totalEarned=(Number(coins.totalEarned)||0)+Math.max(0,delta),totalSpent=(Number(coins.totalSpent)||0)+Math.max(0,-delta);transaction.update(userRef,{"platform.coins.balance":balance,"platform.coins.totalEarned":totalEarned,"platform.coins.totalSpent":totalSpent});transaction.update(challengeRef,{[`economyProcessed.${user.uid}`]:{result,wager,delta,balance,processedAt:Date.now()},updatedAt:Date.now()});return{result,wager,delta,balance};});
+  return runTransaction(db,async transaction=>{const challengeSnapshot=await transaction.get(challengeRef),userSnapshot=await transaction.get(userRef);if(!challengeSnapshot.exists()||!userSnapshot.exists())throw new Error("CLAIM_NOT_FOUND");const room=challengeSnapshot.data(),slot=room.player1?.uid===user.uid?"player1":room.player2?.uid===user.uid?"player2":null;if(!slot||room.status!=="finished"||!room.startedAt||room.economyProcessed?.[user.uid])throw new Error("CLAIM_INVALID");const wager=Math.max(0,Math.floor(Number(room[slot].wager)||0)),result=room.winnerUid==="draw"?"draw":room.winnerUid===user.uid?"win":"loss",delta=result==="win"?Math.floor(wager*.5):result==="loss"?-wager:0,userData=userSnapshot.data(),balance=Math.max(0,(Number(userData.platform?.coins)||0)+delta);transaction.update(userRef,{"platform.coins":balance});transaction.update(challengeRef,{[`economyProcessed.${user.uid}`]:{result,wager,delta,balance,processedAt:Date.now()},updatedAt:Date.now()});return{result,wager,delta,balance};});
 }
 
 export async function createMultiplayerMatch(gameId, player, initialGameState, settings = {}) {

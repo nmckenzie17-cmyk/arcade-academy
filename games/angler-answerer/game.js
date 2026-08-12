@@ -26,6 +26,8 @@ const CONFIG = {
   marketRecoveryPerSec: 0.012, // fraction of the gap back to 1.0 recovered per second
   marketDriftAmplitude: 0.12,  // ambient +/- price wobble per species, independent of selling
   marketDriftPeriodMs: 70000,  // roughly how long one ambient price cycle takes
+  bulkSaleDropPerFish: 0.97,
+  bulkSaleFloor: 0.55,
   coinCurveBase: 0.5,          // shared-coin economy: useful common catches without runaway late-game payouts
   coinCurveScale: 1,
   maxFishCoinValue: 38,
@@ -872,8 +874,9 @@ function sellAllItems(){
   let total = 0;
   // sell oldest-first so repeated species show their diminishing price live
   const items = [...state.inventory].sort((a,b)=>a.caughtAt-b.caughtAt);
-  items.forEach(item=>{
-    const price = getSellPrice(item);
+  items.forEach((item,index)=>{
+    const bulkMult = Math.max(CONFIG.bulkSaleFloor,Math.pow(CONFIG.bulkSaleDropPerFish,index));
+    const price = Math.max(1,Math.round(getSellPrice(item)*bulkMult));
     total += price;
     state.stats.totalCoinsEarned += price;
     registerSale(item.fishId);
