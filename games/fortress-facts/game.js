@@ -61,7 +61,7 @@ let pendingGuaranteedRareCards = 0;// Cracked Bell: next N card-select screens a
 let pendingGuaranteedLegendaryCards = 0; // Short Fuse: every boss kill queues one guaranteed legendary card screen
 let curseNoDefenceCards = false;   // Overgrown Walls: defence-group cards removed from the pool
 let curseBadOmenWeather = false;   // Bad Omen: weather rerolls always keep the harsher of two options
-let curseCrownBonus = 0;           // Bad Omen: +% Crowns earned at run end
+let curseCoinBonus = 0;            // Bad Omen: +% shared coins earned at run end
 let curseThinBlood = false;        // Thin Blood: Priest/Repair Wall heals no longer stack, only the larger applies
 let curseGuaranteedLegendaryOnBoss = false; // Short Fuse: every boss kill grants a guaranteed legendary card
 let curseHollowKingdom = false;    // Hollow Crown: Kingdom meta-upgrades give 0 effect this run
@@ -131,12 +131,12 @@ let ammoPerCorrect = 1;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // THE KINGDOM — persistent meta-progression shop, spent between runs.
-// Crowns carry over across page reloads via localStorage. Effects are
+// Permanent Kingdom upgrades carry over across page reloads via localStorage. Effects are
 // intentionally undocumented in the shop UI — players discover them by
 // noticing how their next run feels different, not by reading a tooltip.
 // ═══════════════════════════════════════════════════════════════════════════
 const KINGDOM_SAVE_KEY = 'castleDefenceKingdomSave_v1';
-// NOTE: Crowns (the persistent, spendable currency) are NOT stored here — they
+// NOTE: Shared coins (the persistent, spendable currency) are NOT stored here — they
 // live in PlatformManager (shared/js/PlatformManager.js) as the single source
 // of truth for the shared coin economy. Use PlatformManager.getCoins() /
 // addCoins() / spendCoins() instead of a local field.
@@ -891,7 +891,7 @@ function applyCard(card) {
     }
     if(card.id==='curse_omen'){
         curseBadOmenWeather=true;
-        curseCrownBonus += 0.2;
+        curseCoinBonus += 0.2;
     }
     if(card.id==='curse_thinblood'){
         curseThinBlood=true;
@@ -1586,7 +1586,7 @@ function renderPermanentTab(){
                     <div style="font-size:10px;color:#4caf50">Level ${level}${u.maxLevel>1?'/'+u.maxLevel:''}</div>
                 </div>
                 <button class="choice-btn kingdom-buy-btn" data-id="${u.id}" style="width:auto;white-space:nowrap;padding:8px 14px;font-size:12px;${maxed?'opacity:0.4;cursor:default;':(!canAfford?'opacity:0.5;':'')}" ${maxed||!canAfford?'disabled':''}>
-                    ${maxed ? 'MAX' : `👑 ${cost}`}
+                    ${maxed ? 'MAX' : `🪙 ${cost}`}
                 </button>
             </div>`;
         });
@@ -1649,7 +1649,7 @@ function renderKingdomCosmeticsTab(){
 function renderKingdomHTML(){
     let html = `<div class="modal-overlay"><div class="modal-box" style="max-width:540px;max-height:85vh;overflow-y:auto;text-align:left">
         <h2 class="title-font" style="text-align:center;background:none;border:none;box-shadow:none;">The Kingdom</h2>
-        <p style="text-align:center;color:#ffcc44;font-size:20px;margin:8px 0 4px">🪙 ${PlatformManager.getCoins()} Coins</p>`;
+        <p id="kingdom-shared-coins" style="text-align:center;color:#ffcc44;font-size:20px;margin:8px 0 4px">🪙 ${PlatformManager.getCoins()} Shared Coins</p>`;
     if(!kingdomStorageOk){
         html += `<p style="text-align:center;color:#e74c3c;font-size:11px">⚠️ This browser is blocking save data — progress won't persist after you close this tab.</p>`;
     }
@@ -1706,7 +1706,7 @@ function showStart(){
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">💀 Kills</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.totalKills||0}</p></div>
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">High Score</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.bestWave||0}</p></div>
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">Correct</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.totalCorrectAnswers||0}</p></div>
-            <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">Total Coins</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">👑 ${PlatformManager.getCoins()}</p></div>
+            <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">Shared Coins</p><p id="home-shared-coins" style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">🪙 ${PlatformManager.getCoins()}</p></div>
         </div>
         <button class="choice-btn" style="text-align:center;font-size:clamp(13px,2vw,15px);margin-bottom:16px;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button>
         <p class="section-label-font" style="margin-bottom:10px;">Description:</p>
@@ -1762,20 +1762,20 @@ function showStart(){
     });
 }
 
-let gameOverCrownsAwarded = false, lastCrownsEarned = 0, lastRunWasVoluntary = false;
+let gameOverCoinsAwarded = false, lastCoinsEarned = 0, lastRunWasVoluntary = false;
 function showGameOver(voluntary){
     PlatformManager.endPracticeRun();
     if(voluntary!==undefined) lastRunWasVoluntary = voluntary; // remembered so returning from The Kingdom keeps the right framing
     state='gameover';
     window.ChallengeManager?.finish?.({score:wave*100+kills,wave,waveProgress:kills,alive:!!voluntary});
-    if(!gameOverCrownsAwarded){
-        lastCrownsEarned = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCrownBonus));
-        PlatformManager.addCoins(lastCrownsEarned);
+    if(!gameOverCoinsAwarded){
+        lastCoinsEarned = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCoinBonus));
+        PlatformManager.addCoins(lastCoinsEarned);
         kingdomSave.totalKills = (kingdomSave.totalKills||0) + kills;
         kingdomSave.bestWave = Math.max(kingdomSave.bestWave||0, wave);
         PlatformManager.setHighScore(GAME_CONFIG.id, wave);
         saveKingdomSave();
-        gameOverCrownsAwarded = true;
+        gameOverCoinsAwarded = true;
     }
     let unlockHtml = '';
     if(pendingUnlockNotifications.length){
@@ -1790,7 +1790,7 @@ function showGameOver(voluntary){
         const label = ENEMY_DISPLAY_NAMES[lastDamageSource.type] || lastDamageSource.type;
         deathMsg = `<p style="color:#ff6b6b;font-weight:bold;margin:10px 0">☠️ Defeated by a ${label}${lastDamageSource.flying ? ` — a flying enemy. Next time, upgrade your Archer Tower or Ballista so you can hit flying threats.` : `. Next time, spend some coins in The Kingdom to boost your defenses.`}</p>`;
     }
-    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">🪙 +${lastCrownsEarned} coins earned (Total: ${PlatformManager.getCoins()})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — coins won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">🪙 +${lastCoinsEarned} shared coins earned (Total: ${PlatformManager.getCoins()})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — coins won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
     document.getElementById('restart-btn').onclick=()=>{
         location.reload();
     };
@@ -1834,7 +1834,7 @@ document.getElementById('target-btn').onclick=()=>{
 document.getElementById('cashout-btn').onclick=()=> showCashOutConfirm();
 
 // Offered once gold is sitting at its cap — further gold income is being
-// clamped and wasted, so the player can choose to bank their run's Crowns
+// clamped and wasted, so the player can choose to bank the run reward
 // right now instead of continuing to grind with no economic upside.
 function showCashOutConfirm(){
     if(state!=='playing') return;
@@ -1864,16 +1864,30 @@ function updateHUD(){
     document.getElementById('hud-wave').textContent='⭐ Wave: '+wave;
     document.getElementById('hud-hp').textContent='❤️ HP: '+Math.floor(castleHP)+'/'+maxHP;
     document.getElementById('hud-ammo').textContent='🏹 Ammo: '+ammo+'/'+maxAmmo;
-    document.getElementById('hud-gold').textContent='🪙 Coins: '+gold;
+    document.getElementById('hud-gold').textContent='🪙 Run Coins: '+gold;
+    document.getElementById('hud-shared-coins').textContent='🏦 Shared: '+PlatformManager.getCoins();
     document.getElementById('hud-bank').textContent='📚 '+QuestionManager.getBankName();
     let w = WEATHER_EFFECTS.find(x=>x.id===activeWeather);
     let m = MUTATOR_DEFS.find(x=>x.id===activeMutator);
     document.getElementById('hud-weather').textContent = m ? ('⚠️ '+m.name) : (w ? w.name : '');
     // Gold income is wasted once you're capped — surface the option to bank
-    // what you've got into Crowns now instead of continuing to overflow it.
+    // the current run reward into shared coins now instead of continuing to overflow it.
     let cashoutBtn = document.getElementById('cashout-btn');
     if(cashoutBtn) cashoutBtn.style.display = (gold>=maxGold && state==='playing') ? 'inline-block' : 'none';
 }
+
+// PlatformManager restores the authoritative Firestore balance asynchronously.
+// Keep every Fortress Facts balance label in sync when that restore—or any
+// shared earn/spend operation in this tab—changes the platform coin balance.
+window.addEventListener('arcade-coins-changed',event=>{
+    const balance=Math.max(0,Math.floor(Number(event.detail?.balance)||0));
+    const home=document.getElementById('home-shared-coins');
+    const kingdom=document.getElementById('kingdom-shared-coins');
+    const hud=document.getElementById('hud-shared-coins');
+    if(home) home.textContent='🪙 '+balance;
+    if(kingdom) kingdom.textContent='🪙 '+balance+' Shared Coins';
+    if(hud) hud.textContent='🏦 Shared: '+balance;
+});
 
 function drawBackground(ox, oy, s){
     let grd = ctx.createLinearGradient(0,0,0,(oy+180)*s);

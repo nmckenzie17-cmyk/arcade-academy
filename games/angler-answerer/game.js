@@ -450,7 +450,7 @@ function answerCastQuestion(index,button){
   if(!correct)button.classList.add("wrong");QuestionManager.recordAnswer(currentQuestion,correct);PlatformManager.recordQuestionAnswered(GAME_ID,correct);
   anglerQuestionStreak=correct?anglerQuestionStreak+1:0;window.AchievementManager?.notify?.("angler_question_result",{facts:{angler_correct_streak:anglerQuestionStreak}});
   if(correct){addBait(1);castReady=true;$("questionFeedback").textContent="Correct — one bait added and your cast is loaded!";}
-  else{PlatformManager.deductCoins(5);refreshHUD();$("questionFeedback").textContent="Incorrect — 5 coins lost. Try another question.";}
+  else{PlatformManager.deductCoins(20);refreshHUD();$("questionFeedback").textContent="Incorrect — 20 coins lost. Try another question.";}
   setTimeout(()=>{$("modalQuestion").classList.remove("show");RT.paused=false;if(correct){mainActionBtn.textContent="CAST LINE";hintText.textContent="Hold to charge your earned cast";}else showCastQuestion();},correct?700:1000);
 }
 function updateCharge(){

@@ -454,6 +454,7 @@
       }
 
       coinChangesWhileConnecting = 0;
+      emitCoinsChanged();
       return true;
     })();
 
@@ -717,6 +718,12 @@
     return data.coins.balance;
   }
 
+  function emitCoinsChanged() {
+    if (typeof global.dispatchEvent === 'function' && typeof global.CustomEvent === 'function') {
+      global.dispatchEvent(new CustomEvent('arcade-coins-changed', { detail: { balance: data.coins.balance } }));
+    }
+  }
+
   function addCoins(amount, options) {
     if (practiceMode) return data.coins.balance;
     const base = Math.max(0, Math.floor(Number(amount) || 0));
@@ -731,6 +738,7 @@
       if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting += n;
       queueStatsSave();
       achievementEvent('coins_earned', { amount: n });
+      emitCoinsChanged();
     }
     return data.coins.balance;
   }
@@ -747,6 +755,7 @@
     save();
     if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting -= n;
     queueStatsSave();
+    emitCoinsChanged();
     return true;
   }
 
@@ -762,6 +771,7 @@
     save();
     if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting -= deducted;
     queueStatsSave();
+    emitCoinsChanged();
     return deducted;
   }
 

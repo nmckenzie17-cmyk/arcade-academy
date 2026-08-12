@@ -93,7 +93,8 @@ body {
 }
 
 .auth-button,
-.header-sign-out {
+.header-sign-out,
+.header-refresh {
   border: 1px solid var(--aa-accent);
   border-radius: var(--radius-sm);
   background: var(--aa-accent);
@@ -108,7 +109,8 @@ body {
 }
 
 .auth-button--secondary,
-.header-sign-out {
+.header-sign-out,
+.header-refresh {
   background: transparent;
 }
 
@@ -116,6 +118,16 @@ body {
   align-self: flex-end;
   padding: 0.5rem 0.75rem;
 }
+
+.header-refresh {
+  align-self: flex-end;
+  padding: 0.5rem 0.75rem;
+  border-color: var(--aa-cyan);
+  color: var(--aa-cyan);
+}
+
+.header-refresh:hover:not(:disabled) { background: rgba(34,211,238,0.12); }
+.header-refresh:disabled { cursor: wait; opacity: 0.6; }
 
 .auth-button:disabled {
   cursor: wait;

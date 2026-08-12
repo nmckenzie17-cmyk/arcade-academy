@@ -161,6 +161,11 @@ body.hub-view-active{overflow:hidden}
 .tier.silver{color:#d7e0ea}.tier.gold{color:var(--gold)}.tier.platinum{color:#b9fff7}.tier.secret{color:var(--accent-pink)}
 .mini-progress { height:5px; margin:.45rem 0 0; }
 .reward-grid { margin-top:1rem; max-height:none; }
+.game-cosmetic-summary { margin-top:1.5rem; padding-top:1.25rem; border-top:2px solid rgba(168,85,247,.35); }
+.game-cosmetic-summary h3 { margin:0 0 .8rem; }
+.game-cosmetic-counts { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:.55rem .85rem; }
+.game-cosmetic-count { display:flex; justify-content:space-between; gap:1rem; padding:.65rem .8rem; border:1px solid rgba(168,85,247,.35); border-radius:8px; background:rgba(12,6,28,.45); }
+.game-cosmetic-count strong { color:var(--gold,#ffd15c); }
 .reward-card { display:flex; align-items:center; gap:.65rem; }.reward-card div{flex:1}.reward-card small{text-transform:capitalize;color:#bfb3d3}.reward-card b{font-size:.72rem;color:var(--accent-blue)}
 html[data-arcade-theme="theme_prismatic_academy"] .hero h1 { background:linear-gradient(90deg,#ff6b9d,#ffd15c,#4df0ff,#c083ff);background-clip:text;color:transparent; }
 html[data-arcade-cosmetics~="hub_golden_hover"] .game-card:hover { border-color:#ffd15c; box-shadow:0 0 24px rgba(255,209,92,.5); }

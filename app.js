@@ -228,7 +228,8 @@ function renderProgression() {
   const manager = window.AchievementManager;
   const grid = document.querySelector("#achievement-grid");
   const rewards = document.querySelector("#reward-grid");
-  if (!manager || !grid || !rewards) return;
+  const cosmeticCounts = document.querySelector("#game-cosmetic-counts");
+  if (!manager || !grid || !rewards || !cosmeticCounts) return;
   manager.evaluate();
   const summary = manager.getSummary();
   document.querySelector("#achievement-summary").textContent = `${summary.unlockedCount} of ${summary.totalAchievements} achievements unlocked`;
@@ -252,6 +253,11 @@ function renderProgression() {
   const owned = manager.getRewards().filter(reward => reward.owned && !reward.gameId);
   rewards.innerHTML = owned.length ? owned.map(reward => `<article class="reward-card"><span>${reward.type === "gameplay" ? "⚡" : reward.type === "theme" ? "🎨" : "✨"}</span><div><h4>${reward.name}</h4><small>${reward.gameId ? reward.gameId.replaceAll("-"," ") : reward.type}</small></div><button type="button" data-reward="${reward.id}">${reward.equipped ? "Disable" : "Enable"}</button></article>`).join("") : '<p>Reach Level 2 to earn your first reward.</p>';
   rewards.querySelectorAll("button[data-reward]").forEach(button => button.addEventListener("click", () => { manager.equip(button.dataset.reward); renderProgression(); }));
+  const unlockedGameCosmetics = manager.getRewards().filter(reward => reward.owned && reward.gameId && reward.type === "cosmetic");
+  cosmeticCounts.innerHTML = loadedGames.map(game => {
+    const count = unlockedGameCosmetics.filter(reward => reward.gameId === game.id).length;
+    return `<div class="game-cosmetic-count"><span>${game.title}</span><strong>${count}</strong></div>`;
+  }).join("");
 }
 window.addEventListener("arcade-progression-changed", () => {
   renderProgression();

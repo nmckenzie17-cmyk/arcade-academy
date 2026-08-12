@@ -65,6 +65,7 @@
     els.resetHistoryBody = document.getElementById("reset-history-body");
     els.resetHistoryStatus = document.getElementById("reset-history-status");
     els.classFilter = document.getElementById("class-filter");
+    els.refreshClassButton = document.getElementById("refresh-class-button");
     els.searchInput = document.getElementById("student-search");
     els.tableBody = document.getElementById("overview-body");
     els.tableStatus = document.getElementById("overview-status");
@@ -209,6 +210,8 @@
       await refreshOverview();
     });
 
+    els.refreshClassButton.addEventListener("click", refreshSelectedClass);
+
     els.searchInput.addEventListener("input", (e) => {
       state.searchTerm = e.target.value.trim().toLowerCase();
       renderTable();
@@ -339,6 +342,28 @@
     } catch (err) {
       console.error("Unable to refresh student overview:", err);
       showOverviewError();
+    }
+  }
+
+  async function refreshSelectedClass() {
+    const selectedClass = state.classCode;
+    const selectedStudentId = state.selectedStudentId;
+    els.refreshClassButton.disabled = true;
+    els.refreshClassButton.textContent = "↻ Refreshing…";
+    window.TeacherDataProvider.clearCache?.();
+    try {
+      await refreshOverview();
+      // Preserve the current class and all table filters/sorting. If its student
+      // panel is open, refresh that student's values from the same new snapshot.
+      if (selectedStudentId && state.selectedStudentId === selectedStudentId) {
+        const stillInView = state.overview.some(student => student.id === selectedStudentId);
+        if (stillInView) await openStudentPanel(selectedStudentId);
+        else closeStudentPanel();
+      }
+      els.classFilter.value = selectedClass;
+    } finally {
+      els.refreshClassButton.disabled = false;
+      els.refreshClassButton.textContent = "↻ Refresh Class";
     }
   }
 
