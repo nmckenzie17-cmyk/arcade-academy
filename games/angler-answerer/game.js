@@ -26,6 +26,10 @@ const CONFIG = {
   marketRecoveryPerSec: 0.012, // fraction of the gap back to 1.0 recovered per second
   marketDriftAmplitude: 0.12,  // ambient +/- price wobble per species, independent of selling
   marketDriftPeriodMs: 70000,  // roughly how long one ambient price cycle takes
+  coinCurveBase: 0.5,          // shared-coin economy: useful common catches without runaway late-game payouts
+  coinCurveScale: 1,
+  maxFishCoinValue: 38,
+  economyVersion: 2,
   saveKey: "anglers_ascent_save_v1"
 };
 const GAME_ID = "angler-answerer";
@@ -737,26 +741,27 @@ function onFishCaught(){
   const fish = RT.currentFish;
   const weight = RT.fishWeight;
   const rarityInfo = RARITY[fish.rarity];
-  let value = weight * fish.valuePerKg * rarityInfo.mult * state.run.valueMult;
+  const rawValue = weight * fish.valuePerKg * rarityInfo.mult * state.run.valueMult;
+  let value = balanceFishCoinValue(rawValue);
 
   const perfect = RT.perfectCatch;
   if(perfect) value *= 1.25;
-  value = Math.round(value);
 
   let treasureHit = false;
   if(!RT.isBoss && !RT.isSecret && !RT.isEventFish && Math.random() < state.run.treasureChance){
     treasureHit = true;
-    value = Math.round(value*1.6 + 25);
+    value = value*1.6 + 5;
   }
   let doubled = false;
   if(Math.random() < state.run.doubleCatchChance){ doubled=true; value*=2; }
+  value = Math.min(CONFIG.maxFishCoinValue, Math.max(1, Math.round(value)));
 
   // fish no longer pay out instantly - they go in the cooler until the player sells them
   const sizePrefix = (!RT.isBoss && !RT.isSecret && !RT.isEventFish) ? (fish.sizeTag||"") : "";
   const invItem = {
     uid: "f"+Date.now()+"_"+Math.floor(Math.random()*100000),
     fishId: fish.id, name: sizePrefix+fish.name, rarity: fish.rarity,
-    weight, baseValue: value, caughtAt: Date.now()
+    weight, baseValue: value, economyVersion:CONFIG.economyVersion, caughtAt: Date.now()
   };
   state.inventory.push(invItem);
   const twinCatch=hasAnglerSecret("secret_twin_shot");
@@ -811,6 +816,17 @@ function getMarketDrift(fishId, nowMs){
   const t = (nowMs/CONFIG.marketDriftPeriodMs)*Math.PI*2;
   return 1 + Math.sin(t+phase)*CONFIG.marketDriftAmplitude;
 }
+function balanceFishCoinValue(rawValue){
+  const raw = Math.max(0,Number(rawValue)||0);
+  return Math.min(CONFIG.maxFishCoinValue,Math.max(1,Math.round(CONFIG.coinCurveBase+CONFIG.coinCurveScale*Math.log2(1+raw))));
+}
+function balancedInventoryValue(item){
+  // Older saves contain values produced by the former exponential rarity formula.
+  // Compress those once at sale time so a pre-update cooler cannot flood shared coins.
+  return Number(item.economyVersion)>=CONFIG.economyVersion
+    ? Math.max(1,Number(item.baseValue)||1)
+    : balanceFishCoinValue(item.baseValue);
+}
 function getMarketSupplyMult(fishId){
   const rec = state.market[fishId];
   return rec ? rec.supplyMult : 1;
@@ -818,7 +834,7 @@ function getMarketSupplyMult(fishId){
 function getSellPrice(item){
   const drift = getMarketDrift(item.fishId, Date.now());
   const supply = getMarketSupplyMult(item.fishId);
-  return Math.max(1, Math.round(item.baseValue*drift*supply));
+  return Math.max(1, Math.round(balancedInventoryValue(item)*drift*supply));
 }
 function marketTrend(fishId){
   const combined = getMarketDrift(fishId, Date.now()) * getMarketSupplyMult(fishId);
