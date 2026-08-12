@@ -31,7 +31,7 @@ const CONFIG = {
   coinCurveBase: 0.5,          // shared-coin economy: useful common catches without runaway late-game payouts
   coinCurveScale: 1,
   maxFishCoinValue: 38,
-  economyVersion: 2,
+  economyVersion: 3,
   saveKey: "anglers_ascent_save_v1"
 };
 const GAME_ID = "angler-answerer";
@@ -48,15 +48,15 @@ let anglerQuestionStreak = 0;
 // Catching-zone size & movement speed by rarity: common fish give you a big, slow-moving
 // target; rarer fish shrink the zone and speed up its motion, demanding tighter tracking.
 const ZONE_BY_RARITY = {
-  common:    { width:44, speed:0.55 },
-  uncommon:  { width:36, speed:0.78 },
-  rare:      { width:28, speed:1.05 },
-  epic:      { width:21, speed:1.35 },
-  legendary: { width:16, speed:1.70 },
-  mythic:    { width:13, speed:2.00 },
-  bloodmoon: { width:14, speed:1.90 },
-  meteor:    { width:17, speed:1.60 },
-  boss:      { width:19, speed:1.45 },
+  common:    { width:38, maxWidth:54, speed:0.72, pull:1.00, drift:1.00, startOffset:0 },
+  uncommon:  { width:30, maxWidth:43, speed:1.00, pull:1.08, drift:1.20, startOffset:5 },
+  rare:      { width:23, maxWidth:34, speed:1.34, pull:1.16, drift:1.45, startOffset:9 },
+  epic:      { width:17, maxWidth:26, speed:1.72, pull:1.25, drift:1.75, startOffset:13 },
+  legendary: { width:12, maxWidth:19, speed:2.15, pull:1.34, drift:2.10, startOffset:17 },
+  mythic:    { width:10, maxWidth:16, speed:2.45, pull:1.40, drift:2.25, startOffset:19 },
+  bloodmoon: { width:10, maxWidth:16, speed:2.35, pull:1.40, drift:2.30, startOffset:19 },
+  meteor:    { width:12, maxWidth:18, speed:2.05, pull:1.34, drift:2.05, startOffset:17 },
+  boss:      { width:8,  maxWidth:13, speed:2.70, pull:1.50, drift:2.75, startOffset:24 },
 };
 
 /* ---------------------------- DATA: RARITY ---------------------------- */
@@ -606,13 +606,16 @@ function startReel(){
   const zoneDef = ZONE_BY_RARITY[fish.rarity] || ZONE_BY_RARITY.common;
   const r = state.run;
   const secretDifficulty=(hasAnglerSecret("secret_skeleton") ? .85 : 1)*(hasAnglerSecret("secret_glitch_aura") ? .8 : 1);
-  RT.zoneWidth = clamp(zoneDef.width * (r.tensionMaxMult||1) * (1+state.perm.line*0.04)*secretDifficulty, 9, 62);
+  RT.zoneWidth = clamp(zoneDef.width * (r.tensionMaxMult||1) * (1+state.perm.line*0.04)*secretDifficulty, 7, zoneDef.maxWidth||62);
   RT.zoneBaseSpeed = zoneDef.speed * (1 + (fish.speed-5)*0.035);
+  RT.zonePullMult = zoneDef.pull||1;
+  RT.zoneDriftMult = zoneDef.drift||1;
   RT.zoneWobble = (fish.rarity==="mythic" || fish.rarity==="boss") ? 1 : 0;
   RT.zoneCenter = computeZoneCenter(RT.zonePhase, RT.zoneWidth, RT.zoneWobble);
-  // start the marker right in the middle of the zone and give the fish a little slack,
-  // instead of starting maxed-out and forcing an instant scramble to catch up
-  RT.tension = RT.zoneCenter;
+  // Higher-tier fish begin progressively further from the marker, so the player
+  // must actively acquire the moving zone rather than receiving a guaranteed lock.
+  const startDirection=Math.random()<.5?-1:1;
+  RT.tension = clamp(RT.zoneCenter+startDirection*(zoneDef.startOffset||0),0,100);
   RT.distance = 92;
   RT.fightState = { message:"Hold to raise the marker — keep it in the zone!", urgency:"neutral", inZone:true };
   reelUI.style.display="flex";
@@ -632,10 +635,10 @@ function updateReel(dt){
   RT.reelElapsed += dt;
 
   // --- move the catching zone along the tension axis ---
-  const enrageSpeedMult = (RT.isBoss && RT.bossEnraged) ? 1.4 : 1;
+  const enrageSpeedMult = (RT.isBoss && RT.bossEnraged) ? 1.65 : 1;
   const speed = RT.zoneBaseSpeed * enrageSpeedMult;
   RT.zonePhase += dt*0.001*speed;
-  let width = RT.zoneWidth * (RT.isBoss && RT.bossEnraged ? 0.88 : 1);
+  let width = RT.zoneWidth * (RT.isBoss && RT.bossEnraged ? 0.75 : 1);
   const center = computeZoneCenter(RT.zonePhase, width, RT.zoneWobble);
   RT.zoneCenter = center;
   RT.zoneWidthNow = width;
@@ -654,10 +657,10 @@ function updateReel(dt){
 
   // --- distance: closes while locked on target, drifts back open otherwise ---
   if(inZone){
-    const pullRate = CONFIG.inZonePullPerSec * (1+state.perm.rod*0.06);
+    const pullRate = CONFIG.inZonePullPerSec * RT.zonePullMult * (1+state.perm.rod*0.06);
     RT.distance -= pullRate*dtS;
   } else {
-    RT.distance += fishDriftRate(fish, dt) * dtS;
+    RT.distance += fishDriftRate(fish, dt) * RT.zoneDriftMult * dtS;
   }
   RT.distance = clamp(RT.distance,0,100);
 
@@ -823,11 +826,13 @@ function balanceFishCoinValue(rawValue){
   return Math.min(CONFIG.maxFishCoinValue,Math.max(1,Math.round(CONFIG.coinCurveBase+CONFIG.coinCurveScale*Math.log2(1+raw))));
 }
 function balancedInventoryValue(item){
-  // Older saves contain values produced by the former exponential rarity formula.
-  // Compress those once at sale time so a pre-update cooler cannot flood shared coins.
-  return Number(item.economyVersion)>=CONFIG.economyVersion
-    ? Math.max(1,Number(item.baseValue)||1)
-    : balanceFishCoinValue(item.baseValue);
+  const savedVersion=Number(item.economyVersion)||0,stored=Math.max(1,Number(item.baseValue)||1);
+  if(savedVersion>=CONFIG.economyVersion)return Math.min(CONFIG.maxFishCoinValue,stored);
+  // Version 2 was shipped before two further halvings. Convert those catches
+  // to one quarter of their stored value; pre-versioned exponential values
+  // still use the logarithmic curve.
+  if(savedVersion===2)return Math.min(CONFIG.maxFishCoinValue,Math.max(1,Math.round(stored/4)));
+  return balanceFishCoinValue(stored);
 }
 function getMarketSupplyMult(fishId){
   const rec = state.market[fishId];
