@@ -745,7 +745,8 @@ export async function createChallengeRoom(gameId, player, validTypes) {
       const now = Date.now(), progress = cleanChallengeProgress();
       transaction.set(ref, { challengeId: roomCode, roomCode, gameId, status:"waiting", validTypes:types, selectedChallenge:null,
         player1:{uid:user.uid,displayName:String(player.displayName||"Player 1").slice(0,40),ready:false,wager:0,wagerLocked:false,connected:true,progress}, player2:null,
-        winnerUid:null, previousChallengeType:null, round:1, startedAt:null, finishedAt:null, economyProcessed:{}, createdAt:now, updatedAt:now });
+        winnerUid:null, previousChallengeType:null, round:1, startedAt:null, finishedAt:null, economyProcessed:{}, createdAt:now, updatedAt:now,
+        expiresAt:new Date(now + 24 * 60 * 60 * 1000) });
       return true;
     });
     if (created) return roomCode;
@@ -799,18 +800,18 @@ export async function updateChallengeRoom(roomCode, action = {}) {
       next.questionsCorrect=Math.min(next.questionsCorrect,next.questionsAnswered); changes[`${slot}.progress`]=next;
       if (room.status==="countdown"&&now>=Number(room.startedAt)) changes.status="playing";
       const projected={...room,[slot]:{...room[slot],progress:next},status:changes.status||room.status}; const winner=challengeResult(projected);
-      if (winner){changes.status="finished";changes.winnerUid=winner;changes.finishedAt=now;}
+      if (winner){changes.status="finished";changes.winnerUid=winner;changes.finishedAt=now;changes.expiresAt=new Date(now + 24 * 60 * 60 * 1000);}
     } else if (action.type === "forfeit") {
-      if (!["countdown","playing"].includes(room.status)) throw new Error("NOT_ACTIVE"); changes.status="finished";changes.winnerUid=slot==="player1"?room.player2.uid:room.player1.uid;changes.finishedAt=now;changes.forfeitedBy=user.uid;
+      if (!["countdown","playing"].includes(room.status)) throw new Error("NOT_ACTIVE"); changes.status="finished";changes.winnerUid=slot==="player1"?room.player2.uid:room.player1.uid;changes.finishedAt=now;changes.forfeitedBy=user.uid;changes.expiresAt=new Date(now + 24 * 60 * 60 * 1000);
     } else if (action.type === "presence") {
       changes[`${slot}.connected`]=!!action.connected;changes[`${slot}.disconnectedAt`]=action.connected?null:now;
     } else if (action.type === "disconnectForfeit") {
-      if (!["countdown","playing"].includes(room.status)) throw new Error("NOT_ACTIVE");const otherSlot=slot==="player1"?"player2":"player1",disconnectedAt=Number(room[otherSlot]?.disconnectedAt)||0;if(room[otherSlot]?.connected!==false||now-disconnectedAt<30000)throw new Error("RECONNECT_PENDING");changes.status="finished";changes.winnerUid=user.uid;changes.finishedAt=now;changes.forfeitedBy=room[otherSlot].uid;
+      if (!["countdown","playing"].includes(room.status)) throw new Error("NOT_ACTIVE");const otherSlot=slot==="player1"?"player2":"player1",disconnectedAt=Number(room[otherSlot]?.disconnectedAt)||0;if(room[otherSlot]?.connected!==false||now-disconnectedAt<30000)throw new Error("RECONNECT_PENDING");changes.status="finished";changes.winnerUid=user.uid;changes.finishedAt=now;changes.forfeitedBy=room[otherSlot].uid;changes.expiresAt=new Date(now + 24 * 60 * 60 * 1000);
     } else if (action.type === "leave") {
-      if (!["waiting","ready"].includes(room.status)) throw new Error("ACTIVE_CHALLENGE_REQUIRES_FORFEIT");if(slot==="player2"){changes.player2=null;changes.status="waiting";changes["player1.ready"]=false;changes["player1.wagerLocked"]=false;}else{changes.status="abandoned";changes.leftBy=user.uid;}
+      if (!["waiting","ready"].includes(room.status)) throw new Error("ACTIVE_CHALLENGE_REQUIRES_FORFEIT");if(slot==="player2"){changes.player2=null;changes.status="waiting";changes["player1.ready"]=false;changes["player1.wagerLocked"]=false;}else{changes.status="abandoned";changes.leftBy=user.uid;changes.expiresAt=new Date(now + 60 * 60 * 1000);}
     } else if (action.type === "rematch") {
       if (room.status!=="finished") throw new Error("NOT_FINISHED"); const requests={...(room.rematchRequests||{}),[user.uid]:true};changes.rematchRequests=requests;
-      if (room.player1&&room.player2&&requests[room.player1.uid]&&requests[room.player2.uid]) { const progress=cleanChallengeProgress();Object.assign(changes,{status:"ready",selectedChallenge:null,winnerUid:null,previousChallengeType:room.selectedChallenge?.type||null,startedAt:null,finishedAt:null,rematchRequests:{},economyProcessed:{},round:Number(room.round||1)+1});["player1","player2"].forEach(key=>{changes[`${key}.ready`]=false;changes[`${key}.wager`]=0;changes[`${key}.wagerLocked`]=false;changes[`${key}.progress`]=progress;}); }
+      if (room.player1&&room.player2&&requests[room.player1.uid]&&requests[room.player2.uid]) { const progress=cleanChallengeProgress();Object.assign(changes,{status:"ready",selectedChallenge:null,winnerUid:null,previousChallengeType:room.selectedChallenge?.type||null,startedAt:null,finishedAt:null,rematchRequests:{},economyProcessed:{},round:Number(room.round||1)+1,expiresAt:new Date(now + 24 * 60 * 60 * 1000)});["player1","player2"].forEach(key=>{changes[`${key}.ready`]=false;changes[`${key}.wager`]=0;changes[`${key}.wagerLocked`]=false;changes[`${key}.progress`]=progress;}); }
     }
     changes.updatedAt=now;transaction.update(ref,changes);return {...room,...changes};
   });
@@ -853,7 +854,8 @@ export async function createMultiplayerMatch(gameId, player, initialGameState, s
           rewardsClaimed: {},
           leftBy: null,
           createdAt: now,
-          updatedAt: now
+          updatedAt: now,
+          expiresAt: new Date(now + 24 * 60 * 60 * 1000)
         });
         return true;
       });
@@ -888,7 +890,8 @@ export async function joinMultiplayerMatch(roomCode, player) {
       player2: { uid: user.uid, displayName: String(player.displayName || "Player 2").slice(0, 40) },
       status: joinedStatus,
       currentTurn: match.player1.uid,
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
     });
     return roomCode;
   });
@@ -912,7 +915,13 @@ export async function transactMultiplayerMatch(matchId, updater) {
     if (!isParticipant) throw new Error("NOT_A_PARTICIPANT");
     const changes = updater(match, user.uid);
     if (!changes || typeof changes !== "object") return match;
-    transaction.update(matchRef, { ...changes, updatedAt: Date.now() });
+    const now = Date.now();
+    const expiryHours = changes.status === "abandoned" ? 1 : 24;
+    transaction.update(matchRef, {
+      ...changes,
+      updatedAt: now,
+      expiresAt: new Date(now + expiryHours * 60 * 60 * 1000)
+    });
     return { ...match, ...changes };
   });
 }

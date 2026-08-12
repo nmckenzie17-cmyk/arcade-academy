@@ -1,277 +1,206 @@
-# Integrate a Multiplayer Game with Online and Class-Calibrated AI Modes
+# Integrate a Multiplayer Game into Arcade Academy
 
-I have created a new multiplayer game and added its folder to Arcade Academy.
+Game folder: [GAME FOLDER PATH]
+Game name: [GAME NAME]
+Game ID: [LOWERCASE KEBAB-CASE ID]
+Maximum players: [2 / 3 / 4]
+Multiplayer style: [TURN-BASED / SIMULTANEOUS / LOBBY-BASED]
+Human question mechanic: [BEFORE TURN / BONUS / ROUND START / CUSTOM]
+Supported question formats: [MATCHING / MULTICHOICE / CATEGORY / HOST CHOOSES]
 
-Game folder:
-[GAME FOLDER PATH]
+## Goal and Reference
 
-Game name:
-[GAME NAME]
+Integrate the game completely with Arcade Academy’s established shared multiplayer architecture. Support:
 
-Game ID:
-[LOWERCASE GAME ID]
+1. Student versus Student through MultiplayerManager and Firebase `/matches` rooms.
+2. Student versus class-calibrated computer when the game supports an AI mode.
 
-Maximum players:
-[2 / 3 / 4]
+Use Thinking Tanks and Tic-Tac-Toe for online structure and Shuriken Scholar for shared home-screen, typography, panels, buttons, shops, and cosmetic-list conventions. Preserve the game’s mechanics and artwork.
 
-Multiplayer style:
-[TURN-BASED / SIMULTANEOUS / LOBBY-BASED]
+This template is for games whose primary competitive experience is already shared-state multiplayer. Do not add Challenge Mode to these games.
 
-Human question mechanic:
-[BEFORE EACH TURN / FOR BONUSES / AT ROUND START / DESCRIBE CUSTOM RULE]
+## Required Architecture
 
-Supported question formats:
-[MATCHING / MULTICHOICE / CATEGORY / HOST CHOOSES]
-
-## Goal
-
-Integrate the game completely with Arcade Academy.
-
-The game must support:
-
-1. Student vs Student using the existing Firebase multiplayer system.
-2. Student vs Class-Calibrated Computer without requiring another student or Firebase room.
-
-Use Tic-Tac-Toe and Thinking Tanks as implementation references.
-
-Preserve the new game’s core mechanics and visual identity, but align its authentication, questions, AI, statistics, home screen, Firebase architecture, Hub presentation and responsive behaviour with the existing collection.
-
-Implement and verify the integration rather than only reviewing it.
-
-## Architecture
-
-Online multiplayer must follow:
-
-Game
-↓
-MultiplayerManager
-↓
-FirebaseManager
-↓
-Firestore `/matches`
-
-Questions must follow:
-
-Game
-↓
-MultiplayerQuestionHelper / QuestionManager
-↓
-Student’s Hub-selected question bank
-
-AI calibration must follow:
-
-Game
-↓
-Shared AI Difficulty Manager
-↓
-FirebaseManager
-↓
-Privacy-safe class statistics
-
-Do not put direct Firebase Auth or Firestore calls inside the game.
-
-Do not create a second Firebase configuration.
-
-## Files to Inspect
-
-Before editing, inspect:
-
-- The new game’s complete folder
-- `shared/js/FirebaseManager.js`
-- `shared/js/MultiplayerManager.js`
-- `shared/js/MultiplayerQuestionHelper.js`
-- `shared/js/QuestionManager.js`
-- `shared/js/PlatformManager.js`
-- `shared/js/GameSaveManager.js`
-- `shared/css/global.css`
-- `shared/data/classes.js`
-- Tic-Tac-Toe
-- Thinking Tanks
-- Hub configuration and styles
-- Current `/matches` Firestore rules example
-- Teacher Dashboard statistics architecture
-- Existing `gameconfig.js` conventions
-
-Use shared managers wherever possible so future multiplayer games can reuse the same systems.
-
-## Game Configuration
-
-Add or correct the game’s `gameconfig.js`.
-
-Use one stable game ID across:
-
-- Hub registration
-- PlatformManager
-- Firebase statistics
-- Multiplayer match documents
-- Teacher Dashboard
-- GameSaveManager
-- Favourite-game tracking
-
-## Achievement and Level Integration
-
-Use the future shared AchievementManager; never create per-game achievement persistence.
-
-- Practice and test matches award no achievements, XP, levels, coins, scores, or cosmetic progress.
-- Human multiplayer and CPU matches must be distinguishable in emitted events.
-- Include stable match-completion facts needed for achievements: result, CPU difficulty where relevant, question totals/accuracy, comeback state, close-match state, and damage/score summary. Never include opponent names, email addresses, or UIDs in achievement display data.
-- Prevent farming by limiting repeat-opponent credit according to the central manager's policy.
-- Bronze, Silver, Gold, and Platinum achievements grant XP only. Cosmetics come only from level rewards and Secret achievements.
-- In-game cosmetics belong in the game's Cosmetics tab, hidden until at least one compatible item is owned. Hub/global aesthetics belong in Hub Upgrades.
-- Gameplay-changing level rewards must be disabled in every human multiplayer match. If offered for a multiplayer-capable game, they may affect CPU mode only and must not affect leaderboard eligibility.
-
-Add at least two original game-specific achievements to `gameconfig.js`: one educational/multiplayer-performance achievement and one distinctive game-mastery achievement. Each requires a globally unique stable ID, name, description, tier, scope, and declarative multi-condition requirement. They must not grant direct regular-achievement cosmetics and must not be earnable in Practice mode.
-
-Example shape:
-
-```javascript
-achievements: [
-  {
-    id: "example_multiplayer_smart_win",
-    name: "Thinking Champion",
-    description: "Win a valid match with at least 85% accuracy over 10 questions.",
-    tier: "gold",
-    scope: "game",
-    requirement: { all: [
-      { event: "match_completed", result: "win" },
-      { stat: "match.questionsAnswered", operator: ">=", value: 10 },
-      { stat: "match.accuracy", operator: ">=", value: 85 }
-    ] }
-  },
-  {
-    id: "example_multiplayer_mastery",
-    name: "Tactical Master",
-    description: "Complete this game's distinctive mastery condition.",
-    tier: "gold",
-    scope: "game",
-    requirement: { event: "game_mastery_challenge_completed", value: true }
-  }
-]
+```text
+Game -> MultiplayerManager -> FirebaseManager -> Firestore /matches
+Game -> MultiplayerQuestionHelper / QuestionManager -> Hub-selected bank
+Game -> PlatformManager / AchievementManager -> FirebaseManager
+CPU mode -> shared AI difficulty data -> privacy-safe class statistics
 ```
 
-Register an optional `levelRewards` pool using stable reward IDs. Maintain roughly 80% cosmetics and 20% small CPU-only gameplay rewards. The central level manager resolves and permanently records the dynamic enabled-game rotation.
+- Never call Firebase Auth or Firestore directly from game code.
+- Never duplicate Firebase configuration, authentication, questions, coins, achievements, cosmetics, saves, or room management.
+- Use UID as identity; display only approved student-facing names.
+- Load `gameconfig.js` before PlatformManager.
+- Load `../../shared/css/global.css` before local `style.css`.
 
-Include existing metadata fields where applicable:
+Inspect the complete game folder plus FirebaseManager, MultiplayerManager, MultiplayerQuestionHelper, QuestionManager, PlatformManager, GameSaveManager, AchievementManager, `global.css`, Thinking Tanks, Tic-Tac-Toe, Shuriken Scholar, Hub catalogue code, Firestore rules, and Teacher Dashboard architecture.
 
-- ID
-- Title
-- Icon
-- Catchphrase
-- Description
-- Genre
-- Path
-- Multiplayer flag
-- Maximum player count
-- Supported question formats
-- AI support
+## GameConfig
 
-## Home Screen
+Expose `window.GAME_CONFIG` and use one stable ID everywhere. Include the established metadata and:
 
-Match Arcade Academy’s established game home-screen layout.
+```javascript
+gameModes: ["singleplayer", "multiplayer"],
+primaryMode: "multiplayer",
+challengeMode: { enabled: false, types: {} }
+```
 
-Include:
+Also declare players, min/max players, supported question formats, AI support, high-score support, achievements, and level rewards as appropriate.
 
-- Game title
-- Catchphrase
-- Description and instructions
-- Multiplayer result statistics
-- Game-mode selection
-- Question-format selection where applicable
-- Back to Arcade Academy button
-- Creator credit where appropriate
+The Hub and Teacher Dashboard must discover the game through configuration rather than hard-coded lists.
 
-The player must first choose:
+## Shared Home-Screen Layout
 
-- Single Player
-- Multiplayer
+Follow the shared hierarchy:
 
-If Multiplayer is selected, show:
+1. Title and catchphrase
+2. Compact relevant statistics and shared coins
+3. Shop button when progression/cosmetics exist
+4. Description/instructions
+5. Mode selection: `Single Player` and `Multiplayer`
+6. Mode-specific controls
+7. `Back to Arcade Academy`
+8. Creator credit
 
-- Create Room
-- Join Room
-- Five-digit room-code entry
-- Lobby/readiness controls where needed
+For multiplayer show Create Room, Join Room, five-digit numeric code entry, lobby/readiness state where needed, and visible connection errors. For CPU mode show the current shared difficulty choices and Start control.
 
-If Single Player is selected, show:
+- Do not add a Challenge Mode button.
+- Return to the game home screen after a completed match.
+- Hub link is `../../index.html`.
+- Home pages and overlays must scroll correctly on desktop, mobile, and iPad.
 
-- Computer difficulty selection
-- Low
-- Medium
-- High
-- Start Game
+## Global CSS, Fonts, Themes, and Shared Values
 
-The Back to Arcade Academy button must navigate to:
+Use `shared/css/global.css` as the design source for fonts, colours, panels, buttons, tabs, borders, radii, gradients, glows, success/error feedback, links, and responsive conventions.
 
-`../../index.html`
+Use `--font-title`, `--font-subtitle`, `--font-body`, the shared accent/background variables, gradients, and component classes. Local CSS should supply game artwork and gameplay layout, not an unrelated UI system.
 
-The page must scroll correctly on desktop and mobile.
+- Multiplayer Hub cards and default multiplayer home backgrounds use the approved dark blue unless an equipped theme overrides UI presentation.
+- Themes may change home/menu backgrounds, UI colours, fonts, borders, panels, and question arrangement.
+- Themes must never change gameplay rules, physics, hitboxes, turn logic, board state, player/enemy sprites, weapons, or gameplay colours needed to distinguish players.
+- Correct feedback follows the active theme’s positive colour; incorrect feedback uses a readable inverse/contrast.
+- Shared UI cosmetics apply to the game UI as well as the Hub.
+- AchievementManager applies shared state through root `data-arcade-theme`/`data-arcade-cosmetics` attributes. Do not clear or replace them, and do not use permanent page-wide inversion/filter effects.
+- Home screens must retain a pointer-free behind-content layer for shared animated theme art, while the actual multiplayer board/canvas remains mechanically and visually unmodified by UI themes.
+- Shared badge, border, font, holographic-hover, and Living Level HUD effects should come from shared hooks/classes instead of duplicate per-game implementations.
 
-## Shared Visual Style
+## Shared Shop and Cosmetics
 
-The game must:
+Follow Shuriken Scholar’s shop structure and linear item presentation:
 
-- Load `shared/css/global.css`
-- Use the shared typography, buttons, panels, borders and responsive conventions
-- Keep its own artwork and gameplay theme
-- Avoid clipped overlays or inaccessible controls
-- Provide visible loading, connection and error states
-- Provide Leave Room, Leave Game and Return to Menu controls
-- Return to its home screen after a completed match
+- Shop opens from the home screen.
+- Cosmetics are a tab inside the same shop, never a separate floating design.
+- Use shared shop/tab/button/item classes.
+- Keep every tab’s contents present when switching; changing tabs must not erase other inventory.
+- If no shop exists, create one with an in-layout home Shop button and Cosmetics tab.
+- Place the Cosmetics tab/content before the Back/Return control.
+- Show only unlocked compatible rewards.
+- All normal rewards are toggleable and compatible slots can be combined.
+- Secret rewards become always-active after unlock and can coexist.
+- Game cosmetics remain in the game shop; Hub/global themes, fonts, badges, borders, and shared effects remain in Hub Upgrades.
+- Implement and verify every declared visual effect. Never advertise configuration-only cosmetics.
 
-All two-player or multiplayer Hub cards must use Arcade Academy’s approved dark-blue multiplayer background.
-
-## Authentication
-
-Reuse the existing Firebase Authentication session.
-
-If the player is not signed in:
-
-- Do not create an anonymous account
-- Do not create another login screen
-- Direct the player back to Arcade Academy to sign in
-
-Use the student’s existing profile display name and assigned class.
+Gameplay-changing rewards are disabled in human multiplayer. They may affect CPU mode only when explicitly declared, and must not affect ranked/leaderboard eligibility.
 
 ## Online Multiplayer
 
-Use the existing `/matches/{roomCode}` architecture.
+Use `/matches/{roomCode}` only through MultiplayerManager/FirebaseManager.
 
-Support the appropriate states:
+Support the shared states `waiting`, `lobby`, `playing`, `finished`, and `abandoned`. Room codes are collision-safe five-digit numbers. Permit direct room lookup, not collection listing. Store only required match state—never emails, full profiles, educational histories, or class data.
 
-- `waiting`
-- `lobby`
-- `playing`
-- `finished`
-- `abandoned`
+All clients subscribe to the room snapshot and update automatically after every accepted move. Never require a manual browser refresh between turns.
 
-Room codes must:
+Validate:
 
-- Be five digits
-- Be collision-safe
-- Permit direct lookup without permitting collection listing
-- Reuse abandoned or stale rooms only through FirebaseManager
+- Only authenticated participants can act.
+- Turn ownership and move legality are checked transactionally.
+- Winner and finish state are deterministic.
+- Repeated submissions cannot apply a move twice.
+- Leave/abandon and reconnection states are visible.
+- Rematches require both players and reset only round state.
+- Local UI remains responsive while waiting for Firebase.
 
-Store only the information required for the match. Do not copy full profiles, emails, class statistics or educational histories into match documents.
+Normal multiplayer documents include `expiresAt`. Production cleanup can use a Firestore TTL policy for collection group `matches`, field `expiresAt`. Abandoned matches expire sooner; active updates extend the expiry. TTL setup is deployment infrastructure, not game logic.
 
-## Online Questions
+## Authentication and Privacy
+
+Reuse the Hub’s Firebase Authentication session. Do not create anonymous accounts or another sign-in screen. If signed out, send the player back to the Hub with a clear message.
+
+Use Firebase UID as database identity. Never rely on display name as identity and never expose opponent UID, email, class history, or answers in player-facing data.
+
+## Questions
 
 Use MultiplayerQuestionHelper and QuestionManager.
 
-If the host selects a question format:
+- Each student uses their own Hub-selected class and question bank.
+- Never synchronize question order, exact answers, or one player’s bank to the opponent.
+- Synchronize only the shared match rule/format and game outcome data needed for the match.
+- When the host chooses a format, store and validate the format in match settings.
+- Record each student’s answers through PlatformManager.
+- Show clear missing-class, unsupported-format, unavailable-bank, loading, and older-room compatibility errors.
+- Question overlays pause local active-play accounting where appropriate.
 
-- Save it in the match settings
-- Validate it against the supported formats
-- Apply the same match rule to both players
+## CPU / Class-Calibrated AI
 
-Each human student must use their own Hub-selected class code and question bank.
+When CPU mode is supported, use the shared AI difficulty architecture and privacy-safe class aggregates. Provide the established difficulty choices. Do not fetch named student records or create game-specific teacher-data queries.
 
-Player A must not inherit Player B’s class code or questions.
+CPU mode uses local game state and must not create a `/matches` room. Clearly distinguish CPU and human results in emitted achievement/statistic events.
 
-Show a clear error when:
+## Platform Statistics, Coins, and Saves
 
-- A class code is missing
-- The selected format is unavailable
-- A question bank cannot be loaded
-- An older room lacks required question settings
+Use PlatformManager for sessions, active playtime, questions, result statistics, coins, and shared events. Use GameSaveManager/the approved local pattern for game-only progression. Never create a second currency or overwrite unrelated game data.
 
-Do not store
+Exclude menus, lobbies, shops, questions, pause states, connection waits, and result screens from active playtime.
+
+Do not award normal question coins twice when a game also has a match reward. Human multiplayer economy rules must be explicit and transaction-safe. Practice/test matches grant no permanent rewards.
+
+Teacher resets must clear only the intended statistics and progression.
+
+## Achievements, Levels, and Effects
+
+Use AchievementManager and stable data-only events. Add at least:
+
+- One educational human/CPU performance achievement
+- One distinctive game-mastery achievement
+
+Each requires a globally unique ID, name, description, tier, scope, and declarative conditions. Include result, CPU/human mode, difficulty, question totals/accuracy, comeback/close-match state, and game-specific summary where relevant—never opponent personal data.
+
+Regular achievement tiers award XP only. Cosmetics and small CPU-only boosts come from level rewards or Secret achievements. Configure approximately four cosmetics to one small gameplay reward and implement every effect.
+
+- Practice/test matches cannot unlock achievements or advance XP.
+- Prevent repeat-opponent farming through shared policy.
+- Human multiplayer ignores all gameplay-changing boosts.
+- Visual cosmetics may apply only when they do not obscure board state, player identity, aiming, or accessibility.
+
+## Hub and Teacher Dashboard
+
+Categorize the game primarily as Multiplayer even when CPU mode exists. Use the approved multiplayer-blue card/background unless changed by a UI theme. Display available shared statistics through the normal card structure.
+
+Teacher Dashboard reads the shared catalogue and PlatformManager/Firebase data. Do not add direct game-specific Firestore queries.
+
+## Verification
+
+Test with two different authenticated accounts and verify:
+
+1. GameConfig loads and Hub categorization is Multiplayer.
+2. `global.css`, shared fonts, home layout, buttons, panels, shops, and themes match conventions.
+3. There is no Challenge Mode UI or ChallengeManager initialization.
+4. CPU mode starts without creating a Firebase room.
+5. Create/join uses a five-digit code and both clients enter the same room.
+6. Both clients update after every move without manual refresh.
+7. Illegal/out-of-turn/duplicate moves are rejected safely.
+8. Each player receives questions from their own class bank.
+9. Disconnect, leave, finish, draw, win/loss, reward claim, and rematch work.
+10. Shop tabs retain their content; cosmetics form a linear unlocked-only list and effects toggle correctly.
+11. Gameplay boosts do not affect human multiplayer.
+12. Shared statistics, active playtime, achievements, resets, and Teacher Dashboard values work.
+13. `expiresAt` is present on newly created/updated match documents.
+14. Desktop, mobile, touch, and iPad layouts remain usable.
+15. JavaScript syntax, page-load, repository formatting, and Firestore-rule checks pass.
+
+## Final Report
+
+Report files changed, architecture used, match states and question formats, CPU behaviour, achievement/cosmetic effects, shared versus local data, tests performed, assumptions, and any Firestore rule, TTL, billing, or deployment requirement.
+
+Ask only when a missing decision materially changes gameplay, privacy, or economy. Otherwise follow current shared conventions and the named reference games.

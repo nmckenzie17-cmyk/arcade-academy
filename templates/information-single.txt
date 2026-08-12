@@ -1,351 +1,255 @@
 # Integrate a New Single-Player Game into Arcade Academy
 
-I have created a new single-player game and added its folder to Arcade Academy.
+Game folder: [GAME FOLDER PATH]
+Game name: [GAME NAME]
+Game ID: [LOWERCASE KEBAB-CASE ID]
+Supported question formats: [MATCHING / MULTICHOICE / CATEGORY / MULTIPLE]
+Correct-answer coin reward: [NUMBER OR NOT DECIDED]
+Incorrect-answer coin penalty: [NUMBER OR NOT DECIDED]
+Challenge metrics available: [SCORE / ALIVE / DISTANCE / WAVE / QUESTIONS]
 
-Game folder:
-[GAME FOLDER PATH]
+## Goal and Reference
 
-Game name:
-[GAME NAME]
+Integrate the game completely with Arcade Academy while preserving its core gameplay and visual identity. Use Shuriken Scholar as the primary reference for home-screen structure, shared styling, shop tabs, linear cosmetic lists, achievements, questions, platform statistics, and Challenge Mode. Inspect another mechanically similar aligned game before editing.
 
-Game ID:
-[LOWERCASE GAME ID, e.g. asteroid-algebra]
+Implement and verify the integration. Do not merely write a review.
 
-Question format supported:
-[MATCHING / MULTICHOICE / CATEGORY / MULTIPLE TYPES]
+## Required Architecture
 
-Correct-answer coin reward:
-[NUMBER OR “NOT DECIDED”]
+Keep these boundaries:
 
-Incorrect-answer coin penalty:
-[NUMBER OR “NOT DECIDED”]
+```text
+Game -> QuestionManager / PlatformManager / AchievementManager / ChallengeManager
+Shared managers -> FirebaseManager
+FirebaseManager -> Firestore
+```
 
-## Goal
+- Never import Firebase or call Firestore directly from a game.
+- Never create a second coin, class-code, question, achievement, cosmetic, authentication, or save system.
+- Keep game mechanics local. Shared managers observe and record them.
+- Load `gameconfig.js` before `PlatformManager.js`.
+- Load `../../shared/css/global.css` before the game’s own `style.css`.
+- Use the current cache-version convention on shared scripts.
 
-Inspect the new game and integrate it completely with Arcade Academy’s existing architecture, visual system, question banks, shared statistics, Firebase syncing, and Hub.
+Before editing, inspect the full game folder plus:
 
-Use the established single-player games—especially Shuriken Scholar and the other recently aligned games—as implementation references.
-
-Preserve the game’s core mechanics and theme. Do not redesign the gameplay unless an existing mechanic conflicts with Arcade Academy’s shared architecture.
-
-## Files and Architecture to Inspect
-
-Before editing, inspect:
-
-- The new game’s complete folder
-- `index.html`
-- `app.js`
-- `style.css`
+- `games/shuriken-scholar/`
 - `shared/css/global.css`
 - `shared/js/PlatformManager.js`
 - `shared/js/FirebaseManager.js`
 - `shared/js/QuestionManager.js`
 - `shared/js/GameSaveManager.js`
+- `shared/js/AchievementManager.js`
+- `shared/js/ChallengeManager.js`
 - `shared/data/classes.js`
 - `question-banks/banks.json`
-- At least two existing aligned single-player games
-- Each existing game’s `gameconfig.js` conventions
+- `app.js` and the Hub catalogue/configuration path
 
-Keep this architecture:
+## GameConfig Is the Source of Truth
 
-Games
-↓
-QuestionManager and PlatformManager
-↓
-FirebaseManager
-↓
-Firestore
+Create or correct `gameconfig.js` and expose it as `window.GAME_CONFIG`.
 
-The game must not communicate with Firebase or Firestore directly.
+Use one stable game ID for the Hub, PlatformManager, Firebase statistics, saves, achievements, Challenge Mode, Teacher Dashboard, favourites, and cosmetics. Include the established fields where relevant:
 
-## Game Configuration
+- `id`, `title`, `name`, `icon`, `catchphrase`, `description`, `genre`, `entry`
+- `gameModes: ["singleplayer", "challenge"]` when Challenge Mode is enabled
+- `primaryMode: "singleplayer"`
+- `players`, `questionType`, `supportedQuestionFormats`
+- `requiresQuestionBank`, `supportsHighScores`, `supportsAchievements`, `createdBy`
+- `achievements`, `levelRewards`, and `challengeMode`
 
-Add or correct the game’s `gameconfig.js`.
+Do not hard-code catalogue metadata elsewhere when GameConfig can provide it.
 
-Use a stable ID consistently across:
+## Shared Home-Screen Layout
 
-- Hub registration
-- PlatformManager statistics
-- GameSaveManager
-- Firebase game statistics
-- Teacher Dashboard
-- Favourite-game tracking
+Match the established Shuriken Scholar hierarchy while retaining game-specific artwork:
 
-Include the existing metadata format where applicable:
+1. Game title and catchphrase
+2. Compact lifetime/relevant statistics and shared coin balance
+3. Shop button, if the game has progression or cosmetics
+4. Short description and instructions
+5. Question-bank/class status
+6. Main Start button
+7. Shared Practice button
+8. Shared Challenge Mode button directly beneath Practice
+9. `Back to Arcade Academy`
+10. Creator credit where appropriate
 
-- ID
-- Title
-- Icon
-- Catchphrase
-- Description
-- Genre
-- Path
-- Multiplayer flag
+Requirements:
 
-Do not duplicate configuration if Arcade Academy already has a shared convention for it.
+- The Hub link must navigate to `../../index.html`.
+- The home screen must scroll at small desktop and touch widths.
+- Do not manually create Practice or Challenge buttons. PlatformManager and ChallengeManager insert them beside the configured Start button.
+- Add `startSelector` to GameConfig only when the standard selectors cannot find the normal Start control.
+- Returning from game over, a run summary, or the shop must refresh displayed coins and statistics.
+- The main game-over continuation is `Return Home`, not an automatic restart.
 
-## Shared Visual Style
+## Global CSS, Fonts, Themes, and Shared Values
 
-Align the game with Arcade Academy’s existing visual language while retaining its own theme.
+Use `shared/css/global.css` for all shared presentation values:
 
-The game must:
+- `--font-title`, `--font-subtitle`, `--font-body`
+- `--bg-primary`, panel colours, accent colours, success/error colours, and `--gold`
+- `--gradient-panel`, `--gradient-btn`, hover/active gradients
+- shared border widths, radii, glows, panels, buttons, tabs, shop items, and links
 
-- Load `shared/css/global.css`
-- Use the shared fonts, colours, panels, borders, glows and button conventions
-- Have responsive scrolling where needed
-- Work on desktop and touch/mobile layouts
-- Avoid clipped overlays or inaccessible controls
-- Use readable loading, error and empty states
-- Match the general home-screen structure used by the existing games
+Use the shared classes (`panel`, `btn`/`canva-button`, shop/tab classes, and game-home link conventions) before adding game-specific CSS. Game CSS may define artwork and gameplay layout, but must not replace the global design system with unrelated fonts, button geometry, modal structure, or hard-coded shared colours.
 
-Do not copy another game’s artwork. Align the layout and interface conventions, not the game’s identity.
+Theme behaviour:
 
-## Game Home Screen
+- Hub themes may change home/menu backgrounds, UI colours, borders, fonts, panels, question arrangement, and non-gameplay background art.
+- Themes must not alter gameplay rules, collisions, physics, questions, game objects, player/enemy sprites, projectiles, or gameplay readability.
+- Home-screen and behind-game backgrounds may use theme variables where a background exists.
+- Correct-answer feedback uses the active theme’s appropriate positive colour; incorrect feedback uses its readable inverse/contrasting colour.
+- UI effects must work on game home screens and game UI, not only on the Hub.
+- AchievementManager applies shared state through `data-arcade-theme`, `data-arcade-cosmetics`, and related root attributes. Do not remove, overwrite, or permanently cache those attributes/classes.
+- Do not apply page-wide `filter`, hue rotation, inversion, or forced canvas recolouring for a UI theme. Shared themes must remain reversible when disabled.
+- Leave a safe behind-content layer on home screens for shared animated theme art such as Storybook words; it must be pointer-free and must not enter the gameplay update/collision loop.
+- Shared UI effects such as Academy Badge, Living Level Badge, holographic hover cards, themed borders, and fonts must use shared hooks/classes rather than game-specific duplicate implementations.
 
-The home screen should include:
+## Shared Shop and Cosmetic Layout
 
-- Game title
-- Catchphrase
-- Lifetime or relevant game statistics
-- Shared coin balance
-- Description/instructions
-- Question-bank loading status
-- Press Start button
-- Shop button if the game has purchasable progression
-- “Back to Arcade Academy” button
-- Creator credit where existing games use one
+Follow Shuriken Scholar’s shop conventions:
 
-The Back to Arcade Academy control must navigate to:
+- Open the shop from the home screen.
+- Use one shop modal/window rather than a separate floating cosmetics screen.
+- Use tabs such as `Upgrades`, `Powerups`, and `Cosmetics` as appropriate.
+- Cosmetics are another tab inside the existing shop.
+- If no shop exists, create a shop with a home-screen Shop button and a Cosmetics tab.
+- Use the shared shop classes and a single-column/linear item list.
+- Put the Cosmetics tab above the shop’s Back/Return control.
+- Cosmetic buttons must match the size, font, border, colour, and interaction style of other shop buttons.
 
-`../../index.html`
+AchievementManager owns the shared cosmetic inventory and injects/renders the game’s cosmetic rewards. The game provides the compatible shop host and implements the actual visual/gameplay effect.
 
-This should reload the Hub so Firebase-backed values refresh.
+- Show only rewards the player has unlocked.
+- Every non-secret cosmetic/boost must be toggleable.
+- Allow compatible slots to be equipped together (for example border + background + character).
+- Equipping one item replaces only an incompatible item in the same slot.
+- Secret rewards are always active once unlocked and may coexist.
+- Game-specific cosmetics stay in that game’s shop; Hub/global themes, fonts, badges, and borders stay in Hub Upgrades.
+- Never display an unlock whose effect has not actually been implemented.
 
-If the player dies or finishes a run, the game-over action must return them to the game’s home screen rather than immediately starting another run. The home screen and shop should display refreshed values.
+## Achievements, Level Rewards, and Effects
 
-A run-complete summary may be shown first, but its main continuation button should be “Return Home”.
+Use the shared AchievementManager. Never create per-game achievement persistence.
+
+GameConfig must contain at least two original achievements:
+
+- One educational/performance or improvement achievement
+- One achievement for mastery of the game’s distinctive mechanic
+
+Each achievement needs a globally unique stable ID, name, description, tier, scope, and declarative requirement. Bronze/Silver/Gold/Platinum achievements award XP only. Regular achievements do not contain direct cosmetic rewards. Cosmetics and small boosts come from level rewards or Secret achievements.
+
+Register a stable `levelRewards` pool with approximately four cosmetics to one small gameplay reward. For every reward:
+
+- Declare a stable ID, name, type, slot, game ID, and accurate player-facing detail.
+- Implement and verify the effect; configuration alone is insufficient.
+- Apply sprite/outfit colours consistently to all relevant player variants.
+- Apply trails/exhaust/projectile effects to the actual emitted effects.
+- Keep gameplay boosts small, single-player-only, and excluded from Practice and human multiplayer.
+- Report stable, data-only events through PlatformManager/AchievementManager for mechanics that cannot be derived from shared statistics.
+
+Practice mode must not advance achievements, XP, levels, coins, high scores, cosmetic progression, secrets, or permanent progression.
 
 ## Questions
 
-Use `QuestionManager.js`.
+Use QuestionManager and the class selected on the Hub.
 
-The game must:
+- Never fetch a question bank directly from Firebase.
+- Never create a second class-code selector.
+- Validate supported formats and normalize through the shared question architecture.
+- Record every answer through `PlatformManager.recordQuestionAnswered(gameId, correct)`.
+- Pause active gameplay time while a question overlay is open.
+- Provide clear loading, empty, incompatible-format, missing-class, and bank-load error states.
+- Do not expose answers or one student’s question sequence to another system.
 
-- Read the class code selected on the Hub
-- Load the correct question bank through QuestionManager
-- Support the specified question format
-- Normalize questions using the shared question architecture
-- Record every answer
-- Provide a clear message when no class code exists
-- Provide a clear message when a bank cannot be loaded
-- Avoid hardcoded question-bank paths when QuestionManager can resolve them
-- Never fetch questions directly from Firebase
-- Never maintain a separate class-code system
+Suggested messages:
 
-Use friendly errors such as:
+- `Please enter your class code on the Arcade Academy Hub.`
+- `This class does not have compatible questions for this game.`
 
-“Please enter your class code on the Arcade Academy Hub.”
+## PlatformManager, Coins, Statistics, and Saves
 
-or:
+Use the real shared API after inspecting its current implementation:
 
-“This class does not have compatible questions for this game.”
+- `startSession`, `endSession`, and `heartbeat`
+- `recordQuestionAnswered`
+- `setHighScore`
+- `getCoins`, `addCoins`, and the approved deduction/spend method
+- stable game-specific event reporting where required
 
-If the requested question format is incompatible with the game, report the conflict clearly rather than silently returning no questions.
+Active playtime excludes home, pause, shop, question, loading, and game-over screens. Use the shared coin balance and never allow a deduction below zero.
 
-## PlatformManager Integration
+Apply the supplied correct reward and incorrect penalty. If either is `NOT DECIDED`, ask rather than inventing an economy value.
 
-Use the existing PlatformManager API.
+Use GameSaveManager or the approved existing local-save pattern for game-only upgrades, inventory, skill trees, and permanent abilities. Use PlatformManager/FirebaseManager for shared statistics and currency. Preserve old save keys and migrate changed save shapes safely.
 
-Connect:
+Teacher reset requests must clear the appropriate statistics/progression without accidentally deleting unrelated coins, unlocks, or other games.
 
-- `PlatformManager.startSession(gameId)`
-- `PlatformManager.endSession(gameId)`
-- `PlatformManager.heartbeat(gameId, isActivelyPlaying)`
-- `PlatformManager.recordQuestionAnswered(gameId, correct)`
-- `PlatformManager.setHighScore(gameId, score)`
-- `PlatformManager.getCoins()`
-- `PlatformManager.addCoins(amount)`
-- `PlatformManager.spendCoins(amount)` or the existing deduction method
+## Challenge Mode
 
-Active playtime must exclude time spent on:
+Challenge Mode is for games that are fundamentally single-player. It runs two completely independent local runs toward a shared objective. It never synchronizes enemies, movement, physics, health, weapons, upgrades, drops, question order, random events, or game state.
 
-- Home screens
-- Pause screens
-- Shops
-- Question overlays
-- Game-over screens
-- Loading screens
+Declare compatibility only in GameConfig:
 
-Do not create a second coin balance.
+```javascript
+challengeMode: {
+  enabled: true,
+  types: {
+    scoreAttack: { enabled: true },
+    survival: { enabled: true },
+    distanceRace: { enabled: false },
+    waveRace: { enabled: true },
+    timeAttack: { enabled: true, targetScore: 15000 },
+    questionRace: { enabled: true, targetCorrect: 25 },
+    accuracyChallenge: { enabled: true, minimumQuestions: 20, durationSeconds: 300 }
+  }
+}
+```
 
-## Coins
+- Enable only metrics the game genuinely exposes.
+- Register a small adapter with ChallengeManager when the standard Start button or metric snapshot is insufficient.
+- Report meaningful changes through `ChallengeManager.update(...)`; call `finish(...)` once at the natural run end.
+- Do not write every animation frame. The shared manager throttles updates, but the game should still report meaningful state changes.
+- Preserve all player upgrades, loadouts, saves, and independent randomness.
+- Wagers and rewards remain owned by PlatformManager/FirebaseManager.
+- Wager controls support `0`, direct entry, `-10`, `-1`, `+1`, `+10`, and `MAX`; Ready locks the wager. A loss deducts the player’s wager, a win adds `Math.floor(wager * 0.5)`, and a draw changes no coins.
+- The shared opponent HUD reports only the selected objective’s metrics. Never upload local game state.
+- Question Race defaults to 25 correct; Accuracy defaults to 20 qualifying answers/300 seconds unless GameConfig overrides them; Time Attack always needs a game-specific target.
+- The global kill switch is `CHALLENGE_MODE_ENABLED` in `shared/js/ChallengeManager.js`.
+- Do not add Challenge Mode to games whose established multiplayer mode is already their primary competitive experience.
 
-Use Arcade Academy’s shared coin pool.
+Challenge documents use `/challenges/{roomCode}` and include `expiresAt`. Production cleanup may use a Firestore TTL policy on collection group `challenges`, field `expiresAt`.
 
-Apply:
+## Hub and Teacher Dashboard
 
-- Correct answer: +[CORRECT-ANSWER COIN REWARD]
-- Incorrect answer: -[INCORRECT-ANSWER COIN PENALTY]
+The Hub must discover the game from GameConfig and place it in Single Player. Its card uses the standard dark single-player artwork and displays supported shared statistics without a hard-coded game list.
 
-Coin deductions must never make the balance negative.
-
-If either value is “NOT DECIDED”, do not invent a value. Tell me exactly which reward or penalty still needs a decision.
-
-Do not award coins independently from game score unless the game design explicitly requires it.
-
-## Saves and Firebase
-
-Use PlatformManager for shared statistics and Firebase-backed platform data.
-
-Use GameSaveManager or the existing approved local-save pattern for game-specific progression such as:
-
-- Unlocks
-- Upgrades
-- Cosmetics
-- Inventory
-- Skill trees
-- Permanent abilities
-
-Do not put direct Firestore calls inside the game.
-
-Ensure that teacher-issued resets work:
-
-- A game-specific reset clears this game’s statistics and local progression
-- A learning-statistics reset clears question and accuracy data without clearing coins, high scores or unlocks
-- An all-progress reset clears this game’s applicable local progression
-
-## Hub Integration
-
-Add the game to the correct Hub collection:
-
-- Single Player
-
-The Hub card must use the standard card structure and display:
-
-- Icon
-- Title
-- Catchphrase
-- Description
-- Genre
-- High score
-- Accuracy
-- Questions answered
-- Playtime
-- Last played
-
-Match the normal dark Hub-card artwork background unless I explicitly request another approved collection colour.
-
-Do not redesign the Hub.
-
-## Teacher Dashboard
-
-Ensure the game appears automatically through the existing configuration/catalogue system.
-
-Its statistics should be readable in the Teacher Dashboard:
-
-- High score
-- Accuracy
-- Questions answered
-- Correct answers
-- Incorrect answers
-- Playtime
-- Last played
-- Sessions played
-
-Do not add direct game-specific Firestore reads to the Teacher Dashboard.
-
-## Safety and Compatibility
-
-- Preserve existing user changes
-- Do not create a second Firebase configuration
-- Do not weaken Firestore rules
-- Do not modify unrelated games
-- Do not expose API keys beyond the existing Firebase client configuration
-- Do not delete fake/reference files unless requested
-- Avoid breaking existing local save keys
-- Add migrations or backward-compatible handling if an existing save format changes
+Teacher Dashboard data must flow through the shared catalogue and managers. Do not add direct per-game Firestore reads. Support high score, questions, correct/incorrect, accuracy, playtime, last played, sessions, and applicable game metrics.
 
 ## Verification
 
-Test or inspect the following:
+Verify at minimum:
 
-1. Game appears under Single Player on the Hub.
-2. Game card uses the standard Hub style.
-3. Opening the game shows its aligned home screen.
-4. Back to Arcade Academy returns to and refreshes the Hub.
-5. The Hub-selected class code loads.
-6. Compatible questions appear.
-7. Correct and incorrect answers are recorded.
-8. Coin rewards and penalties use the shared balance.
-9. Refreshing preserves shared cloud values.
-10. High scores and statistics reach PlatformManager.
-11. Active playtime excludes menus and overlays.
-12. Death/run completion returns to the game home screen.
-13. Teacher Dashboard can display the game’s statistics.
-14. Teacher reset requests are respected.
-15. The game works at desktop and mobile widths.
-16. JavaScript syntax and repository checks pass.
+1. GameConfig loads before PlatformManager and the game appears in the correct Hub section.
+2. `global.css` loads before local CSS and shared fonts/variables are used.
+3. Home-screen order, responsive scrolling, Shop, Practice, Challenge, and Hub link match the conventions above.
+4. Shop tabs remain present when switching tabs; cosmetic items are a linear list and only unlocked items appear.
+5. Every configured cosmetic/boost visibly or mechanically works, toggles correctly, and combines by compatible slots.
+6. Themes affect UI/home backgrounds without changing gameplay objects or mechanics.
+7. Class selection and every supported question format load correctly.
+8. Correct/incorrect answers, coins, high score, sessions, and active playtime reach PlatformManager.
+9. Game over returns home and refreshes displayed values.
+10. Practice gives no permanent rewards.
+11. Challenge create/join, wager adjustment, ready, shared challenge selection, independent runs, HUD, result, rematch, and forfeit work with two accounts.
+12. Challenge progress is throttled and no local game state is uploaded.
+13. Teacher resets and dashboard values work.
+14. Desktop, touch, and iPad gestures do not zoom or hide controls unintentionally.
+15. JavaScript syntax, page-load checks, and repository formatting checks pass.
 
 ## Final Report
 
-After implementation, report:
+Report files changed, shared integrations completed, challenge types enabled, achievement/reward effects implemented, question formats, economy values, local versus cloud data, tests performed, assumptions, and any required Firestore rule/TTL/deployment step.
 
-- Files changed
-- Architecture integrations completed
-- Question format used
-- Coin values applied
-- Save data that remains local
-- Data synchronized through PlatformManager/Firebase
-
-## Achievement and Level Integration
-
-Every new game must integrate with the shared AchievementManager when it becomes available. Do not create a separate achievement save system.
-
-- Practice mode must not advance achievements, XP, level rewards, coins, scores, or cosmetic progress.
-- Reuse PlatformManager statistics wherever possible; emit only game-specific events that shared statistics cannot derive.
-- Game events must use stable names and data-only payloads, for example: run completed, enemy defeated, boss defeated, damage taken, stage reached, cosmetic equipped, and special challenge completed.
-- Bronze, Silver, Gold, and Platinum achievements grant XP only. They do not directly grant cosmetics.
-- Cosmetics may be unlocked only by player levels or Secret achievements.
-- Register in-game cosmetics in GameConfig and show them in a Cosmetics tab only after the player owns at least one cosmetic for this game.
-- In-game cosmetics include player/character sprites, alternate characters, weapons, projectiles, trails, game backgrounds, effects, and game-specific HUD appearances.
-- Hub fonts, global style themes, hub borders, badges, and other shared aesthetics belong to Hub Upgrades, not the game shop.
-- Any level reward that affects gameplay must be small, single-player only, and declared explicitly. Target approximately 80% cosmetic and 20% gameplay rewards in each game's configured reward pool.
-- Gameplay-changing rewards must never affect multiplayer and should be excluded from ranked/leaderboard challenge runs.
-
-Add at least two original game-specific achievements to `gameconfig.js`. Each needs a globally unique stable ID, name, description, tier, scope, and declarative requirement/event conditions. Regular game achievements have no direct reward field because their tier determines XP centrally. At least one should reward educational performance or improvement; the other should reward mastery of the game's distinctive mechanics. Do not make either achievement farmable in Practice mode.
-
-Example shape:
-
-```javascript
-achievements: [
-  {
-    id: "example_game_accurate_run",
-    name: "Focused Finish",
-    description: "Complete a valid run with at least 85% accuracy over 10 questions.",
-    tier: "silver",
-    scope: "game",
-    requirement: { all: [
-      { event: "run_completed", value: true },
-      { stat: "run.questionsAnswered", operator: ">=", value: 10 },
-      { stat: "run.accuracy", operator: ">=", value: 85 }
-    ] }
-  },
-  {
-    id: "example_game_mastery_challenge",
-    name: "Game Specialist",
-    description: "Complete this game's distinctive mastery challenge.",
-    tier: "gold",
-    scope: "game",
-    requirement: { event: "game_mastery_challenge_completed", value: true }
-  }
-]
-```
-
-Also register a `levelRewards` pool in GameConfig. Use a stable reward ID and type, and maintain an approximate four-cosmetic-to-one-gameplay ratio. The central level manager dynamically rotates otherwise-unreserved levels across enabled games and persists the resolved level-to-reward assignment so later catalogue changes do not revoke rewards.
-- Tests performed
-- Anything still requiring my decision
-- Any Firestore rule or deployment requirement
-
-Implement the integration, not just a review.
-
-If something is ambiguous, inspect the established Arcade Academy conventions first. Make the safest compatible assumption, implement it, and clearly report the assumption. Ask me only when a missing choice would materially change the game’s mechanics or economy.
+Ask only when a missing decision would materially change mechanics or economy. Otherwise follow current shared conventions and Shuriken Scholar.

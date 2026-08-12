@@ -1155,7 +1155,7 @@
       && global.GAME_CONFIG?.challengeMode?.enabled === true) {
     const challengeScript = document.createElement('script');
     const challengeUrl = new URL('ChallengeManager.js', PLATFORM_SCRIPT_URL);
-    challengeUrl.searchParams.set('v','20260812-challenge-mode-v1');
+    challengeUrl.searchParams.set('v','20260812-challenge-mode-v2');
     challengeScript.src = challengeUrl.href;
     challengeScript.defer = true;
     document.head.appendChild(challengeScript);
