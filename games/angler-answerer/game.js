@@ -21,6 +21,7 @@ const CONFIG = {
   markerRiseBase: 72,          // %/sec the tension marker climbs while holding
   markerFallBase: 55,          // %/sec the tension marker falls while released
   inZonePullPerSec: 30,        // distance %/sec closed while the marker is inside the catch zone
+  outOfZoneDistanceMult: 1.5,  // fish escapes 50% faster while outside the catch box
   // --- market / cooler economy ---
   marketDropPerSale: 0.90,     // each unit sold multiplies that species' supply factor by this
   marketFloor: 0.35,           // a saturated market never pays out less than this fraction
@@ -678,7 +679,7 @@ function updateReel(dt){
     const pullRate = CONFIG.inZonePullPerSec * RT.zonePullMult * (1+state.perm.rod*0.06);
     RT.distance -= pullRate*dtS;
   } else {
-    RT.distance += fishDriftRate(fish, dt) * RT.zoneDriftMult * dtS;
+    RT.distance += fishDriftRate(fish, dt) * RT.zoneDriftMult * CONFIG.outOfZoneDistanceMult * dtS;
   }
   RT.distance = clamp(RT.distance,0,100);
 
