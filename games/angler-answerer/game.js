@@ -12,6 +12,7 @@
 /* ---------------------------- CONFIG ---------------------------- */
 const CONFIG = {
   startBait: 0,
+  maxBait: 10,
   baseCastPowerTimeMs: 1400,   // time held to reach full charge
   hookWindowMs: 850,           // base reaction window to hook a fish
   biteDelayMin: 900,
@@ -246,9 +247,12 @@ function loadGame(){
 /* ---------------------------- BAIT SYSTEM ---------------------------- */
 // Structured so an educational question system can later call addBait(1) per correct answer.
 function addBait(amount){
-  state.bait = Math.max(0, state.bait + amount);
+  const previous = state.bait;
+  state.bait = clamp(state.bait + amount, 0, CONFIG.maxBait);
   refreshHUD();
-  if(amount>0) showBanner(`+${amount} BAIT`);
+  const added = state.bait - previous;
+  if(added>0) showBanner(`+${added} BAIT · ${state.bait}/${CONFIG.maxBait}`);
+  return added;
 }
 function spendBait(amount){
   if(state.bait < amount) return false;
@@ -433,13 +437,18 @@ function beginCharge(){
 }
 function requestCast(){
   if(RT.phase!=="idle" || RT.paused) return;
-  if(castReady){ castReady=false; beginCharge(); return; }
+  // Any banked bait can fund the next cast; questions are only required once
+  // the stack is empty. This is what makes answering ahead genuinely useful.
+  if(castReady || state.bait>0){ castReady=false; beginCharge(); return; }
   showCastQuestion();
 }
 function showCastQuestion(){
   if(!questionBankReady || !window.QuestionManager?.hasQuestions?.()){showBanner("Your class questions are not ready.",2200);return;}
+  if(state.bait>=CONFIG.maxBait){castReady=true;showBanner(`Bait is full (${CONFIG.maxBait}/${CONFIG.maxBait}). Go fishing!`,2200);return;}
   currentQuestion=QuestionManager.getNextQuestion();if(!currentQuestion)return;
   RT.paused=true;$("questionPrompt").textContent=currentQuestion.q;$("questionFeedback").textContent="";
+  $("questionProgress").textContent=`Bait ${state.bait}/${CONFIG.maxBait} · Correct: +1 bait · Incorrect: −20 coins`;
+  $("questionContinueActions").hidden=true;
   const options=$("questionOptions");options.replaceChildren();
   currentQuestion.a.forEach((answer,index)=>{const button=document.createElement("button");button.type="button";button.textContent=answer;button.onclick=()=>answerCastQuestion(index,button);options.appendChild(button);});
   $("modalQuestion").classList.add("show");
@@ -449,9 +458,18 @@ function answerCastQuestion(index,button){
   $("questionOptions").querySelectorAll("button").forEach((option,i)=>{option.disabled=true;if(i===currentQuestion.c)option.classList.add("correct");});
   if(!correct)button.classList.add("wrong");QuestionManager.recordAnswer(currentQuestion,correct);PlatformManager.recordQuestionAnswered(GAME_ID,correct);
   anglerQuestionStreak=correct?anglerQuestionStreak+1:0;window.AchievementManager?.notify?.("angler_question_result",{facts:{angler_correct_streak:anglerQuestionStreak}});
-  if(correct){addBait(1);castReady=true;$("questionFeedback").textContent="Correct — one bait added and your cast is loaded!";}
+  if(correct){
+    addBait(1);castReady=true;
+    const full=state.bait>=CONFIG.maxBait;
+    $("questionFeedback").textContent=full?`Correct — bait is full at ${CONFIG.maxBait}!`:`Correct — bait added (${state.bait}/${CONFIG.maxBait}).`;
+    $("questionProgress").textContent=`Bait ${state.bait}/${CONFIG.maxBait}`;
+    const actions=$("questionContinueActions");actions.hidden=false;
+    $("answerAnotherQuestionBtn").hidden=full;
+    $("answerAnotherQuestionBtn").onclick=()=>showCastQuestion();
+    $("goFishingBtn").onclick=()=>{$("modalQuestion").classList.remove("show");actions.hidden=true;RT.paused=false;mainActionBtn.textContent="CAST LINE";hintText.textContent=`${state.bait} bait ready · hold to charge your cast`;};
+  }
   else{PlatformManager.deductCoins(20);refreshHUD();$("questionFeedback").textContent="Incorrect — 20 coins lost. Try another question.";}
-  setTimeout(()=>{$("modalQuestion").classList.remove("show");RT.paused=false;if(correct){mainActionBtn.textContent="CAST LINE";hintText.textContent="Hold to charge your earned cast";}else showCastQuestion();},correct?700:1000);
+  if(!correct)setTimeout(()=>showCastQuestion(),1000);
 }
 function updateCharge(){
   if(RT.phase!=="charging") return;

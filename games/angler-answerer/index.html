@@ -34,7 +34,7 @@
       <div id="homeDescription" class="canva-card">
         <h3>HOW TO PLAY</h3>
         <ol>
-          <li><b>Answer questions</b> to earn bait — every correct answer gives 1 bait and no coins; an incorrect answer costs 20 shared coins.</li>
+          <li><b>Answer questions</b> to earn and stack up to 10 bait — every correct answer gives 1 bait and no coins; an incorrect answer costs 20 shared coins.</li>
           <li><b>Cast your line:</b> hold to charge your power, release to throw.</li>
           <li><b>Hook it:</b> when a fish bites, tap fast before it gets away.</li>
           <li><b>Reel it in:</b> hold to raise the marker and keep it inside the moving catch zone — that's what pulls the distance bar down to zero.</li>
@@ -178,6 +178,10 @@
     <p id="questionPrompt"></p>
     <div id="questionOptions"></div>
     <p id="questionFeedback" role="status"></p>
+    <div id="questionContinueActions" hidden>
+      <button type="button" id="answerAnotherQuestionBtn">ANSWER ANOTHER</button>
+      <button type="button" id="goFishingBtn">GO FISHING</button>
+    </div>
   </div>
 </div>
 
@@ -186,6 +190,6 @@
 <script src="../../shared/js/PlatformManager.js?v=20260812-challenge-mode-v2"></script>
 <script src="../../shared/js/QuestionManager.js"></script>
 <script src="gameconfig.js"></script>
-<script src="game.js?v=20260813-wrong-answer-cost-v1"></script>
+<script src="game.js?v=20260813-bait-stack-v2"></script>
 </body>
 </html>

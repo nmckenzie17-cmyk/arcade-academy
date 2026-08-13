@@ -48,6 +48,10 @@
   #questionOptions button.correct{background:var(--arcade-answer-correct,var(--bait));border-color:var(--arcade-answer-correct,var(--bait));color:#07120a;}
   #questionOptions button.wrong{background:var(--arcade-answer-incorrect,var(--danger));border-color:var(--arcade-answer-incorrect,var(--danger));}
   #questionFeedback{font-family:var(--font-body);text-align:center;min-height:18px;font-size:10px;}
+  #questionContinueActions{display:flex;gap:10px;margin-top:12px;}
+  #questionContinueActions[hidden]{display:none;}
+  #questionContinueActions button{flex:1;padding:12px;background:var(--gradient-btn);border:2px solid var(--accent);border-radius:var(--radius-btn);color:var(--text);font-family:var(--font-body);font-weight:800;cursor:pointer;}
+  #goFishingBtn{border-color:var(--bait)!important;color:var(--bait)!important;}
 
   /* ---------- HUD ---------- */
   #hud{
