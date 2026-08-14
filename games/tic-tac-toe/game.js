@@ -327,7 +327,8 @@
       const button = document.createElement('button');
       button.className = 'question-option';
       button.textContent = answer.text;
-      button.addEventListener('click', () => answerTurnQuestion(answer.correct));
+      button.dataset.correct = String(answer.correct);
+      button.addEventListener('click', () => answerTurnQuestion(answer.correct, button));
       options.appendChild(button);
     });
     byId('question-overlay').hidden = false;
@@ -343,11 +344,13 @@
     } finally { gateInitialising = false; }
   }
 
-  async function answerTurnQuestion(correct) {
-    byId('question-options').querySelectorAll('button').forEach(button => { button.disabled = true; });
+  async function answerTurnQuestion(correct, selectedButton) {
+    byId('question-options').querySelectorAll('button').forEach(button => { button.disabled = true; if(button.dataset.correct==='true')button.classList.add('correct'); });
+    if(!correct)selectedButton?.classList.add('incorrect');
     MultiplayerQuestionHelper.record(activeQuestion, correct);
-    if(!correct&&isSinglePlayer&&!secondThoughtUsed&&tttBoost('tic-tac-toe_second_thought')){secondThoughtUsed=true;setMessage('question-feedback','Second Thought saved your turn — try a new question!');activeQuestionNonce=null;setTimeout(manageTurnQuestion,500);return;}
+    if(!correct&&isSinglePlayer&&!secondThoughtUsed&&tttBoost('tic-tac-toe_second_thought')){secondThoughtUsed=true;setMessage('question-feedback','Second Thought saved your turn — the correct answer is highlighted.');activeQuestionNonce=null;setTimeout(manageTurnQuestion,2000);return;}
     setMessage('question-feedback', correct ? 'Correct — take your turn!' : 'Incorrect — your turn is skipped.');
+    if(!correct)await new Promise(resolve=>setTimeout(resolve,2000));
     try {
       await submitHumanMove((fresh, uid) => {
         const gate = fresh.gameState?.turnGate;

@@ -37,6 +37,7 @@ const CONFIG = {
   saveKey: "anglers_ascent_save_v1"
 };
 const GAME_ID = "angler-answerer";
+let tripRawCoins = 0, lastTripCoinResult = null;
 let challengeRunCaught = 0;
 const QUESTION_TYPE = "multichoice";
 let questionBankReady = false;
@@ -448,7 +449,7 @@ function showCastQuestion(){
   if(state.bait>=CONFIG.maxBait){castReady=true;showBanner(`Bait is full (${CONFIG.maxBait}/${CONFIG.maxBait}). Go fishing!`,2200);return;}
   currentQuestion=QuestionManager.getNextQuestion();if(!currentQuestion)return;
   RT.paused=true;$("questionPrompt").textContent=currentQuestion.q;$("questionFeedback").textContent="";
-  $("questionProgress").textContent=`Bait ${state.bait}/${CONFIG.maxBait} · Correct: +1 bait · Incorrect: −20 coins`;
+  $("questionProgress").textContent=`Bait ${state.bait}/${CONFIG.maxBait} · Correct: +1 bait · Incorrect: −5 coins`;
   $("questionContinueActions").hidden=true;
   const options=$("questionOptions");options.replaceChildren();
   currentQuestion.a.forEach((answer,index)=>{const button=document.createElement("button");button.type="button";button.textContent=answer;button.onclick=()=>answerCastQuestion(index,button);options.appendChild(button);});
@@ -469,8 +470,8 @@ function answerCastQuestion(index,button){
     $("answerAnotherQuestionBtn").onclick=()=>showCastQuestion();
     $("goFishingBtn").onclick=()=>{$("modalQuestion").classList.remove("show");actions.hidden=true;RT.paused=false;mainActionBtn.textContent="CAST LINE";hintText.textContent=`${state.bait} bait ready · hold to charge your cast`;};
   }
-  else{PlatformManager.deductCoins(20);refreshHUD();$("questionFeedback").textContent="Incorrect — 20 coins lost. Try another question.";}
-  if(!correct)setTimeout(()=>showCastQuestion(),1000);
+  else{PlatformManager.deductCoins(5);refreshHUD();$("questionFeedback").textContent="Incorrect — 5 coins lost. The correct answer is highlighted.";}
+  if(!correct)setTimeout(()=>showCastQuestion(),2000);
 }
 function updateCharge(){
   if(RT.phase!=="charging") return;
@@ -887,7 +888,7 @@ function sellItem(uid){
   const item = state.inventory[idx];
   const price = getSellPrice(item);
   state.stats.totalCoinsEarned += price;
-  PlatformManager.addCoins(price);
+  tripRawCoins += price;
   registerSale(item.fishId);
   state.inventory.splice(idx,1);
   refreshHUD(); saveGame(); renderCooler();
@@ -905,7 +906,7 @@ function sellAllItems(){
     state.stats.totalCoinsEarned += price;
     registerSale(item.fishId);
   });
-  PlatformManager.addCoins(total);
+  tripRawCoins += total;
   state.inventory = [];
   refreshHUD(); saveGame(); renderCooler();
   showBanner(`Sold the whole cooler for ${total} coins!`, 2200);
@@ -1005,10 +1006,14 @@ function endToIdle(){
 function onOutOfBait(){
   if($("modalRunEnd").classList.contains("show")) return;
   const coolerValue = state.inventory.reduce((sum,item)=>sum+getSellPrice(item),0);
+  lastTripCoinResult = PlatformManager.settleAccuracyCoins(GAME_ID, tripRawCoins);
   $("runSummaryBody").innerHTML = `
     Fish caught this trip pool: <b>${state.stats.totalCaught}</b> lifetime<br>
     Shared coins: <b>${Math.floor(PlatformManager.getCoins())}</b><br>
     🧊 Cooler: <b>${state.inventory.length}</b> fish worth ~<b>${coolerValue}</b> coins<br>
+    Question accuracy: <b>${lastTripCoinResult.accuracyPercent}%</b><br>
+    Raw trip coins: <b>${tripRawCoins}</b><br>
+    Coins awarded due to accuracy (+15%): <b>${lastTripCoinResult.coinsAwarded}</b><br>
     Current level: <b>${state.level}</b>
   `;
   $("modalRunEnd").classList.add("show");
@@ -1019,6 +1024,7 @@ function onOutOfBait(){
   window.AchievementManager?.notify?.("run_completed");
 }
 function returnRunHome(){
+  tripRawCoins = 0; lastTripCoinResult = null;
   state.bait = CONFIG.startBait;
   state.run = freshRunUpgrades();
   $("modalRunEnd").classList.remove("show");

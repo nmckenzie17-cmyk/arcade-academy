@@ -44,10 +44,8 @@ function addCoins(n){
   session.stats.coinsEarned += v;
 }
 function bankCarriedCoins(){
-  if(session.carriedCoins>0){
-    PlatformManager.addCoins(session.carriedCoins);
-    session.carriedCoins = 0;
-  }
+  // Coins remain run-local until the accuracy settlement at game over.
+  session.carriedCoins = 0;
 }
 
 /* ============================= CANVAS SETUP ============================= */
@@ -1354,11 +1352,15 @@ function triggerRunOver(){
   const zoneName = ZONES[zoneIdx].name;
   const depthLabel = (isBossLevel(levelIndex) ? zoneName+' — Boss' : 'Ruin '+(getPositionInZone(levelIndex)+1)+' · '+zoneName);
   const accuracy = st.questionsTotal>0 ? Math.round(100*st.questionsCorrect/st.questionsTotal) : 0;
+  const coinResult = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, st.coinsEarned, {
+    correct: st.questionsCorrect, answered: st.questionsTotal
+  });
 
   document.getElementById('gameOverHeadline').textContent = 'Fell in ' + depthLabel;
   const rows = [
     ['Time survived', formatElapsed(performance.now()-session.runStartTime)],
-    ['Coins earned', st.coinsEarned],
+    ['Raw run coins', st.coinsEarned],
+    ['Coins awarded due to accuracy (+15%)', coinResult.coinsAwarded],
     ['Coins banked', PlatformManager.getCoins()],
     ['Enemies defeated', st.enemiesDefeated],
     ['Wardens defeated', st.bossesDefeated],

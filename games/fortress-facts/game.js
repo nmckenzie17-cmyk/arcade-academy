@@ -469,7 +469,7 @@ function runPrerunQuiz(onComplete){
                 else { btn.classList.add('wrong'); modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); }
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
                 qIndex++;
-                setTimeout(nextQ, 800);
+                setTimeout(nextQ, isCorrect ? 800 : 2000);
             };
         });
     }
@@ -1383,7 +1383,7 @@ function askBetweenQuestion(){
             else { btn.classList.add('wrong'); modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); }
             modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
             betweenWaveQuestions++;
-            setTimeout(askBetweenQuestion, 800);
+            setTimeout(askBetweenQuestion, isCorrect ? 800 : 2000);
         };
     });
 }
@@ -1542,7 +1542,7 @@ function showQuestion(){
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); 
             }
             modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
-            setTimeout(()=>{ modalRoot.innerHTML=''; state='playing'; updateHUD(); },1000);
+            setTimeout(()=>{ modalRoot.innerHTML=''; state='playing'; updateHUD(); },isCorrect ? 1000 : 2000);
         };
     });
 }
@@ -1765,15 +1765,17 @@ function showStart(){
     });
 }
 
-let gameOverCoinsAwarded = false, lastCoinsEarned = 0, lastRunWasVoluntary = false;
+let gameOverCoinsAwarded = false, lastCoinsEarned = 0, lastRawCoins = 0, lastCoinAccuracy = 0, lastRunWasVoluntary = false;
 function showGameOver(voluntary){
     PlatformManager.endPracticeRun();
     if(voluntary!==undefined) lastRunWasVoluntary = voluntary; // remembered so returning from The Kingdom keeps the right framing
     state='gameover';
     window.ChallengeManager?.finish?.({score:wave*100+kills,wave,waveProgress:kills,alive:!!voluntary});
     if(!gameOverCoinsAwarded){
-        lastCoinsEarned = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCoinBonus));
-        PlatformManager.addCoins(lastCoinsEarned);
+        lastRawCoins = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCoinBonus));
+        const coinResult = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, lastRawCoins);
+        lastCoinsEarned = coinResult.coinsAwarded;
+        lastCoinAccuracy = coinResult.accuracyPercent;
         kingdomSave.totalKills = (kingdomSave.totalKills||0) + kills;
         kingdomSave.bestWave = Math.max(kingdomSave.bestWave||0, wave);
         PlatformManager.setHighScore(GAME_CONFIG.id, wave);
@@ -1793,7 +1795,7 @@ function showGameOver(voluntary){
         const label = ENEMY_DISPLAY_NAMES[lastDamageSource.type] || lastDamageSource.type;
         deathMsg = `<p style="color:#ff6b6b;font-weight:bold;margin:10px 0">☠️ Defeated by a ${label}${lastDamageSource.flying ? ` — a flying enemy. Next time, upgrade your Archer Tower or Ballista so you can hit flying threats.` : `. Next time, spend some coins in The Kingdom to boost your defenses.`}</p>`;
     }
-    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">🪙 +${lastCoinsEarned} shared coins earned (Total: ${PlatformManager.getCoins()})</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — coins won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">🪙 Raw run coins: ${lastRawCoins}<br>Question accuracy: ${lastCoinAccuracy}%<br>Coins awarded due to accuracy (+15%): +${lastCoinsEarned}<br>Shared total: ${PlatformManager.getCoins()}</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — coins won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
     document.getElementById('restart-btn').onclick=()=>{
         location.reload();
     };
@@ -1842,12 +1844,12 @@ document.getElementById('cashout-btn').onclick=()=> showCashOutConfirm();
 function showCashOutConfirm(){
     if(state!=='playing') return;
     state='cashout-confirm';
-    let projected = Math.floor(wave*3 + kills*0.2 + gold*0.05);
+    let projected = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCoinBonus));
     modalRoot.innerHTML = `<div class="modal-overlay"><div class="modal-box" style="text-align:center">
         <h2 class="title-font" style="background:none;border:none;box-shadow:none;">Coins Maxed Out</h2>
         <p style="margin:14px 0;color:#ccc">Your run coin income is capped at ${maxGold}. You can end this run and add the earned amount to your shared coin balance.</p>
-        <p style="color:#ffcc44;font-size:15px;margin:10px 0">🪙 ~${projected} coins if you cash out now</p>
-        <p style="font-size:11px;color:#888;margin-bottom:12px">Waiting costs nothing but potential — surviving further waves and getting more kills would still add to this total. This is purely your call.</p>
+        <p style="color:#ffcc44;font-size:15px;margin:10px 0">🪙 ${projected} raw run coins, modified by your final question accuracy +15%</p>
+        <p style="font-size:11px;color:#888;margin-bottom:12px">Cashing out has no penalty. Surviving further waves and getting more kills can still increase the raw total.</p>
         <button class="choice-btn" style="text-align:center;background:rgba(255,204,68,0.15);border-color:#ffcc44" id="cashout-confirm-btn">🪙 Cash Out & Bank Coins</button>
         <button class="choice-btn" style="text-align:center;margin-top:8px" id="cashout-cancel-btn">⚔️ Keep Playing</button>
     </div></div>`;
@@ -4278,6 +4280,7 @@ function drawProjectile(p, ox, oy, s){
     let px2=(ox+p.x)*s, py2=(oy+p.y)*s;
     if(fortressCosmetic('fortress-facts_starburst_projectiles')){
         ctx.save();ctx.translate(px2+3*s,py2+2*s);ctx.rotate(animFrame*.09);ctx.fillStyle='#fff4a8';ctx.shadowColor='#ff4fd8';ctx.shadowBlur=8*s;ctx.beginPath();for(let i=0;i<10;i++){const r=(i%2?2:7)*s,a=-Math.PI/2+i*Math.PI/5;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();
+        return;
     }
     if(p.crit){
         ctx.fillStyle='#ffd700';
@@ -4286,10 +4289,7 @@ function drawProjectile(p, ox, oy, s){
         ctx.globalAlpha=1;
     }
     if(p.type==='arrow'){
-        ctx.fillStyle='#ffdd44';
-        ctx.fillRect(px2,py2, 7*s, 2*s);
-        ctx.fillStyle='#aa8833';
-        ctx.fillRect(px2+7*s,py2, 2*s, 2*s);
+        const a=Math.atan2(p.vy||0,p.vx||1);ctx.save();ctx.translate(px2,py2);ctx.rotate(a);ctx.strokeStyle='#8b5a2b';ctx.lineWidth=1.5*s;ctx.beginPath();ctx.moveTo(-5*s,0);ctx.lineTo(7*s,0);ctx.stroke();ctx.fillStyle='#d8e2e8';ctx.beginPath();ctx.moveTo(9*s,0);ctx.lineTo(5*s,-2.5*s);ctx.lineTo(5*s,2.5*s);ctx.closePath();ctx.fill();ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.moveTo(-5*s,0);ctx.lineTo(-9*s,-3*s);ctx.lineTo(-7*s,0);ctx.lineTo(-9*s,3*s);ctx.closePath();ctx.fill();ctx.restore();
     } else if(p.type==='dragonfire'){
         const pulse=1+Math.sin(animFrame*.45)*.12;
         ctx.save();ctx.translate(px2+6*s,py2+6*s);ctx.scale(pulse,pulse);
@@ -4300,20 +4300,11 @@ function drawProjectile(p, ox, oy, s){
         ctx.fillStyle='#ffd94a';ctx.beginPath();ctx.arc(-2*s,-2*s,3*s,0,Math.PI*2);ctx.fill();
         ctx.fillStyle='#fff3a0';ctx.fillRect(-3*s,-3*s,2*s,2*s);ctx.restore();
     } else if(p.type==='fire'){
-        ctx.fillStyle='#ff4400';
-        ctx.fillRect(px2,py2, 6*s, 6*s);
-        ctx.fillStyle='#ffaa00';
-        ctx.fillRect(px2+1*s,py2+1*s, 4*s, 4*s);
+        ctx.save();ctx.translate(px2+3*s,py2+3*s);ctx.shadowColor='#ff5b16';ctx.shadowBlur=9*s;for(let i=0;i<3;i++){ctx.fillStyle=['rgba(255,70,0,.35)','#ff5b16','#ffe15b'][i];ctx.beginPath();ctx.arc(-i*2*s,0,(6-i*1.7)*s,0,Math.PI*2);ctx.fill();}ctx.restore();
     } else if(p.type==='ice'){
-        ctx.fillStyle='#44ccff';
-        ctx.fillRect(px2,py2, 5*s, 5*s);
-        ctx.fillStyle='#aaeeff';
-        ctx.fillRect(px2+1*s,py2+1*s, 3*s, 3*s);
+        ctx.save();ctx.translate(px2+3*s,py2+3*s);ctx.rotate(Math.atan2(p.vy||0,p.vx||1));ctx.shadowColor='#62dcff';ctx.shadowBlur=7*s;ctx.fillStyle='#baf5ff';ctx.beginPath();ctx.moveTo(8*s,0);ctx.lineTo(0,-4*s);ctx.lineTo(-6*s,0);ctx.lineTo(0,4*s);ctx.closePath();ctx.fill();ctx.strokeStyle='#56bfe8';ctx.lineWidth=s;ctx.stroke();ctx.restore();
     } else if(p.type==='cannon'){
-        ctx.fillStyle='#222';
-        ctx.fillRect(px2,py2, 7*s, 7*s);
-        ctx.fillStyle='#444';
-        ctx.fillRect(px2+1*s,py2+1*s, 5*s, 5*s);
+        ctx.save();ctx.translate(px2+4*s,py2+4*s);ctx.fillStyle='#111820';ctx.beginPath();ctx.arc(0,0,5*s,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#65717b';ctx.lineWidth=1.4*s;ctx.stroke();ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.arc(-1.5*s,-1.5*s,1.3*s,0,Math.PI*2);ctx.fill();ctx.restore();
     } else if(p.type==='bolt'){
         ctx.fillStyle='#334455';
         ctx.fillRect(px2,py2, 10*s, 2*s);

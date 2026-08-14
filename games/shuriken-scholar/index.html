@@ -259,12 +259,14 @@
     <div class="box" style="max-width: 640px; text-align: left;">
       <h2 class="title" style="text-align:center;">Shop</h2>
       <p class="text" style="color: #fde047; font-size: clamp(16px,2.4vw,20px); text-align:center; margin-bottom: 12px;">🪙 Total Coins: <span id="totalCoins">0</span></p>
-      <div style="display:flex; gap:8px; margin-bottom: 14px;">
+      <div class="shop-tabs" style="display:flex; gap:8px; margin-bottom: 14px;flex-wrap:wrap;">
         <button class="shop-tab-btn active-tab" data-tab="upgrades" onclick="switchShopTab('upgrades')">Upgrades</button>
         <button class="shop-tab-btn" data-tab="powerups" onclick="switchShopTab('powerups')">Powerups</button>
+        <button class="shop-tab-btn" data-tab="stages" onclick="switchShopTab('stages')">Stages</button>
       </div>
       <div id="shopTabUpgrades" class="shop-tab-content active"><div id="shopItemsUpgrades"></div></div>
       <div id="shopTabPowerups" class="shop-tab-content"><div id="shopItemsPowerups"></div></div>
+      <div id="shopTabStages" class="shop-tab-content"><div id="shopItemsStages"></div></div>
       <button class="btn title-font" id="exitShopBtn" style="width:100%; margin-top: 16px; background: rgba(168,85,247,0.12); border-color: var(--accent-violet); color: #00d4ff;">Exit Shop</button>
     </div>
   </div>

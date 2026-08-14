@@ -30,13 +30,12 @@ document.getElementById('home-cosmetics-btn').addEventListener('click', function
   else setTimeout(()=>document.getElementById('arcade-generated-shop-button')?.click(),0);
 });
 let coins = PlatformManager.getCoins();
+let runCoins = 0;
 document.getElementById('coins-value').textContent = coins;
 document.getElementById('home-coins').textContent = coins;
 function addCoins(n) {
-  if (n > 0) PlatformManager.addCoins(n);
-  else if (n < 0) PlatformManager.deductCoins(-n);
-  coins = PlatformManager.getCoins();
-  document.getElementById('coins-value').textContent = coins;
+  runCoins = Math.max(0, runCoins + Math.floor(Number(n) || 0));
+  document.getElementById('coins-value').textContent = runCoins;
   document.getElementById('home-coins').textContent = coins;
 }
 let leftFlipper = 0, rightFlipper = 0;
@@ -503,10 +502,11 @@ function answerQuestion(selectedIndex) {
     questionModalOpen = false;
     currentQuestion = null;
     if (correct) launchBall();
-  }, correct ? 700 : 1000);
+  }, correct ? 700 : 2000);
 }
 
 function restartGame() {
+  runCoins = 0;
   score = 0; lives = 3; gameOver = false; ball = null; balls = []; ballsInPlay = false; lockedBalls = [];
   combo = 0; comboTimer = 0;
   document.getElementById('combo-label').classList.add('hidden');
@@ -1115,7 +1115,7 @@ function update() {
   // Game over: entire bottom, including gutters
   if (!__locked && ball.y > TH - 20) {
     balls.splice(__bi, 1);
-    saveScoreAfterDrain();nudgeUsed=false;
+    nudgeUsed=false;
   }
   }
 
@@ -1149,7 +1149,10 @@ function update() {
       PlatformManager.endPracticeRun();
       gameOver = true;
       window.ChallengeManager?.finish?.({score,alive:false});
+      saveScoreAfterDrain();
+      const coinResult = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, runCoins);
       document.getElementById('final-score').textContent = 'Score: ' + score;
+      document.getElementById('final-score').textContent += ` · ${coinResult.accuracyPercent}% accuracy · ${coinResult.coinsAwarded} coins awarded from ${runCoins} raw (+15%)`;
       if (score > 0 && score === highScore) {
         document.getElementById('new-high-score').classList.remove('hidden');
       }

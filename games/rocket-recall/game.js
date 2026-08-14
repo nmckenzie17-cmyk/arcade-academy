@@ -14,7 +14,12 @@
         function rocketCosmetic(id){return typeof AchievementManager!=='undefined'&&Object.values(AchievementManager.getEquipped('rocket-recall')).some(r=>r?.id===id);}
         let secretRocketCharacter=localStorage.getItem('rocketSecretCharacter')||'fighter';
         function isRocketCharacter(id){return secretRocketCharacter===id;}
-        function setRocketCharacter(id){secretRocketCharacter=id;localStorage.setItem('rocketSecretCharacter',id);renderSecretRocketCharacters();}
+        const STARSHIPS={fighter:{name:'Academy Fighter',desc:'Balanced standard starship.'},scout:{name:'Scout Fighter',cost:1000,previous:'fighter',desc:'25% faster and smaller; half hull; bullets are 50% smaller.'},destroyer:{name:'Star Destroyer',cost:1000,previous:'scout',desc:'25% slower and larger; 50% more hull; larger shots with slight inaccuracy.'},carrier:{name:'Combat Carrier',hidden:true,desc:'Cannot fire. Spend 20 ammo to build one-wave escort fighters.'}};
+        let rocketShipProgress=Object.assign({owned:['fighter'],bestWaves:{fighter:0,scout:0,destroyer:0,carrier:0}},JSON.parse(localStorage.getItem('rocketStarships')||'null')||{});
+        function saveRocketShips(){localStorage.setItem('rocketStarships',JSON.stringify(rocketShipProgress));}
+        function carrierUnlocked(){if(window.AchievementManager?.hasTypeUnlock?.('rocket-recall-combat-carrier'))return true;const overall=PlatformManager.getOverallStats?.()||{};const other=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!=='rocket-recall'&&(g.correct||0)>=250),earned=(overall.totalCorrect||0)>=1000&&other.length>=3;if(earned)window.AchievementManager?.grantTypeUnlock?.('rocket-recall-combat-carrier',{name:'Combat Carrier',kind:'character',gameId:'rocket-recall',detail:'Build escort fighters instead of firing directly.'});return earned;}
+        function shipOwned(id){return id==='carrier'?carrierUnlocked():rocketShipProgress.owned.includes(id);}
+        function setRocketCharacter(id){if(!shipOwned(id)&&!['bone','phase'].includes(id))return;secretRocketCharacter=id;localStorage.setItem('rocketSecretCharacter',id);renderSecretRocketCharacters();renderStarshipsTab();}
         function renderSecretRocketCharacters(){const host=document.getElementById('gameOverShopUpgrades');if(!host)return;document.getElementById('secretRocketCharacters')?.remove();const choices=[['fighter','Academy Fighter','Standard controls.'],...(window.AchievementManager?.hasSecret?.('secret_skeleton')?[['bone','Bone Revenant','Half hull, bone ammunition and alien resurrection.']]:[]),...(window.AchievementManager?.hasSecret?.('secret_glitch_aura')?[['phase','Phase Weaver','40% faster, wraps across screen edges and fires dimensional side shots.']]:[])];if(choices.length<2)return;const box=document.createElement('div');box.id='secretRocketCharacters';box.className='shop-item';box.innerHTML='<p class="shop-name">Secret Ships</p>'+choices.map(c=>`<button class="shop-btn" data-character="${c[0]}" style="width:100%;margin:4px 0">${isRocketCharacter(c[0])?'✅ ':''}${c[1]} — ${c[2]}</button>`).join('');host.prepend(box);box.querySelectorAll('[data-character]').forEach(b=>b.onclick=()=>setRocketCharacter(b.dataset.character));}
         window.addEventListener('arcade-achievement-manager-ready',()=>{if(document.getElementById('shopScreen')?.style.display==='block')renderSecretRocketCharacters();});
         window.addEventListener('arcade-progression-changed',()=>{if(document.getElementById('shopScreen')?.style.display==='block')renderSecretRocketCharacters();});
@@ -53,6 +58,7 @@
             powerups: [],
             orbitBlades: [],
             necromancerAllies: [],
+            carrierFighters: [],
             
             // Enemy defeat tracking
             enemiesDefeatedThisRun: 0,
@@ -194,10 +200,10 @@
         // to route through PlatformManager one at a time) - call this at commit points
         // instead (game over, opening the shop) to fold those changes in.
         function commitCoinsToPlatform() {
-            const delta = game.coins - PlatformManager.getCoins();
-            if (delta > 0) PlatformManager.addCoins(delta);
-            else if (delta < 0) PlatformManager.spendCoins(-delta);
+            const rawCoins = Math.max(0, game.coins - PlatformManager.getCoins());
+            const result = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, rawCoins);
             game.coins = PlatformManager.getCoins();
+            return result;
         }
 
         function setActiveSubject(name) {
@@ -289,6 +295,8 @@
                 this.y = y;
                 this.width = 76;
                 this.height = 68;
+                if(isRocketCharacter('scout')){this.width*=.75;this.height*=.75;}
+                if(isRocketCharacter('destroyer')){this.width*=1.25;this.height*=1.25;}
                 this.thrusting = false;
                 this.animFrame = 0;
                 this.animTimer = 0;
@@ -299,7 +307,7 @@
                 const shipSpeedMultiplier = 1 + (game.permanentUpgrades.shipSpeed * 0.1);
                 const twinBarrelLevel = game.runPowerups.twinBarrelCurse || 0;
                 const twinBarrelPenalty = Math.max(0.4, 1 - twinBarrelLevel * 0.15);
-                return game.baseSpeed * shipSpeedMultiplier * (1 + thrusterLevel * 0.1) * twinBarrelPenalty*(isRocketCharacter('phase')?1.4:1);
+                return game.baseSpeed * shipSpeedMultiplier * (1 + thrusterLevel * 0.1) * twinBarrelPenalty*(isRocketCharacter('phase')?1.4:isRocketCharacter('scout')?1.25:isRocketCharacter('destroyer')?0.75:1);
             }
 
             update() {
@@ -359,12 +367,7 @@
                     currentFireRate = currentFireRate / 3;
                 }
                 
-                if (!window.AchievementManager?.hasSecret?.('secret_map_border') && now - game.lastShot > currentFireRate && game.ammo > 0 &&
-                    !(game.fireJammedUntil && now < game.fireJammedUntil)) {
-                    if (this.shoot()) {
-                        game.lastShot = now;
-                    }
-                }
+                this.currentFireRate=currentFireRate;
 
                 updateOrbitBlades();
             }
@@ -411,10 +414,11 @@
                 // Extra Shot (Spread): additional angled bullets. Twin Barrel Curse grants
                 // spread shots the same way, cursed side effect and all.
                 const spreadLevel = (game.runPowerups.extraShotSpread || 0) + (game.runPowerups.twinBarrelCurse || 0);
+                if(spreadLevel>0&&specs.length===1&&specs[0].dir===0) specs[0].dir=-0.6;
                 for (let i = 0; i < spreadLevel; i++) {
                     const side = (i % 2 === 0) ? 1 : -1;
                     const step = Math.ceil((i + 1) / 2);
-                    specs.push({dx: 0, dir: side * (0.6 + (step - 1) * 0.4), type: 'normal'});
+                    specs.push({dx: 0, dir: (i===0?1:side) * (0.6 + (step - 1) * 0.4), type: 'normal'});
                 }
 
                 return specs;
@@ -427,6 +431,7 @@
             }
 
             shoot(isBurstEcho) {
+                if(isRocketCharacter('carrier')) return buildCarrierFighter();
                 const rp = game.runPowerups;
                 
                 // Powerups that add extra bullets to a single shot (Extra Shot Spread/
@@ -650,6 +655,8 @@
                     // power drops off (it stops piercing further, same as any other bullet).
                     if (laserLevel > 0) this.pierceRemaining += laserLevel;
                 }
+                if(isRocketCharacter('scout')){this.width*=.5;this.height*=.5;}
+                if(isRocketCharacter('destroyer')){this.width*=1.25;this.height*=1.25;this.angle+=(Math.random()-.5)*(10*Math.PI/180);this.spreadDirection+=(Math.random()-.5)*.3;}
                 this.baseWidth = this.width;
                 this.baseHeight = this.height;
                 this.bloomScale = 1;
@@ -3736,7 +3743,7 @@
                         nextQuestion();
                     }
                 }
-            }, 200);
+            }, isCorrect ? 200 : 2000);
         }
 
         // ===== Permanent (cross-run) upgrade shop - now lives on the Game Over screen =====
@@ -3851,7 +3858,10 @@
             });
 
             renderRunPowerupsTab();
+            renderStarshipsTab();
         }
+
+        function renderStarshipsTab(){const container=document.getElementById('gameOverShopStarships');if(!container)return;container.innerHTML='';for(const [id,def] of Object.entries(STARSHIPS)){if(def.hidden&&!carrierUnlocked())continue;const owned=shipOwned(id),selected=isRocketCharacter(id),previousBest=def.previous?(rocketShipProgress.bestWaves[def.previous]||0):20,eligible=!def.previous||previousBest>=20;const item=document.createElement('div');item.className='shop-item'+(selected?' equipped':'')+(!owned&&!eligible?' locked':'');item.innerHTML=`<p class="shop-name">${owned?'':'🔒 '}${def.name}</p><p class="shop-desc">${def.desc}</p>${def.previous&&!eligible?`<p class="shop-owned">Reach wave 20 with ${STARSHIPS[def.previous].name} (${previousBest}/20)</p>`:''}${id==='carrier'?'<p class="shop-owned">Unlocked: 1,000 total correct, including 250 correct in each of 3 other games.</p>':''}<button class="shop-btn" ${!owned&&!eligible?'disabled':''}>${selected?'✅ Selected':owned?'Select':`Buy (${def.cost} 🪙)`}</button>`;item.querySelector('button').onclick=()=>{if(owned)setRocketCharacter(id);else if(eligible&&PlatformManager.spendCoins(def.cost)){rocketShipProgress.owned.push(id);saveRocketShips();setRocketCharacter(id);game.coins=PlatformManager.getCoins();renderGameOverShop();}};container.appendChild(item);}}
 
         function renderRunPowerupsTab() {
             const container = document.getElementById('gameOverShopPowerups');
@@ -3904,6 +3914,8 @@
             game.wave = game.secretCodeActive ? game.startingWave : 1;
             game.baseLives = 15 + game.permanentUpgrades.extraLife + (window.AchievementManager?.hasBoost?.('rocket-recall_emergency_plating')?3:0);
             if(isRocketCharacter('bone'))game.baseLives=Math.max(1,Math.ceil(game.baseLives*.5));
+            if(isRocketCharacter('scout'))game.baseLives=Math.max(1,Math.ceil(game.baseLives*.5));
+            if(isRocketCharacter('destroyer'))game.baseLives=Math.ceil(game.baseLives*1.5);
             game.lives = game.baseLives;
             game.score = 0;
             game.coins = PlatformManager.getCoins();
@@ -3917,6 +3929,7 @@
             game.powerups = [];
             game.orbitBlades = [];
             game.necromancerAllies = [];
+            game.carrierFighters = [];
             game.volatileHazards = [];
             game.curseSeen = {};
             game.powerupSpawnChance = PlatformManager.powerupsAllowed() ? 0.1 : 0;
@@ -3980,6 +3993,8 @@
             game.coins = PlatformManager.getCoins();
             game.score = 0;
             game.baseLives = 15 + game.permanentUpgrades.extraLife + (window.AchievementManager?.hasBoost?.('rocket-recall_emergency_plating')?3:0);
+            if(isRocketCharacter('scout'))game.baseLives=Math.max(1,Math.ceil(game.baseLives*.5));
+            if(isRocketCharacter('destroyer'))game.baseLives=Math.ceil(game.baseLives*1.5);
             game.lives = game.baseLives;
             game.shields = 0;
             game.runPowerups = {};
@@ -4180,13 +4195,14 @@
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'option quiz-option';
                 optionDiv.textContent = opt;
-                optionDiv.onclick = () => answerBonusPowerupQuiz(idx === q.correct);
+                optionDiv.dataset.correct = String(idx === q.correct);
+                optionDiv.onclick = () => answerBonusPowerupQuiz(idx === q.correct, optionDiv);
                 optionsDiv.appendChild(optionDiv);
             });
             document.getElementById('quiz').style.display = 'flex';
         }
 
-        function answerBonusPowerupQuiz(isCorrect) {
+        function answerBonusPowerupQuiz(isCorrect, selectedDiv) {
             const key = game.bonusQuizQueue.shift();
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if (!isCorrect) PlatformManager.deductCoins(10);
@@ -4195,9 +4211,13 @@
                 document.getElementById('quizResult').textContent = `✅ Correct! ${RUN_POWERUP_DEFS[key].name} is doubled for this run.`;
             } else {
                 document.getElementById('quizResult').textContent = `❌ Not quite — ${RUN_POWERUP_DEFS[key].name} stays at its normal effect this run.`;
+                if(selectedDiv) selectedDiv.style.borderColor = 'var(--red-damage)';
+                document.querySelectorAll('#quizOptions .option').forEach(el => {
+                    if(el.dataset.correct === 'true') el.style.borderColor = 'var(--green-success)';
+                });
             }
             document.querySelectorAll('#quizOptions .option').forEach(el => el.style.pointerEvents = 'none');
-            setTimeout(startBonusPowerupQuiz, 1200);
+            setTimeout(startBonusPowerupQuiz, isCorrect ? 1200 : 2000);
         }
 
         // For every question answered correctly this quiz, the player gets to choose
@@ -4456,6 +4476,7 @@
             game.pendingBullets = [];
             game.explosions = [];
             game.powerups = [];
+            game.carrierFighters = [];
             game.tripleShotActive = false;
             game.rocketActive = false;
             game.rapidFireActive = false;
@@ -4624,6 +4645,7 @@
 
         function update() {
             game.player.update();
+            if(fireHeld)manualFire();
             
             game.bullets = game.bullets.filter(bullet => {
                 bullet.update();
@@ -4704,6 +4726,7 @@
             
             updateVolatileCoreHazards();
             updateNecromancerAllies();
+            updateCarrierFighters();
             
             checkCollisions();
             if (game.pendingBullets.length) {
@@ -5323,6 +5346,8 @@
             
             for (let i = game.enemyBullets.length - 1; i >= 0; i--) {
                 const bullet = game.enemyBullets[i];
+                const fighterIndex=game.carrierFighters.findIndex(f=>bullet.x<f.x+f.w&&bullet.x+bullet.width>f.x&&bullet.y<f.y+f.h&&bullet.y+bullet.height>f.y);
+                if(fighterIndex>=0){const f=game.carrierFighters[fighterIndex];game.explosions.push(new Explosion(f.x+f.w/2,f.y+f.h/2,'normal'));game.carrierFighters.splice(fighterIndex,1);game.enemyBullets.splice(i,1);continue;}
                 const ph = getPlayerHitbox();
                 
                 if (bullet.x < ph.x + ph.width &&
@@ -5354,6 +5379,9 @@
 
         function updateNecromancerAllies(){const now=Date.now();for(const ally of game.necromancerAllies){ally.bob+=.04;ally.y-=.08;const target=game.enemies.filter(e=>e.deployed!==false).sort((a,b)=>Math.hypot(a.x-ally.x,a.y-ally.y)-Math.hypot(b.x-ally.x,b.y-ally.y))[0];if(target){ally.x+=(target.x-ally.x)*.006;if(now-ally.lastShot>850){const b=new Bullet(ally.x+ally.w/2,ally.y,0,'normal',0,buildBulletMods());b.speed=7;b.width=8;b.height=14;game.pendingBullets.push(b);ally.lastShot=now;}}}game.necromancerAllies=game.necromancerAllies.filter(a=>a.y>-60);}
         function drawNecromancerAllies(){for(const a of game.necromancerAllies){const y=a.y+Math.sin(a.bob)*3;game.ctx.save();game.ctx.fillStyle='#d8f0d0';game.ctx.strokeStyle='#7ce58d';game.ctx.lineWidth=2;game.ctx.fillRect(a.x+8,y+5,20,12);game.ctx.strokeRect(a.x+7,y+4,22,14);game.ctx.fillStyle='#17131f';game.ctx.fillRect(a.x+12,y+8,4,4);game.ctx.fillRect(a.x+21,y+8,4,4);game.ctx.fillStyle='#efe8d0';game.ctx.fillRect(a.x+16,y+17,5,9);game.ctx.fillRect(a.x+4,y+20,12,3);game.ctx.fillRect(a.x+21,y+20,12,3);game.ctx.restore();}}
+        function buildCarrierFighter(){if(game.ammo<20)return false;game.ammo-=20;const angle=Math.random()*Math.PI*2,r=35+Math.random()*45;game.carrierFighters.push({x:game.player.x+game.player.width/2+Math.cos(angle)*r,y:game.player.y+Math.sin(angle)*r,w:24,h:20,offsetX:Math.cos(angle)*r,offsetY:Math.sin(angle)*r,lastShot:0,hp:1});updateUI();return true;}
+        function updateCarrierFighters(){const now=Date.now();for(const f of game.carrierFighters){f.x+=(game.player.x+game.player.width/2+f.offsetX-f.x)*.12;f.y+=(game.player.y+f.offsetY-f.y)*.12;if(now-f.lastShot>(game.player.currentFireRate||game.baseFireRate)*4){const b=new Bullet(f.x+f.w/2,f.y,0,'normal',0,buildBulletMods());game.pendingBullets.push(b);f.lastShot=now;}}}
+        function drawCarrierFighters(){for(const f of game.carrierFighters){game.ctx.save();game.ctx.fillStyle='#7ddcff';game.ctx.beginPath();game.ctx.moveTo(f.x+f.w/2,f.y);game.ctx.lineTo(f.x+f.w,f.y+f.h);game.ctx.lineTo(f.x+f.w/2,f.y+f.h*.7);game.ctx.lineTo(f.x,f.y+f.h);game.ctx.closePath();game.ctx.fill();game.ctx.restore();}}
 
         function draw() {
             game.ctx.clearRect(0, 0, game.width, game.height);
@@ -5405,6 +5433,7 @@
             if(rocketCosmetic('rocket-recall_stealth_temple_fighter')){for(let x=30;x<game.width;x+=180){const base=landscapeY+14;game.ctx.fillStyle='#22151a';game.ctx.fillRect(x+42,base-66,10,66);game.ctx.fillStyle='#8b1d2c';game.ctx.fillRect(x,base-58,94,8);game.ctx.fillRect(x+10,base-82,74,7);game.ctx.fillRect(x+22,base-103,50,6);game.ctx.fillStyle='#131017';game.ctx.beginPath();game.ctx.moveTo(x-8,base-58);game.ctx.lineTo(x+47,base-78);game.ctx.lineTo(x+102,base-58);game.ctx.fill();game.ctx.beginPath();game.ctx.moveTo(x+3,base-82);game.ctx.lineTo(x+47,base-101);game.ctx.lineTo(x+91,base-82);game.ctx.fill();game.ctx.beginPath();game.ctx.moveTo(x+15,base-103);game.ctx.lineTo(x+47,base-119);game.ctx.lineTo(x+79,base-103);game.ctx.fill();game.ctx.fillStyle='#f0c86d';game.ctx.fillRect(x+43,base-49,8,14);}}
             
             game.player.draw();
+            drawCarrierFighters();
             game.bullets.forEach(bullet => bullet.draw());
             game.enemies.forEach(enemy=>{if(rocketCosmetic('rocket-recall_void_vanguard')){game.ctx.save();game.ctx.filter='invert(1)';enemy.draw();game.ctx.restore();}else enemy.draw();});
             drawNecromancerAllies();
@@ -5525,7 +5554,7 @@
                 hideAllModals();
                 game.state = game.emergencyAmmoPrevState || GameState.PLAYING;
                 updateUI();
-            }, 1200);
+            }, isCorrect ? 1200 : 2000);
         }
 
         function updateUI() {
@@ -5533,13 +5562,13 @@
             document.getElementById('wave').textContent = game.wave;
             document.getElementById('lives').textContent = game.lives;
             document.getElementById('score').textContent = game.score;
+            const fire=document.getElementById('fireBtn');if(fire){fire.style.display=game.state===GameState.PLAYING?'block':'none';fire.textContent=isRocketCharacter('carrier')?'🛠️ BUILD (20)':'🔥 FIRE';fire.classList.toggle('build-mode',isRocketCharacter('carrier'));}
             document.getElementById('coins').textContent = game.coins;
             document.getElementById('highScore').textContent = game.highScore;
             document.getElementById('ammo').textContent = game.ammo;
             document.getElementById('shields').textContent = game.shields;
             document.getElementById('enemies').textContent = game.enemies.length;
             document.getElementById('kills').textContent = game.enemiesDefeatedThisRun;
-            const secretFire=document.getElementById('secretFireBtn');if(secretFire)secretFire.style.display=window.AchievementManager?.hasSecret?.('secret_map_border')?'block':'none';
             updateEmergencyAmmoButton();
         }
 
@@ -5578,6 +5607,7 @@
             game.state = GameState.GAME_OVER;
             window.ChallengeManager?.finish?.({score:game.score,wave:game.wave,waveProgress:game.enemiesDefeatedThisRun,alive:false});
             game.quizActive = false;
+            rocketShipProgress.bestWaves[secretRocketCharacter]=Math.max(rocketShipProgress.bestWaves[secretRocketCharacter]||0,game.wave);saveRocketShips();
             clearInterval(game.quizTimer);
             
             // Update total enemies defeated
@@ -5585,7 +5615,7 @@
             localStorage.setItem('totalEnemiesDefeated', game.totalEnemiesDefeatedAllTime.toString());
             
             // Item 2: coins persist across runs
-            commitCoinsToPlatform();
+            const coinResult = commitCoinsToPlatform();
             
             if (game.score > game.highScore) {
                 game.highScore = game.score;
@@ -5602,6 +5632,7 @@
             document.getElementById('enemiesDefeatedThisRun').textContent = game.enemiesDefeatedThisRun;
             document.getElementById('totalEnemiesDefeated').textContent = game.totalEnemiesDefeatedAllTime;
             document.getElementById('deathCauseMessage').textContent = buildDeathMessage();
+            document.getElementById('deathCauseMessage').textContent += ` Raw run coins: ${coinResult.baseCoins}. Question accuracy: ${coinResult.accuracyPercent}%. Coins awarded due to accuracy (+15%): ${coinResult.coinsAwarded}.`;
             
             renderGameOverShop();
             renderSecretRocketCharacters();
@@ -5647,10 +5678,12 @@
 
         document.addEventListener('keydown', (e) => {
             game.keys[e.key] = true;
+            if(e.code==='Space'){e.preventDefault();fireHeld=true;manualFire();}
         });
 
         document.addEventListener('keyup', (e) => {
             game.keys[e.key] = false;
+            if(e.code==='Space')fireHeld=false;
         });
 
         let targetX = null;
@@ -5683,10 +5716,11 @@
             }
         }
 
-        window.manualSecretFire = function(){
-            if(!window.AchievementManager?.hasSecret?.('secret_map_border')||game.state!==GameState.PLAYING||!game.player)return;
-            const now=Date.now();if(now-game.lastShot<180)return;if(game.player.shoot())game.lastShot=now;
-        };
+        let fireHeld=false;
+        function manualFire(){if(game.state!==GameState.PLAYING||!game.player)return;const now=Date.now(),rate=isRocketCharacter('carrier')?180:(game.player.currentFireRate||game.baseFireRate);if(now-game.lastShot<rate||(game.fireJammedUntil&&now<game.fireJammedUntil))return;if(game.player.shoot())game.lastShot=now;}
+        window.manualSecretFire=manualFire;
+        const fireBtn=document.getElementById('fireBtn');
+        if(fireBtn){fireBtn.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fireHeld=true;manualFire();fireBtn.setPointerCapture?.(e.pointerId);});for(const event of ['pointerup','pointercancel','pointerleave'])fireBtn.addEventListener(event,e=>{e.stopPropagation();fireHeld=false;});}
 
         document.addEventListener('touchstart', (e) => {
             if (game.state === GameState.PLAYING) {

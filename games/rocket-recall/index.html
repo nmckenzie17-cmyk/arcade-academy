@@ -29,7 +29,7 @@
     <div class="hud-row">🪙 Coins <span class="hud-value" id="coins">0</span></div>
     <div class="hud-row">🏆 High <span class="hud-value" id="highScore">0</span></div>
     <button id="emergencyAmmoBtn" class="canva-button title-font" onclick="openEmergencyAmmo()" style="display:none; font-size: 12px; padding: 8px 10px; margin-top: 4px; background: rgba(46,204,113,0.15); border-color: var(--green-success) !important;">🔋 Emergency Ammo</button>
-    <button id="secretFireBtn" class="canva-button title-font" onclick="manualSecretFire()" style="display:none;font-size:12px;padding:8px 14px;margin-top:4px;">🔥 Fire</button>
+    <button id="fireBtn" class="canva-button title-font fire-control" aria-label="Fire weapon">🔥 FIRE</button>
    </div>
    <div id="welcomeScreen" class="modal home-page">
     <canvas id="home-bg-canvas"></canvas>
@@ -44,7 +44,7 @@
     <button class="canva-button title-font" onclick="showShop('home')" style="width:100%; margin-bottom: 16px; background: rgba(168,85,247,0.12); border-color: var(--accent-violet) !important; padding: 14px;">Shop</button>
     <p class="section-label-font" style="text-align:center;margin-bottom:10px;">Description:</p>
     <div style="text-align:left;font-size:clamp(13px,2vw,15px);line-height:1.7;color:var(--blue-highlight);margin-bottom:16px">
-     <p style="margin:2px 0">🚀 Move with Arrow Keys or WASD — shooting is automatic</p>
+     <p style="margin:2px 0">🚀 Move with Arrow Keys or WASD — tap/hold FIRE or press Space to shoot</p>
      <p style="margin:2px 0">🧠 Answer quiz questions correctly to earn ammo and power-ups</p>
      <p style="margin:2px 0">👾 Fight through waves of aliens and defeat bosses for upgrades</p>
      <p style="margin:2px 0">🪙 Earn coins from kills to buy permanent upgrades between runs</p>
@@ -126,12 +126,13 @@
     <button class="canva-button title-font" onclick="showShop('gameover')" style="width:100%; background: rgba(168,85,247,0.12); border-color: var(--accent-violet) !important;">Shop</button>
     <button class="canva-button title-font" onclick="restartGame(false)" style="width:100%;">Return Home</button>
    </div>
-   <div id="shopScreen" class="modal" style="max-width: 640px; text-align: left;">
+   <div id="shopScreen" class="modal rocket-shop-screen">
     <h2 style="color: var(--blue-highlight); text-align:center;">Shop</h2>
     <p style="color: #fde047; font-size: clamp(16px,2.4vw,20px); text-align:center; margin-bottom: 12px;">🪙 Total Coins: <span id="shopCoinsDisplay">0</span></p>
     <div style="display:flex; gap:8px; margin-bottom: 14px;">
      <button class="shop-tab-btn active-tab" data-tab="upgrades" onclick="switchShopTab('upgrades')">Permanent Upgrades</button>
      <button class="shop-tab-btn" data-tab="powerups" onclick="switchShopTab('powerups')">Single-Run Powerups</button>
+     <button class="shop-tab-btn" data-tab="starships" onclick="switchShopTab('starships')">Starships</button>
     </div>
     <div id="shopTabUpgrades" class="shop-tab-content active">
      <div id="gameOverShopUpgrades" style="max-height: 340px; overflow-y: auto;"></div>
@@ -140,6 +141,7 @@
      <p id="powerupSlotsInfo" style="font-size: clamp(11px,1.7vw,13px); color: var(--blue-highlight); opacity: 0.85; margin-bottom: 10px;"></p>
      <div id="gameOverShopPowerups" style="max-height: 340px; overflow-y: auto;"></div>
     </div>
+    <div id="shopTabStarships" class="shop-tab-content"><div id="gameOverShopStarships"></div></div>
     <button class="canva-button title-font" onclick="closeShop()" style="width:100%; margin-top: 16px; background: rgba(168,85,247,0.12); border-color: var(--accent-violet) !important;">Exit Shop</button>
    </div>
   </div>

@@ -74,3 +74,5 @@ h1 { margin:.2rem 0 .7rem; color:var(--ttt-cyan); font-size:clamp(2rem,8vw,4rem)
 .ttt-confetti{position:fixed;z-index:100;width:8px;height:8px;pointer-events:none;animation:tttConfetti .9s ease-out forwards}@keyframes tttConfetti{to{transform:translate(var(--x),var(--y)) rotate(540deg);opacity:0}}
 @media(max-width:520px){ .menu-actions,.question-options{grid-template-columns:1fr}.home-stats{grid-template-columns:repeat(2,1fr)} #join-form{flex-direction:column}.room-input{width:100%}.versus{gap:.35rem}.ttt-card{border-radius:18px}.cell{border-radius:11px} }
 @media(prefers-reduced-motion:reduce){ .loader{animation:none}.cell{transition:none} }
+.question-option.correct{border-color:#2ecc71!important;background:rgba(46,204,113,.22)!important}
+.question-option.incorrect{border-color:#e74c3c!important;background:rgba(231,76,60,.22)!important}

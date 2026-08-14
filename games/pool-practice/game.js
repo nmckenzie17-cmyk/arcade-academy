@@ -613,7 +613,7 @@
           S.safetyShotUsed = true;
           fb.textContent = 'SAFETY SHOT — YOUR TURN IS SAVED';
           fb.className = 'question-feedback correct';
-          setTimeout(() => { $('overlay-question').classList.add('hidden'); enterAimingPhase(); }, 950);
+          setTimeout(() => { $('overlay-question').classList.add('hidden'); enterAimingPhase(); }, 2000);
           return;
         }
         fb.textContent = 'INCORRECT — TURN LOST';
@@ -640,7 +640,7 @@
         SFX.incorrect();
         fb.textContent = 'INCORRECT — NORMAL SHOT';
         fb.className = 'question-feedback incorrect';
-        setTimeout(() => { $('overlay-question').classList.add('hidden'); enterAimingPhase(); }, 850);
+        setTimeout(() => { $('overlay-question').classList.add('hidden'); enterAimingPhase(); }, 2000);
       }
     }
   }
@@ -932,12 +932,15 @@
     // Record from each local client's own perspective (in multiplayer, host and
     // guest each call endGame locally and log their own win/loss).
     const localWon = S.playerMode === 'multiplayer' ? winnerPlayer.seat === S.mp.localSeat : !winnerPlayer.isAI;
-    const coinsAwarded = (S.playerMode === 'single' && localWon) ? (GameConfig.coinRewards[S.difficulty] || 0) : 0;
+    const baseCoins = (S.playerMode === 'single' && localWon) ? (GameConfig.coinRewards[S.difficulty] || 0) : 0;
     PlatformManager.recordMultiplayerResult(GameConfig.meta.id, localWon ? 'win' : 'loss');
     if (localWon && S.ballsPocketedTotal >= 7) {
       window.AchievementManager?.notify?.('pool_run_the_table', { facts: { mastery_pool_practice: 1 } });
     }
-    if (coinsAwarded > 0) PlatformManager.addCoins(coinsAwarded);
+    const coinResult = PlatformManager.settleAccuracyCoins(GameConfig.meta.id, baseCoins, {
+      correct: S.questionsCorrect,
+      answered: S.questionsAnswered
+    });
     PlatformManager.endSession(GameConfig.meta.id);
 
     $('gameover-title').textContent = `${winnerPlayer.name.toUpperCase()} WINS!`;
@@ -950,7 +953,10 @@
       ['Question accuracy', accuracy + '%'],
       ['Match type', S.playerMode === 'multiplayer' ? 'Multiplayer' : 'Single-player']
     ];
-    if (coinsAwarded > 0) stats.push(['Coins earned', '+' + coinsAwarded + ' 🪙']);
+    if (baseCoins > 0) {
+      stats.push(['Raw match coins', String(baseCoins)]);
+      stats.push([`Coins from ${coinResult.accuracyPercent}% accuracy (+15%)`, '+' + coinResult.coinsAwarded + ' 🪙']);
+    }
     $('gameover-stats').innerHTML = stats.map(([k, v]) => `<div class="stat-row"><span>${k}</span><span>${v}</span></div>`).join('');
     $('rematch-status').textContent = '';
     $('overlay-gameover').classList.remove('hidden');

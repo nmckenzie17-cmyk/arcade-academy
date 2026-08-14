@@ -47,7 +47,8 @@
       ✨ Earn crosshairs and effects through levels and Secret achievements
      </p>
     </div>
-    <p id="code-status" class="text-xs desc-font text-center mb-4" style="color:#9aa0a6;"></p><button id="start-button" class="canva-button title-font w-full py-3 pixel-border rounded uppercase tracking-widest" style="font-size:16px;" onclick="startGame()">Press Start</button>
+    <p id="code-status" class="text-xs desc-font text-center mb-4" style="color:#9aa0a6;"></p>
+    <button id="start-button" class="canva-button title-font w-full py-3 pixel-border rounded uppercase tracking-widest" style="font-size:16px;" onclick="startGame()">Press Start</button>
     <p class="section-label-font text-center mt-4" style="opacity:0.6;">Created by Nate McKenzie</p>
     <a class="game-home-link" href="../../index.html">🏛️ Back to Arcade Academy</a>
    </main>
@@ -61,6 +62,7 @@
     <div class="flex gap-2 mb-3">
      <button id="shop-tab-btn-upgrades" onclick="switchShopTab('upgrades')" class="canva-button flex-1 py-2 pixel-border rounded font-bold text-xs uppercase">Upgrades</button>
      <button id="shop-tab-btn-powerups" onclick="switchShopTab('powerups')" class="canva-button flex-1 py-2 pixel-border rounded font-bold text-xs uppercase">Powerups</button>
+     <button id="shop-tab-btn-modes" onclick="switchShopTab('modes')" class="canva-button flex-1 py-2 pixel-border rounded font-bold text-xs uppercase">Modes</button>
     </div>
     <div class="flex-1 overflow-y-auto">
      <div id="shop-tab-upgrades" class="shop-tab-content"><!-- Bullet Upgrade -->
@@ -81,8 +83,16 @@
       <p id="powerup-slots-info" class="text-xs text-gray-400 desc-font mb-3 text-center">1 powerup slot — equip up to 1 for your next run</p>
       <div id="powerup-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
      </div>
+     <div id="shop-tab-modes" class="shop-tab-content hidden">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+       <button id="lawman-mode-button" class="powerup-card canva-button pixel-border rounded p-4" onclick="selectGameMode('lawman')">🤠 Lawman<br><small>Hunt outlaws and protect townsfolk.</small></button>
+       <button id="bloody-bandit-button" class="powerup-card canva-button pixel-border rounded p-4" onclick="selectGameMode('bloody')">🔒 Bloody Bandit</button>
+      </div>
+      <p id="mode-unlock-progress" class="text-xs desc-font text-center mt-3" style="color:#d4af37;"></p>
+     </div>
      <div id="shop-result" class="mt-3 text-center text-sm font-bold hidden"></div>
     </div>
+    <div id="unlocked-achievements-slot"></div>
     <button onclick="closeShop()" class="canva-button exit-shop-btn w-full py-2 pixel-border rounded font-bold text-sm uppercase">Exit Shop</button>
    </div>
   </div><!-- INVENTORY MODAL -->
@@ -107,7 +117,7 @@
    </div>
    <div class="hud-right">
      <div class="hud-stat" title="Coins"><span class="hud-icon">🪙</span><span id="coins-val" class="hud-value">0</span></div>
-     <div class="hud-stat" title="Ammo"><span class="hud-icon">⭐</span><span id="ammo-val" class="hud-value">5</span></div>
+     <div class="hud-stat" title="Ammo"><span class="hud-icon">⭐</span><span id="ammo-val" class="hud-value">10</span></div>
    </div>
    <div id="ammo-display" class="hud-bottom-left flex gap-1"></div>
    <button id="reload-btn" class="hud-bottom-right canva-button pixel-border rounded font-bold uppercase" onclick="openReload()">Reload</button>

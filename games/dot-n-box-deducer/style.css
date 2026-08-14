@@ -89,3 +89,5 @@ canvas#gameCanvas{width:100%;height:auto;display:block;touch-action:none;}
 .rank-stats{font-size:14px;color:var(--text-dim);text-align:right;}
 .final-actions{display:flex;gap:12px;margin-top:18px;}
 .badge{display:inline-block;font-size:11px;font-family:var(--font-display);color:var(--text-dim);border:1px solid var(--border-dim);border-radius:4px;padding:3px 6px;margin-left:6px;letter-spacing:0.5px;}
+.mc-option.correct{border-color:#2ecc71!important;background:rgba(46,204,113,.22)!important}
+.mc-option.incorrect{border-color:#e74c3c!important;background:rgba(231,76,60,.22)!important}

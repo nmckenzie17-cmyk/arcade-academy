@@ -28,7 +28,11 @@
     let player = { x: 400, y: 300, hp: 100, maxHp: 100, level: 1, exp: 0, kills: 0, character: 'ninja', facingAngle: 0 };
     const NINJA_WEAPON_KEYS = ['shuriken', 'dart', 'smoke', 'trap'];
     const SAMURAI_WEAPON_KEYS = ['katana', 'naginata', 'bow', 'servant'];
-    const ALL_WEAPON_KEYS = [...NINJA_WEAPON_KEYS, ...SAMURAI_WEAPON_KEYS];
+    const SKELETON_WEAPON_KEYS = ['bone', 'soulOrb', 'graveMist', 'ribTrap'];
+    const PARADOX_WEAPON_KEYS = ['riftBlade', 'chronoShard', 'anomalyField', 'echoSigil'];
+    const ALL_WEAPON_KEYS = [...NINJA_WEAPON_KEYS, ...SAMURAI_WEAPON_KEYS, ...SKELETON_WEAPON_KEYS, ...PARADOX_WEAPON_KEYS];
+    const CHARACTER_WEAPON_KEYS={ninja:NINJA_WEAPON_KEYS,samurai:SAMURAI_WEAPON_KEYS,skeleton:SKELETON_WEAPON_KEYS,paradox:PARADOX_WEAPON_KEYS};
+    const CHARACTER_WEAPON_BASE={bone:'shuriken',soulOrb:'dart',graveMist:'smoke',ribTrap:'trap',riftBlade:'shuriken',chronoShard:'dart',anomalyField:'smoke',echoSigil:'trap'};
 
     // NOTE: the persistent coin balance is NOT stored here — it lives in
     // PlatformManager (shared/js/PlatformManager.js) as the single source of
@@ -38,6 +42,7 @@
     let progress = {
       runCoins: 0, runNumber: 1, deaths: 0, powerupStart: 0,
       questionsCorrect: 0, selectedPowerups: [], bestLevel: 0,
+      ownedStages: ['training-grounds'], selectedStage: 'training-grounds', stageBestLevels: {'training-grounds':0}, boneWeaponSkins: {},
       questionWeights: {},
       playedCodes: [], samuraiUnlocked: false, selectedCharacter: 'ninja',
       weapons: {
@@ -49,6 +54,14 @@
         naginata: { unlocked: false, kills: 0, level: 0, path: null, levelA: 0, levelB: 0, repeatBuys: 0, subPath: null, levelC: 0, levelD: 0, subRepeatBuys: 0 },
         bow:      { unlocked: false, kills: 0, level: 0, path: null, levelA: 0, levelB: 0, repeatBuys: 0, subPath: null, levelC: 0, levelD: 0, subRepeatBuys: 0 },
         servant:  { unlocked: false, kills: 0, level: 0, path: null, levelA: 0, levelB: 0, repeatBuys: 0, subPath: null, levelC: 0, levelD: 0, subRepeatBuys: 0 }
+        ,bone: { unlocked:true,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
+        ,soulOrb: { unlocked:false,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
+        ,graveMist: { unlocked:false,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
+        ,ribTrap: { unlocked:false,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
+        ,riftBlade: { unlocked:true,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
+        ,chronoShard: { unlocked:false,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
+        ,anomalyField: { unlocked:false,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
+        ,echoSigil: { unlocked:false,kills:0,level:0,path:null,levelA:0,levelB:0,repeatBuys:0,subPath:null,levelC:0,levelD:0,subRepeatBuys:0 }
       }
     };
     const SAVE_KEY = 'ninjaShurikenGameProgress';
@@ -64,6 +77,10 @@
           playedCodes: progress.playedCodes,
           samuraiUnlocked: progress.samuraiUnlocked,
           questionWeights: progress.questionWeights,
+          ownedStages: progress.ownedStages,
+          selectedStage: progress.selectedStage,
+          stageBestLevels: progress.stageBestLevels,
+          boneWeaponSkins: progress.boneWeaponSkins,
           weaponKills
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(slim));
@@ -81,6 +98,10 @@
         if (Array.isArray(saved.playedCodes)) progress.playedCodes = saved.playedCodes;
         if (saved.samuraiUnlocked) progress.samuraiUnlocked = true;
         if (saved.questionWeights && typeof saved.questionWeights === 'object') progress.questionWeights = saved.questionWeights;
+        if (Array.isArray(saved.ownedStages)) progress.ownedStages = saved.ownedStages;
+        if (typeof saved.selectedStage === 'string' && progress.ownedStages.includes(saved.selectedStage)) progress.selectedStage = saved.selectedStage;
+        if (saved.stageBestLevels && typeof saved.stageBestLevels === 'object') progress.stageBestLevels = saved.stageBestLevels;
+        if (saved.boneWeaponSkins && typeof saved.boneWeaponSkins === 'object') progress.boneWeaponSkins = saved.boneWeaponSkins;
         if (saved.weaponKills) {
           for (const key of ALL_WEAPON_KEYS) {
             const k = saved.weaponKills[key];
@@ -96,6 +117,14 @@
     }
 
     const WEAPON_UNLOCK_KILLS = 10;
+    progress.stageBestLevels['training-grounds']=Math.max(progress.stageBestLevels['training-grounds']||0,progress.bestLevel||0);
+    const STAGES = [
+      {id:'training-grounds',name:'Training Grounds',cost:0,previous:null,desc:'The original battleground.'},
+      {id:'nightmare-forest',name:'Nightmare Forest',cost:1000,previous:'training-grounds',desc:'Detailed spiders replace slimes. All enemies move 15% faster.'},
+      {id:'ruined-kingdom',name:'Ruined Kingdom',cost:1000,previous:'nightmare-forest',desc:'Sword skeletons and teleporting fire mages. All enemies have double health.'}
+    ];
+    const BONE_SKIN_NAMES={shuriken:'Bone Shuriken',dart:'Bone Darts',smoke:'Bone Dust Bomb',trap:'Ribcage Trap',katana:'Bone Katana',naginata:'Spine Naginata',bow:'Bone Bow',servant:'Bone Servant',bone:'Polished Bone Throw',soulOrb:'Skull Soul Orb',graveMist:'Bone-Dust Grave Mist',ribTrap:'Fossilised Ribcage',riftBlade:'Bone Rift Blade',chronoShard:'Fossil Chrono Shard',anomalyField:'Ossuary Anomaly',echoSigil:'Bone Echo Sigil'};
+    function boneSkin(key){return !!progress.boneWeaponSkins?.[key];}
     loadProgress();
     updateHomeStats();
 
@@ -129,9 +158,13 @@
     window.addEventListener('arcade-progression-changed',renderCharacterSelectors);
 
     function checkSamuraiUnlock() {
-      if (progress.samuraiUnlocked) return;
-      if (progress.playedCodes.length >= 3 && progress.questionsCorrect >= 1000) {
+      if (window.AchievementManager?.hasTypeUnlock?.('shuriken-scholar-samurai')) progress.samuraiUnlocked = true;
+      if (progress.samuraiUnlocked) {window.AchievementManager?.grantTypeUnlock?.('shuriken-scholar-samurai',{name:'Samurai',kind:'character',gameId:GAME_CONFIG.id,detail:'Playable Samurai and Samurai weapon paths.'});return;}
+      const overall=PlatformManager.getOverallStats?.()||{};
+      const qualifying=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!==GAME_CONFIG.id&&(g.correct||0)>=150);
+      if ((overall.totalCorrect||progress.questionsCorrect) >= 750 && qualifying.length >= 3) {
         progress.samuraiUnlocked = true;
+        window.AchievementManager?.grantTypeUnlock?.('shuriken-scholar-samurai',{name:'Samurai',kind:'character',gameId:GAME_CONFIG.id,detail:'Playable Samurai and Samurai weapon paths.'});
         saveProgress();
         triggerSamuraiUnlockEffect();
         updateHomeStats();
@@ -159,7 +192,7 @@
       }
     }
 
-    const WEAPON_NAMES = { shuriken: '🥷 Shurikens', dart: '🏹 Darts', smoke: '💨 Smoke Bomb', trap: '💥 Shadow Trap', katana: '⚔️ Katana', naginata: '🗡️ Naginata', bow: '🏹 Bow', servant: '👺 Summoned Servant' };
+    const WEAPON_NAMES = { shuriken: '🥷 Shurikens', dart: '🏹 Darts', smoke: '💨 Smoke Bomb', trap: '💥 Shadow Trap', katana: '⚔️ Katana', naginata: '🗡️ Naginata', bow: '🏹 Bow', servant: '👺 Summoned Servant', bone:'🦴 Bone Throw',soulOrb:'👻 Soul Orb',graveMist:'☠️ Grave Mist',ribTrap:'🦴 Ribcage Trap',riftBlade:'🌌 Rift Blade',chronoShard:'⏳ Chrono Shard',anomalyField:'🌀 Anomaly Field',echoSigil:'🪞 Echo Sigil' };
 
     const SINGLE_USE_POWERUPS = {
       killValue: { name: '💰 Bounty Hunter', desc: "Each kill counts extra toward your weapon mastery this run.", unlockAt: 20 },
@@ -171,7 +204,7 @@
     let runPowerupEffects = { killValueMult: 1, coinBonusPerKill: 0 };
 
     const ENEMY_DISPLAY_NAMES = {
-      slime: 'Slime', bat: 'Bat', ghost: 'Ghost', eye: 'Eye', archer: 'Skeleton Archer',
+      slime: 'Slime', spider:'Nightmare Spider', swordsman:'Skeleton Swordsman', mage:'Skeleton Mage', bat: 'Bat', ghost: 'Ghost', eye: 'Eye', archer: 'Skeleton Archer',
       troll: 'Troll', golem: 'Mud Golem', tree_golem: 'Tree Golem', smoke_golem: 'Smoke Golem', fire_golem: 'Fire Golem',
       mimic: 'Mimic'
     };
@@ -215,24 +248,29 @@
       if (nextLevel === 8) return { coin: PlatformManager.permanentUpgradeCost(7), kills: weaponKey === 'shuriken' ? 650 : 450 };
       return { coin: PlatformManager.permanentUpgradeCost(8), kills: weaponKey === 'shuriken' ? 800 : 550 }; // level 9
     }
-    function wInfo(key) { return progress.weapons[key]; }
-    function wLevel(key) { return progress.weapons[key].level; }
-    function wPath(key) { return progress.weapons[key].path; }
-    function wUnlocked(key) { return progress.weapons[key].unlocked; }
+    function runtimeWeaponKey(key){
+      if(player.character==='skeleton') return ({shuriken:'bone',dart:'soulOrb',smoke:'graveMist',trap:'ribTrap'})[key]||key;
+      if(player.character==='paradox') return ({shuriken:'riftBlade',dart:'chronoShard',smoke:'anomalyField',trap:'echoSigil'})[key]||key;
+      return key;
+    }
+    function wInfo(key) { return progress.weapons[runtimeWeaponKey(key)]; }
+    function wLevel(key) { return wInfo(key).level; }
+    function wPath(key) { return wInfo(key).path; }
+    function wUnlocked(key) { return wInfo(key).unlocked; }
     // Levels 1-2 can be bought independently in EITHER path before committing.
     // Buying level 3 locks in whichever path you buy it for (the other path's L1/L2 stop applying).
     // Levels 1-2 can be bought independently in EITHER path before committing, and once bought they
     // stay active forever — even after you commit to the other path at level 3. Only the *committed*
     // path can progress past level 2.
     function pathLevel(key, path) {
-      const w = progress.weapons[key];
+      const w = progress.weapons[runtimeWeaponKey(key)];
       if (w.path === path) return Math.min(w.level, 5); // main path caps at 5 - level 5 no longer stacks
       // Not the committed path (or no path chosen yet): whatever was bought pre-commit (max level 2) still applies.
       return path === 'A' ? Math.min(w.levelA, 2) : Math.min(w.levelB, 2);
     }
     // Level 5 is now a single fixed ability (not repeatable): returns 1 once owned, 0 otherwise.
     function wRepeats(key) {
-      const w = progress.weapons[key];
+      const w = progress.weapons[runtimeWeaponKey(key)];
       return (w.path && w.level >= 5) ? 1 : 0;
     }
     // Mirrors pathLevel/wRepeats, but for the second branch (levels 6-10+) that only
@@ -240,13 +278,13 @@
     // in either C or D), level 7 locks it in (just like level 3 locks A/B), and level
     // 10 is the new repeatable tier.
     function subPathLevel(key, subpath) {
-      const w = progress.weapons[key];
+      const w = progress.weapons[runtimeWeaponKey(key)];
       if (!w.path || w.level < 5) return 0;
       if (w.subPath === subpath) return Math.min(w.level, 10);
       return subpath === 'C' ? Math.min(w.levelC, 6) : Math.min(w.levelD, 6);
     }
     function wSubRepeats(key) {
-      const w = progress.weapons[key];
+      const w = progress.weapons[runtimeWeaponKey(key)];
       return (w.subPath && w.level >= 10) ? Math.max(1, w.subRepeatBuys) : 0;
     }
     let upgrades = { projSpeed: 5, damage: 1, cooldown: 900, smokeUnlocked: false, smokeDamage: 1, smokeCooldown: 4000, shadowUnlocked: false, shadowDamage: 2, shadowRadius: 100, shadowCooldown: 10000, dartUnlocked: false, dartAmount: 2, dartRange: 120, dartCooldown: 3000,
@@ -410,13 +448,13 @@
     }
 
     function drawBackground() {
-      ctx.fillStyle = '#2a2a3e';
+      ctx.fillStyle = progress.selectedStage==='nightmare-forest'?'#07150f':progress.selectedStage==='ruined-kingdom'?'#17131d':'#2a2a3e';
       ctx.fillRect(0, 0, 800, 600);
 
       const bgOffX=shurikenSecret('secret_map_border')?((secretWorldX%64)+64)%64:0,bgOffY=shurikenSecret('secret_map_border')?((secretWorldY%64)+64)%64:0;
       for (let y = -64+bgOffY; y < 664; y += 64) {
         for (let x = -64+bgOffX; x < 864; x += 64) {
-          ctx.fillStyle = ((x/64 + y/64) % 2 === 0) ? '#3a3a52' : '#2f2f45';
+          ctx.fillStyle = progress.selectedStage==='nightmare-forest'?(((x/64+y/64)%2===0)?'#10281c':'#0b2016'):progress.selectedStage==='ruined-kingdom'?(((x/64+y/64)%2===0)?'#302839':'#241e2b'):(((x/64 + y/64) % 2 === 0) ? '#3a3a52' : '#2f2f45');
           ctx.fillRect(x, y, 64, 64);
           ctx.fillStyle = '#1a1a28';
           ctx.fillRect(x, y, 64, 2);
@@ -800,6 +838,9 @@
       }
 
       if (e.type === 'bat') drawBat(e);
+      else if (e.type === 'spider') drawSpider(e);
+      else if (e.type === 'swordsman') drawSwordSkeleton(e);
+      else if (e.type === 'mage') drawSkeletonMage(e);
       else if (e.type === 'ghost') drawGhost(e);
       else if (e.type === 'eye') drawEye(e);
       else if (e.type === 'archer') drawArcher(e);
@@ -845,6 +886,10 @@
         ctx.fillText('!', e.x - 3, e.y - 48);
       }
     }
+
+    function drawSpider(e){const bob=Math.sin(e.anim*.08)*2;ctx.fillStyle='#0a070d';ctx.beginPath();ctx.ellipse(e.x,e.y+bob,18,13,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#4b183d';ctx.beginPath();ctx.ellipse(e.x,e.y-8+bob,11,9,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#1a0d18';ctx.lineWidth=4;for(const side of [-1,1])for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(e.x+side*8,e.y-3+i*4+bob);ctx.lineTo(e.x+side*(22+i*3),e.y-13+i*10+bob);ctx.lineTo(e.x+side*(31+i*3),e.y-8+i*10+bob);ctx.stroke();}ctx.fillStyle='#ff355e';ctx.fillRect(e.x-7,e.y-12+bob,4,4);ctx.fillRect(e.x+3,e.y-12+bob,4,4);}
+    function drawSwordSkeleton(e){drawArcher(e);ctx.save();ctx.translate(e.x+18,e.y);ctx.rotate(-.55);ctx.fillStyle='#d9e2ea';ctx.fillRect(-2,-20,5,30);ctx.fillStyle='#9b6a32';ctx.fillRect(-7,8,15,4);ctx.restore();}
+    function drawSkeletonMage(e){const float=Math.sin(e.anim*.05)*3;ctx.fillStyle='#3b185f';ctx.beginPath();ctx.moveTo(e.x,e.y-28+float);ctx.lineTo(e.x-22,e.y+24+float);ctx.lineTo(e.x+22,e.y+24+float);ctx.closePath();ctx.fill();ctx.fillStyle='#e7dfc8';ctx.fillRect(e.x-12,e.y-24+float,24,18);ctx.fillStyle='#101018';ctx.fillRect(e.x-7,e.y-19+float,4,5);ctx.fillRect(e.x+3,e.y-19+float,4,5);ctx.strokeStyle='#7c4dff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(e.x+18,e.y+18);ctx.lineTo(e.x+27,e.y-24);ctx.stroke();ctx.fillStyle='#ff6a22';ctx.beginPath();ctx.arc(e.x+27,e.y-27,6,0,Math.PI*2);ctx.fill();}
 
     function drawSlime(e) {
       const bounce = Math.abs(Math.sin(e.anim * 0.05)) * 6;
@@ -1470,6 +1515,7 @@
         ctx.globalAlpha = pulse;
       }
 
+      if(boneSkin('trap')){ctx.strokeStyle='#eee8d4';ctx.lineWidth=5;for(let i=0;i<7;i++){const a=i*Math.PI*2/7;ctx.beginPath();ctx.moveTo(trap.x,trap.y);ctx.lineTo(trap.x+Math.cos(a)*34,trap.y+Math.sin(a)*34);ctx.stroke();}}
       ctx.fillStyle = '#2d0a30';
       ctx.beginPath(); ctx.arc(trap.x, trap.y, 37.5, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#1a0620';
@@ -1489,6 +1535,7 @@
     }
 
     function drawDart(d) {
+      if(boneSkin('dart')){ctx.fillStyle='#eee8d4';ctx.fillRect(d.x-9,d.y-3,18,6);ctx.beginPath();ctx.arc(d.x-9,d.y,4,0,Math.PI*2);ctx.arc(d.x+9,d.y,4,0,Math.PI*2);ctx.fill();return;}
       shadedRect(d.x - 8, d.y - 2, 16, 4, '#8b4513');
       shadedRect(d.x + 6, d.y - 3, 6, 6, '#c0c0c0');
     }
@@ -1558,6 +1605,9 @@
     }
 
     function spawnSpecificEnemy(type, x, y, speedMultiplier, baseHp, isMetal, forceVoid) {
+      if(progress.selectedStage==='nightmare-forest'&&type==='slime')type='spider';
+      if(progress.selectedStage==='ruined-kingdom'&&type==='slime')type='swordsman';
+      if(progress.selectedStage==='ruined-kingdom'&&type==='eye')type='mage';
       const id = nextEnemyId++;
       const isVoid = forceVoid !== undefined ? forceVoid : Math.random() < getVoidChance();
       const voidMult = isVoid ? 2 : 1;
@@ -1569,9 +1619,9 @@
         const hp = baseHp * voidMult;
         const now = Date.now();
         enemies.push({ id, type: 'ghost', x, y, speed: 0.2 * speedMultiplier, hp, maxHp: hp, anim: Math.random() * 100, sineOffset: 0, metal: isMetal, isVoid, phased: false, lastPhase: now });
-      } else if (type === 'eye') {
+      } else if (type === 'eye' || type === 'mage') {
         const hp = baseHp * 2 * voidMult;
-        enemies.push({ id, type: 'eye', x, y, speed: 0.2 * speedMultiplier, hp, maxHp: hp, anim: Math.random() * 100, lastWarp: Date.now(), metal: isMetal, isVoid, lastLaser: Date.now() });
+        enemies.push({ id, type, x, y, speed: 0.2 * speedMultiplier, hp, maxHp: hp, anim: Math.random() * 100, lastWarp: Date.now(), metal: isMetal, isVoid, lastLaser: Date.now(), lastFireball:Date.now() });
       } else if (type === 'archer') {
         const hp = baseHp * voidMult;
         enemies.push({ id, type: 'archer', x, y, speed: 0.5 * speedMultiplier, hp, maxHp: hp, anim: Math.random() * 100, lastShot: 0, metal: isMetal, isVoid, circleAngle: Math.random() * Math.PI * 2 });
@@ -1581,7 +1631,7 @@
         enemies.push({ id, type: 'troll', x, y, speed: 0.12 * speedMultiplier, hp, maxHp: hp, anim: Math.random() * 100, metal: isMetal, isVoid, lastHit: now, lastRegen: now });
       } else {
         const hp = baseHp * voidMult;
-        enemies.push({ id, type: 'slime', x, y, speed: 0.5 * speedMultiplier, hp, maxHp: hp, anim: Math.random() * 100, metal: isMetal, isVoid });
+        enemies.push({ id, type, x, y, speed: 0.5 * speedMultiplier, hp, maxHp: hp, anim: Math.random() * 100, metal: isMetal, isVoid });
       }
 
       if (player.character === 'samurai' && pathLevel('katana', 'A') >= 4 && Math.random() < 0.15) {
@@ -1677,7 +1727,10 @@
 
     function spawnBoss(levelNum) {
       const pool = ['slime', 'bat', 'archer', 'eye', 'ghost', 'troll'];
-      const baseType = pool[Math.floor(Math.random() * pool.length)];
+      let baseType = pool[Math.floor(Math.random() * pool.length)];
+      if(progress.selectedStage==='nightmare-forest'&&baseType==='slime')baseType='spider';
+      if(progress.selectedStage==='ruined-kingdom'&&baseType==='slime')baseType='swordsman';
+      if(progress.selectedStage==='ruined-kingdom'&&baseType==='eye')baseType='mage';
 
       const side = Math.floor(Math.random() * 4);
       let x, y;
@@ -1693,7 +1746,7 @@
       let typeBaseSpeed = 0.5 * speedMultiplier;
       if (baseType === 'bat') { typeBaseHp = 1; typeBaseSpeed = 0.8 * speedMultiplier; }
       else if (baseType === 'ghost') { typeBaseHp = baseHp; typeBaseSpeed = 0.2 * speedMultiplier; }
-      else if (baseType === 'eye') { typeBaseHp = baseHp * 2; typeBaseSpeed = 0.2 * speedMultiplier; }
+      else if (baseType === 'eye' || baseType === 'mage') { typeBaseHp = baseHp * 2; typeBaseSpeed = 0.2 * speedMultiplier; }
       else if (baseType === 'archer') { typeBaseHp = baseHp; typeBaseSpeed = 0.5 * speedMultiplier; }
       else if (baseType === 'troll') { typeBaseHp = baseHp * 2; typeBaseSpeed = 0.12 * speedMultiplier; }
 
@@ -1732,6 +1785,7 @@
     }
 
     function maintainEnemies() {
+      for(const e of enemies){if(e.stageModifierApplied)continue;e.stageModifierApplied=true;if(progress.selectedStage==='nightmare-forest')e.speed*=1.15;if(progress.selectedStage==='ruined-kingdom'){e.hp*=2;e.maxHp*=2;}}
       const upgradeSpawnAmount = SPAWNING_ADDS_UPGRADE_AMOUNT
         ? Math.pow(1.15, currentCharUpgrades() / 2)
         : 0;
@@ -1811,7 +1865,7 @@
           hasBounced: false,
           hitIds: []
         });
-        const made=bullets[bullets.length-1];if(player.character==='skeleton'){made.bone=true;made.dmg*=player.level>=8?2:player.level>=4?1.5:1;if(player.level>=3)made.pierce=true;if(player.level>=6){made.homing=true;made.homingTargetId=homingTarget?.id||findHomingLockTarget()?.id||null;}}
+        const made=bullets[bullets.length-1];if(boneSkin('shuriken'))made.bone=true;if(player.character==='skeleton'){made.bone=true;made.dmg*=player.level>=8?2:player.level>=4?1.5:1;if(player.level>=3)made.pierce=true;if(player.level>=6){made.homing=true;made.homingTargetId=homingTarget?.id||findHomingLockTarget()?.id||null;}}
       };
 
       for (let i = 0; i < numShots; i++) {
@@ -2912,6 +2966,7 @@
       // Enemies killed while standing in a stunning-mist smoke cloud always
       // count as a smoke bomb kill, regardless of what actually finished them off.
       if (e.inSmokeCloud) source = 'smoke';
+      source=runtimeWeaponKey(source);
 
       if (source && progress.weapons[source]) {
         const w = progress.weapons[source];
@@ -2955,7 +3010,7 @@
 
         const wave = e.bossLevel || player.level;
         progress.runCoins += 5 * wave;
-        for (const key of ['shuriken', 'dart', 'smoke', 'trap']) {
+        for (const key of (CHARACTER_WEAPON_KEYS[player.character]||NINJA_WEAPON_KEYS)) {
           const w = progress.weapons[key];
           w.kills += wave;
           if (!w.unlocked && w.kills >= WEAPON_UNLOCK_KILLS) w.unlocked = true;
@@ -3107,7 +3162,7 @@
             honor = 0;
             trollFireballs.splice(i, 1);
             if (player.hp <= 0) {
-              lastDeathInfo = { type: 'troll', damage: 15 * activeEvent.damageMult, metal: false, size: null, method: 'melee' };
+              lastDeathInfo = { type: fb.sourceType||'troll', damage: 15 * activeEvent.damageMult, metal: false, size: null, method: 'projectile' };
               updateUI(); gameOver();
             }
             continue;
@@ -3124,6 +3179,7 @@
               if (Math.hypot(d.x - fb.x, d.y - fb.y) < 16) { fb.hp -= upgrades.damage; darts.splice(di, 1); destroyed = fb.hp <= 0; break; }
             }
           }
+          if(!destroyed){for(const group of [bowArrows,naginataSpears]){for(let pi=group.length-1;pi>=0;pi--){const p=group[pi];if(Math.hypot(p.x-fb.x,p.y-fb.y)<16){fb.hp-=p.dmg||upgrades.damage;group.splice(pi,1);destroyed=fb.hp<=0;break;}}if(destroyed)break;}}
           if (destroyed) {
             trollFireballs.splice(i, 1);
             const nowFx = Date.now();
@@ -3718,6 +3774,10 @@
                 voidGhostTrail.push({ x: e.x, y: e.y, created: now, life: 6000, ownerId: e.id });
               }
             }
+          } else if (effType === 'mage') {
+            const now=Date.now();if(now-e.lastWarp>3000){const angle=Math.random()*Math.PI*2,dist=140+Math.random()*120;e.x=Math.max(50,Math.min(750,player.x+Math.cos(angle)*dist));e.y=Math.max(50,Math.min(550,player.y+Math.sin(angle)*dist));e.lastWarp=now;}
+            if(now-(e.lastFireball||0)>3200){e.lastFireball=now;const fv=norm(player.x-e.x,player.y-e.y);trollFireballs.push({id:nextEnemyId++,ownerId:e.id,sourceType:'mage',x:e.x,y:e.y,vx:fv.nx*.85,vy:fv.ny*.85,hp:1,maxHp:1,created:now});}
+            e.x+=v.nx*effectiveSpeed*.35;e.y+=v.ny*effectiveSpeed*.35;
           } else if (effType === 'eye') {
             const now = Date.now();
             const warpInterval = e.isVoid ? 1500 : 3000;
@@ -4350,8 +4410,8 @@
     }
 
     function drawSmokeCloud(cloud) {
-      const neon=shurikenCosmetic('shuriken-scholar_neon_smoke');ctx.globalAlpha = neon ? .55 : .28;
-      ctx.fillStyle = neon?(Math.sin(game.frame*.12+cloud.x)>.0?'#00f5ff':'#ff39c8'):'#8899aa';
+      const neon=shurikenCosmetic('shuriken-scholar_neon_smoke'),bone=boneSkin('smoke');ctx.globalAlpha = neon ? .55 : bone ? .42 : .28;
+      ctx.fillStyle = bone?'#e9dfc8':neon?(Math.sin(game.frame*.12+cloud.x)>.0?'#00f5ff':'#ff39c8'):'#8899aa';
       ctx.beginPath();
       ctx.arc(cloud.x, cloud.y, cloud.radius, 0, Math.PI * 2);
       ctx.fill();
@@ -4426,6 +4486,7 @@
       ctx.save();
       ctx.translate(bx, by);
       ctx.rotate(currentAngle + Math.PI / 2);
+      if(boneSkin('katana')){ctx.fillStyle='#eee8d4';ctx.fillRect(-4,-18,8,29);ctx.beginPath();ctx.arc(0,-18,6,0,Math.PI*2);ctx.arc(0,11,6,0,Math.PI*2);ctx.fill();ctx.restore();ctx.globalAlpha=1;return;}
       if(shurikenCosmetic('shuriken-scholar_academy_headband')){ctx.fillStyle='#2458a6';ctx.fillRect(-15,-11,30,22);ctx.fillStyle='#f7e9b7';ctx.fillRect(-12,-8,10,16);ctx.fillRect(2,-8,10,16);ctx.fillStyle='#ffd15c';ctx.fillRect(-2,-9,4,18);ctx.restore();ctx.globalAlpha=1;return;}
       ctx.fillStyle = '#f0f0ff';
       ctx.beginPath();
@@ -4459,6 +4520,7 @@
       ctx.save();
       ctx.translate(sp.x, sp.y);
       ctx.rotate(angle);
+      if(boneSkin('naginata')){ctx.fillStyle='#eee8d4';ctx.fillRect(-20,-3,38,6);for(let x=-17;x<18;x+=8){ctx.fillStyle='#cfc7b2';ctx.fillRect(x,-5,3,10);}ctx.restore();return;}
       ctx.fillStyle = '#6b4423';
       ctx.fillRect(-18, -2, 30, 4);
       ctx.fillStyle = '#d8d8e8';
@@ -4476,6 +4538,7 @@
       ctx.save();
       ctx.translate(ar.x, ar.y);
       ctx.rotate(angle);
+      if(boneSkin('bow')){ctx.fillStyle='#eee8d4';ctx.fillRect(-11,-3,19,6);ctx.beginPath();ctx.arc(-11,0,4,0,Math.PI*2);ctx.fill();ctx.restore();return;}
       ctx.strokeStyle = '#8b5a2b';
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(6, 0); ctx.stroke();
@@ -4508,6 +4571,7 @@
       ctx.globalAlpha = 1;
 
       ctx.globalAlpha = 0.85;
+      if(boneSkin('servant')){ctx.fillStyle='#eee8d4';ctx.fillRect(s.x-10,s.y-18+bob,20,22);ctx.fillStyle='#15131a';ctx.fillRect(s.x-6,s.y-13+bob,4,4);ctx.fillRect(s.x+2,s.y-13+bob,4,4);ctx.globalAlpha=1;return;}
       shadedRect(s.x - 10, s.y - 18 + bob, 20, 24, '#4a148c');
       ctx.fillStyle = '#ce93d8';
       ctx.fillRect(s.x - 6, s.y - 14 + bob, 12, 6);
@@ -4608,7 +4672,7 @@
 
     function updateHomeStats() {
       const w = progress.weapons;
-      const totalKills = w.shuriken.kills + w.dart.kills + w.smoke.kills + w.trap.kills;
+      const totalKills = ALL_WEAPON_KEYS.reduce((sum,key)=>sum+(w[key]?.kills||0),0);
       document.getElementById('homeTotalCoins').textContent = PlatformManager.getCoins();
       document.getElementById('homeTotalKills').textContent = totalKills;
       document.getElementById('homeBestLevel').textContent = progress.bestLevel||0;
@@ -4672,10 +4736,11 @@
         return;
       }
 
-      document.querySelector('#bar-shuriken .weapon-bar-label').textContent = '🥷 Shuriken';
-      document.querySelector('#bar-dart .weapon-bar-label').textContent = '🏹 Dart';
-      document.querySelector('#bar-smoke .weapon-bar-label').textContent = '💨 Smoke Bomb';
-      document.querySelector('#bar-trap .weapon-bar-label').textContent = '💥 Shadow Trap';
+      const barKeys=CHARACTER_WEAPON_KEYS[player.character]||NINJA_WEAPON_KEYS;
+      document.querySelector('#bar-shuriken .weapon-bar-label').textContent = WEAPON_NAMES[barKeys[0]];
+      document.querySelector('#bar-dart .weapon-bar-label').textContent = WEAPON_NAMES[barKeys[1]];
+      document.querySelector('#bar-smoke .weapon-bar-label').textContent = WEAPON_NAMES[barKeys[2]];
+      document.querySelector('#bar-trap .weapon-bar-label').textContent = WEAPON_NAMES[barKeys[3]];
 
       let shurikenPct;
       if (pathLevel('shuriken', 'B') >= 3) {
@@ -4729,6 +4794,7 @@
       if (player.exp >= expReq) {
         player.exp -= expReq;
         player.level++;
+        progress.stageBestLevels[progress.selectedStage]=Math.max(progress.stageBestLevels[progress.selectedStage]||0,player.level);saveProgress();
         game.paused = true;
         showLevelUpText();
         updateUI();
@@ -4778,6 +4844,7 @@
         const btn = document.createElement('div');
         btn.className = 'option';
         btn.textContent = opt.text;
+        btn.dataset.correct = String(opt.isCorrect);
         btn.onclick = () => answerQuestion(opt.isCorrect, btn);
         container.appendChild(btn);
       });
@@ -4799,8 +4866,8 @@
         saveProgress();
         checkSamuraiUnlock();
       }
-      else { btn.classList.add('wrong'); saveProgress(); }
-      const rethink=!correct&&!tacticalRethinkUsed&&window.AchievementManager?.hasBoost?.('shuriken-scholar_tactical_rethink');if(rethink){tacticalRethinkUsed=true;document.getElementById('quizNum').textContent='Tactical Rethink — replacement question';setTimeout(()=>showQuestion(),1000);}else setTimeout(() => { quiz.index++; showQuestion(); }, 1000);
+      else { btn.classList.add('wrong'); all.forEach(o=>{if(o.dataset.correct==='true')o.classList.add('right');}); saveProgress(); }
+      const rethink=!correct&&!tacticalRethinkUsed&&window.AchievementManager?.hasBoost?.('shuriken-scholar_tactical_rethink');if(rethink){tacticalRethinkUsed=true;document.getElementById('quizNum').textContent='Tactical Rethink — replacement question';setTimeout(()=>showQuestion(),2000);}else setTimeout(() => { quiz.index++; showQuestion(); }, correct ? 1000 : 2000);
     }
 
     function showQuizResult() {
@@ -4963,7 +5030,10 @@
       if (!upgrades.shadowUnlocked) newWeaponUnlocks.push({name: "🌑 UNLOCK Shadow Trap", desc: "Click to place explosive trap (10s CD)", apply: () => { upgrades.shadowUnlocked = true; lastShadow = 0; shadowReady = true; }});
       if (!upgrades.dartUnlocked) newWeaponUnlocks.push({name: "🎯 UNLOCK Blow Dart", desc: "Auto-fire 2 darts every 3s", apply: () => { upgrades.dartUnlocked = true; upgrades.dartAmount = 2; lastDart = Date.now(); }});
 
-      return [...currentWeaponUpgrades, ...newWeaponUnlocks, ...buildCursedCards()];
+      const result=[...currentWeaponUpgrades, ...newWeaponUnlocks, ...buildCursedCards()];
+      const terms=player.character==='skeleton'?{Shuriken:'Bone Throw',shuriken:'bone',Dart:'Soul Orb',dart:'soul orb',Smoke:'Grave Mist',smoke:'grave mist',Shadow:'Ribcage',shadow:'ribcage'}:player.character==='paradox'?{Shuriken:'Rift Blade',shuriken:'rift blade',Dart:'Chrono Shard',dart:'chrono shard',Smoke:'Anomaly Field',smoke:'anomaly field',Shadow:'Echo Sigil',shadow:'echo sigil'}:null;
+      if(terms)for(const up of result)for(const [from,to] of Object.entries(terms)){up.name=up.name.replaceAll(from,to);up.desc=up.desc.replaceAll(from,to);}
+      return result;
     }
 
     function buildSamuraiUpgradePool() {
@@ -5418,11 +5488,30 @@
       }
     };
 
+    // Secret characters have their own persistent mastery tracks. Their combat
+    // roles intentionally mirror the four proven Ninja archetypes, while the
+    // names and descriptions make each path character-specific.
+    const themedWeaponCopy=(base,theme)=>Object.fromEntries(Object.entries(WEAPON_ABILITY_INFO[base]).map(([path,items])=>[path,items.map(item=>({
+      name:`${theme.icon} ${theme.prefix} ${item.name.replace(/^\S+\s*/, '')}`,
+      desc:item.desc.replace(/Shuriken/gi,theme.weapon).replace(/Dart/gi,theme.weapon).replace(/Smoke Bomb/gi,theme.weapon).replace(/Shadow Trap/gi,theme.weapon)
+    }))]));
+    const SECRET_WEAPON_THEMES={
+      bone:['shuriken',{icon:'🦴',prefix:'Ossified',weapon:'Bone Throw'}],soulOrb:['dart',{icon:'👻',prefix:'Haunting',weapon:'Soul Orb'}],graveMist:['smoke',{icon:'☠️',prefix:'Graveborn',weapon:'Grave Mist'}],ribTrap:['trap',{icon:'🦴',prefix:'Crypt',weapon:'Ribcage Trap'}],
+      riftBlade:['shuriken',{icon:'🌌',prefix:'Rift',weapon:'Rift Blade'}],chronoShard:['dart',{icon:'⏳',prefix:'Temporal',weapon:'Chrono Shard'}],anomalyField:['smoke',{icon:'🌐',prefix:'Unstable',weapon:'Anomaly Field'}],echoSigil:['trap',{icon:'🪞',prefix:'Echoing',weapon:'Echo Sigil'}]
+    };
+    for(const [key,[base,theme]] of Object.entries(SECRET_WEAPON_THEMES)) WEAPON_ABILITY_INFO[key]=themedWeaponCopy(base,theme);
+
     function renderShop() {
       const upgradesContainer = document.getElementById('shopItemsUpgrades');
       const powerupsContainer = document.getElementById('shopItemsPowerups');
+      const stagesContainer = document.getElementById('shopItemsStages');
+      let cosmeticsContainer = document.getElementById('shopItemsCosmetics');
+      const nativeCosmetics=document.getElementById('arcade-native-cosmetics-panel');
+      if(!cosmeticsContainer&&nativeCosmetics){const heading=document.createElement('h3');heading.textContent='🦴 Bone Arsenal';heading.style.color='#00d4ff';cosmeticsContainer=document.createElement('div');cosmeticsContainer.id='shopItemsCosmetics';nativeCosmetics.append(heading,cosmeticsContainer);}
       upgradesContainer.innerHTML = '';
       powerupsContainer.innerHTML = '';
+      stagesContainer.innerHTML = '';
+      if(cosmeticsContainer)cosmeticsContainer.innerHTML = '';
 
       const section1 = document.createElement('div');
       section1.innerHTML = '<h3 style="color: #00d4ff; margin: 5px 0 10px 0; font-size: clamp(16px,2.2vw,20px); font-family: \'Lexend\', sans-serif;">⭐ General Upgrades</h3>';
@@ -5447,12 +5536,20 @@
         if(document.getElementById('shopCharParadox'))document.getElementById('shopCharParadox').onclick=()=>{progress.selectedCharacter='paradox';renderShop();};
       }
 
-      const weaponKeys = progress.selectedCharacter === 'samurai' ? SAMURAI_WEAPON_KEYS : NINJA_WEAPON_KEYS;
+      const weaponKeys = CHARACTER_WEAPON_KEYS[progress.selectedCharacter]||NINJA_WEAPON_KEYS;
       for (const key of weaponKeys) {
         renderWeaponShopSection(upgradesContainer, key);
       }
 
       renderPowerupShopSection(powerupsContainer);
+
+      for(const stageDef of STAGES){
+        const owned=progress.ownedStages.includes(stageDef.id),previousBest=stageDef.previous?(progress.stageBestLevels[stageDef.previous]||0):15,eligible=previousBest>=15;
+        const item=document.createElement('div');item.className='shop-item';
+        item.innerHTML=`<div class="shop-header"><div class="shop-name">${stageDef.name}</div><div class="shop-cost">${owned?'OWNED':stageDef.cost+' 🪙'}</div></div><div class="shop-desc">${stageDef.desc}</div><div class="shop-owned">${stageDef.previous&&!eligible?`Reach Level 15 in ${STAGES.find(s=>s.id===stageDef.previous).name} (${previousBest}/15)`:owned?'Ready to play':'Stage requirement complete'}</div><button class="shop-btn" ${!owned&&!eligible?'disabled':''}>${progress.selectedStage===stageDef.id?'✅ Selected':owned?'Select':'Buy Stage'}</button>`;
+        item.querySelector('button').onclick=()=>{if(owned){progress.selectedStage=stageDef.id;}else if(eligible&&PlatformManager.spendCoins(stageDef.cost)){progress.ownedStages.push(stageDef.id);progress.selectedStage=stageDef.id;}saveProgress();renderShop();};stagesContainer.appendChild(item);
+      }
+      if(cosmeticsContainer)for(const key of ALL_WEAPON_KEYS){const item=document.createElement('div');item.className='shop-item';const owned=boneSkin(key);item.innerHTML=`<div class="shop-header"><div class="shop-name">🦴 ${BONE_SKIN_NAMES[key]}</div><div class="shop-cost">${owned?'OWNED':'500 🪙'}</div></div><div class="shop-desc">Bone-themed replacement for ${WEAPON_NAMES[key]}; works for every compatible character.</div><button class="shop-btn" ${owned?'disabled':''}>${owned?'✅ Applied':'Buy Cosmetic'}</button>`;item.querySelector('button').onclick=()=>{if(!owned&&PlatformManager.spendCoins(500)){progress.boneWeaponSkins[key]=true;saveProgress();renderShop();}};cosmeticsContainer.appendChild(item);}
 
       document.getElementById('totalCoins').textContent = PlatformManager.getCoins();
     }
@@ -5475,6 +5572,7 @@
       document.getElementById(shopReturnScreen).classList.add('show');
       if (shopReturnScreen === 'startOverlay') updateHomeStats();
     }
+    addEventListener('arcade-achievement-manager-ready',()=>{if(document.getElementById('shopOverlay')?.classList.contains('show'))renderShop();});
 
     // Decorative background: a few idle enemy sprites drifting behind the home screen,
     // reusing the same draw functions as gameplay (purely visual, no game-state impact).
@@ -5946,15 +6044,16 @@
       wipe.classList.add('wipe');
 
       setTimeout(() => {
-        PlatformManager.addCoins(progress.runCoins);
+        const coinResult = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, progress.runCoins);
         progress.bestLevel = Math.max(progress.bestLevel||0, player.level);
+        progress.stageBestLevels[progress.selectedStage]=Math.max(progress.stageBestLevels[progress.selectedStage]||0,player.level);
         PlatformManager.setHighScore(GAME_CONFIG.id, progress.bestLevel);
         saveProgress();
 
         document.getElementById('finalLvl').textContent = player.level;
         document.getElementById('finalKills').textContent = player.kills;
         document.getElementById('finalTime').textContent = Math.floor(game.time / 1000);
-        document.getElementById('finalCoins').textContent = progress.runCoins;
+        document.getElementById('finalCoins').textContent = `${coinResult.coinsAwarded} (${coinResult.accuracyPercent}% accuracy; ${progress.runCoins} raw)`;
         document.getElementById('deathCause').textContent = getDeathMessage(lastDeathInfo);
 
         document.getElementById('gameOverOverlay').classList.add('show');
@@ -5964,6 +6063,7 @@
     }
 
     function reset() {
+      const stageName=STAGES.find(s=>s.id===progress.selectedStage)?.name||'Training Grounds';const enemyLine=document.getElementById('enemyLine');if(enemyLine)enemyLine.textContent=`⚔️ Stage: ${stageName}`;
       lastDeathInfo = null;
       runPowerupEffects = { killValueMult: 1, coinBonusPerKill: 0 };
       player.x = 400; player.y = 300;
@@ -6104,6 +6204,7 @@
         const btn = document.createElement('div');
         btn.className = 'option';
         btn.textContent = opt.text;
+        btn.dataset.correct = String(opt.isCorrect);
         btn.onclick = () => answerPowerupUnlockQuestion(opt.isCorrect, btn);
         container.appendChild(btn);
       });
@@ -6126,9 +6227,10 @@
         checkSamuraiUnlock();
       } else {
         btn.classList.add('wrong');
+        all.forEach(o=>{if(o.dataset.correct==='true')o.classList.add('right');});
         saveProgress();
       }
-      setTimeout(() => { powerupQuizState.index++; showPowerupUnlockQuestion(); }, 1000);
+      setTimeout(() => { powerupQuizState.index++; showPowerupUnlockQuestion(); }, correct ? 1000 : 2000);
     }
 
     function finishPowerupUnlockQuiz() {

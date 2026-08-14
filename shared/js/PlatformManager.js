@@ -629,7 +629,11 @@
     g.gamesPlayed += 1;
     g.lastPlayed = now;
     data.sessions.totalSessions += 1;
-    currentSession = { gameId, startedAt: now, lastReconciledAt: now, activeSince: null };
+    currentSession = {
+      gameId, startedAt: now, lastReconciledAt: now, activeSince: null,
+      questionsAnsweredAtStart: data.questions.totalAnswered,
+      questionsCorrectAtStart: data.questions.totalCorrect
+    };
     data.activity.lastActive = now;
     markDirty();
     save();
@@ -773,6 +777,53 @@
     queueStatsSave();
     emitCoinsChanged();
     return deducted;
+  }
+
+  // Converts a game's raw run coins into a shared-economy award. Accuracy is
+  // deliberately allowed to range from a 15% safety net to a 115% mastery
+  // bonus. When a run ends before a question is answered, settlement uses the
+  // player's accuracy from before that run (or the 15% safety net for a brand
+  // new player) instead of wiping the run's raw coins to zero.
+  function calculateAccuracyCoinAward(baseCoins, correct, answered, fallbackAccuracy = 0) {
+    const base = Math.max(0, Math.floor(Number(baseCoins) || 0));
+    const attempts = Math.max(0, Math.floor(Number(answered) || 0));
+    const right = Math.max(0, Math.min(attempts, Math.floor(Number(correct) || 0)));
+    const accuracy = attempts > 0 ? right / attempts : Math.max(0,Math.min(1,Number(fallbackAccuracy)||0));
+    const awarded = Math.ceil(base * (accuracy + 0.15));
+    return {
+      baseCoins: base,
+      questionsCorrect: right,
+      questionsAnswered: attempts,
+      accuracy,
+      accuracyPercent: Math.round(accuracy * 100),
+      multiplier: accuracy + 0.15,
+      coinsAwarded: awarded
+    };
+  }
+
+  function settleAccuracyCoins(gameId, baseCoins, stats) {
+    let correct = stats?.correct;
+    let answered = stats?.answered;
+    if (correct === undefined || answered === undefined) {
+      const isCurrent = currentSession && (!gameId || currentSession.gameId === gameId);
+      correct = isCurrent ? data.questions.totalCorrect - currentSession.questionsCorrectAtStart : 0;
+      answered = isCurrent ? data.questions.totalAnswered - currentSession.questionsAnsweredAtStart : 0;
+    }
+    let fallbackAccuracy=0;
+    if(Math.max(0,Number(answered)||0)===0){
+      const isCurrent=currentSession&&(!gameId||currentSession.gameId===gameId);
+      const previousAnswered=isCurrent?currentSession.questionsAnsweredAtStart:data.questions.totalAnswered;
+      const previousCorrect=isCurrent?currentSession.questionsCorrectAtStart:data.questions.totalCorrect;
+      fallbackAccuracy=previousAnswered>0?previousCorrect/previousAnswered:0;
+    }
+    const result = calculateAccuracyCoinAward(baseCoins, correct, answered, fallbackAccuracy);
+    if (practiceMode) result.coinsAwarded = 0;
+    else if (result.coinsAwarded > 0) addCoins(result.coinsAwarded);
+    if (currentSession && (!gameId || currentSession.gameId === gameId)) {
+      currentSession.questionsAnsweredAtStart = data.questions.totalAnswered;
+      currentSession.questionsCorrectAtStart = data.questions.totalCorrect;
+    }
+    return result;
   }
 
   // ---- questions --------------------------------------------------
@@ -1105,6 +1156,8 @@
     spendCoins,
     deductCoins,
     getCoins,
+    calculateAccuracyCoinAward,
+    settleAccuracyCoins,
     connectFirebase,
     disconnectFirebase,
     resetAllProgress,

@@ -18,7 +18,7 @@
  * ================================================================
  */
 window.CLASS_OPTIONS = [
-    { name: "9 Tānekaha", yearLevels: [9] },
+  { name: "9 Tānekaha", yearLevels: [9] },
   { name: "9 Matai", yearLevels: [9] },
   { name: "9 Kauri", yearLevels: [9] },
   { name: "9 Rimu", yearLevels: [9] },

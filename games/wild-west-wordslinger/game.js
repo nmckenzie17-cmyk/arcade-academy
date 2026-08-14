@@ -2,8 +2,70 @@
  // Game state
   let killCount=0, overallScore=0, sessionCoins=0, lives=3, ammo=5, maxAmmo=5;
   let gameActive=false, spawnInterval=null, reloadOpen=false, reloadStartTime=null;
+  let gameMode='lawman';
   let gameOverReason='';
   let comboStreak=0;
+
+  // ===== ONE-POINT TOWN TUNING =====
+  // These values are intentionally grouped here so the perspective can be
+  // fine-tuned without editing the drawing code below.
+  const TOWN_VANISHING_POINT_Y = 0.055; // fraction of game-area height
+  const TOWN_MOVEMENT_SPEED = 0.14;     // depth travelled per second (linear)
+  const TOWN_HOUSE_COUNT = 4;           // buildings drawn on EACH side
+  const TOWN_HOUSE_DEPTH = 0.128;       // original street-facing house length
+  const TOWN_HOUSE_WIDTH = 0.18;        // wide outward footprint; near faces clip beyond the map edge
+  const TOWN_ROAD_NEAR_HALF_WIDTH = 0.50; // always spans the full live UI width at the player
+  const TOWN_NEAR_HOUSE_SCALE = 2.0;    // houses are twice-size at the player
+  const TOWN_NEAR_WALL_HEIGHT = 0.92;   // nearest wall height vs game-area height
+  const TOWN_DOOR_HEIGHT_RATIO = 0.48;  // projected door height vs wall height
+  const TOWN_ACTOR_DOOR_RATIO = 0.80;   // every actor is exactly 80% of door height
+  const DISTANCE_SCORE_BONUS = 1.5;     // farthest possible shot adds +150% score
+  const TOWN_ROAD_LINE_COUNT = 11;
+  const TOWN_ROAD_MARK_COUNT = 34;
+  const TOWN_SAND_COLOUR = '#c99652';
+  const TOWN_SAND_HIGHLIGHT = '#e1b76d';
+  const TOWN_SKY_TOP = '#78bfe8';
+  const TOWN_SKY_HORIZON = '#d8e7d5';
+  const TOWN_ROAD_COLOUR = '#7c4932';
+  const TOWN_ROAD_DARK = '#5b3428';
+  const TOWN_HOUSE_TYPES = [
+    {id:'homestead',name:'Homestead',wall:'#7c4b30',front:'#965f3e',detail:'#e4bd6c',layout:'home-a'},
+    {id:'ranch-house',name:'Ranch House',wall:'#684733',front:'#83583d',detail:'#cfa55f',layout:'home-b'},
+    {id:'desert-home',name:'Desert Home',wall:'#91603d',front:'#aa7048',detail:'#efd28d',layout:'home-c'},
+    {id:'boarding-house',name:'Boarding House',wall:'#61402e',front:'#79513b',detail:'#d8b36f',layout:'home-d'},
+    {id:'bathhouse-blue',name:'Blue Bathhouse',wall:'#466b70',front:'#59868b',detail:'#bce9e2',layout:'bath-a'},
+    {id:'armory',name:'Armory',wall:'#41464b',front:'#596067',detail:'#c6cbd0',layout:'armory'},
+    {id:'jail',name:'Jail',wall:'#4b443d',front:'#625950',detail:'#c0b7a8',layout:'jail'},
+    {id:'general-store',name:'General Store',wall:'#78502e',front:'#97663a',detail:'#f0cf75',layout:'store-a'},
+    {id:'supply-store',name:'Supply Store',wall:'#655338',front:'#806b49',detail:'#e4c881',layout:'store-b'},
+    {id:'bathhouse-red',name:'Red Bathhouse',wall:'#744044',front:'#915157',detail:'#f2c6ba',layout:'bath-b'}
+  ];
+  // One distinct height and street-length profile for every catalogue building.
+  const TOWN_HOUSE_HEIGHT_VARIANCE=[.84,.91,.97,1.04,1.11,.88,1.16,.94,1.08,1.01];
+  const TOWN_HOUSE_LENGTH_VARIANCE=[.78,.86,.93,1.02,1.12,1.22,.82,.97,1.08,1.17];
+  // Random once per page load, then kept stable so houses do not jump between
+  // redraws. Sorting creates four irregularly spaced spawn points per side.
+  const randomHouseOffsets=()=>Array.from({length:TOWN_HOUSE_COUNT},(_,i)=>(i/TOWN_HOUSE_COUNT+Math.random()*.16)%1).sort((a,b)=>a-b);
+  const TOWN_HOUSE_OFFSETS = {'-1':randomHouseOffsets(),'1':randomHouseOffsets()};
+  const TOWN_HOUSE_SELECTIONS={'-1':Array.from({length:TOWN_HOUSE_COUNT},()=>Math.floor(Math.random()*TOWN_HOUSE_TYPES.length)),'1':Array.from({length:TOWN_HOUSE_COUNT},()=>Math.floor(Math.random()*TOWN_HOUSE_TYPES.length))};
+  const randomFaceDetails=()=>Array.from({length:TOWN_HOUSE_COUNT},()=>({
+    poster:Math.random()<.58, lantern:Math.random()<.5, crates:Math.random()<.55,
+    planks:Math.random()<.42, sign:Math.random()<.38
+  }));
+  const TOWN_HOUSE_FACE_DETAILS={'-1':randomFaceDetails(),'1':randomFaceDetails()};
+
+  // An accumulated clock lets a boss freeze the town exactly where it is and
+  // resume the same walk cycle after the fight, without a visual jump.
+  let townTravelMs=0, townTravelLast=performance.now(), townMovementPaused=false;
+  function setTownMovementPaused(paused){
+    const now=performance.now();
+    if(!townMovementPaused)townTravelMs+=now-townTravelLast;
+    townTravelLast=now;townMovementPaused=paused;
+  }
+  function townTravelSeconds(){
+    return (townTravelMs+(townMovementPaused?0:performance.now()-townTravelLast))/1000;
+  }
+  function resetTownMovement(){townTravelMs=0;townTravelLast=performance.now();townMovementPaused=false;}
 
   // Identifies this game to the shared PlatformManager (shared/js/PlatformManager.js).
   // Platform-wide stats (coins, question totals, sessions, high score) are keyed by this id.
@@ -194,11 +256,12 @@
   // to finish off a *different* enemy than the one directly clicked).
   function finishOffEnemy(other, area) {
     if (!other || other.dataset.dead || other.dataset.kind==='decoy') return;
-    const ox=parseInt(other.style.left), oy=parseInt(other.style.top);
+    const pos=elementEffectPosition(other,area),ox=pos.x,oy=pos.y;
     other.dataset.dead='1';
     if (other._expireTimer) clearTimeout(other._expireTimer);
+    other._peekWall?.remove();
     stopTeleport(other); stopDrain(other);
-    const otherType = ENEMY_TYPES.find(t=>t.id===other.dataset.type) || ENEMY_TYPES[0];
+    const otherType = [...ENEMY_TYPES,...DECOY_TYPES].find(t=>t.id===other.dataset.type) || ENEMY_TYPES[0];
     comboStreak++;
     const otherGain = Math.round(otherType.score * getComboMultiplier() * runScoreMult * upgradeScoreMult());
     const otherCoins = Math.round(otherType.coins * runCoinMult * upgradeCoinMult()) + upStack('magnet');
@@ -215,7 +278,8 @@
     const hitsLeft = parseInt(other.dataset.hitsLeft||'1',10) - 1;
     if (hitsLeft > 0) {
       other.dataset.hitsLeft = String(hitsLeft);
-      other.classList.remove('armor-flash'); void other.offsetWidth; other.classList.add('armor-flash');
+      const sprite=other.querySelector('canvas');
+      if(sprite){sprite.classList.remove('armor-flash');void sprite.offsetWidth;sprite.classList.add('armor-flash');}
       return false;
     }
     return true;
@@ -275,7 +339,7 @@
     duelUsedThisStage = true; duelActive = true;
     gameActive = false; clearInterval(spawnInterval);
     const area = document.getElementById('game-area');
-    area.querySelectorAll('.enemy-wrap').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
+    area.querySelectorAll('.enemy-wrap,.western-obstacle,.peek-house-wall').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
     const type = ENEMY_TYPES[Math.floor(Math.random()*ENEMY_TYPES.length)];
     const canvas = document.getElementById('duel-canvas');
     type.draw(canvas.getContext('2d'));
@@ -436,7 +500,34 @@
     document.getElementById('home-coins').textContent = '🪙 ' + PlatformManager.getCoins();
     document.getElementById('home-kills').textContent = totalKills;
     document.getElementById('home-correct').textContent = totalCorrectAnswers;
+    updateModeSelection();
   }
+
+  function bloodyBanditProgress(){
+    const stats=PlatformManager.getAllGameStats(),others=stats.filter(g=>g.gameId!==GAME_CONFIG.id&&g.correct>=50);
+    const total=stats.reduce((sum,g)=>sum+(Number(g.correct)||0),0);
+    const earned=total>=200&&others.length>=3;
+    if(earned)window.AchievementManager?.grantTypeUnlock?.('wild-west-bloody-bandit',{name:'Bloody Bandit',kind:'game-mode',gameId:GAME_CONFIG.id,detail:'Reverse mode: hunt townsfolk and protect outlaws.'});
+    return{unlocked:earned||!!window.AchievementManager?.hasTypeUnlock?.('wild-west-bloody-bandit'),total,otherGames:others.length};
+  }
+  function showModeMilestone(){
+    if(localStorage.getItem('wild-west-bloody-bandit-milestone'))return;
+    localStorage.setItem('wild-west-bloody-bandit-milestone','1');
+    const fx=document.createElement('div');fx.className='mode-milestone-burst';
+    fx.innerHTML='<div class="milestone-pixels"></div><h2>🩸 BLOODY BANDIT UNLOCKED</h2><p>Hunt the townsfolk. Let every outlaw escape.</p>';
+    document.body.appendChild(fx);setTimeout(()=>fx.remove(),4200);
+  }
+  function updateModeSelection(){
+    const button=document.getElementById('bloody-bandit-button'),lawman=document.getElementById('lawman-mode-button'),progress=document.getElementById('mode-unlock-progress');if(!button||!progress)return;
+    const state=bloodyBanditProgress();button.disabled=!state.unlocked;
+    button.innerHTML=(gameMode==='bloody'?'✅ ':'')+(state.unlocked?'🩸 Bloody Bandit<br><small>Hunt townsfolk and protect outlaws.</small>':'🔒 Bloody Bandit');
+    if(lawman){lawman.innerHTML=(gameMode==='lawman'?'✅ ':'')+'🤠 Lawman<br><small>Hunt outlaws and protect townsfolk.</small>';lawman.classList.toggle('equipped',gameMode==='lawman');}
+    button.classList.toggle('equipped',gameMode==='bloody');
+    const start=document.getElementById('start-button');if(start)start.textContent=gameMode==='bloody'?'Press Start — Bloody Bandit':'Press Start — Lawman';
+    progress.textContent=state.unlocked?'Bloody Bandit unlocked':`${Math.min(200,state.total)}/200 correct · ${Math.min(3,state.otherGames)}/3 other games at 50 correct`;
+    if(state.unlocked)showModeMilestone();
+  }
+  function selectGameMode(mode){if(mode==='bloody'&&!bloodyBanditProgress().unlocked)return;gameMode=mode;updateModeSelection();}
 
   // Screens
   function showScreen(id) {
@@ -447,7 +538,7 @@
   function goHome() { showScreen('home-screen'); updateHomeStats(); }
 
   // Shop
-  const SHOP_TABS = ['upgrades','powerups'];
+  const SHOP_TABS = ['upgrades','powerups','modes'];
   function switchShopTab(tab) {
     SHOP_TABS.forEach(t => {
       const target=document.getElementById('shop-tab-'+t);target.hidden=t!==tab;target.classList.toggle('hidden', t!==tab);
@@ -462,6 +553,7 @@
     updateLifeInfo();
     updateComboUpgradeInfo();
     renderPowerups();
+    updateModeSelection();
     switchShopTab('upgrades');
     document.getElementById('shop-result').classList.add('hidden');
   }
@@ -674,6 +766,23 @@
     }
   }
 
+  function elementEffectPosition(el,area){
+    const rect=el.getBoundingClientRect(),areaRect=area.getBoundingClientRect();
+    return{x:rect.left-areaRect.left+rect.width/2-64,y:rect.top-areaRect.top+rect.height/2-64};
+  }
+
+  function spawnBossMuzzleEffect(area,angle){
+    const cx=area.clientWidth*.5,cy=area.clientHeight*.5;
+    for(let i=0;i<9;i++){
+      const pixel=document.createElement('i');pixel.className='boss-muzzle-pixel';
+      const spread=angle+(Math.random()-.5)*.8,dist=28+Math.random()*48;
+      pixel.style.left=(cx+Math.cos(angle)*66)+'px';pixel.style.top=(cy+Math.sin(angle)*66)+'px';
+      pixel.style.setProperty('--mx',Math.cos(spread)*dist+'px');pixel.style.setProperty('--my',Math.sin(spread)*dist+'px');
+      pixel.style.background=i%3===0?'#fff2a8':i%2?'#ffb52e':'#e64a19';
+      area.appendChild(pixel);setTimeout(()=>pixel.remove(),330);
+    }
+  }
+
   // Categories - Easy for 7 year olds
   // ===== Teacher question banks =====
   // Category files use this shape:
@@ -848,6 +957,10 @@
   function drawGranny(ctx){ drawWestern(ctx,{hatColor:'#d9d9d9',skin:'#e0b090',shirt:'#8e44ad',shirtAccent:'#6c3483',boot:'#3d2200',maskColor:null,dress:true,handItem:'basket'}); }
   function drawPreacher(ctx){ drawWestern(ctx,{hatColor:'#161616',skin:'#c9915f',shirt:'#161616',shirtAccent:'#0c0c0c',boot:'#0c0c0c',maskColor:null,dress:true,handItem:'book'}); }
   function drawDoc(ctx){ drawWestern(ctx,{hatColor:'#8a8f94',skin:'#c9915f',shirt:'#e6e2d3',shirtAccent:'#c9c4b0',boot:'#3d2200',maskColor:null,dress:true,handItem:'medbag'}); }
+  function drawMayor(ctx){drawWestern(ctx,{hatColor:'#6b2138',skin:'#c9915f',shirt:'#7b2947',shirtAccent:'#e2bf72',pants:'#2a2340',boot:'#28160a',maskColor:null,badge:true,handItem:'book'});}
+  function drawTeacher(ctx){drawWestern(ctx,{hatColor:'#38576b',skin:'#d5a477',shirt:'#47758c',shirtAccent:'#d9edf2',pants:'#313b4d',boot:'#2b1b12',maskColor:null,handItem:'book'});}
+  function drawNurse(ctx){drawWestern(ctx,{hatColor:'#f1eee5',skin:'#c9915f',shirt:'#e9e5dc',shirtAccent:'#d44b4b',boot:'#4b3025',maskColor:null,dress:true,handItem:'medbag'});}
+  function drawBlacksmith(ctx){drawWestern(ctx,{hatColor:'#352d29',skin:'#9f6a45',shirt:'#5c4539',shirtAccent:'#b06c3c',pants:'#252525',boot:'#17120f',maskColor:null,handItem:'pan'});}
 
   // Bosses: 5 distinct sprites, each with its own crest color and a matching attack pattern
   function drawBossIronVest(ctx){ drawWestern(ctx,{hatColor:'#3a3f47',skin:'#c9915f',shirt:'#232323',shirtAccent:'#141414',pants:'#1c1c1c',boot:'#0c0c0c',maskColor:'#141414',handItem:'gun',armor:true,armorColor:'#d8dee3',crest:'#ff8fa8'}); }
@@ -856,6 +969,11 @@
   function drawBossDuchess(ctx){ drawWestern(ctx,{hatColor:'#3d1155',skin:'#c9915f',shirt:'#5c1a75',shirtAccent:'#3d1155',boot:'#1a1a1a',maskColor:null,dress:true,handItem:'cards',glowColor:'rgba(168,85,247,0.2)',crest:'#d4af37'}); }
   function drawBossTalon(ctx){ drawWestern(ctx,{hatColor:'#1c1c1c',skin:'#8a7f6a',shirt:'#2b2b2b',shirtAccent:'#1c1c1c',pants:'#111111',boot:'#0a0a0a',maskColor:'#1c1c1c',eyeColor:'#f5c842',handItem:null,wings:true,wingColor:'#1c1c1c',glowColor:'rgba(46,204,113,0.2)',crest:'#2ecc71'}); }
   function drawBossMapmaker(ctx){drawWestern(ctx,{hatColor:'#705324',skin:'#bc8a5f',shirt:'#173f45',shirtAccent:'#0e272c',pants:'#49351d',boot:'#24170b',maskColor:'#d9bd79',eyeColor:'#65f4e8',handItem:'book',glowColor:'rgba(101,244,232,.3)',crest:'#ffe08a'});ctx.save();ctx.strokeStyle='#ffe08a';ctx.lineWidth=3;ctx.strokeRect(18,18,92,92);ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(28,94);ctx.lineTo(55,60);ctx.lineTo(82,78);ctx.lineTo(103,32);ctx.stroke();ctx.restore();}
+  function drawBossMarshal(ctx){drawWestern(ctx,{hatColor:'#d2a62c',skin:'#c9915f',shirt:'#28568c',shirtAccent:'#163a68',pants:'#202d47',boot:'#2a180c',maskColor:null,badge:true,handItem:'gun',armor:true,armorColor:'#e5edf2',crest:'#65d6ff'});}
+  function drawBossGuardian(ctx){drawWestern(ctx,{hatColor:'#e6ffff',skin:'#e6ffff',shirt:'#b8f2e8',shirtAccent:'#78d6c6',pants:'#b8f2e8',boot:'#78d6c6',maskColor:null,eyeColor:'#35ffd0',handItem:'gun',alpha:.62,glowColor:'rgba(53,255,208,.35)',crest:'#35ffd0'});}
+  function drawBossDeputy(ctx){drawWestern(ctx,{hatColor:'#c78a2c',skin:'#c9915f',shirt:'#315f83',shirtAccent:'#24445d',pants:'#303238',boot:'#22150b',maskColor:null,badge:true,handItem:'dynamite',crest:'#ffd15c'});}
+  function drawBossLadyLuck(ctx){drawWestern(ctx,{hatColor:'#f0d46a',skin:'#c9915f',shirt:'#275c4a',shirtAccent:'#173f32',boot:'#26170d',maskColor:null,dress:true,handItem:'cards',glowColor:'rgba(73,255,167,.2)',crest:'#7dff9b'});}
+  function drawBossSkywarden(ctx){drawWestern(ctx,{hatColor:'#d8edf2',skin:'#9c8d72',shirt:'#3a6680',shirtAccent:'#244354',pants:'#16252e',boot:'#111820',maskColor:null,eyeColor:'#7de8ff',wings:true,wingColor:'#d8edf2',crest:'#7de8ff'});}
 
   // Enemies: bandit (redesigned) + 7 unique outlaws, each with its own scoring/behavior
   const ENEMY_TYPES = [
@@ -875,8 +993,14 @@
     { id:'sheriff', name:'Sheriff', draw:drawSheriff, penaltyScore:15, penaltyLives:1, warning:"Don't shoot the Sheriff!" },
     { id:'granny', name:'Granny Mabel', draw:drawGranny, penaltyScore:15, penaltyLives:1, warning:"That's an innocent townsfolk!" },
     { id:'preacher', name:'The Preacher', draw:drawPreacher, penaltyScore:20, penaltyLives:1, warning:"Don't shoot the Preacher!" },
-    { id:'doc', name:'The Doctor', draw:drawDoc, penaltyScore:15, penaltyLives:1, warning:"That's the town doctor!", healOnEscape:true }
+    { id:'doc', name:'The Doctor', draw:drawDoc, penaltyScore:15, penaltyLives:1, warning:"That's the town doctor!", healOnEscape:true },
+    { id:'mayor', name:'Mayor Bell', draw:drawMayor, penaltyScore:20, penaltyLives:1, warning:"That's the mayor!" },
+    { id:'teacher', name:'Schoolteacher Ada', draw:drawTeacher, penaltyScore:15, penaltyLives:1, warning:"That's the schoolteacher!" },
+    { id:'nurse', name:'Nurse Clara', draw:drawNurse, penaltyScore:15, penaltyLives:1, warning:"That's the town nurse!" },
+    { id:'blacksmith', name:'Blacksmith Boone', draw:drawBlacksmith, penaltyScore:20, penaltyLives:1, warning:"That's the blacksmith!" }
   ];
+  DECOY_TYPES.forEach(t=>{t.score=t.score||15;t.coins=t.coins||6;t.hits=1;t.lifetimeMult=t.lifetimeMult||1;t.cssClass=t.cssClass||'';});
+  const BASIC_DECOY_TYPES=DECOY_TYPES.slice(0,4);
   const DECOY_CHANCE = 0.18; // ~18% of spawns are a non-enemy you must avoid
 
   const ENEMY_TIPS = {
@@ -918,32 +1042,95 @@
     const w=canvas.parentElement.clientWidth, h=canvas.parentElement.clientHeight;
     canvas.width=w;canvas.height=h;
     const ctx=canvas.getContext('2d');
-    const horizon = h*0.62;
-    // Sky gradient
-    const sky=ctx.createLinearGradient(0,0,0,horizon);
-    sky.addColorStop(0,pal.skyTop); sky.addColorStop(0.5,pal.skyMid); sky.addColorStop(1,pal.skyBot);
-    ctx.fillStyle=sky; ctx.fillRect(0,0,w,horizon);
-    // Sun
-    const sunGrad = ctx.createRadialGradient(w*0.82,horizon*0.35,4,w*0.82,horizon*0.35,60);
-    sunGrad.addColorStop(0,pal.sunGlow); sunGrad.addColorStop(0.4,pal.sunCore); sunGrad.addColorStop(1,'rgba(212,175,55,0)');
-    ctx.fillStyle=sunGrad; ctx.beginPath(); ctx.arc(w*0.82,horizon*0.35,60,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle=pal.sunCore; ctx.beginPath(); ctx.arc(w*0.82,horizon*0.35,26,0,Math.PI*2); ctx.fill();
-    // Distant mesas (layered silhouettes)
-    ctx.fillStyle=pal.mesa1;
-    ctx.beginPath(); ctx.moveTo(0,horizon);
-    ctx.lineTo(0,horizon-40); ctx.lineTo(w*0.12,horizon-40); ctx.lineTo(w*0.16,horizon-70); ctx.lineTo(w*0.28,horizon-70); ctx.lineTo(w*0.32,horizon-35);
-    ctx.lineTo(w*0.55,horizon-35); ctx.lineTo(w*0.6,horizon-60); ctx.lineTo(w*0.7,horizon-60); ctx.lineTo(w*0.74,horizon-25);
-    ctx.lineTo(w,horizon-25); ctx.lineTo(w,horizon); ctx.closePath(); ctx.fill();
-    ctx.fillStyle=pal.mesa2;
-    ctx.beginPath(); ctx.moveTo(0,horizon);
-    ctx.lineTo(w*0.05,horizon-22); ctx.lineTo(w*0.2,horizon-22); ctx.lineTo(w*0.24,horizon-45); ctx.lineTo(w*0.4,horizon-45); ctx.lineTo(w*0.44,horizon-18);
-    ctx.lineTo(w*0.68,horizon-18); ctx.lineTo(w*0.72,horizon-38); ctx.lineTo(w*0.88,horizon-38); ctx.lineTo(w*0.92,horizon-12);
-    ctx.lineTo(w,horizon-12); ctx.lineTo(w,horizon); ctx.closePath(); ctx.fill();
-    // Ground
-    const ground=ctx.createLinearGradient(0,horizon,0,h);
-    ground.addColorStop(0,pal.groundTop); ground.addColorStop(1,pal.groundBot);
-    ctx.fillStyle=ground; ctx.fillRect(0,horizon,w,h-horizon);
-    ctx.fillStyle=pal.groundLine; ctx.fillRect(0,horizon,w,3);
+    const vpX=w*.5,vpY=Math.max(8,h*TOWN_VANISHING_POINT_Y),horizon=vpY;
+    // The horizon runs horizontally through the vanishing point. Sky exists
+    // only above that line; desert sand fills everything below it.
+    const sky=ctx.createLinearGradient(0,0,0,horizon);sky.addColorStop(0,TOWN_SKY_TOP);sky.addColorStop(1,TOWN_SKY_HORIZON);ctx.fillStyle=sky;ctx.fillRect(0,0,w,horizon);
+    ctx.fillStyle=TOWN_SAND_COLOUR;ctx.fillRect(0,horizon,w,h-horizon);
+    // Sand and clay road use one LINEAR depth clock. Nothing squares/eases this
+    // value, so buildings, cross-lines and bumps move toward the player steadily.
+    const phase=(townTravelSeconds()*TOWN_MOVEMENT_SPEED)%1;
+    const project=d=>({y:vpY+(h-vpY)*d,half:w*TOWN_ROAD_NEAR_HALF_WIDTH*d});
+    const roadNearHalf=w*TOWN_ROAD_NEAR_HALF_WIDTH;
+    ctx.fillStyle=TOWN_ROAD_COLOUR;ctx.beginPath();ctx.moveTo(vpX,vpY);ctx.lineTo(vpX+roadNearHalf,h);ctx.lineTo(vpX-roadNearHalf,h);ctx.closePath();ctx.fill();
+    // Minor clay ruts, stones and bumps grow with depth and travel on the road.
+    for(let i=0;i<TOWN_ROAD_MARK_COUNT;i++){
+      const d=(i/TOWN_ROAD_MARK_COUNT+phase)%1,p=project(d),lane=(((i*47)%101)/100*1.7-.85),x=vpX+lane*p.half;
+      ctx.fillStyle=i%3?TOWN_ROAD_DARK:TOWN_SAND_HIGHLIGHT;ctx.globalAlpha=.18+.42*d;
+      ctx.beginPath();ctx.ellipse(x,p.y,Math.max(1,d*(3+i%5)),Math.max(.5,d*(1.2+i%3)),(i%7-3)*.12,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;ctx.strokeStyle=TOWN_SAND_HIGHLIGHT;
+    for(let i=0;i<TOWN_ROAD_LINE_COUNT;i++){const d=(i/TOWN_ROAD_LINE_COUNT+phase)%1,p=project(d);ctx.globalAlpha=.12+.5*d;ctx.lineWidth=Math.max(1,2.5*d);ctx.beginPath();ctx.moveTo(vpX-p.half,p.y);ctx.lineTo(vpX+p.half,p.y);ctx.stroke();}
+    ctx.globalAlpha=1;
+    const haunted=wordslingerCosmetic('wild-west-wordslinger_ghost_town_legend');
+    const poly=(pts,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let n=1;n<pts.length;n++)ctx.lineTo(pts[n].x,pts[n].y);ctx.closePath();ctx.fill();};
+    for(const side of [-1,1]){
+      // Painter's order: distant boxes first, nearest front walls last.
+      const houseSlots=TOWN_HOUSE_OFFSETS[String(side)].map((offset,i)=>({i,frontD:(offset+phase)%1})).filter(v=>v.frontD>=TOWN_HOUSE_DEPTH*.35).sort((a,b)=>a.frontD-b.frontD);
+      for(const {i,frontD} of houseSlots){
+      // Perspective thickness: TOWN_HOUSE_DEPTH is the full near-camera length;
+      // distant buildings receive proportionally less depth and look thinner.
+      const typeIndex=TOWN_HOUSE_SELECTIONS[String(side)][i],houseType=TOWN_HOUSE_TYPES[typeIndex],variant=typeIndex%6,sizeScale=frontD*TOWN_NEAR_HOUSE_SCALE;
+      const projectedHouseDepth=TOWN_HOUSE_DEPTH*frontD*TOWN_HOUSE_LENGTH_VARIANCE[typeIndex]*TOWN_NEAR_HOUSE_SCALE,backD=Math.max(.002,frontD-projectedHouseDepth),front=project(frontD),back=project(backD);
+      const widthMult=[.92,1.04,.96,1.1,.88,1.07][variant],frontW=w*TOWN_HOUSE_WIDTH*sizeScale*widthMult;
+      const frontH=Math.min(h,12+h*TOWN_NEAR_WALL_HEIGHT*frontD*TOWN_HOUSE_HEIGHT_VARIANCE[typeIndex]*TOWN_NEAR_HOUSE_SCALE);
+      // Inner walls sit exactly on the road edge; all building width extends
+      // outward, so no house face overlaps the clay street.
+      const FI={x:vpX+side*front.half,y:front.y},FO={x:vpX+side*(front.half+frontW),y:front.y},BI={x:vpX+side*back.half,y:back.y};
+      const FIT={x:FI.x,y:Math.max(0,FI.y-frontH)},FOT={x:FO.x,y:Math.max(0,FO.y-frontH)},depthRatio=backD/frontD;
+      // Both upper (roof-line) corners sit directly on rays running from their
+      // near corners to the single vanishing point.
+      const BIT={x:vpX+(FIT.x-vpX)*depthRatio,y:vpY+(FIT.y-vpY)*depthRatio};
+      // Roofless rectangular cuboid: only the street-facing side and near/front
+      // wall are visible. The rear wall is deliberately never painted.
+      poly([BI,FI,FIT,BIT],haunted?'#172534':houseType.wall);
+      poly([FI,FO,FOT,FIT],haunted?'#253642':houseType.front);
+      ctx.strokeStyle=haunted?'rgba(170,235,235,.35)':'rgba(49,26,16,.7)';ctx.lineWidth=Math.max(1,frontD*3);ctx.beginPath();ctx.moveTo(BIT.x,BIT.y);ctx.lineTo(FIT.x,FIT.y);ctx.stroke();
+      // Windows and doors belong only on the long wall facing the street. Each
+      // detail is a projected quad, so its upper/lower edges share the wall's
+      // vanishing-point slope instead of appearing as flat screen rectangles.
+      const sidePoint=(u,v)=>{const bx=BI.x+(FI.x-BI.x)*u,by=BI.y+(FI.y-BI.y)*u,tx=BIT.x+(FIT.x-BIT.x)*u,ty=BIT.y+(FIT.y-BIT.y)*u;return{x:bx+(tx-bx)*v,y:by+(ty-by)*v};};
+      const sideQuad=(u0,u1,v0,v1,color)=>poly([sidePoint(u0,v0),sidePoint(u1,v0),sidePoint(u1,v1),sidePoint(u0,v1)],color);
+      const frontPoint=(u,v)=>({x:FI.x+(FO.x-FI.x)*u,y:FI.y+(FIT.y-FI.y)*v});
+      const frontQuad=(u0,u1,v0,v1,color)=>poly([frontPoint(u0,v0),frontPoint(u1,v0),frontPoint(u1,v1),frontPoint(u0,v1)],color);
+      const windowColor=haunted?'rgba(160,255,230,.48)':houseType.detail,doorColor=haunted?'#08141b':'#2d1c16';
+      // Siding, base trim and corner posts.
+      for(let v=.14;v<.92;v+=.12)sideQuad(.02,.98,v,v+.018,haunted?'rgba(150,220,220,.16)':'rgba(43,24,15,.25)');
+      sideQuad(.02,.06,.02,.96,houseType.detail);sideQuad(.94,.98,.02,.96,houseType.detail);sideQuad(.02,.98,.04,.09,doorColor);
+      if(houseType.layout.startsWith('home')){
+        sideQuad(.12,.29,.34,.58,windowColor);sideQuad(.43,.59,.34,.58,windowColor);sideQuad(.72,.93,0,.48,doorColor);
+        if(houseType.layout==='home-b'||houseType.layout==='home-d')sideQuad(.08,.66,.66,.75,houseType.detail);
+        if(houseType.layout==='home-c')for(const u of [.17,.48])sideQuad(u,u+.035,.34,.58,doorColor);
+      }else if(houseType.layout.startsWith('bath')){
+        sideQuad(.08,.92,.68,.82,houseType.detail);sideQuad(.14,.3,.31,.56,windowColor);sideQuad(.4,.56,.31,.56,windowColor);sideQuad(.7,.92,0,.5,doorColor);
+        for(const u of [.18,.48,.78]){const p=sidePoint(u,.9);ctx.fillStyle=haunted?'#b8ffff':'rgba(235,245,240,.7)';ctx.beginPath();ctx.arc(p.x,p.y,Math.max(1,frontD*5),0,Math.PI*2);ctx.fill();}
+      }else if(houseType.layout==='armory'){
+        sideQuad(.08,.92,.68,.84,'#252b30');sideQuad(.14,.3,.3,.54,'#aab4bc');sideQuad(.68,.93,0,.56,'#24282c');
+        for(const u of [.2,.25,.76,.82])sideQuad(u,u+.025,.18,.62,houseType.detail);sideQuad(.38,.62,.4,.48,'#c18b43');
+      }else if(houseType.layout==='jail'){
+        sideQuad(.08,.92,.68,.84,'#2b2927');sideQuad(.12,.36,.3,.58,'#171717');sideQuad(.48,.71,.3,.58,'#171717');sideQuad(.76,.95,0,.58,doorColor);
+        for(const base of [.13,.49,.8])for(let k=0;k<4;k++)sideQuad(base+k*.05,base+k*.05+.012,.28,.61,houseType.detail);
+      }else{
+        sideQuad(.06,.94,.62,.76,houseType.detail);for(let k=0;k<5;k++)sideQuad(.08+k*.17,.08+k*.17+.085,.5,.62,k%2?houseType.front:windowColor);
+        sideQuad(.12,.31,.23,.48,windowColor);sideQuad(.39,.58,.23,.48,windowColor);sideQuad(.72,.94,0,.5,doorColor);
+        if(houseType.layout==='store-b'){sideQuad(.08,.62,.1,.17,'#51331f');sideQuad(.1,.2,.17,.27,'#b9813e');sideQuad(.26,.36,.17,.27,'#8e5e31');sideQuad(.42,.52,.17,.27,'#c49a54');}
+      }
+      // Stable, randomly combined detail sets decorate the broad wall facing
+      // the player. They are regenerated only on a new page load, not per frame.
+      const face=TOWN_HOUSE_FACE_DETAILS[String(side)][i];
+      for(let v=.16;v<.9;v+=.14)frontQuad(.025,.975,v,v+.018,haunted?'rgba(150,220,220,.13)':'rgba(45,25,16,.22)');
+      frontQuad(.025,.06,.03,.96,houseType.detail);frontQuad(.94,.975,.03,.96,houseType.detail);
+      if(face.sign){frontQuad(.2,.8,.68,.84,haunted?'#537378':houseType.detail);frontQuad(.24,.76,.715,.755,haunted?'#172b32':'#68401f');}
+      if(face.poster){frontQuad(.13,.35,.28,.53,'#d8b46f');frontQuad(.17,.31,.34,.37,'#714623');frontQuad(.19,.29,.42,.45,'#714623');}
+      if(face.lantern){frontQuad(.72,.78,.42,.64,'#261a16');frontQuad(.68,.82,.34,.46,haunted?'#8dfff0':'#ffc857');frontQuad(.7,.8,.31,.34,'#2b211b');}
+      if(face.crates){frontQuad(.54,.78,.04,.22,'#74451f');frontQuad(.6,.87,.22,.4,'#8b5728');frontQuad(.56,.76,.08,.1,'#d1954b');frontQuad(.64,.84,.27,.29,'#d1954b');}
+      if(face.planks){
+        ctx.strokeStyle=haunted?'#78969a':'#4f2e1a';ctx.lineWidth=Math.max(2,frontD*5);
+        const a=frontPoint(.38,.18),b=frontPoint(.88,.62),c=frontPoint(.88,.18),d=frontPoint(.38,.62);
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.moveTo(c.x,c.y);ctx.lineTo(d.x,d.y);ctx.stroke();
+      }
+      }
+    }
     // Texture speckles
     ctx.fillStyle=pal.sand;
     for (let i=0;i<40;i++){ const sx=(i*97)%w, sy=horizon+((i*53)%(h-horizon)); ctx.fillRect(sx,sy,3,1); }
@@ -956,22 +1143,16 @@
       ctx.fillRect(cx+8*scale, baseY-20*scale, 8*scale, 6*scale);
       ctx.fillRect(cx+10*scale, baseY-26*scale, 6*scale, 14*scale);
     }
-    cactus(w*0.1, horizon+30, 0.9);
-    cactus(w*0.92, horizon+45, 1.2);
-    // Wooden fence in foreground
-    ctx.fillStyle=pal.fence;
-    for (let fx=-10; fx<w+30; fx+=46) { ctx.fillRect(fx, h-46, 6, 46); }
-    ctx.fillStyle=pal.fenceRail;
-    ctx.fillRect(0, h-34, w, 6);
-    ctx.fillRect(0, h-18, w, 6);
+    cactus(w*0.06, horizon+30, 0.7);
+    cactus(w*0.95, horizon+42, 0.8);
     if(wordslingerCosmetic('wild-west-wordslinger_cavern_prospector')){
-      const cave=ctx.createLinearGradient(0,0,0,h);cave.addColorStop(0,'rgba(5,12,28,.9)');cave.addColorStop(1,'rgba(18,40,48,.94)');ctx.fillStyle=cave;ctx.fillRect(0,0,w,h);ctx.fillStyle='#17263c';
+      const cave=ctx.createLinearGradient(0,0,0,h);cave.addColorStop(0,'rgba(5,12,28,.68)');cave.addColorStop(1,'rgba(18,40,48,.74)');ctx.fillStyle=cave;ctx.fillRect(0,0,w,h);ctx.fillStyle='#17263c';
       for(let x=0;x<w;x+=70){const d=35+(x*17%90);ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x+35,d);ctx.lineTo(x+70,0);ctx.fill();ctx.beginPath();ctx.moveTo(x,h);ctx.lineTo(x+35,h-d*.7);ctx.lineTo(x+70,h);ctx.fill();}
       for(let i=0;i<18;i++){const x=(i*149)%w,y=60+(i*83)%(h-120);ctx.fillStyle=i%2?'#23e4ff':'#9d5cff';ctx.beginPath();ctx.moveTo(x,y-15);ctx.lineTo(x+8,y);ctx.lineTo(x,y+15);ctx.lineTo(x-8,y);ctx.fill();}
     }
     if(wordslingerCosmetic('wild-west-wordslinger_ghost_town_legend')){
-      ctx.fillStyle='rgba(7,8,20,.78)';ctx.fillRect(0,0,w,h);ctx.fillStyle='rgba(160,210,220,.22)';for(let i=0;i<9;i++){const x=(i*181)%w,y=horizon-30-(i%3)*22;ctx.fillRect(x,y,105,80);ctx.beginPath();ctx.moveTo(x-10,y);ctx.lineTo(x+52,y-38);ctx.lineTo(x+115,y);ctx.fill();}
-      ctx.fillStyle='rgba(220,255,245,.2)';for(let i=0;i<20;i++){const x=(i*97+Date.now()/55)%w,y=50+(i*47)%(h-100);ctx.beginPath();ctx.arc(x,y,8,Math.PI,0);ctx.lineTo(x+8,y+16);ctx.lineTo(x,y+11);ctx.lineTo(x-8,y+16);ctx.closePath();ctx.fill();}
+      ctx.fillStyle='rgba(7,8,20,.5)';ctx.fillRect(0,0,w,h);
+      ctx.fillStyle='rgba(220,255,245,.2)';for(let i=0;i<20;i++){const x=(i*97+townTravelSeconds()*18)%w,y=50+(i*47)%(h-100);ctx.beginPath();ctx.arc(x,y,8,Math.PI,0);ctx.lineTo(x+8,y+16);ctx.lineTo(x,y+11);ctx.lineTo(x-8,y+16);ctx.closePath();ctx.fill();}
     }
   }
 
@@ -982,7 +1163,7 @@
     ctx.fillStyle='#10151d';ctx.fillRect(-16,-19,12,15);ctx.fillRect(4,-19,12,15);ctx.fillStyle='#d9ffff';ctx.fillRect(-13,-17,4,6);ctx.fillRect(7,-17,4,6);ctx.fillStyle='#263a31';ctx.fillRect(-5,1,10,3);
     ctx.fillStyle='#70401f';ctx.fillRect(-34,-39,68,7);ctx.fillRect(-20,-53,40,15);ctx.fillStyle='#b87538';ctx.fillRect(-17,-50,34,9);ctx.fillStyle='#ffd15c';ctx.fillRect(-9,20,18,18);ctx.fillStyle='#6a431d';ctx.fillRect(-5,24,10,10);ctx.fillStyle='#d8edf2';ctx.fillRect(29,24,18,6);ctx.fillStyle='#46545d';ctx.fillRect(35,30,9,7);ctx.fillStyle='#ff445f';ctx.fillRect(-3,-32,6,3);ctx.restore();
   }
-  setInterval(()=>{if(wordslingerCosmetic('wild-west-wordslinger_ghost_town_legend')&&document.getElementById('game-screen')?.classList.contains('active'))drawBackground(stage);},80);
+  setInterval(()=>{if(document.getElementById('game-screen')?.classList.contains('active'))drawBackground(stage);},80);
 
   function startGame() {
     if (!QuestionManager.hasQuestions()) {
@@ -1006,6 +1187,7 @@
     runScoreMult=1; runCoinMult=1; runSpawnRateMult=1; runPerformance=0;
     activePowerupsThisRun=PlatformManager.powerupsAllowed()?[...equippedPowerups]:[];
     stage=1; bossActive=false; bossHP=0; bossMaxHP=0; stageStartScore=0;
+    resetTownMovement();
     cleanupCurrentBoss();
     clearTimeout(bossIncomingTimer); bossPreviewActive=false;
     document.getElementById('boss-incoming-overlay').classList.add('hidden');
@@ -1015,7 +1197,7 @@
     rollModifier();
     updateHUD(); showScreen('game-screen');
     const area=document.getElementById('game-area');
-    area.querySelectorAll('.enemy-wrap, .falling-word').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
+    area.querySelectorAll('.enemy-wrap, .falling-word,.western-obstacle,.peek-house-wall').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
     const bw=document.getElementById('boss-wrap'); if(bw) bw.remove();
     const bh=document.getElementById('boss-health-bar-wrap'); if(bh) bh.remove();
     document.getElementById('reload-overlay').classList.add('hidden');
@@ -1057,27 +1239,28 @@
     preRunMistakes = 0;
     preRunRoundStart = Date.now();
     const cat = QuestionManager.getNextQuestion();
+    const roundCorrect=[...cat.correct].sort(()=>Math.random()-.5).slice(0,4);
     document.getElementById('start-question-category').textContent =
       '⚡ Powerup Check ' + (preRunRoundIndex+1) + '/2 — ' + cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
-    const words=[...cat.correct,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);
+    const words=[...roundCorrect,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);
     const grid=document.getElementById('start-question-grid');grid.innerHTML='';grid.className='grid grid-cols-4 gap-2';grid.style.pointerEvents='';
-    let found=0;
+    let found=0; const requiredCorrect=Math.min(3,roundCorrect.length);
     let wrongCount=0;
     words.slice(0,16).forEach(w=>{
       const cell=document.createElement('button');
       cell.className='word-cell p-2 text-xs text-center rounded font-bold';cell.textContent=w;
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected')||cell.classList.contains('wrong'))return;
-        if(cat.correct.includes(w)){
+        if(roundCorrect.includes(w)){
           cell.classList.add('selected');found++;
-          if(found>=cat.correct.length){ finishPowerupAssessmentRound(); }
+          if(found>=requiredCorrect){ finishPowerupAssessmentRound(); }
         } else {
           cell.classList.add('wrong'); preRunMistakes++; wrongCount++;
           PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
           PlatformManager.deductCoins(5);
           if(wrongCount>=2){
-            revealCorrectAnswers(grid, cat.correct);
+            revealCorrectAnswers(grid, roundCorrect);
             setTimeout(()=>finishPowerupAssessmentRound(),1000);
           }
         }
@@ -1139,18 +1322,19 @@
 
   function showStartQuestion() {
     const cat = QuestionManager.getNextQuestion();
+    const roundCorrect=[...cat.correct].sort(()=>Math.random()-.5).slice(0,4);
     document.getElementById('start-question-category').textContent=cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
-    const words=[...cat.correct,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);
+    const words=[...roundCorrect,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);
     const grid=document.getElementById('start-question-grid');grid.innerHTML='';grid.className='grid grid-cols-4 gap-2';
-    let found=0;
+    let found=0; const requiredCorrect=Math.min(3,roundCorrect.length);
     words.slice(0,16).forEach(w=>{
       const cell=document.createElement('button');
       cell.className='word-cell p-2 text-xs text-center rounded font-bold';cell.textContent=w;
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected'))return;
-        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);document.getElementById('start-question-overlay').classList.add('hidden');startEnemySpawning();}}
-        else{cell.classList.add('wrong');PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);PlatformManager.deductCoins(5);setTimeout(()=>showStartQuestion(),600);}
+        if(roundCorrect.includes(w)){cell.classList.add('selected');found++;if(found>=requiredCorrect){totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);document.getElementById('start-question-overlay').classList.add('hidden');startEnemySpawning();}}
+        else{cell.classList.add('wrong');PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);PlatformManager.deductCoins(5);grid.querySelectorAll('.word-cell').forEach(c=>{if(roundCorrect.includes(c.textContent))c.classList.add('correct');});setTimeout(()=>showStartQuestion(),2000);}
       });
       grid.appendChild(cell);
     });
@@ -1208,6 +1392,7 @@
     wrap._expireTimer = null;
     if (!wrap.parentNode || wrap.dataset.dead) return;
     stopTeleport(wrap); stopDrain(wrap);
+    wrap._peekWall?.remove();
     wrap.remove();
     if (!gameActive) return;
     if (wrap.dataset.kind === 'decoy') {
@@ -1217,20 +1402,35 @@
         updateHUD();
       }
     } else {
-      const type = ENEMY_TYPES.find(t=>t.id===wrap.dataset.type) || ENEMY_TYPES[0];
+      const type = [...ENEMY_TYPES,...DECOY_TYPES].find(t=>t.id===wrap.dataset.type) || ENEMY_TYPES[0];
       let lost = type.escapePenaltyLives || 1;
       if (runModifier && runModifier.escapePenaltyMult) lost *= runModifier.escapePenaltyMult;
       loseLife(lost, document.getElementById('game-area'), parseInt(wrap.style.left)||null, parseInt(wrap.style.top)||null, buildEscapeDeathMessage(type));
     }
   }
   function startTeleport(wrap, areaW, areaH, intervalMs) {
+    if(wrap.classList.contains('house-peek'))return;
     wrap._teleportSpeed = intervalMs;
     wrap.classList.add('ghost-glide');
     wrap._teleportTimer = setInterval(()=>{
       if (!wrap.parentNode || wrap.dataset.dead) { stopTeleport(wrap); return; }
-      wrap.style.left = Math.random()*(areaW-150)+'px';
-      wrap.style.top = Math.random()*(areaH-150)+'px';
+      const vpX=areaW*.5,vpY=Math.max(8,areaH*TOWN_VANISHING_POINT_Y),depth=.3+Math.random()*.62,half=areaW*TOWN_ROAD_NEAR_HALF_WIDTH*depth,scale=actorScaleAtDepth(areaH,depth);
+      wrap.style.animation='none';wrap.style.transform=`scale(${scale})`;
+      wrap.style.left=Math.max(0,Math.min(areaW-128,vpX+(Math.random()*1.6-.8)*half-64))+'px';
+      wrap.style.top=(vpY+(areaH-vpY)*depth-128)+'px';
     }, intervalMs);
+  }
+  function startVulturePatrol(wrap,areaW,areaH,intervalMs){
+    if(wrap.classList.contains('house-peek'))return;
+    wrap.classList.add('ghost-glide');let horizontal=Math.random()<.5;
+    wrap._teleportTimer=setInterval(()=>{
+      if(!wrap.parentNode||wrap.dataset.dead){stopTeleport(wrap);return;}
+      const currentLeft=parseFloat(wrap.style.left)||0,currentTop=parseFloat(wrap.style.top)||0;
+      const depth=Math.max(.1,Math.min(1,(currentTop+128)/areaH));wrap.style.animation='none';wrap.style.transform=`scale(${actorScaleAtDepth(areaH,depth)})`;
+      if(horizontal){wrap.style.left=Math.max(0,Math.min(areaW-128,currentLeft+(Math.random()<.5?-1:1)*(55+Math.random()*120)))+'px';wrap.style.top=currentTop+'px';}
+      else{wrap.style.left=currentLeft+'px';wrap.style.top=Math.max(10,Math.min(areaH-132,currentTop+(Math.random()<.5?-1:1)*(45+Math.random()*100)))+'px';}
+      horizontal=!horizontal;
+    },intervalMs);
   }
   function stopTeleport(wrap) { if (wrap._teleportTimer) { clearInterval(wrap._teleportTimer); wrap._teleportTimer=null; } }
   function startDrain(wrap) {
@@ -1241,11 +1441,73 @@
   }
   function stopDrain(wrap) { if (wrap._drainTimer) { clearInterval(wrap._drainTimer); wrap._drainTimer=null; } }
 
+  function actorScaleAtDepth(areaH,depth){
+    const projectedWallHeight=Math.min(areaH,12+areaH*TOWN_NEAR_WALL_HEIGHT*depth*TOWN_NEAR_HOUSE_SCALE);
+    const projectedDoorHeight=projectedWallHeight*TOWN_DOOR_HEIGHT_RATIO;
+    return Math.max(.1,(projectedDoorHeight*TOWN_ACTOR_DOOR_RATIO)/128);
+  }
+
+  function placeActorOnStreet(wrap, areaW, areaH, housePeek=false) {
+    const vpX=areaW*.5,vpY=Math.max(8,areaH*TOWN_VANISHING_POINT_Y);
+    if(housePeek){
+      const depth=[.25,.5,.75][Math.floor(Math.random()*3)],side=Math.random()<.5?-1:1;
+      const streetHalf=areaW*TOWN_ROAD_NEAR_HALF_WIDTH*depth;
+      const scale=actorScaleAtDepth(areaH,depth);
+      const edgeX=vpX+side*streetHalf,actorWidth=128*scale;
+      const visualLeft=side<0?edgeX-actorWidth*.68:edgeX-actorWidth*.32;
+      wrap.style.left=(visualLeft-(128-actorWidth)/2)+'px';
+      wrap.style.top=(vpY+(areaH-vpY)*depth-128)+'px';
+      wrap.style.setProperty('--from-x',(vpX-64-parseFloat(wrap.style.left))+'px');
+      wrap.style.setProperty('--from-y',(vpY-128-parseFloat(wrap.style.top))+'px');
+      wrap.style.setProperty('--end-scale',String(scale));
+      wrap.style.setProperty('--peek-hide',(side<0?'-':'')+'48px');
+      const exitX=side*(areaW*.5-streetHalf),exitY=areaH-(vpY+(areaH-vpY)*depth),finalScale=actorScaleAtDepth(areaH,1);
+      wrap.style.setProperty('--peek-exit-half-x',(exitX*.5)+'px');wrap.style.setProperty('--peek-exit-half-y',(exitY*.5)+'px');
+      wrap.style.setProperty('--peek-exit-near-x',(exitX*.82)+'px');wrap.style.setProperty('--peek-exit-near-y',(exitY*.82)+'px');
+      wrap.style.setProperty('--peek-exit-x',exitX+'px');wrap.style.setProperty('--peek-exit-y',exitY+'px');
+      wrap.style.setProperty('--peek-mid-scale',String(scale+(finalScale-scale)*.5));wrap.style.setProperty('--peek-near-scale',String(scale+(finalScale-scale)*.82));
+      wrap.style.setProperty('--peek-final-scale',String(finalScale));wrap.style.setProperty('--peek-final-hide',(side<0?'-':'')+'48px');
+      wrap.classList.add('house-peek');
+      wrap.dataset.peekDepth=String(depth);
+      wrap.dataset.peekSide=String(side);
+      return;
+    }
+    const scale=actorScaleAtDepth(areaH,1),actorSize=128*scale,lane=(Math.random()*1.7-.85),roadHalf=areaW*TOWN_ROAD_NEAR_HALF_WIDTH,endX=Math.max((actorSize-128)/2,Math.min(areaW-128-(actorSize-128)/2,vpX+lane*(roadHalf-actorSize/2)-64)),endY=Math.max(vpY+80,areaH-128);
+    wrap.style.left=endX+'px';wrap.style.top=endY+'px';
+    wrap.style.setProperty('--from-x',(vpX-64-endX)+'px');
+    wrap.style.setProperty('--from-y',(vpY-118-endY)+'px');
+    wrap.style.setProperty('--end-scale',String(scale));
+  }
+
+  function createPeekWall(area,wrap,areaW,areaH,lifetime){
+    const depth=Number(wrap.dataset.peekDepth),side=Number(wrap.dataset.peekSide),vpX=areaW*.5,vpY=Math.max(8,areaH*TOWN_VANISHING_POINT_Y);
+    const streetHalf=areaW*TOWN_ROAD_NEAR_HALF_WIDTH*depth,edgeX=vpX+side*streetHalf,baseY=vpY+(areaH-vpY)*depth;
+    const wall=document.createElement('div');wall.className='peek-house-wall';
+    const wallWidth=Math.max(34,areaW*TOWN_HOUSE_WIDTH*depth*TOWN_NEAR_HOUSE_SCALE);
+    const wallHeight=Math.max(48,12+areaH*TOWN_NEAR_WALL_HEIGHT*depth*TOWN_NEAR_HOUSE_SCALE);
+    wall.style.width=wallWidth+'px';wall.style.height=wallHeight+'px';wall.style.left=(side<0?edgeX-wallWidth:edgeX)+'px';wall.style.top=(baseY-wallHeight)+'px';
+    const wallLeft=parseFloat(wall.style.left),wallTop=parseFloat(wall.style.top);
+    wall.style.setProperty('--wall-from-x',(vpX-(wallLeft+wallWidth*.5))+'px');
+    wall.style.setProperty('--wall-from-y',(vpY-(wallTop+wallHeight))+'px');
+    const exitX=side*(areaW*.5-streetHalf),exitY=areaH-baseY,finalWallWidth=Math.max(34,areaW*TOWN_HOUSE_WIDTH*TOWN_NEAR_HOUSE_SCALE);
+    const finalWallScale=finalWallWidth/wallWidth;
+    wall.style.setProperty('--wall-exit-half-x',(exitX*.5)+'px');wall.style.setProperty('--wall-exit-half-y',(exitY*.5)+'px');
+    wall.style.setProperty('--wall-exit-near-x',(exitX*.82)+'px');wall.style.setProperty('--wall-exit-near-y',(exitY*.82)+'px');
+    wall.style.setProperty('--wall-exit-x',exitX+'px');wall.style.setProperty('--wall-exit-y',exitY+'px');
+    wall.style.setProperty('--wall-mid-scale',String(1+(finalWallScale-1)*.5));wall.style.setProperty('--wall-near-scale',String(1+(finalWallScale-1)*.82));wall.style.setProperty('--wall-final-scale',String(finalWallScale));
+    wall.style.setProperty('--peek-time',lifetime+'ms');wall.classList.add('approaching');
+    area.appendChild(wall);wrap._peekWall=wall;setTimeout(()=>wall.remove(),lifetime+80);
+  }
+
   function spawnEnemy() {
-    if(!gameActive)return;
+    if(!gameActive||bossActive||bossPreviewActive)return;
     const area=document.getElementById('game-area'),areaW=area.clientWidth,areaH=area.clientHeight;
+    // `isDecoy` means "protected target". Bloody Bandit reverses the rosters:
+    // townsfolk become targets and outlaws are the protected characters.
     const isDecoy = Math.random() < DECOY_CHANCE;
-    const type = isDecoy ? DECOY_TYPES[Math.floor(Math.random()*DECOY_TYPES.length)] : pickEnemyType();
+    const type = gameMode==='bloody'
+      ? (isDecoy?pickEnemyType():DECOY_TYPES[Math.floor(Math.random()*DECOY_TYPES.length)])
+      : (isDecoy?BASIC_DECOY_TYPES[Math.floor(Math.random()*BASIC_DECOY_TYPES.length)]:pickEnemyType());
 
     const isBounty = !isDecoy && hasUp('bounty') && Math.random() < 0.06*upStack('bounty');
     const wrap=document.createElement('div');
@@ -1253,43 +1515,97 @@
     wrap.dataset.kind = isDecoy ? 'decoy' : 'enemy';
     wrap.dataset.type = type.id;
     wrap.dataset.hitsLeft = isDecoy ? '1' : String(type.hits);
+    if(!isDecoy&&type.id==='vulture')wrap.classList.add('orthogonal-approach');
     if (isBounty) wrap.dataset.bounty = '1';
     const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;canvas.style.width='128px';canvas.style.height='128px';
     if(!isDecoy&&wordslingerCosmetic('wild-west-wordslinger_alien_outlaws'))drawAlienOutlaw(canvas.getContext('2d'));else type.draw(canvas.getContext('2d'));wrap.appendChild(canvas);
-    wrap.style.left=Math.random()*(areaW-150)+'px';
-    wrap.style.top=Math.random()*(areaH-150)+'px';
+    const housePeek=Math.random()<0.10;
+    placeActorOnStreet(wrap,areaW,areaH,housePeek);
+    if(!isDecoy&&type.id==='ghost'&&!housePeek){
+      wrap.classList.add('ghost-zigzag');
+      const fx=parseFloat(wrap.style.getPropertyValue('--from-x'))||0,fy=parseFloat(wrap.style.getPropertyValue('--from-y'))||0;
+      const endScale=parseFloat(wrap.style.getPropertyValue('--end-scale'))||1;
+      wrap.style.setProperty('--ghost-x1',(fx*.78-55)+'px');wrap.style.setProperty('--ghost-y1',(fy*.78)+'px');
+      wrap.style.setProperty('--ghost-x2',(fx*.56+65)+'px');wrap.style.setProperty('--ghost-y2',(fy*.56)+'px');
+      wrap.style.setProperty('--ghost-x3',(fx*.34-70)+'px');wrap.style.setProperty('--ghost-y3',(fy*.34)+'px');
+      wrap.style.setProperty('--ghost-x4',(fx*.16+55)+'px');wrap.style.setProperty('--ghost-y4',(fy*.16)+'px');
+      wrap.style.setProperty('--ghost-s1',String(endScale*.28));wrap.style.setProperty('--ghost-s2',String(endScale*.48));
+      wrap.style.setProperty('--ghost-s3',String(endScale*.68));wrap.style.setProperty('--ghost-s4',String(endScale*.86));
+    }
     wrap.addEventListener('click',(e)=>{ e.stopPropagation(); shootEnemy(wrap, type, isDecoy); });
     area.appendChild(wrap);
 
-    // Ghost Rider & Vulture Scout teleport to keep the player guessing
-    if (!isDecoy && type.teleports) startTeleport(wrap, areaW, areaH, type.teleportSpeed || 750);
+    // Ghost Rider teleports. Vulture Scouts patrol one axis at a time and never
+    // travel diagonally: horizontal and vertical moves alternate.
+    if(!isDecoy&&type.id==='vulture')startVulturePatrol(wrap,areaW,areaH,type.teleportSpeed||380);
+    else if (!isDecoy && type.teleports && type.id!=='ghost') startTeleport(wrap, areaW, areaH, type.teleportSpeed || 750);
     // Card Shark drains coins every second while alive
     if (!isDecoy && type.drainsCoins) startDrain(wrap);
 
     const modLifetimeMult = (runModifier && runModifier.lifetimeMult) ? runModifier.lifetimeMult : 1;
-    const lifetime = getEnemyLifetime() * (isDecoy ? 1 : type.lifetimeMult) * modLifetimeMult;
+    const lifetime = housePeek ? 1000/TOWN_MOVEMENT_SPEED : getEnemyLifetime() * (isDecoy ? 1 : type.lifetimeMult) * modLifetimeMult;
+    wrap.style.setProperty('--approach-time', lifetime+'ms');
+    wrap.classList.add('approaching');
+    if(housePeek)createPeekWall(area,wrap,areaW,areaH,lifetime);
+    if(!isDecoy&&!housePeek&&Math.random()<0.34)spawnWesternCover(area,wrap,areaW,areaH);
     scheduleExpiry(wrap, lifetime);
+  }
+
+  function spawnWesternCover(area, enemy, areaW, areaH){
+    const kinds=[{id:'barrel',hp:2,solid:true},{id:'wagon',hp:3,solid:true},{id:'cactus',hp:Infinity},{id:'sign',hp:Infinity}];
+    const kind=kinds[Math.floor(Math.random()*kinds.length)],cover=document.createElement('button');
+    cover.type='button';cover.className='western-obstacle '+(kind.solid?'destructible':'indestructible');cover.dataset.hp=String(kind.hp);cover.dataset.kind=kind.id;
+    const sprite=document.createElement('canvas');sprite.width=72;sprite.height=82;sprite.setAttribute('aria-hidden','true');drawPixelObstacle(sprite.getContext('2d'),kind.id);cover.appendChild(sprite);cover.setAttribute('aria-label',kind.id);
+    const ex=parseFloat(enemy.style.left)||0,ey=parseFloat(enemy.style.top)||0;
+    cover.style.left=Math.max(0,Math.min(areaW-72,ex+24+(Math.random()-.5)*40))+'px';cover.style.top=Math.max(0,Math.min(areaH-92,ey+54+(Math.random()-.5)*26))+'px';
+    const vpX=areaW*.5,vpY=Math.max(8,areaH*TOWN_VANISHING_POINT_Y);
+    cover.style.setProperty('--from-x',(vpX-36-parseFloat(cover.style.left))+'px');
+    cover.style.setProperty('--from-y',(vpY-82-parseFloat(cover.style.top))+'px');
+    cover.style.setProperty('--end-scale',enemy.style.getPropertyValue('--end-scale')||'1');
+    cover.style.setProperty('--approach-time',enemy.style.getPropertyValue('--approach-time'));cover.classList.add('approaching');
+    if(kind.solid)cover.onclick=e=>{e.stopPropagation();if(!gameActive||ammo<=0)return;consumeAmmo(1);const hp=Number(cover.dataset.hp)-1;cover.dataset.hp=String(hp);sprite.classList.add('hit');setTimeout(()=>sprite.classList.remove('hit'),120);if(hp<=0){cover.classList.add('destroyed');setTimeout(()=>cover.remove(),220);}updateHUD();};
+    else cover.onclick=e=>{e.stopPropagation();sprite.classList.add('hit');setTimeout(()=>sprite.classList.remove('hit'),120);};
+    area.appendChild(cover);setTimeout(()=>cover.remove(),Math.max(1000,getEnemyLifetime()*1.6));
+  }
+
+  function drawPixelObstacle(ctx,kind){
+    ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,72,82);
+    const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+    if(kind==='barrel'){
+      rect(18,12,36,62,'#351c0d');rect(14,20,44,46,'#75401e');rect(19,15,34,54,'#a5632d');rect(24,16,6,52,'#c9823b');rect(14,23,44,6,'#2c3338');rect(14,51,44,6,'#2c3338');rect(20,12,32,5,'#15191c');rect(20,65,32,6,'#15191c');rect(29,33,14,14,'#8a4a22');rect(33,36,6,8,'#d39248');
+    }else if(kind==='wagon'){
+      rect(7,39,58,25,'#44230f');rect(11,34,50,25,'#9b5525');rect(17,39,38,14,'#c87b37');rect(8,28,7,36,'#6d3a1b');rect(57,28,7,36,'#6d3a1b');
+      for(const cx of [17,55]){ctx.fillStyle='#17191c';ctx.beginPath();ctx.arc(cx,65,13,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#b87a3c';ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,65,8,0,Math.PI*2);ctx.stroke();for(let a=0;a<Math.PI*2;a+=Math.PI/4){ctx.beginPath();ctx.moveTo(cx,65);ctx.lineTo(cx+Math.cos(a)*8,65+Math.sin(a)*8);ctx.stroke();}}
+      rect(13,29,46,6,'#e0c29a');rect(8,20,6,22,'#70451f');rect(58,20,6,22,'#70451f');ctx.strokeStyle='#e8d5b7';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(10,20);ctx.quadraticCurveTo(36,2,62,20);ctx.stroke();
+    }else if(kind==='cactus'){
+      rect(30,7,14,67,'#194d2c');rect(34,7,7,67,'#2f8b4d');rect(15,34,18,12,'#236f3d');rect(14,24,10,22,'#2f8b4d');rect(42,43,17,12,'#236f3d');rect(51,31,10,24,'#2f8b4d');rect(27,69,20,8,'#173a25');for(const [x,y] of [[35,15],[39,29],[19,31],[55,39],[33,51],[40,65]])rect(x,y,2,5,'#b9d67b');
+    }else{
+      rect(32,25,9,53,'#4b2a13');rect(36,25,5,53,'#865027');rect(8,10,56,34,'#42220e');rect(11,13,50,28,'#a6632c');rect(14,16,44,22,'#70401e');rect(18,20,6,4,'#d7b06a');rect(28,20,5,4,'#d7b06a');rect(38,20,5,4,'#d7b06a');rect(48,20,6,4,'#d7b06a');rect(22,29,28,4,'#e5c27d');rect(29,74,16,5,'#2d180b');
+    }
   }
 
   function shootEnemy(el, type, isDecoy) {
     if(!gameActive||ammo<=0||el.dataset.dead)return;
     const area = document.getElementById('game-area');
-    const x=parseInt(el.style.left),y=parseInt(el.style.top);
+    const hitRect=el.getBoundingClientRect(),areaRect=area.getBoundingClientRect();
+    const pos=elementEffectPosition(el,area),x=pos.x,y=pos.y;
 
     if (isDecoy) {
       // Penalize: never shoot the townsfolk!
       comboStreak = 0;
       consumeAmmo(1); el.dataset.dead='1';
+      el._peekWall?.remove();
       if (el._expireTimer) clearTimeout(el._expireTimer);
       stopTeleport(el); stopDrain(el);
       spawnDeathEffect(x,y,area);
       el.style.transition='transform 0.25s, opacity 0.25s';
       el.style.transform='scale(0) rotate(90deg)';el.style.opacity='0';
-      overallScore -= type.penaltyScore;
-      showFloatingText(x,y,'-'+type.penaltyScore+' '+type.warning,'#e74c3c',area);
+      const penaltyScore=type.penaltyScore||15,warning=type.warning||(gameMode==='bloody'?'Let the bandits go free!':'Wrong target!');
+      overallScore -= penaltyScore;
+      showFloatingText(x,y,'-'+penaltyScore+' '+warning,'#e74c3c',area);
       updateHUD(); updateEnemySpawning();
       setTimeout(()=>el.remove(),300);
-      loseLife(type.penaltyLives, area, x, y, `Ran out of lives — you shot ${type.name}! ${type.warning} Watch for the townsfolk before you pull the trigger.`);
+      loseLife(type.penaltyLives||1, area, x, y, `Ran out of lives — you shot ${type.name}! ${warning}`);
       return;
     }
 
@@ -1299,13 +1615,14 @@
     if(secretDouble)showFloatingText(x+18,y-15,'✦ DOUBLE SHOT ✦','#ffd15c',area);
     if (hitsLeft > 0) {
       consumeAmmo(1); el.dataset.hitsLeft = String(hitsLeft);
-      el.classList.remove('armor-flash'); void el.offsetWidth; el.classList.add('armor-flash');
+      const sprite=el.querySelector('canvas');
+      if(sprite){sprite.classList.remove('armor-flash');void sprite.offsetWidth;sprite.classList.add('armor-flash');}
       showFloatingText(x,y,'Armor cracked!','#ffffff',area);
       updateHUD();
       return;
     }
 
-    consumeAmmo(1);el.dataset.dead='1';
+    consumeAmmo(1);el.dataset.dead='1';el._peekWall?.remove();
     if (el._expireTimer) clearTimeout(el._expireTimer);
     stopTeleport(el); stopDrain(el);
     spawnDeathEffect(x,y,area);
@@ -1316,13 +1633,16 @@
     const isBounty = el.dataset.bounty==='1';
     const critHit = hasUp('deadeye') && Math.random() < 0.15*upStack('deadeye');
     let mult = getComboMultiplier() * runScoreMult * upgradeScoreMult();
+    const shotDepth=Math.max(0,Math.min(1,(hitRect.bottom-areaRect.top)/Math.max(1,areaRect.height)));
+    const distanceBonus=1+(1-shotDepth)*DISTANCE_SCORE_BONUS;
+    mult*=distanceBonus;
     if (critHit) mult *= 2;
     if (isBounty) mult *= 3;
     const scoreGain = Math.round(type.score * mult);
     let coinsGain = Math.round(type.coins*coinMult*upgradeCoinMult()) + upStack('magnet');
     if (isBounty) coinsGain *= 3;
     killCount++;totalKills++;overallScore+=scoreGain;sessionCoins+=coinsGain;window.AchievementManager?.notify?.('enemy_defeated',{x:x+64,y:y+64});
-    let label = '+'+scoreGain+(mult>1?' ('+mult.toFixed(1)+'x)':'');
+    let label = '+'+scoreGain+(mult>1?' ('+mult.toFixed(1)+'x)':'')+(distanceBonus>=1.15?' 🎯 FAR SHOT':'');
     if (critHit) label = '💥 CRIT! '+label;
     if (isBounty) label = '⭐ BOUNTY! '+label;
     showFloatingText(x,y,label,'#2ecc71',area);
@@ -1390,7 +1710,7 @@
 
   async function endGame() {
     PlatformManager.endPracticeRun();
-    gameActive=false;clearInterval(spawnInterval);
+    gameActive=false;clearInterval(spawnInterval);setTownMovementPaused(false);
     window.ChallengeManager?.finish?.({score:overallScore,wave:1+Math.floor(overallScore/100),waveProgress:killCount,alive:false});
     if (deadManHandTimer) { clearInterval(deadManHandTimer); deadManHandTimer=null; }
     clearTimeout(duelTimerHandle); duelActive=false;
@@ -1407,14 +1727,13 @@
       const bh=document.getElementById('boss-health-bar-wrap'); if(bh) bh.remove();
     }
     updateCrosshairCursor();
-    if (sessionCoins > 0) PlatformManager.addCoins(sessionCoins);
-    else if (sessionCoins < 0) PlatformManager.spendCoins(-sessionCoins);
+    const coinResult = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, Math.max(0, sessionCoins));
     const newHigh = overallScore > highScore;
     if(newHigh) highScore=overallScore;
     PlatformManager.setHighScore(GAME_CONFIG.id, overallScore);
     try { await saveData(); } catch(e) { console.error('saveData failed', e); }
     document.getElementById('final-score').textContent='Score: '+overallScore+' (Kills: '+killCount+')';
-    document.getElementById('final-coins').textContent='🪙 '+sessionCoins+' net coins';
+    document.getElementById('final-coins').textContent=`🪙 ${coinResult.coinsAwarded} awarded from ${sessionCoins} raw coins at ${coinResult.accuracyPercent}% accuracy (+15%)`;
     document.getElementById('gameover-reason').textContent = gameOverReason || '';
     document.getElementById('new-highscore').classList.toggle('hidden',!newHigh);
     const wipe = document.getElementById('screenWipe');
@@ -1427,7 +1746,7 @@
 
   function updateEnemySpawning() {
     // Recalculate spawn rate based on current score
-    if(gameActive && spawnInterval) {
+    if(gameActive && !bossActive && !bossPreviewActive && spawnInterval) {
       clearInterval(spawnInterval);
       spawnInterval = setInterval(spawnEnemy, getSpawnDelay());
     }
@@ -1446,7 +1765,7 @@
       init:bossInitIronVest, cleanup:bossCleanupIronVest,
       modifyDamage:(amt,state)=> state.weak ? Math.round(amt*1.5) : Math.round(amt*0.5) },
     { id:'phantom', name:'Phantom of the Plains', draw:drawBossPhantom, hpMult:0.9, wordInterval:1100,
-      hint:'Fades and relocates — time your shots on the body!',
+      hint:'Fades and dodges in place — time your shots on the body!',
       init:bossInitPhantom, cleanup:bossCleanupPhantom },
     { id:'boombaron', name:'Boom Baron', draw:drawBossBoomBaron, hpMult:1, wordInterval:1200,
       hint:'Watch for 💣 — defuse it, don\'t let it hit the ground!' },
@@ -1454,10 +1773,18 @@
       hint:'She steals ammo every few seconds — stay stocked up!',
       init:bossInitDrain, cleanup:bossCleanupDrain },
     { id:'talon', name:'Talon', draw:drawBossTalon, hpMult:0.95, wordInterval:850,
-      hint:'Fast and mobile — she won\'t sit still!',
+      hint:'Rapid fire — her word bullets launch much faster!',
       init:bossInitTalon, cleanup:bossCleanupTalon },
-    ...(window.AchievementManager?.hasSecret?.('secret_map_border')?[{id:'mapmaker',name:'The Lost Mapmaker',draw:drawBossMapmaker,hpMult:1.25,wordInterval:760,hint:'His map shifts the battlefield constantly — track him carefully!',init:bossInitMapmaker,cleanup:bossCleanupMapmaker}]:[])
+    ...(window.AchievementManager?.hasSecret?.('secret_map_border')?[{id:'mapmaker',name:'The Lost Mapmaker',draw:drawBossMapmaker,hpMult:1.25,wordInterval:760,hint:'Secret boss — extra health and the fastest word-bullet pattern!',init:bossInitMapmaker,cleanup:bossCleanupMapmaker}]:[])
   ];
+  const GOOD_BOSS_TYPES = [
+    {id:'marshal',name:'Marshal Aegis',draw:drawBossMarshal,hpMult:1.15,wordInterval:1100,hint:'Armored like Iron Vest — strike during the gold weak-point glow!',init:bossInitIronVest,cleanup:bossCleanupIronVest,modifyDamage:(amt,state)=>state.weak?Math.round(amt*1.5):Math.round(amt*.5)},
+    {id:'guardian',name:'Guardian Mirage',draw:drawBossGuardian,hpMult:.9,wordInterval:1100,hint:'Mirrors the Phantom — fades and dodges incoming shots!',init:bossInitPhantom,cleanup:bossCleanupPhantom},
+    {id:'powderdeputy',name:'Powder Deputy',draw:drawBossDeputy,hpMult:1,wordInterval:1200,hint:'Mirrors Boom Baron — defuse the powder bombs before they escape!'},
+    {id:'ladyluck',name:'Lady Luck',draw:drawBossLadyLuck,hpMult:1,wordInterval:1000,hint:'Mirrors Deadeye Duchess — steals one ammo every few seconds!',init:bossInitDrain,cleanup:bossCleanupDrain},
+    {id:'skywarden',name:'Skywarden',draw:drawBossSkywarden,hpMult:.95,wordInterval:850,hint:'Mirrors Talon — launches word bullets at the fastest rate!',init:bossInitTalon,cleanup:bossCleanupTalon}
+  ];
+  function activeBossTypes(){return gameMode==='bloody'?GOOD_BOSS_TYPES:BOSS_TYPES;}
   let bossWordInterval = null;
 
   function cleanupCurrentBoss() {
@@ -1479,7 +1806,7 @@
   }
   function bossCleanupIronVest() { if (bossState.cycleTimer) clearTimeout(bossState.cycleTimer); }
 
-  // --- Phantom: dodge + relocate ---
+  // --- Phantom: dodge in place (bosses remain centered after their entrance) ---
   function bossInitPhantom() {
     bossState.dodging = false;
     const cycle = () => {
@@ -1488,10 +1815,6 @@
       const area = document.getElementById('game-area');
       if (wrap) {
         wrap.classList.toggle('boss-dodge', bossState.dodging);
-        if (bossState.dodging && area) {
-          const maxLeft = Math.max(20, area.clientWidth - 170);
-          wrap.style.left = (20 + Math.random()*maxLeft) + 'px';
-        }
       }
       bossState.cycleTimer = setTimeout(cycle, bossState.dodging ? 1400 : 2600);
     };
@@ -1511,25 +1834,15 @@
   }
   function bossCleanupDrain() { if (bossState.drainTimer) clearInterval(bossState.drainTimer); }
 
-  // --- Talon: constant repositioning (paired with a faster wordInterval) ---
-  function bossInitTalon() {
-    const move = () => {
-      const wrap = document.getElementById('boss-wrap');
-      const area = document.getElementById('game-area');
-      if (wrap && area) {
-        const maxLeft = Math.max(20, area.clientWidth - 170);
-        wrap.style.left = (20 + Math.random()*maxLeft) + 'px';
-      }
-      bossState.moveTimer = setTimeout(move, 1600);
-    };
-    bossState.moveTimer = setTimeout(move, 1600);
-  }
+  // --- Talon: faster wordInterval, but remains centered like every boss ---
+  function bossInitTalon() {}
   function bossCleanupTalon() { if (bossState.moveTimer) clearTimeout(bossState.moveTimer); }
-  function bossInitMapmaker(){const move=()=>{if(!bossActive)return;const wrap=document.getElementById('boss-wrap'),area=document.getElementById('game-area');if(wrap&&area){wrap.style.left=(12+Math.random()*76)+'%';wrap.style.top=(45+Math.random()*Math.max(20,area.clientHeight*.28))+'px';wrap.style.transform=`translateX(-50%) rotate(${Math.random()<.5?-3:3}deg)`;}bossState.moveTimer=setTimeout(move,900);};bossState.moveTimer=setTimeout(move,650);}
+  function bossInitMapmaker(){}
   function bossCleanupMapmaker(){if(bossState.moveTimer)clearTimeout(bossState.moveTimer);}
 
   let bossPreviewActive = false;
   let bossIncomingTimer = null;
+  let pendingBossCategory = null;
 
   function checkStageProgress() {
     if (!gameActive || bossActive || bossPreviewActive) return;
@@ -1543,12 +1856,14 @@
     gameActive = false;
     clearInterval(spawnInterval);
     const area = document.getElementById('game-area');
-    area.querySelectorAll('.enemy-wrap').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
-    const bossDef = BOSS_TYPES[(stage-1)%BOSS_TYPES.length];
+    area.querySelectorAll('.enemy-wrap,.western-obstacle,.peek-house-wall').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
+    const roster=activeBossTypes(),bossDef = roster[(stage-1)%roster.length];
+    pendingBossCategory = QuestionManager.getNextQuestion();
     const canvas = document.getElementById('boss-incoming-canvas');
     bossDef.draw(canvas.getContext('2d'));
     document.getElementById('boss-incoming-name').textContent = '👹 ' + bossDef.name;
-    document.getElementById('boss-incoming-hint').textContent = bossDef.hint || '';
+    document.getElementById('boss-incoming-hint').textContent =
+      'Category: ' + pendingBossCategory.prompt + ' — shoot ONLY the correct words!\n' + (bossDef.hint || '');
     document.getElementById('boss-incoming-overlay').classList.remove('hidden');
     bossIncomingTimer = setTimeout(()=>{
       document.getElementById('boss-incoming-overlay').classList.add('hidden');
@@ -1562,22 +1877,24 @@
     gameActive = true;
     clearInterval(spawnInterval);
     const area = document.getElementById('game-area');
-    area.querySelectorAll('.enemy-wrap').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
-    const bossDef = BOSS_TYPES[(stage-1)%BOSS_TYPES.length];
+    area.querySelectorAll('.enemy-wrap,.western-obstacle,.peek-house-wall').forEach(e=>{ stopTeleport(e); stopDrain(e); if(e._expireTimer) clearTimeout(e._expireTimer); e.remove(); });
+    const roster=activeBossTypes(),bossDef = roster[(stage-1)%roster.length];
     currentBoss = bossDef;
-    bossState = {};
+    bossState = {arrived:false};
     bossMaxHP = Math.round((80 + stage*40) * (bossDef.hpMult||1)); bossHP = bossMaxHP;
 
     const wrap=document.createElement('div');
     wrap.id='boss-wrap';
-    wrap.style.cssText='position:absolute;left:50%;top:clamp(64px, 14vh, 84px);transform:translateX(-50%);width:150px;height:150px;cursor:crosshair;z-index:15;';
+    wrap.style.cssText='position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:150px;height:150px;cursor:crosshair;z-index:15;';
+    wrap.style.setProperty('--boss-entry-y',(Math.max(8,area.clientHeight*TOWN_VANISHING_POINT_Y)-area.clientHeight*.5)+'px');
+    wrap.classList.add('boss-entering');
     const canvas=document.createElement('canvas');
     canvas.width=128;canvas.height=128;canvas.style.width='150px';canvas.style.height='150px';
     bossDef.draw(canvas.getContext('2d'));
     wrap.appendChild(canvas);
     wrap.addEventListener('click',(e)=>{
       e.stopPropagation();
-      if (!bossActive || ammo<=0) return;
+      if (!bossActive || !bossState.arrived || ammo<=0) return;
       if (bossState.dodging) {
         consumeAmmo(1); updateHUD();
         showFloatingText(area.clientWidth/2-30, area.clientHeight/2, 'Dodged!', '#7fdfff', area);
@@ -1593,24 +1910,56 @@
 
     const barWrap=document.createElement('div');
     barWrap.id='boss-health-bar-wrap';
-    barWrap.style.cssText='position:absolute;left:50%;top:clamp(20px, 6vh, 34px);transform:translateX(-50%);width:min(260px, 74%);z-index:120;';
-    barWrap.innerHTML='<div style="background:#1a0a2e;border:2px solid var(--border-purple);border-radius:6px;height:16px;overflow:hidden;"><div id="boss-health-fill" style="background:linear-gradient(90deg,#e74c3c,#ff6b81);height:100%;width:100%;transition:width 0.2s;"></div></div><p id="boss-name-label" class="text-center text-xs font-bold" style="color:#fff;text-shadow:0 1px 3px #000;margin-top:2px;"></p><p id="boss-hint-label" class="text-center" style="color:#ffd8e0;font-size:11px;text-shadow:0 1px 3px #000;margin-top:1px;"></p>';
+    barWrap.style.cssText='position:absolute;left:50%;top:clamp(20px, 6vh, 34px);transform:translateX(-50%);width:min(620px, 92%);z-index:120;';
+    barWrap.innerHTML='<div style="background:#1a0a2e;border:2px solid var(--border-purple);border-radius:6px;height:16px;overflow:hidden;"><div id="boss-health-fill" style="background:linear-gradient(90deg,#e74c3c,#ff6b81);height:100%;width:100%;transition:width 0.2s;"></div></div><p id="boss-name-label" class="text-center text-xs font-bold" style="color:#fff;text-shadow:0 1px 3px #000;margin-top:2px;"></p><p id="boss-correct-words" class="text-center" style="color:#7dff9b;font-size:12px;font-weight:800;text-shadow:0 1px 3px #000;margin-top:2px;"></p><p id="boss-hint-label" class="text-center" style="color:#ffd8e0;font-size:11px;text-shadow:0 1px 3px #000;margin-top:1px;"></p>';
     area.appendChild(barWrap);
 
-    const cat = QuestionManager.getNextQuestion();
-    document.getElementById('boss-name-label').textContent = '👹 ' + bossDef.name + ' — tap: ' + cat.prompt;
-    document.getElementById('boss-hint-label').textContent = bossDef.hint || '';
+    const cat = pendingBossCategory || QuestionManager.getNextQuestion();
+    pendingBossCategory = null;
+    document.getElementById('boss-name-label').textContent = '👹 ' + bossDef.name + ' — Category: ' + cat.prompt;
+    document.getElementById('boss-correct-words').textContent = 'Correct: ' + cat.correct.join(' • ');
+    document.getElementById('boss-hint-label').textContent = 'Shoot ONLY the correct words! ' + (bossDef.hint || '');
     showFloatingText(area.clientWidth/2-60, area.clientHeight/2-20, '⚠️ BOSS FIGHT ⚠️', '#e74c3c', area);
 
-    if (bossDef.init) bossDef.init();
-    bossWordInterval = setInterval(()=>spawnFallingWord(cat), bossDef.wordInterval||1100);
+    const finishBossEntrance=()=>{
+      if(!bossActive||bossState.arrived)return;
+      bossState.arrived=true;wrap.classList.remove('boss-entering');
+      setTownMovementPaused(true);
+      if(bossDef.init)bossDef.init();
+      fireBossPattern(cat);
+      bossWordInterval=setInterval(()=>fireBossPattern(cat),bossDef.wordInterval||1100);
+    };
+    wrap.addEventListener('animationend',finishBossEntrance,{once:true});
+    setTimeout(finishBossEntrance,1700);
   }
 
-  function spawnFallingWord(cat) {
+  function fireBossPattern(cat,patternId=currentBoss?.id){
+    if(!bossActive)return;
+    if(patternId==='mapmaker')patternId=['ironvest','phantom','boombaron','duchess','talon'][Math.floor(Math.random()*5)];
+    if(patternId==='ironvest'||patternId==='marshal'){
+      bossState.fireSide=bossState.fireSide==='left'?'right':'left';
+      const angle=bossState.fireSide==='left'?(Math.PI*.55+Math.random()*Math.PI*.9):(-Math.PI*.45+Math.random()*Math.PI*.9);
+      spawnFallingWord(cat,{angle,pattern:'alternate',patternId});return;
+    }
+    if(patternId==='phantom'||patternId==='guardian'){
+      const centre=Math.random()*Math.PI*2,gap=Math.PI/12;
+      [-gap,0,gap].forEach((offset,i)=>setTimeout(()=>spawnFallingWord(cat,{angle:centre+offset,pattern:'burst',patternId}),i*90));return;
+    }
+    if(patternId==='boombaron'||patternId==='powderdeputy'){spawnFallingWord(cat,{pattern:'sine',patternId,duration:7000});return;}
+    if(patternId==='duchess'||patternId==='ladyluck'){spawnFallingWord(cat,{pattern:'accelerate',patternId,duration:5400});return;}
+    if(patternId==='talon'||patternId==='skywarden'){
+      const offset=Math.random()*Math.PI*2;
+      for(let i=0;i<8;i++)spawnFallingWord(cat,{angle:offset+i*Math.PI/4,pattern:'circle',patternId,duration:5800});return;
+    }
+    spawnFallingWord(cat,{patternId});
+  }
+
+  function spawnFallingWord(cat,options={}) {
     if (!bossActive) return;
     const area = document.getElementById('game-area');
     const bossDef = currentBoss;
-    const isBomb = !!(bossDef && bossDef.id==='boombaron' && Math.random() < 0.25);
+    const patternId=options.patternId||bossDef?.id;
+    const isBomb = !!((patternId==='boombaron'||patternId==='powderdeputy') && Math.random() < 0.25);
     const pool = [...cat.correct, ...cat.distractors.slice(0,8)];
     const word = isBomb ? '💣' : pool[Math.floor(Math.random()*pool.length)];
     const isCorrect = !isBomb && cat.correct.includes(word);
@@ -1618,19 +1967,35 @@
     el.className = 'falling-word' + (isBomb ? ' falling-bomb' : '');
     el.textContent = word;
     const areaW = area.clientWidth, areaH = area.clientHeight;
-    el.style.left = Math.max(4, Math.random()*(areaW-150)) + 'px';
-    el.style.top = '-40px';
+    // Fire each word radially from the centred boss until it exits one edge of
+    // the play area. Starting just outside the sprite keeps the words readable.
+    const angle=Number.isFinite(options.angle)?options.angle:Math.random()*Math.PI*2,dirX=Math.cos(angle),dirY=Math.sin(angle);
+    const bossRadius=82,startX=areaW*.5+dirX*bossRadius,startY=areaH*.5+dirY*bossRadius;
+    const margin=90;
+    const tx=dirX>0?(areaW-margin-startX)/dirX:dirX<0?(margin-startX)/dirX:Infinity;
+    const ty=dirY>0?(areaH-margin-startY)/dirY:dirY<0?(margin-startY)/dirY:Infinity;
+    const travel=Math.max(120,Math.min(tx>0?tx:Infinity,ty>0?ty:Infinity));
+    el.style.left=startX+'px';el.style.top=startY+'px';
+    el.style.setProperty('--boss-word-x',(dirX*travel)+'px');
+    el.style.setProperty('--boss-word-y',(dirY*travel)+'px');
+    if(options.pattern==='sine'){
+      const px=-dirY,py=dirX,amp=Math.min(42,areaW*.055),dx=dirX*travel,dy=dirY*travel;
+      el.style.setProperty('--boss-word-x25',(dx*.25+px*amp)+'px');el.style.setProperty('--boss-word-y25',(dy*.25+py*amp)+'px');
+      el.style.setProperty('--boss-word-x50',(dx*.5-px*amp)+'px');el.style.setProperty('--boss-word-y50',(dy*.5-py*amp)+'px');
+      el.style.setProperty('--boss-word-x75',(dx*.75+px*amp)+'px');el.style.setProperty('--boss-word-y75',(dy*.75+py*amp)+'px');
+      el.classList.add('boss-word-sine');
+    }else if(options.pattern==='accelerate')el.classList.add('boss-word-accelerate');
     area.appendChild(el);
-    const fallDuration = 5200;
-    requestAnimationFrame(()=>{
-      el.style.transition = 'top '+fallDuration+'ms linear';
-      el.style.top = (areaH-20) + 'px';
-    });
+    spawnBossMuzzleEffect(area,angle);
+    const fallDuration = options.duration||5200;
+    el.style.setProperty('--boss-word-time',fallDuration+'ms');
+    requestAnimationFrame(()=>el.classList.add('boss-word-fired'));
     el.addEventListener('click',(e)=>{
       e.stopPropagation();
       if (!bossActive || el.dataset.dead) return;
       el.dataset.dead='1';
-      const x = parseFloat(el.style.left), y = parseFloat(el.style.top) || 0;
+      const areaRect=area.getBoundingClientRect(),wordRect=el.getBoundingClientRect();
+      const x=wordRect.left-areaRect.left,y=wordRect.top-areaRect.top;
       if (isBomb) {
         spawnDeathEffect(x,y,area);
         let dmg = 18;
@@ -1658,8 +2023,10 @@
     setTimeout(()=>{
       if (el.parentNode && !el.dataset.dead) {
         if (isBomb && bossActive) {
-          showFloatingText(parseFloat(el.style.left), areaH-40, '💥 Boom!', '#e74c3c', area);
-          loseLife(1, area, parseFloat(el.style.left), areaH-40, 'Ran out of lives — a Boom Baron bomb went off! Defuse the 💣 before it lands.');
+          const areaRect=area.getBoundingClientRect(),wordRect=el.getBoundingClientRect();
+          const x=wordRect.left-areaRect.left,y=wordRect.top-areaRect.top;
+          showFloatingText(x,y, '💥 Boom!', '#e74c3c', area);
+          loseLife(1, area, x, y, 'Ran out of lives — a Boom Baron bomb went off! Defuse the 💣 before it escapes.');
         }
         el.remove();
       }
@@ -1676,6 +2043,7 @@
 
   function defeatBoss(area) {
     bossActive = false;
+    setTownMovementPaused(false);
     clearInterval(bossWordInterval);
     cleanupCurrentBoss();
     area.querySelectorAll('.falling-word').forEach(w=>w.remove());
@@ -1725,15 +2093,16 @@
 
   function generateGrid() {
     const cat = QuestionManager.getNextQuestion();
+    const roundCorrect=[...cat.correct].sort(()=>Math.random()-.5).slice(0,4);
     document.getElementById('reload-category').textContent=cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
     // Speed Loader / Quick Trigger shrink the grid (fewer distractors to sift through)
     let cellCount = 16 - 2*upStack('speedload');
     if (runModifier && runModifier.smallerReload) cellCount -= 2;
-    cellCount = Math.max(cat.correct.length + 4, Math.min(16, cellCount));
-    const words=[...cat.correct,...shuffled.slice(0,Math.max(0,cellCount-cat.correct.length))].sort(()=>Math.random()-0.5);
+    cellCount = Math.max(roundCorrect.length + 4, Math.min(16, cellCount));
+    const words=[...roundCorrect,...shuffled.slice(0,Math.max(0,cellCount-roundCorrect.length))].sort(()=>Math.random()-0.5);
     const grid=document.getElementById('reload-grid');grid.innerHTML='';grid.className='grid grid-cols-4 gap-2';grid.style.pointerEvents='';
-    let found=0;
+    let found=0; const requiredCorrect=Math.min(3,roundCorrect.length);
     let wrongCount=0;
     const masteryMult = 1 + 0.25*upStack('mastery');
     const updateScore=()=>{const t=Math.max(50,Math.round((2000-(Date.now()-reloadStartTime)/4)*masteryMult));document.getElementById('reload-score').textContent='+'+t+' Points';};
@@ -1743,15 +2112,15 @@
       cell.className='word-cell p-2 text-xs text-center rounded font-bold';cell.textContent=w;
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected')||cell.classList.contains('wrong'))return;
-        if(cat.correct.includes(w)){cell.classList.add('selected');found++;if(found>=cat.correct.length){clearInterval(si);totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);const bonus=Math.max(50,Math.round((2000-(Date.now()-reloadStartTime)/4)*masteryMult));overallScore+=bonus;ammo=maxAmmo;if(hasUp('hotreload'))freeShotsRemaining+=2*upStack('hotreload');updateHUD();closeReload();checkStageProgress();}}
+        if(roundCorrect.includes(w)){cell.classList.add('selected');found++;if(found>=requiredCorrect){clearInterval(si);totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);const bonus=Math.max(50,Math.round((2000-(Date.now()-reloadStartTime)/4)*masteryMult));overallScore+=bonus;ammo=maxAmmo;if(hasUp('hotreload'))freeShotsRemaining+=2*upStack('hotreload');updateHUD();closeReload();checkStageProgress();}}
         else{
           cell.classList.add('wrong');wrongCount++;
           PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
           PlatformManager.deductCoins(5);
           if(wrongCount>=2){
             clearInterval(si);
-            revealCorrectAnswers(grid, cat.correct);
-            setTimeout(()=>generateGrid(),1000);
+            revealCorrectAnswers(grid, roundCorrect);
+            setTimeout(()=>generateGrid(),2000);
           }
         }
       });

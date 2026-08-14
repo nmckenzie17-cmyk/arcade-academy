@@ -173,10 +173,10 @@ try {
     // (game over, cheat code) — NOT on every note hit, since that would hit
     // localStorage far too often.
     function commitCoinsToPlatform(){
-      const delta = coins - PlatformManager.getCoins();
-      if (delta > 0) PlatformManager.addCoins(delta);
-      else if (delta < 0) PlatformManager.spendCoins(-delta);
+      const rawCoins = Math.max(0, coins - PlatformManager.getCoins());
+      const result = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, rawCoins);
       coins = PlatformManager.getCoins();
+      return result;
     }
     function updateChainDisplay(){
       const stat=document.getElementById('chain-stat'),disp=document.getElementById('chain-display');
@@ -652,11 +652,12 @@ try {
       PlatformManager.setHighScore(GAME_CONFIG.id, score);
       totalCorrectAnswers+=totalCorrect;
       totalNotesPlayed+=notesHitSession;
-      commitCoinsToPlatform();
+      const coinResult = commitCoinsToPlatform();
       recalcUnlocks();
 
       document.getElementById('final-score').textContent='Score: '+score+' (Notes: '+notesHitSession+')';
       document.getElementById('final-correct-line').textContent='✅ '+totalCorrect+' correct answers';
+      document.getElementById('final-correct-line').textContent += ` · 🪙 ${coinResult.coinsAwarded} awarded from ${coinResult.baseCoins} raw at ${coinResult.accuracyPercent}% accuracy (+15%)`;
       document.getElementById('gameover-reason').textContent=gameOverReason||'';
       document.getElementById('new-highscore').classList.toggle('hidden',!newHigh);
 

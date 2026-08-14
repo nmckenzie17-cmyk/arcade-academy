@@ -701,7 +701,7 @@ initSpaceStars();initSpacePlanets();initSpaceSatellites();
 let player={x:80,y:0,vy:0,frameCounter:0,isClicking:false,inputDisabled:false,fireFrame:0};
 let groundOffset=0;let gameStarted=false;let countdownValue=3;let countdownTime=0;let score=0;let gameOver=false;let finalScore=0;
 let obstacles=[];let obstacleSpawnTimer=0;const SPAWN_INTERVAL=1000;
-let coins=[];let coinSpawnTimer=0;const COIN_SPAWN_INTERVAL=1333;
+let coins=[];let runCoins=0;let lastCoinResult=null;let coinSpawnTimer=0;const COIN_SPAWN_INTERVAL=1333;
 let fuel=5;const MAX_FUEL=100;const BOOST_FUEL_COST=0.2;
 let fuelCans=[];let fuelStageKey=-1;let fuelCanPlan=[];
 let magnets=[];let magnetSpawnTimer=0;let magnetActiveTimer=0;
@@ -739,6 +739,7 @@ headstartImmuneTimer=getHeadstartImmunityDuration();
 }
 
 function resetGame(){
+runCoins=0;
 player.y=canvas.height/2;player.vy=0;player.frameCounter=0;player.inputDisabled=false;player.fireFrame=0;
 groundOffset=0;gameStarted=false;countdownValue=3;countdownTime=0;score=0;gameOver=false;finalScore=0;
 lastStageBoundaryCount=0;nextStageId=null;baseProgressIndex=0;
@@ -1156,11 +1157,15 @@ if(be.offset-eSpeed<-200)horrorBgEyes.splice(i,1);
 }
 }
 function spawnSandflies(){
-const count=1+Math.floor(rng()*3);
+const count=1;
 for(let i=0;i<count;i++){
 sandflies.push({x:canvas.width+rng()*30,y:canvas.height*(0.1+rng()*0.8),frame:rng()<0.5?0:1,frameCounter:0,speed:(3.125+rng()*3.125)*getEnemySpeedMult(),goingLeft:false});
 }}
-function spawnSandstorm(){sandstorms.push({x:canvas.width,y:canvas.height*(0.05+rng()*0.5),frameCounter:0});}
+function spawnSandstorm(){
+const clusterSize=10+Math.floor(rng()*11);
+const clusterY=canvas.height*(0.05+rng()*0.6);
+for(let i=0;i<clusterSize;i++)sandstorms.push({x:canvas.width+rng()*240-120,y:Math.max(0,Math.min(canvas.height,clusterY+(rng()-0.5)*210)),frameCounter:Math.floor(rng()*32)});
+}
 // Snowstorm: same particle sprite as the desert sandstorm, recolored white, layered in front of
 // obstacles and the player. Purely visual - it never disables input or damages the player.
 function spawnSnowstorm(){
@@ -1272,14 +1277,11 @@ sf.frameCounter++;if(sf.frameCounter%10===0)sf.frame=1-sf.frame;
 if(sf.x<-100)sandflies.splice(i,1);
 }
 sandstormSpawnTimer+=dt;
-if(sandstormSpawnTimer>=3333){spawnSandstorm();sandstormSpawnTimer=0;}
-player.inputDisabled=false;
-const ssScale=PIXEL*2.25;
+if(sandstormSpawnTimer>=500){spawnSandstorm();sandstormSpawnTimer=0;}
+const ssScale=PIXEL*2.25*1.5;
 for(let i=sandstorms.length-1;i>=0;i--){
-const ss=sandstorms[i];ss.x-=GROUND_SPEED;ss.frameCounter++;
-const ssW=8*ssScale,ssH=16*ssScale;
-if(player.x+8*PIXEL>ss.x&&player.x<ss.x+ssW&&player.y+PLAYER_HEIGHT>ss.y&&player.y<ss.y+ssH){player.inputDisabled=true;}
-if(ss.x<-ssW)sandstorms.splice(i,1);
+const ss=sandstorms[i];ss.x-=GROUND_SPEED*getMovementMult();ss.frameCounter++;
+if(ss.x<-8*ssScale)sandstorms.splice(i,1);
 }
 eyeSpawnTimer+=dt;
 if(floatingEyes.length===0&&eyeSpawnTimer>=1500/getPowerupSpawnRateMult()){spawnFloatingEye();eyeSpawnTimer=0;}
@@ -1309,8 +1311,8 @@ function drawDesertEnemies(){
 if(!isDesert()&&!isRainbowMadness())return;
 const sfColorMap={'b':'#000000','x':'#553300','p':'#aa6600','y':'#ffcc00'};
 sandflies.forEach(sf=>{const frame=sf.frame===0?sandflyFrame1:sandflyFrame2;drawPixelArt(frame,sf.x,sf.y,PIXEL*0.625,sfColorMap);});
-const stormColorMap={'f':'rgba(200,160,60,0.6)'};
-const ssScale=PIXEL*2.25;
+const stormColorMap={'f':'rgba(210,170,72,0.78)'};
+const ssScale=PIXEL*2.25*1.5;
 sandstorms.forEach(ss=>{const fi=Math.floor(ss.frameCounter/8)%4;drawPixelArt(sandstormFrames[fi],ss.x,ss.y,ssScale,stormColorMap);});
 const eyeColorMap={'w':'#ffffff','p':'#9933cc','r':'#ff3333','l':'#33ff33','s':'#cccccc','d':'#551a77'};
 floatingEyes.forEach(eye=>{
@@ -1713,7 +1715,7 @@ return false;
 }
 
 function addCoins(amount){
-PlatformManager.addCoins(amount);
+runCoins+=Math.max(0,Number(amount)||0);
 }
 function spawnCoin(){
 if(coins.length>=getMaxCoinsOnScreen())return;
@@ -2057,6 +2059,7 @@ if(wipe){wipe.classList.add('wipe');setTimeout(reveal,750);}
 else reveal();
 deathRewardMessage='';
 finalScore=Math.floor(score);
+lastCoinResult=PlatformManager.settleAccuracyCoins(GAME_CONFIG.id,Math.floor(runCoins));
 window.ChallengeManager?.finish?.({score:finalScore,distance:Math.floor(score),alive:false});
 if(activePowerupEffects.highscore)finalScore=Math.floor(finalScore*(1+0.25*activePowerupEffects.highscore.correct));
 if(finalScore>highScore){highScore=finalScore;localStorage.setItem('pixelJetpackHighScore',highScore);PlatformManager.setHighScore(GAME_CONFIG.id,highScore);lastRunWasNewHigh=true;}else{lastRunWasNewHigh=false;}
@@ -2084,6 +2087,7 @@ powerupUnlockAlert='\ud83c\udf89 New Powerup Unlocked: '+newlyUnlocked.join(', '
 function showPixelGameOverPanel(){
 document.getElementById('pixel-final-score').textContent='Final Score: '+finalScore;
 document.getElementById('pixel-final-coins').textContent='\ud83e\ude99 Coins: '+PlatformManager.getCoins();
+if(lastCoinResult)document.getElementById('pixel-final-coins').textContent+=` · ${lastCoinResult.accuracyPercent}% accuracy · ${lastCoinResult.coinsAwarded} awarded from ${Math.floor(runCoins)} raw (+15%)`;
 document.getElementById('pixel-new-high').style.display=lastRunWasNewHigh?'block':'none';
 document.getElementById('pixel-death-message').textContent=buildDeathMessage();
 const alertEl=document.getElementById('pixel-powerup-alert');
@@ -2279,16 +2283,16 @@ player.y+=player.vy;player.frameCounter++;
 const immune=headstartImmuneTimer>0;
 if(isSnow()){
 const cb=getCaveBoundsAtPlayer();
-if(!immune&&(player.y<=cb.top||player.y>=cb.bottom-PLAYER_HEIGHT)){
-lastDeathCause=player.y<=cb.top?'cave-ceiling':'cave-floor';
+if(!immune&&player.y>=cb.bottom-PLAYER_HEIGHT){
+lastDeathCause='cave-floor';
 endGame();
 return;
 }
 if(player.y<cb.top)player.y=cb.top;
 if(player.y>cb.bottom-PLAYER_HEIGHT)player.y=cb.bottom-PLAYER_HEIGHT;
 }else{
-if(!immune&&(player.y<=0||player.y>=groundY()-PLAYER_HEIGHT)){
-lastDeathCause=player.y<=0?'ceiling':'ground';
+if(!immune&&player.y>=groundY()-PLAYER_HEIGHT){
+lastDeathCause='ground';
 endGame();
 return;
 }
