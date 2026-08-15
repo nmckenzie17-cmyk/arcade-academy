@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cube Curiosity</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="gameContainer">
+  <canvas id="gameCanvas"></canvas>
+  <div id="jumpZone"></div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div>
+      <div id="distanceDisplay">0m</div>
+      <div id="stageDisplay">STAGE 1 · NEON GRID</div>
+      <div id="livesDisplay">♥ ♥ ♥</div>
+    </div>
+    <div>
+      <div id="comboDisplay">x1</div>
+      <div id="scoreDisplay">SCORE 0</div>
+      <div id="coinDisplay">◆ 0</div>
+    </div>
+  </div>
+  <div id="respawnBanner" class="hidden"></div>
+  <div id="nearMissPopups"></div>
+  <div id="abilityBar"></div>
+
+  <!-- MAIN MENU -->
+  <div id="menuOverlay" class="overlay">
+    <div class="title">CUBE CURIOSITY</div>
+    <div class="subtitle">Dodge the hazards. Improve your brain.</div>
+
+    <div id="menuStats" class="menuStats">
+      <div class="menuStat"><span class="menuStatLabel">BEST SCORE</span><span class="menuStatValue" id="menuBestScore">0</span></div>
+      <div class="menuStat"><span class="menuStatLabel">◆ COINS</span><span class="menuStatValue" id="menuCoinWallet">0</span></div>
+    </div>
+
+    <button class="btn pink" id="shopBtn">SHOP</button>
+
+    <div class="howList menuHow">
+      <p><b>JUMP</b> — Space / W / Up Arrow / Click / Tap</p>
+      <p>Your cube runs automatically. Time your jumps to clear spikes, gaps and platforms.</p>
+      <p>Reach the <b>flag</b> at each checkpoint to answer questions for a run-changing <b>UPGRADE</b>.</p>
+      <p>Grab <b>◆ coins</b> in risky spots for extra score. Fly close to spikes for a <b>NEAR MISS</b> bonus.</p>
+      <p>You have <b>3 lives</b> — dying respawns you at your last checkpoint with upgrades intact. Lose all 3 and it's <b>RUN OVER</b>.</p>
+    </div>
+
+    <button class="btn" id="playBtn">PLAY</button>
+
+    <button class="btn secondary" id="hubBtn">RETURN TO ARCADE ACADEMY</button>
+    <div class="creditLine">Made by Mr McKenzie</div>
+  </div>
+
+  <!-- SHOP -->
+  <div id="shopOverlay" class="overlay hidden">
+    <div class="panel">
+      <div class="title" style="font-size:24px; margin-bottom:2px;">SHOP</div>
+      <div class="shopWallet">◆ <span id="shopCoinWallet">0</span></div>
+      <canvas id="skinPreviewCanvas" width="120" height="120" style="margin:10px auto; display:block;"></canvas>
+      <div class="customSectionLabel">COLOR</div>
+      <div id="colorSwatchRow" class="swatchRow"></div>
+      <div class="customSectionLabel">FACE</div>
+      <div id="patternSwatchRow" class="swatchRow"></div>
+      <button class="btn" id="backFromShop" style="margin-top:16px;">BACK</button>
+    </div>
+  </div>
+
+  <!-- QUESTION PHASE -->
+  <div id="questionOverlay" class="overlay hidden">
+    <div class="panel">
+      <div class="stageLine" id="questionProgress">QUESTION 1 OF 4</div>
+      <div class="title" id="questionText" style="font-size:20px; margin-bottom:4px; line-height:1.3;">Question text</div>
+      <div id="questionOptions" class="questionOptions"></div>
+    </div>
+  </div>
+
+  <!-- CHECKPOINT -->
+  <div id="checkpointOverlay" class="overlay hidden">
+    <div class="panel">
+      <div class="stageLine" id="checkpointStageLine">CHECKPOINT REACHED</div>
+      <div class="title" style="font-size:26px; margin-bottom:2px;" id="checkpointTitle">CHOOSE AN UPGRADE</div>
+      <div id="upgradeGrid" class="upgradeGrid"></div>
+      <button class="btn" id="continueNoUpgradeBtn" style="margin-top:8px; display:none;">CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="gameOverOverlay" class="overlay hidden">
+    <div class="panel">
+      <div class="title" style="font-size:30px; color:var(--neon-red); text-shadow:0 0 10px var(--neon-red), 0 0 30px var(--neon-red);">RUN OVER</div>
+      <div class="scoreRow"><span>Distance</span><span id="goDistance">0m</span></div>
+      <div class="scoreRow"><span>Stage Reached</span><span id="goStage">1</span></div>
+      <div class="scoreRow"><span>Score</span><span id="goScore">0</span></div>
+      <div class="scoreRow"><span>Coins</span><span id="goCoins">0</span></div>
+      <div class="scoreRow"><span>Near Misses</span><span id="goNearMiss">0</span></div>
+      <div class="scoreRow"><span>Best Combo</span><span id="goCombo">x1</span></div>
+      <button class="btn" id="newRunBtn" style="margin-top:18px;">NEW RUN</button>
+      <button class="btn secondary" id="menuFromGoBtn">MAIN MENU</button>
+    </div>
+  </div>
+
+  <div class="flash" id="flashDiv"></div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
