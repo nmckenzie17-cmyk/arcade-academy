@@ -216,6 +216,22 @@
       </div>
     </section>
 
+    <section class="daily-mission-section" id="daily-missions" aria-labelledby="daily-missions-title">
+      <div class="section-heading"><div><p class="eyebrow">Fresh every day</p><h2 id="daily-missions-title">Daily Missions</h2></div><p class="daily-mission-reset">3 missions · 50 coins + 200 XP each</p></div>
+      <div class="daily-mission-grid" id="daily-mission-grid"><p>Loading today’s missions…</p></div>
+    </section>
+
+    <section class="mistake-rematch-section" id="mistake-rematch" aria-labelledby="mistake-rematch-title">
+      <div class="mistake-rematch-panel">
+        <div class="mistake-rematch-icon" aria-hidden="true">↻</div>
+        <div><p class="eyebrow">Turn mistakes into mastery</p><h2 id="mistake-rematch-title">Mistake Rematch</h2><p id="mistake-rematch-summary">Your missed questions will appear here.</p></div>
+        <button type="button" class="class-btn class-btn-primary" id="mistake-rematch-start" disabled>Start Rematch</button>
+      </div>
+    </section>
+    <section class="mistake-rematch-overlay" id="mistake-rematch-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="mistake-rematch-question-title">
+      <div class="mistake-rematch-window"><button type="button" class="mistake-rematch-close" id="mistake-rematch-close" aria-label="Close rematch">×</button><p class="eyebrow" id="mistake-rematch-progress"></p><h2 id="mistake-rematch-question-title"></h2><div id="mistake-rematch-options"></div><p id="mistake-rematch-feedback" role="status"></p><button type="button" class="class-btn class-btn-primary" id="mistake-rematch-next" hidden>Next question</button></div>
+    </section>
+
     <section class="dashboard-section" id="dashboard" aria-labelledby="dashboard-title">
       <div class="section-heading">
         <div>
@@ -342,6 +358,8 @@
   <script src="shared/js/GameSaveManager.js"></script>
   <script src="shared/js/PlatformManager.js?v=20260812-challenge-mode-v2"></script>
   <script src="shared/js/AchievementManager.js?v=20260811-angler-secrets-v7"></script>
+  <script src="shared/js/DailyMissionManager.js?v=20260816-daily-missions-v1"></script>
+  <script src="shared/js/MistakeRematchManager.js?v=20260817-mistake-rematch-v1"></script>
   <script src="shared/data/classes.js"></script>
   <script type="module" src="app.js?v=20260813-cosmetic-counts-v1"></script>
 </body>

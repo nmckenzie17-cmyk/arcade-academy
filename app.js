@@ -11,7 +11,8 @@ const gameFolders = [
   "tic-tac-toe",
   "pixel-artillery",
   "pool-practice"
-  ,"dot-n-box-deducer"
+  ,"dot-n-box-deducer",
+  "cube-curiosity"
 ];
 
 // Temporarily disabled while the Spark-compatible leaderboard deployment is
@@ -64,6 +65,10 @@ async function loadGames() {
   // then render the cards (each pulling in its own PlatformManager stats).
   loadedGames = games;
   window.AchievementManager?.configureGames(games);
+  window.DailyMissionManager?.configure(games);
+  window.DailyMissionManager?.connect(currentUser?.uid, currentProfile?.dailyMissions);
+  renderDailyMissions();
+  initialiseMistakeRematch();
   displayDashboard(buildGameTitleMap(games));
   displayGames(games);
   renderProgression();
@@ -84,6 +89,41 @@ async function loadGames() {
   }
 
 }
+
+function renderDailyMissions() {
+  const grid=document.querySelector('#daily-mission-grid');
+  if(!grid||!window.DailyMissionManager)return;
+  const missions=window.DailyMissionManager.getMissions();
+  grid.innerHTML=missions.map(mission=>`<article class="daily-mission-card${mission.completed?' completed':''}"><span class="daily-mission-status" aria-hidden="true">${mission.completed?'✓':'✦'}</span><div><h3>${mission.title}</h3><p>${mission.detail}</p><strong>${mission.completed?'Completed':mission.progressText}</strong><small>🪙 50 coins · ⭐ 200 XP</small></div>${mission.gameId&&!mission.completed?`<a href="${loadedGames.find(game=>game.id===mission.gameId)?.path||'#'}">Play now →</a>`:''}</article>`).join('');
+  renderProgression();
+  displayDashboard(buildGameTitleMap(loadedGames));
+}
+
+let rematchQueue=[];
+let rematchIndex=0;
+function initialiseMistakeRematch(){
+  const manager=window.MistakeRematchManager;if(!manager)return;
+  manager.connect(currentUser?.uid,currentProfile?.mistakeRematch);
+  manager.setOnChange(renderMistakeRematch);
+  renderMistakeRematch();
+  document.querySelector('#mistake-rematch-start').onclick=startMistakeRematch;
+  document.querySelector('#mistake-rematch-close').onclick=closeMistakeRematch;
+  document.querySelector('#mistake-rematch-next').onclick=showNextRematchQuestion;
+}
+function renderMistakeRematch(){
+  const manager=window.MistakeRematchManager,summaryEl=document.querySelector('#mistake-rematch-summary'),button=document.querySelector('#mistake-rematch-start');if(!manager||!summaryEl||!button)return;
+  const info=manager.summary();summaryEl.textContent=info.due?`${info.due} question${info.due===1?' is':'s are'} ready for revenge. ${info.mastered} mastered so far.`:info.learning?`${info.learning} question${info.learning===1?' is':'s are'} scheduled for a later rematch. ${info.mastered} mastered.`:'Missed questions from your games will appear here automatically.';button.disabled=info.due===0;button.textContent=info.due?`Rematch ${Math.min(info.due,10)}`:'Nothing due yet';
+}
+function startMistakeRematch(){rematchQueue=window.MistakeRematchManager.dueCards(10);rematchIndex=0;if(!rematchQueue.length)return;document.querySelector('#mistake-rematch-overlay').hidden=false;showRematchQuestion();}
+function showRematchQuestion(){
+  const card=rematchQueue[rematchIndex],options=document.querySelector('#mistake-rematch-options');if(!card){closeMistakeRematch();return;}
+  document.querySelector('#mistake-rematch-progress').textContent=`Question ${rematchIndex+1} of ${rematchQueue.length} · ${card.bankName}`;document.querySelector('#mistake-rematch-question-title').textContent=card.prompt;document.querySelector('#mistake-rematch-feedback').textContent='';document.querySelector('#mistake-rematch-next').hidden=true;options.innerHTML='';card.options.forEach(option=>{const button=document.createElement('button');button.type='button';button.className='mistake-rematch-option';button.textContent=option;button.onclick=()=>markRematchAnswer(card,option,button);options.appendChild(button);});
+}
+function markRematchAnswer(card,choice,selected){
+  const correct=choice===card.answer;window.MistakeRematchManager.answer(card.id,correct);document.querySelectorAll('.mistake-rematch-option').forEach(button=>{button.disabled=true;if(button.textContent===card.answer)button.classList.add('correct');});if(!correct)selected.classList.add('incorrect');document.querySelector('#mistake-rematch-feedback').textContent=correct?'Correct — this question will return later to make sure it sticks.':`Not quite. The answer is: ${card.answer}`;document.querySelector('#mistake-rematch-next').hidden=false;
+}
+function showNextRematchQuestion(){rematchIndex+=1;showRematchQuestion();}
+function closeMistakeRematch(){document.querySelector('#mistake-rematch-overlay').hidden=true;renderMistakeRematch();}
 
 
 // ------------------------------------------------------------------
@@ -178,6 +218,12 @@ function showHub(profile) {
   scheduleSeniorClassExpiry(profile);
   Promise.resolve(window.AchievementManager?.connect(currentUser?.uid, profile?.achievementSystem))
     .then(showPendingAchievementUnlocks);
+  if (loadedGames.length) {
+    window.DailyMissionManager?.configure(loadedGames);
+    window.DailyMissionManager?.connect(currentUser?.uid, profile?.dailyMissions);
+    renderDailyMissions();
+    initialiseMistakeRematch();
+  }
   renderProgression();
 
   if (!hubInitialized) {
@@ -306,6 +352,7 @@ googleSignInButton?.addEventListener("click", async () => {
   // it'll check for a profile and move to Profile Setup or the Hub.
   if (!user) {
     window.AchievementManager?.disconnect();
+    window.DailyMissionManager?.disconnect();
     showLoginError("Sign-in was cancelled or didn't go through. Please try again.");
   }
 

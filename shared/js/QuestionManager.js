@@ -37,6 +37,7 @@ const QuestionManager = {
     questions: null,
     bankName: '',
     bankCode: '',
+    questionType: '',
 
     // Resolves a teacher code against the shared registry, then fetches the
     // requested question-type file (e.g. "multichoice.json") from the
@@ -87,6 +88,7 @@ const QuestionManager = {
         if (!loaded.data) return { ok: false, error: loaded.error };
 
         const raw = loaded.data;
+        this.questionType = questionType || 'multichoice';
 
         if (questionType === 'category') {
             // Bare array of { prompt, correct, distractors }, or wrapped as
@@ -241,6 +243,14 @@ const QuestionManager = {
         const cap = (opts && typeof opts.cap === 'number') ? opts.cap : 16;
         let w = q.weight ?? 1;
         q.weight = wasCorrect ? Math.max(floor, w * 0.5) : Math.min(cap, w * 2);
+        if (!wasCorrect && window.MistakeRematchManager) {
+            window.MistakeRematchManager.recordWrong(q, {
+                bankCode: this.bankCode,
+                bankName: this.bankName,
+                questionType: this.questionType,
+                candidates: this.questions
+            });
+        }
     },
 
     // For games that persist adaptive weighting across sessions (rather

@@ -19,6 +19,10 @@
     "subject": "Senior Dance",
     "bank": "genres"
   },
+  "11-13dp": {
+    "subject": "Senior Dance",
+    "bank": "performance"
+  },
   "11-13dc": {
     "subject": "Senior Dance",
     "bank": "choreography"

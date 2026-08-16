@@ -475,6 +475,8 @@
     coinChangesWhileConnecting = 0;
   }
 
+  function getConnectedUid() { return firebaseUid || data.activity.syncedUid || null; }
+
   if (typeof global.setInterval === 'function') {
     global.setInterval(() => {
       if (currentSession) reconcileCurrentSession();
@@ -565,6 +567,7 @@
       'jetpack-journey':'#start-btn', 'note-knowledge':'#start-btn',
       'pinball-postulation':'#start-btn', 'pixel-artillery':'#start-single-btn',
       'angler-answerer':'#homeStartBtn',
+      'cube-curiosity':'#playBtn',
       'rocket-recall':'#beginGameBtn', 'shuriken-scholar':'#startBtn',
       'tic-tac-toe':'#start-single-btn', 'wild-west-wordslinger':'#start-button'
     };
@@ -1160,6 +1163,7 @@
     settleAccuracyCoins,
     connectFirebase,
     disconnectFirebase,
+    getConnectedUid,
     resetAllProgress,
     resetLearningStats,
     resetGameStats,
@@ -1200,7 +1204,7 @@
   if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && !global.AchievementManager && /\/games\//.test(location.pathname)) {
     const achievementScript = document.createElement('script');
     const achievementUrl = new URL('AchievementManager.js', PLATFORM_SCRIPT_URL);
-    achievementUrl.searchParams.set('v','20260812-dot-box-achievements-v10');
+    achievementUrl.searchParams.set('v','20260815-cube-curiosity-shop-v1');
     achievementScript.src = achievementUrl.href;
     achievementScript.defer = true;
     document.head.appendChild(achievementScript);
@@ -1209,6 +1213,15 @@
       const profile = await global.FirebaseManager?.getUserProfile?.(firebaseUid);
       global.AchievementManager?.connect?.(firebaseUid, profile?.achievementSystem);
     }, { once: true });
+  }
+
+  if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && !global.MistakeRematchManager && /\/games\//.test(location.pathname)) {
+    const rematchScript = document.createElement('script');
+    const rematchUrl = new URL('MistakeRematchManager.js', PLATFORM_SCRIPT_URL);
+    rematchUrl.searchParams.set('v','20260817-mistake-rematch-v1');
+    rematchScript.src = rematchUrl.href;
+    rematchScript.defer = true;
+    document.head.appendChild(rematchScript);
   }
 
   if (typeof document !== 'undefined'
@@ -1241,6 +1254,7 @@
             await connectFirebase(user.uid);
             const profile = await global.FirebaseManager.getUserProfile?.(user.uid);
             global.AchievementManager?.connect?.(user.uid, profile?.achievementSystem);
+            global.MistakeRematchManager?.connect?.(user.uid, profile?.mistakeRematch);
           } else {
             disconnectFirebase();
             global.AchievementManager?.disconnect?.();

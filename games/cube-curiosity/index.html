@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cube Curiosity</title>
-<link rel="stylesheet" href="style.css">
+<meta name="description" content="Race through a neon obstacle course and answer your class questions in Cube Curiosity.">
+<title>Cube Curiosity | Arcade Academy</title>
+<link rel="stylesheet" href="../../shared/css/global.css?v=20260812-shared-fonts-v2">
+<link rel="stylesheet" href="style.css?v=20260815-cube-shop-v2">
 </head>
 <body>
 <div id="gameContainer">
@@ -30,17 +32,20 @@
 
   <!-- MAIN MENU -->
   <div id="menuOverlay" class="overlay">
-    <div class="title">CUBE CURIOSITY</div>
-    <div class="subtitle">Dodge the hazards. Improve your brain.</div>
+    <main id="menuContent" class="panel">
+    <div class="section-label-font">ARCADE ACADEMY · SINGLE PLAYER</div>
+    <div class="title title-font">CUBE CURIOSITY</div>
+    <div class="subtitle subtitle-font">Dodge the hazards. Improve your brain.</div>
 
     <div id="menuStats" class="menuStats">
       <div class="menuStat"><span class="menuStatLabel">BEST SCORE</span><span class="menuStatValue" id="menuBestScore">0</span></div>
       <div class="menuStat"><span class="menuStatLabel">◆ COINS</span><span class="menuStatValue" id="menuCoinWallet">0</span></div>
     </div>
 
-    <button class="btn pink" id="shopBtn">SHOP</button>
+    <button class="btn pink" id="shopBtn">🛒 SHOP</button>
 
-    <div class="howList menuHow">
+    <div class="howList menuHow canva-card">
+      <h3>HOW TO PLAY</h3>
       <p><b>JUMP</b> — Space / W / Up Arrow / Click / Tap</p>
       <p>Your cube runs automatically. Time your jumps to clear spikes, gaps and platforms.</p>
       <p>Reach the <b>flag</b> at each checkpoint to answer questions for a run-changing <b>UPGRADE</b>.</p>
@@ -48,22 +53,30 @@
       <p>You have <b>3 lives</b> — dying respawns you at your last checkpoint with upgrades intact. Lose all 3 and it's <b>RUN OVER</b>.</p>
     </div>
 
-    <button class="btn" id="playBtn">PLAY</button>
+    <p id="questionBankStatus" role="status">Loading your class questions…</p>
+
+    <button class="btn" id="playBtn" disabled>PLAY</button>
 
     <button class="btn secondary" id="hubBtn">RETURN TO ARCADE ACADEMY</button>
     <div class="creditLine">Made by Mr McKenzie</div>
+    </main>
   </div>
 
   <!-- SHOP -->
   <div id="shopOverlay" class="overlay hidden">
-    <div class="panel">
-      <div class="title" style="font-size:24px; margin-bottom:2px;">SHOP</div>
-      <div class="shopWallet">◆ <span id="shopCoinWallet">0</span></div>
-      <canvas id="skinPreviewCanvas" width="120" height="120" style="margin:10px auto; display:block;"></canvas>
-      <div class="customSectionLabel">COLOR</div>
-      <div id="colorSwatchRow" class="swatchRow"></div>
-      <div class="customSectionLabel">FACE</div>
-      <div id="patternSwatchRow" class="swatchRow"></div>
+    <div class="panel cubeShopPanel">
+      <header class="shopHeader"><div><div class="section-label-font">CUBE CURIOSITY</div><div class="title" style="font-size:24px; margin-bottom:2px;">SHOP</div></div><div class="shopWallet">◆ <span id="shopCoinWallet">0</span></div></header>
+      <div id="cubeShopTabs" class="cubeShopTabs">
+        <button id="cubeStylesTab" type="button" class="shop-tab-btn active-tab">Cube Styles</button>
+      </div>
+      <div id="cubeStylePanel" class="shop-tab-content">
+        <canvas id="skinPreviewCanvas" width="120" height="120"></canvas>
+        <div class="customSectionLabel">COLORS</div>
+        <div id="colorSwatchRow" class="cubeShopList"></div>
+        <div class="customSectionLabel">FACE FEATURES</div>
+        <div id="patternSwatchRow" class="cubeShopList"></div>
+        <p id="shopMessage" role="status"></p>
+      </div>
       <button class="btn" id="backFromShop" style="margin-top:16px;">BACK</button>
     </div>
   </div>
@@ -97,14 +110,18 @@
       <div class="scoreRow"><span>Coins</span><span id="goCoins">0</span></div>
       <div class="scoreRow"><span>Near Misses</span><span id="goNearMiss">0</span></div>
       <div class="scoreRow"><span>Best Combo</span><span id="goCombo">x1</span></div>
-      <button class="btn" id="newRunBtn" style="margin-top:18px;">NEW RUN</button>
-      <button class="btn secondary" id="menuFromGoBtn">MAIN MENU</button>
+      <button class="btn" id="menuFromGoBtn" style="margin-top:18px;">RETURN HOME</button>
     </div>
   </div>
 
   <div class="flash" id="flashDiv"></div>
 </div>
 
-<script src="game.js"></script>
+<script type="module" src="../../shared/js/FirebaseManager.js"></script>
+<script src="gameconfig.js"></script>
+<script src="../../shared/js/GameSaveManager.js"></script>
+<script src="../../shared/js/PlatformManager.js?v=20260815-cube-shop-v2"></script>
+<script src="../../shared/js/QuestionManager.js"></script>
+<script src="game.js?v=20260815-cube-shop-v2"></script>
 </body>
 </html>

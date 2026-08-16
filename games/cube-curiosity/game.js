@@ -28,8 +28,14 @@
     COMBO_DECAY_TIME: 3.2,   // seconds of inactivity before combo resets
     STARTING_LIVES: 3,       // checkpoint respawns allowed per run before a full restart
     JUMP_BUFFER_TIME: 0.12,  // seconds a jump press is "remembered" before landing
-    ARCADE_HUB_URL: '../index.html', // path back to the Arcade Academy hub launcher — adjust to match this game's actual subfolder depth
+    ARCADE_HUB_URL: '../../index.html',
   };
+
+  const GAME_ID = window.GAME_CONFIG?.id || 'cube-curiosity';
+  const QUESTION_TYPE = window.GAME_CONFIG?.questionType || 'multichoice';
+  const CORRECT_REWARD = 10;
+  const INCORRECT_PENALTY = 5;
+  const hasReward = id => (document.documentElement.dataset.arcadeCosmetics || '').split(' ').includes(id);
 
   const PPM = 16; // pixels-per-metre for distance display (visual scaling only)
 
@@ -180,29 +186,29 @@
 
   /* ------------------------------ PLAYER SKINS ----------------------------- */
   const SKIN_COLORS = [
-    { id:'cyan',   color:'#35f5ff', name:'Cyan'   },
-    { id:'pink',   color:'#ff2ee6', name:'Pink'   },
-    { id:'yellow', color:'#ffe23d', name:'Yellow' },
-    { id:'green',  color:'#3dff8f', name:'Green'  },
-    { id:'purple', color:'#9b3dff', name:'Purple' },
-    { id:'red',    color:'#ff3d5a', name:'Red'    },
+    { id:'cyan',   color:'#35f5ff', name:'Academy Cyan', cost:0 },
+    { id:'pink',   color:'#ff2ee6', name:'Neon Pink', cost:75 },
+    { id:'yellow', color:'#ffe23d', name:'Scholar Gold', cost:100 },
+    { id:'green',  color:'#3dff8f', name:'Toxic Green', cost:125 },
+    { id:'purple', color:'#9b3dff', name:'Void Purple', cost:150 },
+    { id:'red',    color:'#ff3d5a', name:'Inferno Red', cost:175 },
   ];
   const FACE_PATTERNS = [
-    { id:'dots', name:'Dots', draw(ctx, half, color){
+    { id:'dots', name:'Pixel Dots', cost:0, draw(ctx, half, color){
       ctx.fillStyle = color;
       ctx.fillRect(-half*0.35,-half*0.35, half*0.35, half*0.35);
       ctx.fillRect(0, 0, half*0.35, half*0.35);
     } },
-    { id:'visor', name:'Visor', draw(ctx, half, color){
+    { id:'visor', name:'Cyber Visor', cost:100, draw(ctx, half, color){
       ctx.fillStyle = color;
       ctx.fillRect(-half*0.6, -half*0.18, half*1.2, half*0.36);
     } },
-    { id:'cross', name:'Cross', draw(ctx, half, color){
+    { id:'cross', name:'Hazard Cross', cost:125, draw(ctx, half, color){
       ctx.strokeStyle = color; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(-half*0.4,-half*0.4); ctx.lineTo(half*0.4,half*0.4);
       ctx.moveTo(half*0.4,-half*0.4); ctx.lineTo(-half*0.4,half*0.4); ctx.stroke();
     } },
-    { id:'ring', name:'Ring', draw(ctx, half, color){
+    { id:'ring', name:'Gravity Ring', cost:150, draw(ctx, half, color){
       ctx.strokeStyle = color; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.arc(0,0,half*0.42,0,Math.PI*2); ctx.stroke();
     } },
@@ -852,44 +858,13 @@
     }
   }
 
-  /* ------------------------------ QUESTION BANK ---------------------------
-     Placeholder sample bank — swap QUESTION_BANK for a fetch from Arcade
-     Academy's shared QuestionManager.js / class-code question bank later.
-     Each entry: { q, options:[4], correct: index of correct option }.
-     The only thing the checkpoint flow needs from that future integration
-     is a function shaped like pickQuestions(n) below.
-  ------------------------------------------------------------------------- */
-  const QUESTION_BANK = [
-    { q:'What is 7 × 8?', options:['54','56','64','48'], correct:1 },
-    { q:'Which planet is closest to the Sun?', options:['Venus','Earth','Mercury','Mars'], correct:2 },
-    { q:'What is the square root of 144?', options:['11','12','13','14'], correct:1 },
-    { q:'Which gas do plants absorb from the air for photosynthesis?', options:['Oxygen','Nitrogen','Carbon dioxide','Hydrogen'], correct:2 },
-    { q:'What is 15% of 200?', options:['20','25','30','35'], correct:2 },
-    { q:'Who wrote Romeo and Juliet?', options:['Charles Dickens','William Shakespeare','Jane Austen','Mark Twain'], correct:1 },
-    { q:'What is the capital of Australia?', options:['Sydney','Melbourne','Canberra','Perth'], correct:2 },
-    { q:'What is 9²?', options:['18','72','81','99'], correct:2 },
-    { q:'Which of these is a prime number?', options:['21','27','29','33'], correct:2 },
-    { q:'What is the chemical symbol for gold?', options:['Go','Gd','Au','Ag'], correct:2 },
-    { q:'How many sides does a hexagon have?', options:['5','6','7','8'], correct:1 },
-    { q:'What is 12 + 8 × 2?', options:['40','28','20','16'], correct:1 },
-    { q:'Which ocean is the largest?', options:['Atlantic','Indian','Arctic','Pacific'], correct:3 },
-    { q:'What is the boiling point of water at sea level (°C)?', options:['90','95','100','110'], correct:2 },
-    { q:'What is 1/4 as a percentage?', options:['4%','20%','25%','40%'], correct:2 },
-    { q:'Which organ pumps blood around the body?', options:['Lungs','Heart','Liver','Kidneys'], correct:1 },
-    { q:'What is the next number: 2, 4, 8, 16, ?', options:['20','24','32','30'], correct:2 },
-    { q:'Which country is famous for the Eiffel Tower?', options:['Italy','Spain','France','Germany'], correct:2 },
-    { q:'What is 100 ÷ 4?', options:['20','25','30','40'], correct:1 },
-    { q:'What force pulls objects toward the Earth?', options:['Magnetism','Friction','Gravity','Tension'], correct:2 },
-  ];
   function pickQuestions(n){
-    const pool = [...QUESTION_BANK];
-    const picked = [];
-    for(let i=0;i<n && pool.length;i++){
-      const idx = Math.floor(Math.random()*pool.length);
-      picked.push(pool[idx]);
-      pool.splice(idx,1);
-    }
-    return picked;
+    return QuestionManager.getRandomSet(n).map(source => ({
+      q: source.q,
+      options: source.a,
+      correct: source.c,
+      source
+    }));
   }
 
   /* ------------------------------ SCORE MANAGER ---------------------------- */
@@ -935,7 +910,8 @@
       this.acquiredUpgrades = [];
       this.checkpoint = null;              // snapshot captured each time a checkpoint is reached
       this.checkpointsReached = 0;         // total checkpoints hit this run (2 per stage)
-      this.livesRemaining = CONFIG.STARTING_LIVES;
+      const steadyStart = !PlatformManager.isPracticeMode() && window.AchievementManager?.hasBoost?.('cube-curiosity_steady_start');
+      this.livesRemaining = CONFIG.STARTING_LIVES + (steadyStart ? 1 : 0);
       this.jumpBufferTimer = 0;
       this._loadHighScores();
       this._bindUI();
@@ -948,9 +924,16 @@
     _loadSkinPrefs(){
       try{
         const saved = JSON.parse(localStorage.getItem('cubeCuriositySkin'));
-        if(saved && saved.color && saved.pattern) return saved;
+        if(saved && saved.color && saved.pattern){
+          const colorId = SKIN_COLORS.find(item=>item.color===saved.color)?.id || 'cyan';
+          return {
+            ...saved,
+            unlockedColors:[...new Set(['cyan', colorId, ...(saved.unlockedColors||[])])],
+            unlockedPatterns:[...new Set(['dots', saved.pattern, ...(saved.unlockedPatterns||[])])]
+          };
+        }
       }catch(e){}
-      return { color:'#35f5ff', pattern:'dots' };
+      return { color:'#35f5ff', pattern:'dots', unlockedColors:['cyan'], unlockedPatterns:['dots'] };
     }
     _saveSkinPrefs(){
       localStorage.setItem('cubeCuriositySkin', JSON.stringify(this.skinPrefs));
@@ -959,9 +942,6 @@
       try{
         this.highScores = JSON.parse(localStorage.getItem('cubeCuriosityHighScores')) || {distance:0,stage:1,score:0,coins:0,combo:1};
       }catch(e){ this.highScores = {distance:0,stage:1,score:0,coins:0,combo:1}; }
-      try{
-        this.coinWallet = parseInt(localStorage.getItem('cubeCuriosityWallet'), 10) || 0;
-      }catch(e){ this.coinWallet = 0; }
       this._refreshMenuStats();
     }
     _saveHighScores(){
@@ -972,33 +952,30 @@
       hs.coins = Math.max(hs.coins, this.score.coins);
       hs.combo = Math.max(hs.combo, this.score.bestCombo);
       localStorage.setItem('cubeCuriosityHighScores', JSON.stringify(hs));
-      // Coins earned this run are banked into the persistent wallet once the
-      // run is truly over (not on a checkpoint respawn, which isn't a real
-      // end — this only runs from finishDeath()).
-      this.coinWallet += this.score.coins;
-      localStorage.setItem('cubeCuriosityWallet', String(this.coinWallet));
       this._refreshMenuStats();
     }
     _refreshMenuStats(){
       document.getElementById('menuBestScore').textContent = Math.floor(this.highScores.score);
-      document.getElementById('menuCoinWallet').textContent = this.coinWallet;
+      const sharedCoins = window.PlatformManager?.getCoins?.() || 0;
+      document.getElementById('menuCoinWallet').textContent = sharedCoins;
       const shopWallet = document.getElementById('shopCoinWallet');
-      if(shopWallet) shopWallet.textContent = this.coinWallet;
+      if(shopWallet) shopWallet.textContent = sharedCoins;
     }
 
     /* ---------- UI binding ---------- */
     _bindUI(){
       document.getElementById('playBtn').onclick = ()=> this.startRun();
-      document.getElementById('shopBtn').onclick = ()=>{ this._refreshMenuStats(); this._show('shopOverlay'); };
+      document.getElementById('shopBtn').onclick = ()=>{ this._refreshMenuStats(); this._show('shopOverlay'); this._showStyleShop(); window.AchievementManager?.renderGameRewardShop?.(); };
       document.getElementById('backFromShop').onclick = ()=> this._show('menuOverlay');
+      document.getElementById('cubeStylesTab').onclick = ()=>this._showStyleShop();
       document.getElementById('hubBtn').onclick = ()=>{
         // Adjust this to match Arcade Academy's actual hub path once this
         // game is dropped into its subfolder — kept as a single, easy-to-
         // change spot rather than scattered through the code.
         window.location.href = CONFIG.ARCADE_HUB_URL;
       };
-      document.getElementById('newRunBtn').onclick = ()=> this.startRun();
-      document.getElementById('menuFromGoBtn').onclick = ()=> this._show('menuOverlay');
+      document.getElementById('menuFromGoBtn').onclick = ()=>{ this._refreshMenuStats(); this._show('menuOverlay'); };
+      window.addEventListener('arcade-coins-changed', ()=>this._refreshMenuStats());
     }
     _show(id){
       ['menuOverlay','shopOverlay','questionOverlay','checkpointOverlay','gameOverOverlay'].forEach(o=>{
@@ -1008,34 +985,51 @@
     }
 
     /* ---------- customization ---------- */
+    _showStyleShop(){
+      document.querySelectorAll('#shopOverlay .shop-tab-content').forEach(panel=>{panel.hidden=panel.id!=='cubeStylePanel';panel.classList.toggle('hidden',panel.id!=='cubeStylePanel');});
+      document.querySelectorAll('#cubeShopTabs button').forEach(button=>button.classList.toggle('active-tab',button.id==='cubeStylesTab'));
+      this._buildCustomizeUI();
+    }
+    _buyOrEquip(kind, item){
+      const key = kind==='color' ? 'unlockedColors' : 'unlockedPatterns';
+      const owned = this.skinPrefs[key].includes(item.id);
+      const message = document.getElementById('shopMessage');
+      if(!owned && !PlatformManager.spendCoins(item.cost)){
+        message.textContent = PlatformManager.isPracticeMode() ? 'Purchases are disabled in Practice Mode.' : `You need ${item.cost} coins to unlock ${item.name}.`;
+        message.classList.add('error');
+        return;
+      }
+      if(!owned) this.skinPrefs[key].push(item.id);
+      if(!owned) window.AchievementManager?.notify?.('upgrade_purchased');
+      if(kind==='color'){this.skinPrefs.color=item.color;this.player.trailColor=item.color;}
+      else this.skinPrefs.pattern=item.id;
+      this._saveSkinPrefs();
+      message.textContent = owned ? `${item.name} equipped.` : `${item.name} unlocked and equipped!`;
+      message.classList.remove('error');
+      this._refreshMenuStats();
+      this._buildCustomizeUI();
+    }
     _buildCustomizeUI(){
       const colorRow = document.getElementById('colorSwatchRow');
       colorRow.innerHTML = '';
       SKIN_COLORS.forEach(c=>{
-        const el = document.createElement('div');
-        el.className = 'colorSwatch' + (this.skinPrefs.color===c.color ? ' active' : '');
-        el.style.background = c.color;
-        el.style.boxShadow = `0 0 12px ${c.color}`;
-        el.title = c.name;
-        el.onclick = ()=>{
-          this.skinPrefs.color = c.color;
-          this.player.trailColor = c.color;
-          this._saveSkinPrefs();
-          this._buildCustomizeUI();
-        };
+        const owned=this.skinPrefs.unlockedColors.includes(c.id),equipped=this.skinPrefs.color===c.color;
+        const el = document.createElement('article');
+        el.className = 'shop-item cubeStyleItem'+(equipped?' equipped':'');
+        el.innerHTML = `<span class="stylePreview" style="--preview:${c.color}"></span><span><b class="shop-name">${c.name}</b><small>${owned?'Owned':`${c.cost} ◆`}</small></span><button class="shop-buy" type="button">${equipped?'Equipped':owned?'Equip':'Unlock'}</button>`;
+        el.querySelector('button').disabled=equipped;
+        el.querySelector('button').onclick=()=>this._buyOrEquip('color',c);
         colorRow.appendChild(el);
       });
       const patternRow = document.getElementById('patternSwatchRow');
       patternRow.innerHTML = '';
       FACE_PATTERNS.forEach(p=>{
-        const el = document.createElement('div');
-        el.className = 'patternSwatch' + (this.skinPrefs.pattern===p.id ? ' active' : '');
-        el.textContent = p.name;
-        el.onclick = ()=>{
-          this.skinPrefs.pattern = p.id;
-          this._saveSkinPrefs();
-          this._buildCustomizeUI();
-        };
+        const owned=this.skinPrefs.unlockedPatterns.includes(p.id),equipped=this.skinPrefs.pattern===p.id;
+        const el = document.createElement('article');
+        el.className = 'shop-item cubeStyleItem'+(equipped?' equipped':'');
+        el.innerHTML = `<span class="facePreview">${p.id==='dots'?'▪ ▪':p.id==='visor'?'▬':p.id==='cross'?'×':'○'}</span><span><b class="shop-name">${p.name}</b><small>${owned?'Owned':`${p.cost} ◆`}</small></span><button class="shop-buy" type="button">${equipped?'Equipped':owned?'Equip':'Unlock'}</button>`;
+        el.querySelector('button').disabled=equipped;
+        el.querySelector('button').onclick=()=>this._buyOrEquip('pattern',p);
         patternRow.appendChild(el);
       });
       this._renderSkinPreview();
@@ -1103,6 +1097,8 @@
 
     /* ---------- run lifecycle ---------- */
     startRun(){
+      if(!window.QuestionManager?.hasQuestions?.()) return;
+      PlatformManager.startSession(GAME_ID);
       this.player.reset();
       this.chunks.reset();
       this.score.reset();
@@ -1122,6 +1118,12 @@
     }
     triggerCheckpoint(isMajor){
       this.state = 'checkpoint';
+      if(hasReward('cube-curiosity_checkpoint_spark')){
+        for(let i=0;i<24;i++) this.particles.spawn({x:this.player.x+this.player.renderSize/2,y:this.player.y,vx:rand(-220,220),vy:rand(-280,20),life:.75,size:rand(2,6),color:i%2?'#ffd15c':'#35f5ff',gravity:420});
+      }
+      window.AchievementManager?.notify?.('cube_curiosity_checkpoint', { facts:{ cube_curiosity_run_checkpoints:this.checkpointsReached } });
+      if(this.checkpointsReached>=20) window.AchievementManager?.notify?.('mastery_cube_curiosity');
+      window.ChallengeManager?.update?.({ alive:true, distance:Math.floor(this.score.distanceM) });
       this.runQuestionPhase(isMajor);
     }
     /* ---- CheckpointFlow -------------------------------------------------
@@ -1159,6 +1161,14 @@
       const buttons = document.querySelectorAll('#questionOptions .questionOptionBtn');
       buttons.forEach(b=> b.disabled = true);
       const correct = selectedIndex === q.correct;
+      if(!PlatformManager.isPracticeMode()){
+        QuestionManager.recordAnswer(q.source, correct);
+        PlatformManager.recordQuestionAnswered(GAME_ID, correct);
+        if(correct) window.AchievementManager?.notify?.('cube_curiosity_correct');
+        if(correct) PlatformManager.addCoins(CORRECT_REWARD);
+        else PlatformManager.deductCoins(INCORRECT_PENALTY);
+      }
+      this._refreshMenuStats();
       if(correct){ this.questionCorrect++; buttons[selectedIndex].classList.add('correct'); }
       else {
         buttons[selectedIndex].classList.add('incorrect');
@@ -1205,7 +1215,7 @@
       document.getElementById('checkpointStageLine').textContent = isMajor
         ? `CHECKPOINT REACHED · STAGE ${this.score.stage} COMPLETE`
         : `CHECKPOINT REACHED · STAGE ${this.score.stage}`;
-      document.getElementById('checkpointTitle').textContent = '0/4 CORRECT · NO UPGRADE THIS TIME';
+      document.getElementById('checkpointTitle').textContent = `0/${this.questionQueue.length} CORRECT · NO UPGRADE THIS TIME`;
       const grid = document.getElementById('upgradeGrid');
       grid.innerHTML = '';
       grid.style.display = 'none';
@@ -1304,6 +1314,11 @@
     }
     finishDeath(){
       this._saveHighScores();
+      PlatformManager.addCoins(this.score.coins);
+      PlatformManager.setHighScore(GAME_ID, Math.floor(this.score.score));
+      window.ChallengeManager?.finish?.({ alive:false, distance:Math.floor(this.score.distanceM), score:Math.floor(this.score.score) });
+      PlatformManager.endSession(GAME_ID);
+      PlatformManager.endPracticeRun();
       document.getElementById('goDistance').textContent = Math.floor(this.score.distanceM)+'m';
       document.getElementById('goStage').textContent = this.score.stage;
       document.getElementById('goScore').textContent = Math.floor(this.score.score);
@@ -1581,6 +1596,9 @@
       this.worldX += moveAmount;
       this.score.addDistance(moveAmount / PPM);
       this.score.update(dtEff);
+      this.player.trailColor = hasReward('cube-curiosity_comet_trail')
+        ? `hsl(${Math.floor(performance.now()/9)%360} 100% 65%)`
+        : this.skinPrefs.color;
 
       this.chunks.ensureSpawned(this.worldX, this.score.distanceM, this.checkpointsReached + 1);
 
@@ -1633,6 +1651,11 @@
         ctx.translate(rand(-mag,mag), rand(-mag,mag));
       }
       this.theme.render(ctx, this.worldX);
+      if(hasReward('cube-curiosity_midnight_grid')){
+        ctx.save();ctx.globalAlpha=.18;ctx.strokeStyle='#7c3aed';ctx.lineWidth=1;
+        for(let x=-(this.worldX%48);x<W;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+        for(let y=0;y<H;y+=48){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}ctx.restore();
+      }
 
       if(this.theme.theme.name === 'CYBER CITY'){
         this._drawSteppedGround();
@@ -1930,7 +1953,12 @@
 
       const half = size/2 + CONFIG.PLAYER_VISUAL_PAD/2;
       const comboTier = Math.min(Math.floor((this.score.combo-1)/2), 6);
-      const glowColor = p.hasShield ? '#35f5ff' : (p.phaseTimer>0 ? '#ffe23d' : this.skinPrefs.color);
+      const rewardColour = hasReward('cube-curiosity_prismatic_cube')
+        ? `hsl(${Math.floor(performance.now()/12)%360} 95% 65%)`
+        : hasReward('cube-curiosity_arcade_academy_cube') ? '#ffd15c'
+        : hasReward('cube-curiosity_cyber_city_legend') ? '#ff2ee6'
+        : this.skinPrefs.color;
+      const glowColor = p.hasShield ? '#35f5ff' : (p.phaseTimer>0 ? '#ffe23d' : rewardColour);
       ctx.shadowColor = glowColor;
       ctx.shadowBlur = (p.landedThisFrame ? 26 : 16) + comboTier*3;
       ctx.fillStyle = '#0d0a26';
@@ -1970,9 +1998,38 @@
       const dt = Math.min((t - this.lastTime)/1000 || 0, 0.033);
       this.lastTime = t;
       this.update(dt);
+      PlatformManager.heartbeat(GAME_ID, this.state === 'playing');
       this.render();
       requestAnimationFrame(this.loop.bind(this));
     }
   }
 
   const game = new Game();
+
+  async function loadClassQuestions(){
+    const status = document.getElementById('questionBankStatus');
+    const play = document.getElementById('playBtn');
+    play.disabled = true;
+    const result = await QuestionManager.loadCurrentBank(QUESTION_TYPE);
+    status.classList.toggle('error', !result.ok);
+    status.textContent = result.ok
+      ? `Class questions ready · ${QuestionManager.getBankName()}`
+      : result.error === 'class-code-required'
+        ? 'Please enter your class code on the Arcade Academy Hub.'
+        : 'This class does not have compatible multiple-choice questions for this game.';
+    play.disabled = !result.ok;
+  }
+
+  function registerChallengeAdapter(){
+    window.ChallengeManager?.register?.({
+      start: () => game.startRun(),
+      snapshot: () => ({
+        alive: game.state !== 'gameover',
+        distance: Math.floor(game.score.distanceM),
+        score: Math.floor(game.score.score)
+      })
+    });
+  }
+  registerChallengeAdapter();
+  window.addEventListener('arcade-challenge-manager-ready', registerChallengeAdapter);
+  loadClassQuestions();

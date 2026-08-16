@@ -29,7 +29,8 @@
       "equippedRunPowerups"
     ],
     "shuriken-scholar": ["ninjaShurikenGameProgress"],
-    "wild-west-wordslinger": ["wildwestwordslingerGameProgress"]
+    "wild-west-wordslinger": ["wildwestwordslingerGameProgress"],
+    "cube-curiosity": ["cubeCuriosityHighScores", "cubeCuriositySkin", "cubeCuriosityWallet"]
   };
 
   function resetGame(gameId) {

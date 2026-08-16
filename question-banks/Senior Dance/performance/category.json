@@ -1,0 +1,143 @@
+{
+  "subject": "NCEA Level 3 Dance — Performance Analysis",
+  "categories": [
+    {
+      "prompt": "Structural Devices & Form",
+      "correct": [
+        "Accumulation",
+        "Retrograde",
+        "Non-Linear Narrative",
+        "Motif Inversion"
+      ],
+      "distractors": [
+        "Pirouette",
+        "Stage Right",
+        "Stage Left",
+        "Auditioning",
+        "Ticket Sales",
+        "Plie",
+        "Boom Lighting",
+        "Program Notes",
+        "Costume Fabric",
+        "Rosin Box",
+        "Proscenium Arch",
+        "Curtain Call"
+      ]
+    },
+    {
+      "prompt": "Elements of Space Analysis",
+      "correct": [
+        "Kinesphere",
+        "Spatial Density",
+        "Floor Pathways",
+        "Vertical Elevation"
+      ],
+      "distractors": [
+        "Polyrhythm",
+        "Bound Flow",
+        "Heavy Weight",
+        "Sudden Time",
+        "Sustained Effort",
+        "Melodic Phrasing",
+        "Soundscape",
+        "Fabric Texture",
+        "Color Palette",
+        "Somatic Breath",
+        "Dynamic Tension",
+        "Kinesthetic Empathy"
+      ]
+    },
+    {
+      "prompt": "Performance Technologies & Design",
+      "correct": [
+        "Side Boom Lighting",
+        "Projection Mapping",
+        "Textural Costuming",
+        "Soundscape Synthesis"
+      ],
+      "distractors": [
+        "Canon",
+        "Unison",
+        "Body Alignment",
+        "Weight Placement",
+        "Counterbalance",
+        "Spatial Focus",
+        "Call and Response",
+        "Mirroring",
+        "Retrograde",
+        "Accumulation",
+        "Abstraction",
+        "Isolation Movement"
+      ]
+    },
+    {
+      "prompt": "Performer Expressive Quality & Technique",
+      "correct": [
+        "Kinesthetic Empathy",
+        "Somatic Awareness",
+        "Dynamic Commitment",
+        "Spatial Projection"
+      ],
+      "distractors": [
+        "Cyclic Form",
+        "Rondo Form",
+        "Gobos",
+        "Fresnel Lens",
+        "Gel Color Filters",
+        "Cyclorama Wall",
+        "Acoustic Reverb",
+        "Set Backdrop",
+        "Raked Stage",
+        "Wings Entrance",
+        "Lighting Console",
+        "Velvet Drape"
+      ]
+    },
+    {
+      "prompt": "Choreographic Intent & Socio-Cultural Context",
+      "correct": [
+        "Ideological Perspective",
+        "Choreographic Subversion",
+        "Historical Resonance",
+        "Thematic Juxtaposition"
+      ],
+      "distractors": [
+        "Grand Jete",
+        "Chasse",
+        "Tendue",
+        "Battement",
+        "Arabesque",
+        "Releve",
+        "Degage",
+        "Pas de Deux",
+        "Fouette",
+        "Rond de Jambe",
+        "Attitude Turn",
+        "Glissade"
+      ]
+    },
+    {
+      "prompt": "Elements of Energy & Effort Quality",
+      "correct": [
+        "Bound Flow",
+        "Sustained Tension",
+        "Percussive Impact",
+        "Weight Acceleration"
+      ],
+      "distractors": [
+        "Symmetrical Layout",
+        "Upstage Center",
+        "Diagonal Pathway",
+        "High Level",
+        "Narrow Base",
+        "Curved Line",
+        "Forward Facing",
+        "Perimeter Route",
+        "Low Level",
+        "Direct Focus",
+        "Ensemble Circle",
+        "Spatial Horizon"
+      ]
+    }
+  ]
+}
