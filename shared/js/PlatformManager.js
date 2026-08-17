@@ -1206,7 +1206,7 @@
   if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && !global.AchievementManager && /\/games\//.test(location.pathname)) {
     const achievementScript = document.createElement('script');
     const achievementUrl = new URL('AchievementManager.js', PLATFORM_SCRIPT_URL);
-    achievementUrl.searchParams.set('v','20260815-cube-curiosity-shop-v1');
+    achievementUrl.searchParams.set('v','20260818-fighter-shop-touch-v1');
     achievementScript.src = achievementUrl.href;
     achievementScript.defer = true;
     document.head.appendChild(achievementScript);

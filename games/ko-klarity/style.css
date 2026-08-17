@@ -1,4 +1,4 @@
-  html,body{margin:0;padding:0;background:var(--bg-primary);overflow:hidden;height:100%;font-family:var(--font-body);user-select:none;}
+  html,body{margin:0;padding:0;background:var(--bg-primary);overflow:hidden;height:100%;font-family:var(--font-body);user-select:none;touch-action:manipulation;overscroll-behavior:none;}
   #wrap{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;margin:0;transform:none;overflow:hidden;}
   #game{width:100%;height:100%;object-fit:fill;box-sizing:border-box;background:#000;display:block;image-rendering:pixelated;border:0;border-radius:0;box-shadow:none;}
   .overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;pointer-events:auto;}
@@ -87,4 +87,13 @@
   #upgradeUI{margin:auto;}
   #mainMenu{position:fixed;inset:0;width:100vw;height:100dvh;z-index:200;overflow-y:auto;padding:16px 0;background:radial-gradient(circle at 50% 35%,rgba(106,5,114,.35),var(--bg-primary) 78%);}
   canvas{max-width:100%;max-height:100%;}
+  #koTouchControls{display:none;position:absolute;inset:0;z-index:30;pointer-events:none;touch-action:none;font-family:var(--font-title)}
+  body.touch-device.in-game #koTouchControls{display:block}
+  .ko-touch-movement,.ko-touch-actions{position:absolute;bottom:max(14px,env(safe-area-inset-bottom));display:grid;gap:8px;pointer-events:none}
+  .ko-touch-movement{left:max(14px,env(safe-area-inset-left));grid-template-columns:repeat(3,58px);grid-template-areas:". up ." "left down right"}
+  .ko-touch-movement [data-key="w"]{grid-area:up}.ko-touch-movement [data-key="a"]{grid-area:left}.ko-touch-movement [data-key="s"]{grid-area:down}.ko-touch-movement [data-key="d"]{grid-area:right}
+  .ko-touch-actions{right:max(14px,env(safe-area-inset-right));grid-template-columns:repeat(2,68px);align-items:end}
+  #koTouchControls button{min-width:58px;min-height:58px;padding:5px;border:2px solid rgba(255,255,255,.78);border-radius:50%;color:#fff;background:rgba(16,7,35,.72);box-shadow:0 0 12px rgba(0,212,255,.35);font:700 10px var(--font-title);pointer-events:auto;touch-action:none;-webkit-touch-callout:none}
+  #koTouchControls button.active{background:var(--accent-pink);transform:scale(.94);box-shadow:0 0 18px var(--accent-pink)}
+  @media(max-height:500px){#koTouchControls button{min-width:48px;min-height:48px}.ko-touch-movement{grid-template-columns:repeat(3,48px)}.ko-touch-actions{grid-template-columns:repeat(2,58px)}}
   @media(max-width:640px),(max-height:650px){.home-stats{grid-template-columns:1fr 1fr}.home-panel{max-height:none;margin:auto}.overlay{justify-content:flex-start;overflow-y:auto;padding:16px 0}}

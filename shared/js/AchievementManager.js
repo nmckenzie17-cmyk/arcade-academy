@@ -314,6 +314,12 @@ style.textContent=rules;document.head.appendChild(style);}
     if(typeof document==='undefined')return;
     if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',renderNativeCosmeticsTab,{once:true});return;}
     const gameId=currentGameId();if(!gameId)return;
+    if(['ko-klarity','rumbux-revision'].includes(gameId)){
+      document.getElementById('arcade-generated-shop-button')?.remove();
+      document.getElementById('arcade-generated-shop')?.remove();
+      document.getElementById('arcade-rewards-button')?.remove();
+      return; // These games render shared rewards inside their own Cosmetics shop tab.
+    }
     const configs={
       'jetpack-journey':{root:'#shop-panel',tabs:'#shop-tabs',panels:'#shop-panel',panelSelector:'.shop-tab-panel',buttonClass:'shop-tab-btn btn',panelClass:'shop-tab-panel'},
       'rocket-recall':{root:'#shopScreen',tabs:'#shopScreen .shop-tab-btn',panels:'#shopScreen',panelSelector:'.shop-tab-content',buttonClass:'shop-tab-btn',panelClass:'shop-tab-content'},

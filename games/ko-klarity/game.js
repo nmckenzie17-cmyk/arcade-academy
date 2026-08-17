@@ -384,6 +384,20 @@ window.addEventListener('keyup', e=>{
   Input.keys[k] = false;
 });
 
+const koHasTouch=('ontouchstart' in window)||(navigator.maxTouchPoints||0)>0;
+if(koHasTouch)document.body.classList.add('touch-device');
+document.querySelectorAll('#koTouchControls [data-key]').forEach(button=>{
+  const key=button.dataset.key;
+  const press=e=>{e.preventDefault();if(!Input.keys[key])Input.pressed[key]=true;Input.keys[key]=true;button.classList.add('active')};
+  const release=e=>{e.preventDefault();if(Input.keys[key])Input.released[key]=true;Input.keys[key]=false;button.classList.remove('active')};
+  button.addEventListener('pointerdown',press,{passive:false});
+  button.addEventListener('pointerup',release,{passive:false});
+  button.addEventListener('pointercancel',release,{passive:false});
+  button.addEventListener('pointerleave',e=>{if(e.buttons)release(e)},{passive:false});
+});
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+
 // ======================================================================
 // PARTICLES
 // ======================================================================
@@ -3307,6 +3321,7 @@ const game = new Game();
 
 function loop(){
   game.frame++;
+  document.body.classList.toggle('in-game',game.phase==='fight');
   if(game.phase==='ko'){ game.updateKO(); }
   else { game.update(); }
   ctx.clearRect(0,0,960,540);
@@ -3572,6 +3587,19 @@ function renderCosmeticsTab(){
       }
       box.appendChild(card);
     });
+  });
+  addHeader('Arcade Level Rewards');
+  const rewards=window.AchievementManager?.getRewards?.({gameId:GAME_ID}).filter(r=>r.owned)||[];
+  if(!rewards.length){
+    const empty=document.createElement('div');empty.className='shopCard';empty.innerHTML='<h4>No level rewards unlocked yet</h4><p>Earn Arcade Academy XP to unlock game cosmetics here.</p>';box.appendChild(empty);
+  }
+  rewards.forEach(reward=>{
+    const card=document.createElement('div');card.className='shopCard'+(reward.equipped?' shopOwned':'');
+    card.innerHTML=`<h4>${reward.name}</h4><p>${reward.detail}</p><div class="shopBuyRow"></div>`;
+    const row=card.querySelector('.shopBuyRow');
+    if(reward.secretGlobal||reward.type==='gameplay')row.innerHTML='<span class="shopMaxed">ALWAYS ACTIVE</span>';
+    else{const button=document.createElement('button');button.className='shopBuyBtn';button.textContent=reward.equipped?'DISABLE':'EQUIP';button.onclick=()=>{AchievementManager.equip(reward.id);renderCosmeticsTab()};row.appendChild(button)}
+    box.appendChild(card);
   });
 }
 function buyCosmetic(item){

@@ -132,9 +132,11 @@ class TouchControls {
     this.bindButton('tcJump', 'jump');
     this.bindButton('tcDodge', 'dodge');
     this.bindButton('tcSpecial', 'special');
+    this.bindButton('tcGrab', 'grab');
 
     // Prevent iOS Safari gestures (pinch-zoom, double-tap-zoom, pull-to-refresh)
     document.addEventListener('gesturestart', (e)=>e.preventDefault());
+    document.addEventListener('dblclick', (e)=>e.preventDefault(), {passive:false});
     document.addEventListener('touchmove', (e)=>{ if (e.scale && e.scale !== 1) e.preventDefault(); }, {passive:false});
   }
 
@@ -1224,6 +1226,7 @@ const SHOP_TABS = [
     { id:'char_ninja', name:'Ninja', desc:'Longer combos and stronger aerial attacks.', type:'once', isCharacter:'ninja' },
     { id:'char_wrestler', name:'Wrestler', desc:'Strong grabs, throws and survivability.', type:'once', isCharacter:'wrestler' },
   ]},
+  { id:'cosmetics', name:'Cosmetics', items: [] },
 ];
 
 // Flat lookup by id, and a lookup of chain members by chain name — both
@@ -3763,6 +3766,18 @@ class Game {
     const wrap = document.getElementById('shopBody');
     wrap.innerHTML = '';
     const tab = SHOP_TABS.find(t => t.id === this.currentShopTab) || SHOP_TABS[0];
+    if(tab.id==='cosmetics'){
+      const rewards=window.AchievementManager?.getRewards?.({gameId:'rumbux-revision'}).filter(r=>r.owned)||[];
+      if(!rewards.length){wrap.innerHTML='<div class="shopCard"><h4>NO COSMETICS UNLOCKED YET</h4><p>Earn Arcade Academy XP to unlock game cosmetics here.</p></div>';return;}
+      rewards.forEach(reward=>{
+        const card=document.createElement('div');card.className='shopCard'+(reward.equipped?' owned':'');
+        card.innerHTML=`<h4>${reward.name}</h4><p>${reward.detail}</p>`;
+        if(reward.secretGlobal||reward.type==='gameplay')card.insertAdjacentHTML('beforeend','<div class="shopLevel">ALWAYS ACTIVE</div>');
+        else{const button=document.createElement('button');button.className='shopBuyBtn';button.textContent=reward.equipped?'DISABLE':'EQUIP';button.onclick=()=>{AchievementManager.equip(reward.id);this.renderShopBody()};card.appendChild(button)}
+        wrap.appendChild(card);
+      });
+      return;
+    }
     for (const item of tab.items) wrap.appendChild(this.buildShopCard(item));
   }
 

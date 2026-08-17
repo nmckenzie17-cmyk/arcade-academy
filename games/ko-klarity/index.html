@@ -2,15 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>KO Klarity — Roguelike Fighter</title>
-<link rel="stylesheet" href="../../shared/css/global.css?v=20260818-home-layout-v2">
-<link rel="stylesheet" href="style.css?v=20260818-home-layout-v2">
+<link rel="stylesheet" href="../../shared/css/global.css?v=20260818-fighter-shop-touch-v1">
+<link rel="stylesheet" href="style.css?v=20260818-fighter-shop-touch-v1">
 </head>
 <body>
 <div id="wrap">
   <canvas id="game" width="960" height="540"></canvas>
   <div id="hud"></div>
+  <div id="koTouchControls" aria-label="Touch fighting controls">
+    <div class="ko-touch-movement">
+      <button data-key="a" aria-label="Move left">◀</button>
+      <button data-key="s" aria-label="Crouch">▼</button>
+      <button data-key="d" aria-label="Move right">▶</button>
+      <button data-key="w" aria-label="Jump">▲</button>
+    </div>
+    <div class="ko-touch-actions">
+      <button data-key="l">BLOCK</button>
+      <button data-key=" ">SPEC</button>
+      <button data-key="k">HEAVY</button>
+      <button data-key="j">HIT</button>
+    </div>
+  </div>
 
   <div id="mainMenu" class="overlay arcade-home-screen">
     <canvas id="homeEnemyBackdrop" class="game-home-backdrop" width="960" height="540" aria-hidden="true"></canvas>
@@ -90,7 +104,7 @@
 </div>
 
 <script src="gameconfig.js"></script>
-<script src="../../shared/js/PlatformManager.js?v=20260818-suggested-game-v1"></script>
+<script src="../../shared/js/PlatformManager.js?v=20260818-fighter-shop-touch-v1"></script>
 <script src="../../shared/js/QuestionManager.js"></script>
 <script src="game.js"></script>
 </body>

@@ -7,6 +7,7 @@
     overscroll-behavior:none;
     -webkit-user-select:none; user-select:none;
     -webkit-touch-callout:none;
+    touch-action:manipulation;
   }
   #gameWrap {
     position:relative;
@@ -78,6 +79,7 @@
   #tcJump   { width:66px; height:66px; right:20px; bottom:190px; background:rgba(57,255,106,0.55); font-size:12px; }
   #tcDodge  { width:60px; height:60px; right:150px; bottom:40px; background:rgba(47,143,255,0.55); font-size:11px; }
   #tcSpecial{ width:60px; height:60px; right:10px; bottom:280px; background:rgba(200,47,255,0.55); font-size:11px; }
+  #tcGrab   { width:58px; height:58px; right:92px; bottom:252px; background:rgba(255,206,47,0.58); font-size:10px; }
   .pixel-text {
     font-family:var(--font-title);
     font-weight: bold;
