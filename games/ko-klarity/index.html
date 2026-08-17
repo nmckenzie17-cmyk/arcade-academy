@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KO Klarity — Roguelike Fighter</title>
+<link rel="stylesheet" href="../../shared/css/global.css?v=20260818-home-layout-v2">
+<link rel="stylesheet" href="style.css?v=20260818-home-layout-v2">
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game" width="960" height="540"></canvas>
+  <div id="hud"></div>
+
+  <div id="mainMenu" class="overlay arcade-home-screen">
+    <canvas id="homeEnemyBackdrop" class="game-home-backdrop" width="960" height="540" aria-hidden="true"></canvas>
+    <div class="menuBox home-panel panel arcade-home-content">
+      <h1 class="title title-font">KO KLARITY</h1>
+      <div class="subtitle subtitle-font">FIGHT SHARP. THINK SHARPER.</div>
+      <div class="home-stats">
+        <div><span>HIGH SCORE</span><strong id="menuHighScore">0</strong></div>
+        <div><span>BEST RUN</span><strong id="menuBestRun">0</strong></div>
+        <div><span>🪙 COINS</span><strong id="menuCoins">0</strong></div>
+      </div>
+      <button class="menuBtn btn" id="btnShop">SHOP</button>
+      <div class="home-description htp">
+        <b>HOW TO PLAY:</b> Move with A/D, jump with W, crouch with S, use J for light attacks, K for heavy attacks, L to block, and Space for your special. Direction + Space dodges. Defeat an opponent, answer four class questions, then choose one upgrade from the number of options earned by correct answers. Every fifth fight is a boss, and health carries between fights.
+      </div>
+      <div id="classStatus" class="class-status">Loading your class questions…</div>
+      <button class="menuBtn btn" id="btnFight">FIGHT</button>
+      <button class="menuBtn btn secondary" id="btnScores">HIGH SCORES</button>
+      <div id="scoresBox" class="scores hidden"></div>
+      <a class="game-home-link" href="../../index.html">← Back to Arcade Academy</a>
+      <div class="creator-credit">by Mr McKenzie</div>
+    </div>
+  </div>
+
+  <div id="shopMenu" class="overlay hidden">
+    <div id="shopPanel">
+      <div id="shopHeader">
+        <h1>SHOP</h1>
+        <div id="shopCoins"></div>
+        <button id="btnShopClose">CLOSE</button>
+      </div>
+      <div id="shopTabs"></div>
+      <div id="shopItems"></div>
+    </div>
+  </div>
+
+  <div id="countdownUI" class="overlay hidden">
+    <div id="introNames" class="midText" style="margin-bottom:10px;"></div>
+    <div id="introVs" class="stat" style="font-size:16px;color:#ffd166;margin-bottom:20px;"></div>
+    <div id="countNum" class="bigText"></div>
+  </div>
+
+  <div id="koUI" class="overlay hidden"><div class="bigText">K.O.</div></div>
+
+  <div id="quizUI" class="overlay hidden">
+    <div class="menuBox quiz-panel panel">
+      <div class="title quiz-title">QUESTION <span id="quizProgress">1/4</span></div>
+      <div id="quizScoreTrack" class="quiz-score-track"></div>
+      <div id="quizQuestionText" class="quiz-question"></div>
+      <div id="quizOptions" class="quiz-options"></div>
+      <div id="quizFeedback" class="quiz-feedback" role="status"></div>
+    </div>
+  </div>
+
+  <div id="victoryUI" class="overlay hidden">
+    <div id="victoryTitle" class="bigText" style="margin-bottom:10px;">VICTORY</div>
+    <div id="victoryControls" class="stat" style="font-size:12px;color:#8fd0ff;margin-bottom:10px;"></div>
+    <div id="upgradeUI"></div>
+  </div>
+
+  <div id="gameOverUI" class="overlay hidden">
+    <div class="menuBox">
+      <div class="bigText" style="font-size:40px;">KNOCKED OUT</div>
+      <div id="finalStats" class="scores" style="text-align:center;margin-top:14px;"></div>
+      <button class="menuBtn btn" id="btnMenu">RETURN HOME</button>
+    </div>
+  </div>
+
+  <div id="charSelectUI" class="overlay hidden">
+    <div class="menuBox">
+      <h1 class="title" style="font-size:28px;">CHOOSE YOUR FIGHTER</h1>
+      <div id="charSelectItems"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script src="gameconfig.js"></script>
+<script src="../../shared/js/PlatformManager.js?v=20260818-suggested-game-v1"></script>
+<script src="../../shared/js/QuestionManager.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

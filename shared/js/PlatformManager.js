@@ -577,7 +577,9 @@
         return true;
       }
       if (document.getElementById('arcade-practice-button')) return true;
-      const startButton = document.querySelector(selectors[gameId]);
+      const startSelector = selectors[gameId] || global.GAME_CONFIG?.startSelector;
+      if (!startSelector) return false;
+      const startButton = document.querySelector(startSelector);
       if (!startButton) return false;
       const button = document.createElement('button');
       button.id = 'arcade-practice-button';
@@ -1224,6 +1226,15 @@
     document.head.appendChild(rematchScript);
   }
 
+  if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && !global.SuggestedGameManager && /\/games\//.test(location.pathname)) {
+    const suggestedScript = document.createElement('script');
+    const suggestedUrl = new URL('SuggestedGameManager.js', PLATFORM_SCRIPT_URL);
+    suggestedUrl.searchParams.set('v','20260818-suggested-game-v1');
+    suggestedScript.src = suggestedUrl.href;
+    suggestedScript.defer = true;
+    document.head.appendChild(suggestedScript);
+  }
+
   if (typeof document !== 'undefined'
       && PLATFORM_SCRIPT_URL
       && !global.ChallengeManager
@@ -1255,9 +1266,11 @@
             const profile = await global.FirebaseManager.getUserProfile?.(user.uid);
             global.AchievementManager?.connect?.(user.uid, profile?.achievementSystem);
             global.MistakeRematchManager?.connect?.(user.uid, profile?.mistakeRematch);
+            global.SuggestedGameManager?.connect?.(user.uid, profile?.suggestedGame);
           } else {
             disconnectFirebase();
             global.AchievementManager?.disconnect?.();
+            global.SuggestedGameManager?.disconnect?.();
           }
         });
       })

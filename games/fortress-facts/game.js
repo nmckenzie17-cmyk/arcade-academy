@@ -1791,10 +1791,10 @@ function showKingdom(onClose){
 
 function showStart(){
     const canInvade=invasionUnlocked();
-    modalRoot.innerHTML=`<div class="home-page"><canvas id="home-bg-canvas"></canvas><div class="home-inner">
+    modalRoot.innerHTML=`<div class="home-page arcade-home-screen"><canvas id="home-bg-canvas"></canvas><div class="home-inner arcade-home-content">
         <h2 class="title-font" style="background:none;border:none;box-shadow:none;font-size:clamp(24px,6vw,40px);">Fortress Facts</h2>
         <p class="subtitle-font" style="margin:6px 0 20px;">Defend the realm. Answer to arm.</p>
-        <div style="display:flex;justify-content:space-between;margin-bottom:20px;padding:0 4px;flex-wrap:wrap;gap:10px">
+        <div class="arcade-home-stats" style="display:flex;justify-content:space-between;margin-bottom:20px;padding:0 4px;flex-wrap:wrap;gap:10px">
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">💀 Kills</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.totalKills||0}</p></div>
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">High Score</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.bestWave||0}</p></div>
             <div style="text-align:center;flex:1;min-width:70px"><p style="font-size:clamp(12px,2vw,14px);font-weight:700;color:var(--accent-blue)">Correct</p><p style="font-size:clamp(18px,2.6vw,22px);font-weight:700;color:#fde047">${kingdomSave.totalCorrectAnswers||0}</p></div>

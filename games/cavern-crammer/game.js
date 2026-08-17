@@ -3109,22 +3109,15 @@ function updateHomeStats(){
   document.getElementById('homeCorrect').textContent = save.stats.questionsCorrect||0;
 }
 
-// Decorative background: a few pixel motes (coins/embers) drifting behind the title
-// screen panel — purely visual, no game-state impact. Uses its own canvas/context so
-// it never touches the main gameplay `ctx`.
+// Decorative background made only from Cavern Crammer's real enemy renderers.
 (function homeBg(){
   const bgCanvas = document.getElementById('homeBg');
   const bgCtx = bgCanvas.getContext('2d');
-  const colors = ['#f2b84b', '#5fb89c', '#8b5fbf', '#e05650'];
-  const motes = [];
-  for(let i=0;i<16;i++){
-    motes.push({
-      x: Math.random(), y: Math.random(),
-      vx: (Math.random()-0.5)*0.0006, vy: -0.0004-Math.random()*0.0006,
-      size: 2+Math.random()*3,
-      color: colors[i%colors.length]
-    });
-  }
+  const types=['crawler','flyer','slider','lobber'];
+  const colors=['#8b5fbf','#c0563f','#3f7fc0','#5fb89c'];
+  const enemies=Array.from({length:18},(_,i)=>({type:types[i%types.length],hue:colors[i%colors.length],
+    x:Math.random(),y:.08+Math.random()*.82,vx:(Math.random()<.5?-1:1)*(.00012+Math.random()*.00028),
+    vy:(Math.random()-.5)*.00012,w:i%4===1?12:10,h:i%4===1?10:12,fireTimer:50}));
   function frame(){
     const titleScreen = document.getElementById('titleScreen');
     if(titleScreen && !titleScreen.classList.contains('hidden')){
@@ -3132,13 +3125,21 @@ function updateHomeStats(){
       if(bgCanvas.width!==w) bgCanvas.width = w;
       if(bgCanvas.height!==h) bgCanvas.height = h;
       bgCtx.clearRect(0,0,w,h);
-      motes.forEach(m=>{
-        m.x += m.vx; m.y += m.vy;
-        if(m.x<-0.05) m.x=1.05; if(m.x>1.05) m.x=-0.05;
-        if(m.y<-0.05) m.y=1.05;
-        bgCtx.fillStyle = m.color;
-        bgCtx.fillRect(m.x*w, m.y*h, m.size, m.size);
+      const gameCtx=ctx;
+      ctx=bgCtx;
+      enemies.forEach(en=>{
+        en.x+=en.vx;en.y+=en.vy;
+        if(en.x<-.05)en.x=1.05;if(en.x>1.05)en.x=-.05;
+        if(en.y<.04||en.y>.96)en.vy*=-1;
+        const sx=en.x*w,sy=en.y*h;
+        bgCtx.save();bgCtx.globalAlpha=.62;bgCtx.scale(2,2);
+        if(en.type==='flyer')drawFlyer(en,sx/2,sy/2);
+        else if(en.type==='slider')drawSlider(en,sx/2,sy/2);
+        else if(en.type==='lobber')drawLobber(en,sx/2,sy/2);
+        else drawCrawler(en,sx/2,sy/2);
+        bgCtx.restore();
       });
+      ctx=gameCtx;
     }
     requestAnimationFrame(frame);
   }

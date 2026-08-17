@@ -69,6 +69,11 @@ For multiplayer show Create Room, Join Room, five-digit numeric code entry, lobb
 - Return to the game home screen after a completed match.
 - Hub link is `../../index.html`.
 - Home pages and overlays must scroll correctly on desktop, mobile, and iPad.
+- Keep the title, catchphrase, statistic boxes, selectors, mode controls, and action groups aligned to one centred home-screen column at every viewport size.
+- Put concise How to Play controls and rules inside the Description/instructions section instead of a separate tab or screen.
+- Fill the available viewport without clipping or an unintended inset game window, while preserving board/canvas aspect and input-coordinate accuracy where mechanics require it.
+- When a game has enemies, home-screen animation may use only that game’s existing enemy sprite assets or renderer. Never create generic substitutes or borrow enemies from another game.
+- Non-enemy backdrop art must come from the game’s own objects and visual language. The backdrop must cover the home screen, remain behind content, ignore pointer input, and have a useful default before the player unlocks anything.
 
 ## Global CSS, Fonts, Themes, and Shared Values
 

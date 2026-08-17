@@ -10,9 +10,11 @@ const gameFolders = [
   "angler-answerer",
   "tic-tac-toe",
   "pixel-artillery",
-  "pool-practice"
-  ,"dot-n-box-deducer",
-  "cube-curiosity"
+  "pool-practice",
+  "dot-n-box-deducer",
+  "cube-curiosity",
+  "rumbux-revision",
+  "ko-klarity"
 ];
 
 // Temporarily disabled while the Spark-compatible leaderboard deployment is
@@ -67,7 +69,11 @@ async function loadGames() {
   window.AchievementManager?.configureGames(games);
   window.DailyMissionManager?.configure(games);
   window.DailyMissionManager?.connect(currentUser?.uid, currentProfile?.dailyMissions);
+  window.SuggestedGameManager?.configure(games);
+  window.SuggestedGameManager?.connect(currentUser?.uid, currentProfile?.suggestedGame);
+  window.SuggestedGameManager?.setOnChange(renderSuggestedGame);
   renderDailyMissions();
+  renderSuggestedGame();
   initialiseMistakeRematch();
   displayDashboard(buildGameTitleMap(games));
   displayGames(games);
@@ -97,6 +103,15 @@ function renderDailyMissions() {
   grid.innerHTML=missions.map(mission=>`<article class="daily-mission-card${mission.completed?' completed':''}"><span class="daily-mission-status" aria-hidden="true">${mission.completed?'✓':'✦'}</span><div><h3>${mission.title}</h3><p>${mission.detail}</p><strong>${mission.completed?'Completed':mission.progressText}</strong><small>🪙 50 coins · ⭐ 200 XP</small></div>${mission.gameId&&!mission.completed?`<a href="${loadedGames.find(game=>game.id===mission.gameId)?.path||'#'}">Play now →</a>`:''}</article>`).join('');
   renderProgression();
   displayDashboard(buildGameTitleMap(loadedGames));
+}
+
+function renderSuggestedGame(){
+  const panel=document.querySelector('#suggested-game-panel'),manager=window.SuggestedGameManager;
+  if(!panel||!manager)return;
+  const suggestion=manager.getSuggestion();
+  if(!suggestion){panel.innerHTML='<p>No game suggestion is available yet.</p>';return;}
+  panel.innerHTML=`<article class="suggested-game-card${suggestion.completed?' completed':''}"><span class="suggested-game-icon" aria-hidden="true">${suggestion.completed?'✓':'🎮'}</span><div><h3>${suggestion.title}</h3><p>${suggestion.completed?'Suggestion completed — reward awarded!':'This is one of your least-played games. Give it five focused minutes today.'}</p><strong>${suggestion.completed?'🪙 50 coins and ⭐ 200 XP awarded':suggestion.progressText+' · 🪙 50 coins · ⭐ 200 XP'}</strong></div>${suggestion.completed?'':`<a href="${suggestion.path}">Play suggested game →</a>`}</article>`;
+  renderProgression();
 }
 
 let rematchQueue=[];
@@ -221,7 +236,10 @@ function showHub(profile) {
   if (loadedGames.length) {
     window.DailyMissionManager?.configure(loadedGames);
     window.DailyMissionManager?.connect(currentUser?.uid, profile?.dailyMissions);
+    window.SuggestedGameManager?.configure(loadedGames);
+    window.SuggestedGameManager?.connect(currentUser?.uid, profile?.suggestedGame);
     renderDailyMissions();
+    renderSuggestedGame();
     initialiseMistakeRematch();
   }
   renderProgression();
@@ -353,6 +371,7 @@ googleSignInButton?.addEventListener("click", async () => {
   if (!user) {
     window.AchievementManager?.disconnect();
     window.DailyMissionManager?.disconnect();
+    window.SuggestedGameManager?.disconnect();
     showLoginError("Sign-in was cancelled or didn't go through. Please try again.");
   }
 

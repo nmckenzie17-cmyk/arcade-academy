@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../shared/css/global.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../../shared/css/global.css?v=20260818-home-layout-v2">
+  <link rel="stylesheet" href="style.css?v=20260818-home-layout-v2">
  </head>
  <body>
   <div id="gameContainer">
@@ -31,7 +31,7 @@
     <button id="emergencyAmmoBtn" class="canva-button title-font" onclick="openEmergencyAmmo()" style="display:none; font-size: 12px; padding: 8px 10px; margin-top: 4px; background: rgba(46,204,113,0.15); border-color: var(--green-success) !important;">🔋 Emergency Ammo</button>
     <button id="fireBtn" class="canva-button title-font fire-control" aria-label="Fire weapon">🔥 FIRE</button>
    </div>
-   <div id="welcomeScreen" class="modal home-page">
+   <div id="welcomeScreen" class="modal home-page arcade-home-screen arcade-home-content">
     <canvas id="home-bg-canvas"></canvas>
     <h1 class="title-font" style="margin-bottom: 6px;">Rocket Recall <span id="subjectTitleInline"></span></h1>
     <p class="subtitle-font" style="margin: 6px 0 20px;">Answer fast. Fire faster.</p>
@@ -146,7 +146,7 @@
    </div>
   </div>
   <script src="gameconfig.js"></script>
-  <script src="../../shared/js/PlatformManager.js?v=20260812-challenge-mode-v2"></script>
+  <script src="../../shared/js/PlatformManager.js?v=20260818-suggested-game-v1"></script>
   <script src="../../shared/js/QuestionManager.js"></script>
   <script src="game.js"></script>
  </body>

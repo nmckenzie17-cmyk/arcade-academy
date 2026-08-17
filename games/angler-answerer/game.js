@@ -1162,6 +1162,9 @@ let homeFishList = [];
 function initHomeFishSwimmers(){
   const knownIds = Object.keys(state.fishdex);
   let pool = knownIds.map(id=>findFishDef(id)).filter(Boolean);
+  // A new player should still see genuine Angler Answerer fish. Once their
+  // Fishdex has entries, the backdrop switches to their discovered species.
+  if(!pool.length) pool = allFishForDex().slice(0,8);
   if(pool.length>10){
     // cap how many swim at once so it stays readable rather than cluttered
     pool = [...pool].sort(()=>Math.random()-0.5).slice(0,10);

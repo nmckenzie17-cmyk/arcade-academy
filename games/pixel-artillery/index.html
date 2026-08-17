@@ -6,7 +6,8 @@
 </head><body>
 <main class="shell">
   <section class="panel" id="loading-screen"><p>Connecting to Arcade Academy…</p></section>
-  <section class="panel home" id="menu-screen" hidden>
+  <section class="panel home arcade-home-screen arcade-home-content" id="menu-screen" hidden>
+    <canvas id="home-tank-backdrop" class="game-home-backdrop" width="800" height="450" aria-hidden="true"></canvas>
     <p class="eyebrow">Arcade Academy · Single Player or Multiplayer</p><h1>Thinking Tanks</h1>
     <p class="subtitle">Answer. Aim. Fire. Be the last tank standing!</p>
     <div class="stats"><div><b id="wins">0</b><span>Wins</span></div><div><b id="losses">0</b><span>Losses</span></div><div><b id="draws">0</b><span>Draws</span></div><div><b id="games">0</b><span>Games</span></div></div>
@@ -37,5 +38,5 @@
   </section>
 </main>
 <section class="question" id="question-overlay" hidden><div><p class="eyebrow">Turn Question</p><h2 id="question-prompt"></h2><section id="question-options"></section><p id="question-feedback"></p></div></section>
-<script type="module" src="../../shared/js/FirebaseManager.js"></script><script src="gameconfig.js"></script><script src="../../shared/js/PlatformManager.js?v=20260812-challenge-mode-v1"></script><script src="../../shared/js/QuestionManager.js"></script><script src="../../shared/js/MultiplayerManager.js"></script><script src="../../shared/js/SinglePlayerManager.js"></script><script src="../../shared/js/MultiplayerQuestionHelper.js"></script><script src="game.js"></script>
+<script type="module" src="../../shared/js/FirebaseManager.js"></script><script src="gameconfig.js"></script><script src="../../shared/js/PlatformManager.js?v=20260818-suggested-game-v1"></script><script src="../../shared/js/QuestionManager.js"></script><script src="../../shared/js/MultiplayerManager.js"></script><script src="../../shared/js/SinglePlayerManager.js"></script><script src="../../shared/js/MultiplayerQuestionHelper.js"></script><script src="game.js"></script>
 </body></html>

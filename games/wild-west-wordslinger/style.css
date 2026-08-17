@@ -20,7 +20,8 @@ h1, h2 {
 /* .section-label-font now comes from global.css */
 
 /* Font-size scale */
-#home-screen h1 { font-size: clamp(20px, 6.5vw, 35px); line-height: 1.4; }
+#home-screen h1 { font-size: clamp(20px, 6.5vw, 35px); line-height: 1.4; width:100%; text-align:center; margin-left:auto !important; margin-right:auto !important; }
+#home-screen > .subtitle-font { width:100%; text-align:center; margin-left:auto !important; margin-right:auto !important; }
 #shop-modal h2, #inventory-modal h2, #gameover-screen h2, .overlay-heading { font-size: clamp(18px, 5.5vw, 30px); line-height: 1.4; }
 .question-text, #reload-category, #start-question-category { font-size: clamp(14px, 4vw, 19px); color: #fff; }
 .normal-text, .desc-font { font-size: clamp(13px, 3.2vw, 17px); }

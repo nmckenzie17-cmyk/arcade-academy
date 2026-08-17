@@ -78,6 +78,12 @@ Match the established Shuriken Scholar hierarchy while retaining game-specific a
 Requirements:
 
 - The Hub link must navigate to `../../index.html`.
+- Keep the title and catchphrase horizontally centred at every supported viewport size. Content panels, statistic rows, selectors, and action groups must share the same centred column rather than drifting independently.
+- Put concise How to Play controls and rules inside the Description/instructions area on the home screen. Do not create a separate How to Play screen or tab.
+- The home layer and gameplay viewport must use all available screen space without clipping or leaving an unintended smaller framed window. Scale responsive canvases to the viewport while preserving correct input-coordinate mapping.
+- Enemy games may animate only enemy sprites already supplied and rendered by that same game. Reuse the game’s existing sprite asset or renderer; never invent a generic replacement or borrow another game’s enemy.
+- Non-enemy games should use their own gameplay objects for backdrop art. Examples: player-rendered cubes, pixel music notes, X/O marks, pinballs with trails, and colliding pool balls.
+- Animated backdrop canvases stay behind the interactive home content, cover the full home screen, ignore pointer input, and remain visible to a new player even when unlock/discovery data is empty.
 - The home screen must scroll at small desktop and touch widths.
 - Do not manually create Practice or Challenge buttons. PlatformManager and ChallengeManager insert them beside the configured Start button.
 - Add `startSelector` to GameConfig only when the standard selectors cannot find the normal Start control.

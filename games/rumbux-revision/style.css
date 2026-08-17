@@ -1,0 +1,298 @@
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body {
+    width:100%; height:100%; overflow:hidden; background:#050208;
+    font-family: var(--font-body);
+    image-rendering: pixelated;
+    touch-action:none;
+    overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+  }
+  #gameWrap {
+    position:relative;
+    width:100vw; height:100vh; height:100dvh;
+    display:flex; align-items:center; justify-content:center;
+    background:#000;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    touch-action:none;
+  }
+  #gameCanvas {
+    background:#0a0612;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    box-shadow: 0 0 60px rgba(255,0,140,0.15), 0 0 0 2px #1a0a24;
+    touch-action:none;
+    max-width:100%; max-height:100%;
+  }
+
+  /* ---------- TOUCH CONTROLS (iPad / touch devices) ---------- */
+  #touchControls {
+    position:absolute; inset:0; z-index:6;
+    pointer-events:none; /* children opt back in */
+    display:none;
+  }
+  body.touch-device.in-game #touchControls { display:block; }
+  .tc-stick-zone {
+    position:absolute; left:0; bottom:0;
+    width:42%; height:58%;
+    pointer-events:auto;
+    touch-action:none;
+  }
+  .tc-stick-base {
+    position:absolute; width:110px; height:110px; border-radius:50%;
+    background:rgba(79,240,255,0.08);
+    border:3px solid rgba(79,240,255,0.55);
+    box-shadow:0 0 16px rgba(79,240,255,0.35);
+    display:none;
+    pointer-events:none;
+  }
+  .tc-stick-nub {
+    position:absolute; width:50px; height:50px; border-radius:50%;
+    background:rgba(79,240,255,0.55);
+    border:2px solid #eaffff;
+    left:30px; top:30px;
+    pointer-events:none;
+  }
+  .tc-btn-zone {
+    position:absolute; right:0; bottom:0;
+    width:56%; height:58%;
+    pointer-events:none;
+  }
+  .tc-btn {
+    position:absolute;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    font-family:var(--font-body);
+    font-weight:bold; letter-spacing:1px;
+    color:#fff;
+    pointer-events:auto;
+    touch-action:none;
+    user-select:none;
+    border:3px solid rgba(255,255,255,0.7);
+    box-shadow:0 0 14px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.15);
+  }
+  .tc-btn.active { filter:brightness(1.5); transform:scale(0.92); }
+  #tcAttack { width:78px; height:78px; right:20px; bottom:90px; background:rgba(255,47,146,0.55); font-size:13px; }
+  #tcHeavy  { width:66px; height:66px; right:110px; bottom:150px; background:rgba(255,140,47,0.55); font-size:12px; }
+  #tcJump   { width:66px; height:66px; right:20px; bottom:190px; background:rgba(57,255,106,0.55); font-size:12px; }
+  #tcDodge  { width:60px; height:60px; right:150px; bottom:40px; background:rgba(47,143,255,0.55); font-size:11px; }
+  #tcSpecial{ width:60px; height:60px; right:10px; bottom:280px; background:rgba(200,47,255,0.55); font-size:11px; }
+  .pixel-text {
+    font-family:var(--font-title);
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 3px 3px 0 #000, -1px -1px 0 #000;
+  }
+  .overlay {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#fff; text-align:center; gap:18px;
+    background: radial-gradient(ellipse at center, rgba(30,8,40,0.85), rgba(4,2,8,0.97));
+    z-index:10;
+  }
+  /* Character select can outgrow the viewport now that there are 6
+     fighters (3 base + 3 shop-unlockable) — let it scroll instead of
+     clipping. justify-content:flex-start (rather than the .overlay
+     default of center) keeps the top of a scrolled list reachable
+     instead of being centered off-screen. touch-action:pan-y overrides
+     the global touch-action:none so this still scrolls by touch. */
+  #charScreen {
+    justify-content:flex-start;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+    padding:28px 16px 40px;
+  }
+  /* Shop takes up the full screen with its own header/tabs/body layout,
+     rather than the centered-column layout other overlays use. */
+  #shopScreen {
+    align-items:stretch;
+    justify-content:flex-start;
+    padding:0;
+    gap:0;
+  }
+  .shop-header {
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; padding:14px 20px;
+    border-bottom:2px solid rgba(255,206,47,0.3);
+    background:rgba(10,6,16,0.6);
+    flex-shrink:0;
+  }
+  .shop-back-btn { padding:8px 20px; font-size:13px; }
+  .shop-tabs {
+    display:flex; flex-wrap:wrap; gap:6px; padding:10px 20px;
+    border-bottom:2px solid rgba(255,255,255,0.08);
+    flex-shrink:0;
+  }
+  .shop-tab-btn {
+    font-family:var(--font-body); font-weight:bold; letter-spacing:1px;
+    font-size:12px; padding:9px 16px;
+    background:rgba(20,20,40,0.6); color:#9ad;
+    border:2px solid rgba(79,240,255,0.35);
+    cursor:pointer;
+  }
+  .shop-tab-btn.active { background:rgba(79,240,255,0.25); color:#fff; border-color:#4ff0ff; }
+  .shop-body {
+    flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y;
+    padding:18px 20px 40px;
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:14px; align-content:start;
+    max-width:1200px; margin:0 auto; width:100%;
+  }
+  .hidden { display:none !important; }
+  .title-main {
+    font-size:52px; color:#ff2f92;
+    text-shadow: 0 0 10px #ff2f92, 0 0 24px #ff2f92, 4px 4px 0 #2a0018;
+    letter-spacing:6px;
+  }
+  .title-sub {
+    font-size:16px; color:#4ff0ff;
+    text-shadow: 0 0 8px #4ff0ff;
+    letter-spacing:4px;
+  }
+  .btn {
+    font-family:var(--font-body);
+    font-weight:bold; letter-spacing:2px;
+    font-size:18px;
+    padding:14px 34px;
+    background:var(--gradient-btn);
+    color:#fff; border:var(--border-width-btn) solid var(--accent-pink); border-radius:var(--radius-btn);
+    box-shadow:var(--glow-btn);
+    cursor:pointer;
+    transition: transform 0.08s ease;
+  }
+  .btn:hover { transform:scale(1.06); background:var(--gradient-btn-hover); box-shadow:var(--glow-btn-hover); }
+  .btn:active { transform: scale(0.97); }
+  .btn.secondary {
+    background: linear-gradient(180deg,#2f8fff,#0e4fb6);
+    border-color:#dff0ff;
+    box-shadow: 0 0 14px rgba(47,143,255,0.7), inset 0 0 8px rgba(255,255,255,0.25);
+  }
+  .btn.secondary:hover { background: linear-gradient(180deg,#5ca8ff,#1662d0); }
+  .charCard {
+    border:3px solid #4ff0ff; padding:14px 22px; background:rgba(10,10,30,0.6);
+    box-shadow:0 0 16px rgba(79,240,255,0.4);
+    display:flex; align-items:center; gap:14px; text-align:left;
+    transition: transform 0.1s ease, box-shadow 0.15s ease;
+  }
+  .charCard:hover { transform: translateY(-3px); box-shadow:0 0 24px rgba(79,240,255,0.7); }
+  .charCard.locked { opacity:0.6; border-color:#666; }
+  .charCard.locked:hover { box-shadow:0 0 18px rgba(255,143,47,0.5); border-color:#ff8f2f; }
+  .charCard h3 { color:#4ff0ff; font-size:19px; letter-spacing:2px; margin-bottom:6px; text-shadow:0 0 8px #4ff0ff;}
+  .charCard p { color:#cfe; font-size:11px; margin:2px 0; letter-spacing:1px; }
+  .charSpriteCanvas {
+    image-rendering: pixelated;
+    background: radial-gradient(ellipse at 50% 70%, rgba(79,240,255,0.14), transparent 70%);
+    border-right: 2px solid rgba(79,240,255,0.3);
+    padding-right:10px; flex-shrink:0;
+  }
+  .upgradeRow { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; max-width:900px; }
+  .upgradeCard {
+    width:220px; border:3px solid #ffce2f; background:rgba(20,12,4,0.75);
+    padding:16px; cursor:pointer; box-shadow:0 0 14px rgba(255,206,47,0.4);
+    transition: transform 0.1s ease; position:relative;
+  }
+  .upgradeCard:hover { transform: translateY(-6px) scale(1.03); box-shadow:0 0 24px rgba(255,206,47,0.8); }
+  .upgradeCard h4 { color:#ffce2f; font-size:16px; letter-spacing:2px; margin-bottom:8px; }
+  .upgradeCard p { color:#eee; font-size:11px; line-height:1.5; }
+  .upgradeRarity { font-size:10px; font-weight:bold; letter-spacing:2px; margin-bottom:4px; }
+  .upgradeTreeLabel { font-size:10px; color:#9ad; letter-spacing:1px; margin-bottom:8px; }
+  .upgradeRejectBtn {
+    position:absolute; top:6px; right:6px; font-size:9px; letter-spacing:1px;
+    padding:3px 7px; background:rgba(255,51,85,0.25); color:#ff8899;
+    border:1px solid var(--red); cursor:pointer; font-family:var(--font-body);
+  }
+  .upgradeRejectBtn:hover { background:rgba(255,51,85,0.45); }
+  .upgradeControls { margin-top:16px; }
+  .quiz-question {
+    max-width:600px; font-size:19px; color:#fff; line-height:1.5;
+    margin:6px 0 18px; text-shadow:1px 1px 0 #000;
+  }
+  .quiz-options {
+    display:flex; flex-direction:column; gap:12px; width:100%; max-width:480px;
+  }
+  .quiz-option-btn {
+    font-family:var(--font-body); font-size:15px; text-align:left;
+    padding:14px 18px; background:rgba(20,20,40,0.7); color:#fff;
+    border:2px solid #4ff0ff; cursor:pointer; transition: transform 0.08s ease, background 0.15s ease;
+  }
+  .quiz-option-btn:hover:not(:disabled) { transform:translateX(4px); background:rgba(79,240,255,0.15); }
+  .quiz-option-btn:disabled { cursor:default; }
+  .quiz-option-btn.correct { background:rgba(57,255,106,0.3); border-color:#39ff6a; }
+  .quiz-option-btn.incorrect { background:rgba(255,51,85,0.3); border-color:#ff3355; }
+  .quiz-feedback { font-size:16px; height:20px; margin-top:4px; }
+  .quiz-score-track { display:flex; gap:8px; margin-bottom:6px; }
+  .quiz-score-pip {
+    width:16px; height:16px; border:2px solid #555; background:#111;
+  }
+  .quiz-score-pip.correct { background:#39ff6a; border-color:#39ff6a; }
+  .quiz-score-pip.incorrect { background:#ff3355; border-color:#ff3355; }
+  .coin-badge { color:#ffce2f; font-size:20px; text-shadow:0 0 8px #ffce2f; letter-spacing:2px; margin:2px 0 6px; }
+  .menu-stats-row {
+    display:flex; gap:24px; margin:4px 0 14px; flex-wrap:wrap; justify-content:center;
+  }
+  .menu-stat {
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    border:2px solid rgba(79,240,255,0.35); background:rgba(10,10,30,0.5);
+    padding:8px 16px; min-width:100px;
+  }
+  .menu-stat-label { font-size:9px; color:#9ad; letter-spacing:1px; }
+  .menu-stat span:last-child { font-size:18px; color:#fff; text-shadow:0 0 6px rgba(255,255,255,0.4); }
+  .menu-author { font-size:11px; color:#777; letter-spacing:1px; margin-top:22px; }
+  .shopCard {
+    width:100%; border:var(--border-width-btn) solid var(--accent-rose); background:var(--gradient-panel);
+    border-radius:var(--radius-btn); padding:14px; text-align:left; box-shadow:var(--glow-card);
+    display:flex; flex-direction:column;
+  }
+  .shopCard.owned { border-color:#39ff6a; box-shadow:0 0 14px rgba(57,255,106,0.35); }
+  .shopCard.locked { border-color:#555; box-shadow:none; opacity:0.55; }
+  .shopCard h4 { color:#ffce2f; font-size:14px; letter-spacing:1px; margin-bottom:6px; }
+  .shopCard p { color:#eee; font-size:11px; line-height:1.5; margin:2px 0; }
+  .shopCard .shopLevel { color:#4ff0ff; font-size:11px; margin:8px 0 4px; letter-spacing:1px; }
+  .shopCard .shopControlHint { color:#c86fff; font-size:10px; margin-top:6px; letter-spacing:0.5px; }
+  .shopCard .shopLockedNote { color:#888; font-size:10px; margin-top:6px; font-style:italic; }
+  .shopBuyBtn {
+    margin-top:auto; padding-top:9px; width:100%; padding:9px; font-family:var(--font-body);
+    font-weight:bold; letter-spacing:1px; font-size:12px;
+    border:2px solid #fff2c8; background:linear-gradient(180deg,#ffce2f,#b6860e);
+    color:#1a1206; cursor:pointer; margin-top:10px;
+  }
+  .shopBuyBtn:hover:not(:disabled) { filter:brightness(1.1); }
+  .shopBuyBtn:disabled { opacity:0.4; cursor:not-allowed; background:#444; border-color:#666; color:#999; }
+  #btnBuildToggle {
+    position:absolute; top:calc(12px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%);
+    z-index:7; display:none;
+    font-family:var(--font-body); font-weight:bold; letter-spacing:1px; font-size:11px;
+    padding:6px 14px; background:rgba(10,10,26,0.7); color:#4ff0ff;
+    border:2px solid #4ff0ff; box-shadow:0 0 10px rgba(79,240,255,0.4);
+    cursor:pointer;
+  }
+  body.in-game #btnBuildToggle { display:block; }
+  .buildTreeBlock { text-align:left; margin-bottom:16px; }
+  .buildTreeBlock h4 { font-size:14px; letter-spacing:2px; margin-bottom:6px; }
+  .buildTreeBlock ul { list-style:none; padding-left:4px; }
+  .buildTreeBlock li { font-size:12px; color:#eee; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .buildEmpty { color:#888; font-size:12px; font-style:italic; margin-top:20px; }
+  .statLine { display:flex; justify-content:space-between; width:280px; font-size:13px; color:#eee; }
+  .statLine span:first-child { color:#9ad; }
+  #goBanner {
+    position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
+    font-size:46px; color:#39ff6a; text-shadow:0 0 12px #39ff6a, 4px 4px 0 #012;
+    letter-spacing:6px; z-index:8; pointer-events:none; opacity:0;
+  }
+  #comboBanner {
+    position:absolute; z-index:9; pointer-events:none;
+  }
+  /* Shared Arcade Academy home/shop presentation. Gameplay art stays local. */
+  html, body { background:var(--bg-primary); font-family:var(--font-body); }
+  .pixel-text { font-family:var(--font-title); }
+  .btn, .shop-tab-btn, .shopBuyBtn { font-family:var(--font-body); }
+  .shop-body { display:flex; flex-direction:column; max-width:780px; }
+  .home-page { overflow-y:auto; justify-content:flex-start; padding:clamp(20px,5vh,48px) 12px; touch-action:pan-y; }
+  .home-panel { width:min(620px,100%); margin:auto; padding:clamp(22px,4vw,38px); display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .home-description { max-width:520px; color:var(--accent-blue); font-size:14px; line-height:1.6; }
+  .class-status { color:var(--accent-rose); font-size:13px; line-height:1.5; }
+  .title-main { font-size:clamp(28px,6vw,52px); }
+  .menu-author { margin-top:8px; }
+  @media(max-height:700px),(max-width:640px){.home-panel{margin:0 auto}.menu-stats-row{gap:8px}.menu-stat{padding:7px 10px}}

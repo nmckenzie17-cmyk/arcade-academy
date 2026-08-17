@@ -236,10 +236,24 @@ button:disabled:hover {
 
 #welcomeScreen {
     display: block;
-    max-width: 800px;
-    max-height: 90vh;
+    position:fixed !important;
+    inset:0 !important;
+    width:100vw !important;
+    height:100vh !important;
+    height:100dvh !important;
+    max-width:none !important;
+    max-height:none;
+    transform:none !important;
+    align-items:center !important;
     overflow-y: auto;
 }
+#welcomeScreen > :not(#home-bg-canvas) { margin-left:auto; margin-right:auto; }
+#welcomeScreen > h1,
+#welcomeScreen > .subtitle-font { width:100%; box-sizing:border-box; text-align:center; }
+#welcomeScreen .stats-row,
+#welcomeScreen .bank-selector,
+#welcomeScreen .difficulty-selector { width:100%; box-sizing:border-box; }
+#welcomeScreen .stats-row { justify-content:center; }
 
 .bank-selector {
     margin: 20px 0;

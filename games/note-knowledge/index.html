@@ -6,19 +6,19 @@
   <title>Rhythym Recall</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;family=Press+Start+2P&amp;family=VT323&amp;family=Lexend:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../shared/css/global.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../../shared/css/global.css?v=20260818-home-layout-v2">
+  <link rel="stylesheet" href="style.css?v=20260818-home-layout-v2">
  </head>
  <body class="w-full game-height overflow-hidden relative scanlines">
   <canvas id="bg-canvas"></canvas><!-- MENU SCREEN -->
-  <div id="menu-screen" class="absolute inset-0 flex flex-col items-center overflow-y-auto z-10" style="padding-top:clamp(16px,3vh,40px);padding-bottom:clamp(16px,3vh,40px);">
+  <div id="menu-screen" class="absolute inset-0 flex flex-col items-center overflow-y-auto z-10 arcade-home-screen" style="padding-top:clamp(16px,3vh,40px);padding-bottom:clamp(16px,3vh,40px);">
    <canvas id="noteHomeBg" class="absolute inset-0" style="z-index:0;pointer-events:none;"></canvas>
    <header class="text-center mb-6 px-4" style="position:relative;z-index:1;">
     <h1 class="title-font text-3xl font-bold tracking-wider">Note Knowledge</h1>
     <p class="subtitle-font mt-2">Tap the beat. Sort the chorus.</p>
    </header>
-   <main class="w-full max-w-md px-4" style="position:relative;z-index:1;"><!-- Stats -->
-    <div class="flex justify-between mb-4 px-1">
+   <main class="w-full max-w-md px-4 arcade-home-content" style="position:relative;z-index:1;"><!-- Stats -->
+    <div class="flex justify-between mb-4 px-1 arcade-home-stats">
      <div class="text-center">
       <p class="text-sm canva-text font-bold desc-font">🎵 Notes</p>
       <p id="home-notes" class="text-2xl font-bold text-yellow-300">0</p>
@@ -147,7 +147,7 @@
   </div>
   <div id="screenWipe" aria-hidden="true"></div>
   <script src="gameconfig.js"></script>
-  <script src="../../shared/js/PlatformManager.js?v=20260812-challenge-mode-v2"></script>
+  <script src="../../shared/js/PlatformManager.js?v=20260818-suggested-game-v1"></script>
   <script src="../../shared/js/QuestionManager.js"></script>
   <script src="game.js"></script>
  </body>

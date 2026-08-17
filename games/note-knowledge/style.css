@@ -29,7 +29,12 @@ html, body {
   text-shadow: var(--glow-title);
   font-size: clamp(18px, 6vw, 28px);
   line-height: 1.4;
+  width: 100%;
+  text-align: center;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
+#menu-screen > .subtitle-font { width:100%; text-align:center; margin-left:auto !important; margin-right:auto !important; }
 
 /* Only the font-size differs from global's .subtitle-font */
 .subtitle-font { font-size: clamp(20px, 6vw, 30px); }

@@ -332,3 +332,212 @@ html, body {
   border-color: #fde047;
   text-decoration: underline;
 }
+
+/* ============================================================
+   SHARED GAME HOME SCREEN
+   Explicit hooks keep this normalization out of gameplay, shops,
+   quizzes and multiplayer rooms. Shuriken Scholar is the reference.
+   ============================================================ */
+.arcade-home-screen {
+  background: var(--bg-primary) !important;
+  color: var(--accent-blue);
+  font-family: var(--font-body) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: clamp(24px, 4vh, 60px) 16px !important;
+  text-align: center;
+  align-items: flex-start !important;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+
+.arcade-home-content {
+  position: relative !important;
+  z-index: 2 !important;
+  width: min(100%, 560px) !important;
+  max-width: 560px !important;
+  margin: auto !important;
+  padding: 0 !important;
+  color: var(--accent-blue) !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--font-body) !important;
+  text-align: center;
+}
+
+.arcade-home-screen.arcade-home-content {
+  padding: clamp(24px, 4vh, 60px) 16px !important;
+}
+
+.arcade-home-screen > :is(canvas, .home-bg, [id*="home-bg"], [id*="homeBg"]) {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: .45;
+}
+
+.arcade-home-content :is(h1, .title-main, .arcade-heading),
+.arcade-home-content > :is(h1, h2).title-font,
+.arcade-home-screen > header h1 {
+  margin: 0 !important;
+  color: var(--accent-blue) !important;
+  font-family: var(--font-title) !important;
+  font-size: clamp(22px, 5.5vw, 40px) !important;
+  font-weight: 700 !important;
+  line-height: 1.5 !important;
+  letter-spacing: 1px !important;
+  text-transform: none !important;
+  text-shadow: var(--glow-title) !important;
+}
+
+.arcade-home-screen > header,
+.arcade-home-screen > header h1,
+.arcade-home-screen > header .subtitle-font,
+.arcade-home-content > h1,
+.arcade-home-content > .title-main {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+.arcade-home-screen > header { width:min(100%,560px) !important; }
+
+.arcade-home-content :is(.subtitle-font, .subtitle, .tagline, .catchphrase, .title-sub),
+.arcade-home-screen > header :is(.subtitle-font, .subtitle, .tagline) {
+  margin: 6px 0 20px !important;
+  color: var(--accent-rose) !important;
+  font-family: var(--font-subtitle) !important;
+  font-size: clamp(22px, 5vw, 34px) !important;
+  font-weight: 400 !important;
+  line-height: 1.15 !important;
+  letter-spacing: .5px !important;
+  text-shadow: var(--glow-subtitle) !important;
+}
+
+.arcade-home-content :is(.stats-row, .stats, .stats-row-home, .home-stats, .homeStatsRow, .home-stats-row, .menu-stats-row, .arcade-home-stats, #homeStats, #menuStats) {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin: 0 0 18px !important;
+  padding: 0 4px !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.arcade-home-content :is(.stats-row, .stats, .stats-row-home, .home-stats, .homeStatsRow, .home-stats-row, .menu-stats-row, .arcade-home-stats, #homeStats, #menuStats) > * {
+  min-width: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+}
+
+.arcade-home-content :is(.label, .homeStatLabel, .home-stat-label, .menuStatLabel, .menu-stat-label, .stat-label, small) {
+  color: var(--accent-blue) !important;
+  font-family: var(--font-body) !important;
+  font-size: clamp(10px, 2vw, 13px) !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+.arcade-home-content :is(.value, .homeStatVal, .home-stat-value, .menuStatValue, .menu-stat-value, .stat-value, .stats b, .home-stats strong) {
+  color: var(--gold) !important;
+  font-family: var(--font-body) !important;
+  font-size: clamp(17px, 2.6vw, 22px) !important;
+  font-weight: 700 !important;
+  text-shadow: var(--glow-gold) !important;
+}
+
+.arcade-home-content :is(.stats-row, .stats, .stats-row-home, .home-stats, .homeStatsRow, .home-stats-row, .menu-stats-row, .arcade-home-stats, #homeStats, #menuStats) > * > :last-child,
+.arcade-home-content #homeStats b {
+  color: var(--gold) !important;
+  font-family: var(--font-body) !important;
+  font-size: clamp(17px, 2.6vw, 22px) !important;
+  font-weight: 700 !important;
+  text-shadow: var(--glow-gold) !important;
+}
+
+.arcade-home-content :is(.description, .rules, .howList, .game-description, .home-description, .htp, .canva-card) {
+  max-width: 560px !important;
+  margin: 0 0 16px !important;
+  padding: 0 !important;
+  color: var(--accent-blue) !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--font-body) !important;
+  font-size: clamp(13px, 2vw, 15px) !important;
+  line-height: 1.7 !important;
+  text-align: left !important;
+}
+
+.arcade-home-content button,
+.arcade-home-content select,
+.arcade-home-content input {
+  font-family: var(--font-body) !important;
+  border-radius: var(--radius-btn) !important;
+}
+
+.arcade-home-content :is(#startBtn, #start-btn, #start-button, #homeStartBtn, #beginGameBtn, #playBtn, #btnStart, #btnFight, #btn-start-single, #start-single-btn, .start-btn) {
+  width: 100% !important;
+  min-height: 48px;
+  margin: 12px 0 0 !important;
+  padding: 13px 16px !important;
+  color: #fff !important;
+  background: var(--gradient-btn) !important;
+  border: var(--border-width-btn) solid var(--accent-pink) !important;
+  border-radius: var(--radius-btn) !important;
+  box-shadow: var(--glow-btn) !important;
+  font-family: var(--font-title) !important;
+  font-size: clamp(11px, 2vw, 15px) !important;
+  line-height: 1.5 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+
+.arcade-home-content :is(#startBtn, #start-btn, #start-button, #homeStartBtn, #beginGameBtn, #playBtn, #btnStart, #btnFight, #btn-start-single, #start-single-btn, .start-btn):hover:not(:disabled) {
+  background: var(--gradient-btn-hover) !important;
+  border-color: var(--accent-blue) !important;
+  box-shadow: var(--glow-btn-hover) !important;
+  transform: scale(1.03);
+}
+
+.arcade-home-content .game-home-link {
+  margin-top: 14px !important;
+}
+
+@media (max-width: 620px) {
+  .arcade-home-screen { padding: 22px 14px 36px !important; }
+  .arcade-home-content :is(.stats-row, .stats, .stats-row-home, .home-stats, .homeStatsRow, .home-stats-row, .menu-stats-row, .arcade-home-stats, #homeStats, #menuStats) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    row-gap: 14px !important;
+  }
+}
+.game-home-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+  opacity: .48;
+  z-index: 0;
+}
+
+.game-home-backdrop ~ *,
+.arcade-home-content {
+  position: relative;
+  z-index: 1;
+}
