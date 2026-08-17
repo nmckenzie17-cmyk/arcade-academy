@@ -24,6 +24,56 @@ window.addEventListener('resize', resize);
 
 let state = 'start';
 let wave = 0, castleHP = 100, maxHP = 100, ammo = 3, maxAmmo = 10, gold = 0, maxGold = 150, kills = 0;
+let invasionMode = false, invasionDamageDealt = 0, invasionPendingTroops = [];
+let lastInvasionDefence = '';
+let invasionMoraleStreak=0, invasionWaveCap=4, invasionSlotsRemaining=0, invasionQuestionsAnswered=0;
+let invasionArmy = { summonCount:1, healthMult:1, damageMult:1, speedMult:1, unlockedTroops:['goblin'] };
+const INVASION_UNLOCK_ID = 'fortress-facts-goblin-general';
+const INVASION_ARMY_UPGRADES = [
+    {id:'summon',name:'📯 Bigger Warband',desc:'Each deployment places one additional troop while still respecting the wave cap.',apply(){invasionArmy.summonCount=Math.min(6,invasionArmy.summonCount+1);}},
+    {id:'health',name:'❤️ Thick Skins',desc:'All troops gain 25% maximum health.',apply(){invasionArmy.healthMult*=1.25;}},
+    {id:'damage',name:'⚔️ Sharpened Weapons',desc:'All troops deal 25% more castle damage.',apply(){invasionArmy.damageMult*=1.25;}},
+    {id:'speed',name:'💨 Forced March',desc:'All troops move 15% faster.',apply(){invasionArmy.speedMult*=1.15;}},
+    {id:'morale',name:'🔥 Battle Spirit',desc:'Morale grants an extra 2% speed and damage per streak step.',apply(){invasionArmy.moraleBonus=(invasionArmy.moraleBonus||0)+0.02;}},
+    {id:'numbers',name:'🥁 Reinforcement Drums',desc:'Every assault begins with one additional deployment slot.',apply(){invasionArmy.baseCapBonus=(invasionArmy.baseCapBonus||0)+1;}},
+    {id:'regeneration',name:'🧪 Trollblood Tonic',desc:'All new troops gain 15% more health.',apply(){invasionArmy.healthMult*=1.15;}},
+    {id:'skeleton',name:'💀 Unlock Skeletons',desc:'Correct answers can now summon sturdy Skeletons.',troop:'skeleton'},
+    {id:'wolf',name:'🐺 Unlock Wolves',desc:'Correct answers can now summon fast Wolves.',troop:'wolf'},
+    {id:'armored',name:'🛡️ Unlock Armored Goblins',desc:'Correct answers can now summon armored Goblins.',troop:'goblin_armored'},
+    {id:'siege',name:'🪵 Unlock Siege Engines',desc:'Correct answers can now summon slow, devastating Siege Engines.',troop:'siege'}
+];
+function invasionUnlocked(){
+    if(window.AchievementManager?.hasTypeUnlock?.(INVASION_UNLOCK_ID)) return true;
+    const overall=PlatformManager.getOverallStats?.()||{};
+    const qualifying=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!==GAME_CONFIG.id&&(g.correct||0)>=100);
+    const earned=(overall.totalCorrect||0)>=500&&qualifying.length>=3;
+    if(earned) window.AchievementManager?.grantTypeUnlock?.(INVASION_UNLOCK_ID,{name:'Goblin General',kind:'game-mode',gameId:GAME_CONFIG.id,detail:'Command an invading army and destroy the castle.'});
+    return earned;
+}
+function resetInvasionRun(){
+    invasionDamageDealt=0;invasionPendingTroops=[];invasionMoraleStreak=0;invasionWaveCap=4;invasionSlotsRemaining=0;invasionQuestionsAnswered=0;
+    invasionArmy={summonCount:1,healthMult:1+0.02*(kingdomLevel('walls')+kingdomLevel('archives')+kingdomLevel('healers')),damageMult:1+0.02*kingdomLevel('soldiers'),speedMult:1+0.01*kingdomLevel('blacksmith'),moraleBonus:0,baseCapBonus:Math.floor(kingdomLevel('warehouse')/5),unlockedTroops:['goblin']};
+    wave=0;castleHP=300;maxHP=300;maxHPBeforeKeep=300;gold=0;kills=0;ammo=0;maxAmmo=0;
+    towers=[];cards=[];cardLevels={};enemies=[];projectiles=[];burningGround=[];
+    const archer=allCards.find(card=>card.id==='archer');if(archer)applyCard(archer);
+}
+function invasionMoraleMultiplier(){return 1+invasionMoraleStreak*(0.05+(invasionArmy.moraleBonus||0));}
+function deployInvasionTroop(type){
+    if(!invasionMode||invasionSlotsRemaining<=0||!invasionArmy.unlockedTroops.includes(type))return;
+    const amount=Math.min(invasionSlotsRemaining,invasionArmy.summonCount*(kingdomLevel('library')>0&&Math.random()<0.03*kingdomLevel('library')?2:1));
+    invasionSlotsRemaining-=amount;
+    for(let i=0;i<amount;i+=1){if(state==='playing')enemies.push(spawnEnemy(type,GAME_W+10+i*8));else invasionPendingTroops.push(type);}
+    renderInvasionTroopBar();
+}
+function renderInvasionTroopBar(){
+    const bar=document.getElementById('invasion-troop-bar');if(!bar)return;
+    bar.hidden=!invasionMode||!['playing','invasion-deploy'].includes(state);if(bar.hidden)return;
+    const names={goblin:'👺 Goblin',skeleton:'💀 Skeleton',wolf:'🐺 Wolf',goblin_armored:'🛡️ Armored',siege:'🪵 Siege'};
+    const counts=Object.fromEntries(invasionArmy.unlockedTroops.map(type=>[type,invasionPendingTroops.filter(item=>item===type).length]));
+    bar.innerHTML=`<div class="invasion-troop-summary"><span>Slots: ${invasionSlotsRemaining}</span><span>Morale: ${invasionMoraleStreak} 🔥</span></div>`+invasionArmy.unlockedTroops.map(type=>`<button type="button" class="invasion-troop-btn" data-troop="${type}" ${invasionSlotsRemaining<=0?'disabled':''}><strong>${names[type]||type}</strong><small>${state==='invasion-deploy'?`Placed: ${counts[type]||0}`:'Deploy now'}</small></button>`).join('');
+    bar.querySelectorAll('[data-troop]').forEach(button=>button.onclick=()=>deployInvasionTroop(button.dataset.troop));
+    const launch=document.getElementById('invasion-launch-btn');if(launch){launch.disabled=invasionSlotsRemaining>0;launch.textContent=invasionSlotsRemaining>0?`Place ${invasionSlotsRemaining} more troop${invasionSlotsRemaining===1?'':'s'}`:'Launch Assault';}
+}
 let lastDamageSource = null;
 const ENEMY_DISPLAY_NAMES = {
     goblin: 'Goblin', skeleton: 'Skeleton', knight: 'Knight', wolf: 'Wolf', siege: 'Siege Engine',
@@ -604,7 +654,7 @@ function applyDamageToEnemy(e, rawDmg, sourceId, viaPoisonTick){
         if(activeMutator==='gilded') goldReward *= 3;
         if(curseNoKillGold && !e.isWagon) goldReward = 0; // Starving Garrison: only wagons still pay out
         if(viaPoisonTick && equippedRelics.includes('relic_ledger')) goldReward += 1; // Alchemist's Ledger
-        addGold(goldReward*waveGoldMult);
+        if(!invasionMode) addGold(goldReward*waveGoldMult);
         if(activeAffix==='undead' && e.type!=='wagon' && e.type!=='skeleton' && e.type!=='boss'){
             enemies.push(spawnEnemy('skeleton', e.x));
         }
@@ -945,6 +995,7 @@ function spawnEnemy(type, x) {
     if(type==='wyvern'){e.hp=34+wave*4;e.speed=0.22;e.dmg=9+Math.floor(wave/8);e.flying=true;}
     if(type==='stoneburrower'){e.hp=40+wave*5;e.speed=0.18;e.dmg=6+Math.floor(wave/12);e.underground=true;}
     if(type==='graveworm'){e.hp=18+wave*2.5;e.speed=0.16;e.dmg=11+Math.floor(wave/6);e.underground=true;}
+    if(invasionMode){let siegeBonus=type==='siege'?1+0.05*kingdomLevel('siegeengineers'):1;e.hp*=invasionArmy.healthMult*siegeBonus;e.maxHp=e.hp;e.speed*=invasionArmy.speedMult;e.dmg*=invasionArmy.damageMult*siegeBonus;e.playerArmy=true;}
     // Quiet difficulty valve: a few enemy types get tougher the more towers
     // the player has built, so a maxed-out base isn't a free pass to coast.
     // Not surfaced anywhere in the UI/tooltips — it should read as "the game
@@ -1139,6 +1190,10 @@ function getSpawnParams(){
 
 function startWave() {
     wave++;
+    if(invasionMode){
+        spawnQueue=invasionPendingTroops.splice(0);spawnTimer=0;activeWeather=null;activeAffix=null;activeMutator=null;waveFrameCount=0;
+        state='playing';updateHUD();return;
+    }
     if(runPowerupBonuses.stageclear>0) addGold(runPowerupBonuses.stageclear);
     if(goldMines) addGold(Math.round(5*getCardEffectMult('goldmine')));
     let priestHealAmt = priestHeal ? Math.round(2.5*getCardEffectMult('priest')) : 0;
@@ -1296,6 +1351,12 @@ function showBoss(){
 
 function startBetweenWave(){
     state='between';
+    if(invasionMode){
+        if(wave>0) strengthenInvasionDefender();
+        betweenWaveQuestions=0;betweenWaveCorrect=0;invasionPendingTroops=[];invasionWaveCap=4+(invasionArmy.baseCapBonus||0);
+        invasionWaveCap+=(kingdomLevel('traininggrounds')?1:0)+Math.floor(kingdomLevel('supplydepot')/3);
+        askBetweenQuestion();return;
+    }
     if(pendingFreeTowerAfterBoss){
         pendingFreeTowerAfterBoss=false;
         let towerCards = getUnlockedCards().filter(c=>c.type==='tower');
@@ -1355,7 +1416,7 @@ function grantEducationMilestoneReward(){
 }
 
 function askBetweenQuestion(){
-    if(betweenWaveQuestions>=4){ showCardSelect(); return; }
+    if(betweenWaveQuestions>=4){ invasionMode ? showInvasionArmyUpgrade(showInvasionDeployment) : showCardSelect(); return; }
     let q=QuestionManager.getNextQuestion();
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
     let html=`<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">Between Waves — Q${betweenWaveQuestions+1}/4</h2><p style="margin-bottom:16px">${q.q}</p>`;
@@ -1367,12 +1428,14 @@ function askBetweenQuestion(){
             let isCorrect=btn.dataset.correct==='true';
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
+            if(invasionMode){invasionQuestionsAnswered++;if(isCorrect){invasionMoraleStreak++;invasionWaveCap++;}else invasionMoraleStreak=0;}
             if(!isCorrect) PlatformManager.deductCoins(10);
             if(isCorrect){
                 btn.classList.add('correct');
                 betweenWaveCorrect++;
                 totalBetweenWaveCorrect++;
                 recordCorrectAnswer();
+                if(invasionMode)invasionWaveCap+=Math.floor(kingdomLevel('studyhall')/5);
                 if(totalBetweenWaveCorrect%4===0) grantEducationMilestoneReward();
                 if(runCorrectAnswersGiveGold){
                     // Midas Run: no more card rewards this run, so correct
@@ -1386,6 +1449,28 @@ function askBetweenQuestion(){
             setTimeout(askBetweenQuestion, isCorrect ? 800 : 2000);
         };
     });
+}
+
+function strengthenInvasionDefender(){
+    const choices=getUnlockedCards().filter(card=>card.type!=='curse'&&card.id!=='twinfate');
+    if(!choices.length)return;
+    const chosen=choices[Math.floor(Math.random()*choices.length)];applyCard(chosen);
+    lastInvasionDefence=chosen.name;
+    pendingUnlockNotifications.push(`The castle gained ${chosen.name}.`);
+}
+
+function showInvasionArmyUpgrade(onDone=showInvasionDeployment){
+    let available=INVASION_ARMY_UPGRADES.filter(upgrade=>!upgrade.troop||!invasionArmy.unlockedTroops.includes(upgrade.troop));
+    let optionCount=3+(kingdomLevel('academy')>0&&Math.random()<0.05*kingdomLevel('academy')?1:0);
+    let options=shuffle([...available]).slice(0,Math.min(optionCount,available.length));
+    if(kingdomLevel('apprenticeships')>0){const boost=1+0.005*kingdomLevel('apprenticeships');const stat=['healthMult','damageMult','speedMult'][Math.floor(Math.random()*3)];invasionArmy[stat]*=boost;}
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${betweenWaveCorrect}/4 Correct — Evolve Your Army</h2>${kingdomLevel('watchtowers')>0&&lastInvasionDefence?`<p style="color:#ff9b5e;margin:6px 0">🔭 Castle defence gained: ${lastInvasionDefence}</p>`:''}<p style="color:#aaa;margin:8px 0 14px">Your answers prepared ${invasionPendingTroops.length} troops for assault ${wave+1}.</p>${options.map((upgrade,index)=>`<button class="card-btn" data-idx="${index}"><div style="font-size:18px">${upgrade.name}</div><div style="font-size:11px;margin-top:4px;color:#aaa">${upgrade.desc}</div></button>`).join('')}</div></div>`;
+    modalRoot.querySelectorAll('.card-btn').forEach(button=>button.onclick=()=>{const upgrade=options[Number(button.dataset.idx)];if(upgrade.troop)invasionArmy.unlockedTroops.push(upgrade.troop);else upgrade.apply();modalRoot.innerHTML='';onDone();});
+}
+function showInvasionDeployment(){
+    invasionSlotsRemaining=invasionWaveCap;state='invasion-deploy';document.body.classList.add('invasion-deploying');
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none">Deploy Assault ${wave+1}</h2><p style="margin:12px 0;color:#ccc">Use the troop bar along the bottom to fill all ${invasionWaveCap} positions. Mix any unlocked troop types.</p><p style="color:#ffcc44">Correct-answer morale: ${invasionMoraleStreak} · ×${invasionMoraleMultiplier().toFixed(2)} speed and damage</p><button class="choice-btn title-font" id="invasion-launch-btn" disabled style="text-align:center;margin-top:16px">Place ${invasionSlotsRemaining} more troops</button></div></div>`;
+    document.getElementById('invasion-launch-btn').onclick=()=>{if(invasionSlotsRemaining>0)return;document.body.classList.remove('invasion-deploying');modalRoot.innerHTML='';startWave();};renderInvasionTroopBar();
 }
 
 // Enemies that are only efficiently damaged by one specific tower (everything
@@ -1519,7 +1604,7 @@ function showQuestion(){
     state='question';
     let q=QuestionManager.getNextQuestion(equippedRelics.includes('relic_quickdraw'));
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
-    let html=`<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">Answer for Ammo!</h2><p style="margin-bottom:16px;font-size:clamp(15px,2.4vw,20px)">${q.q}</p><p style="color:var(--accent-pink);margin-bottom:16px;font-weight:700;font-size:clamp(12px,2vw,14px)">⚠️ Warning: Incorrect answers deal 1 damage to your Castle!</p>`;
+    let html=`<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${invasionMode?'Call Reinforcements!':'Answer for Ammo!'}</h2><p style="margin-bottom:16px;font-size:clamp(15px,2.4vw,20px)">${q.q}</p><p style="color:var(--accent-pink);margin-bottom:16px;font-weight:700;font-size:clamp(12px,2vw,14px)">${invasionMode?'Correct: +1 deployment slot and stronger morale. Incorrect: morale resets.':'⚠️ Warning: Incorrect answers deal 1 damage to your Castle!'}</p>`;
     shuffled.forEach((a,i)=>{ html+=`<button class="choice-btn" data-correct="${a.correct}">${a.text}</button>`; });
     html+=`</div></div>`;
     modalRoot.innerHTML=html;
@@ -1528,21 +1613,20 @@ function showQuestion(){
             let isCorrect=btn.dataset.correct==='true';
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
+            if(invasionMode){invasionQuestionsAnswered++;if(isCorrect){invasionMoraleStreak++;invasionWaveCap++;invasionSlotsRemaining++;}else invasionMoraleStreak=0;renderInvasionTroopBar();}
             if(!isCorrect) PlatformManager.deductCoins(10);
             if(isCorrect){
                 btn.classList.add('correct');
                 recordCorrectAnswer();
-                let libraryProc = kingdomLibraryLevel>0 && Math.random()<0.05*kingdomLibraryLevel;
-                let ammoReward = ammoPerCorrect*(libraryProc?2:1)*(1+runPowerupBonuses.increasedammo);
-                ammo=Math.min(ammo+Math.round(ammoReward),maxAmmo);
+                if(!invasionMode){let libraryProc = kingdomLibraryLevel>0 && Math.random()<0.05*kingdomLibraryLevel;let ammoReward = ammoPerCorrect*(libraryProc?2:1)*(1+runPowerupBonuses.increasedammo);ammo=Math.min(ammo+Math.round(ammoReward),maxAmmo);}
             }
             else { 
                 btn.classList.add('wrong'); 
-                castleHP = Math.max(0, castleHP - 1);
+                if(!invasionMode) castleHP = Math.max(0, castleHP - 1);
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); 
             }
             modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
-            setTimeout(()=>{ modalRoot.innerHTML=''; state='playing'; updateHUD(); },isCorrect ? 1000 : 2000);
+            setTimeout(()=>{modalRoot.innerHTML='';if(invasionMode&&invasionQuestionsAnswered%4===0)showInvasionArmyUpgrade(()=>{state='playing';renderInvasionTroopBar();updateHUD();});else{state='playing';renderInvasionTroopBar();updateHUD();}},isCorrect ? 1000 : 2000);
         };
     });
 }
@@ -1569,6 +1653,9 @@ const KINGDOM_FLAVOR = {
     library:'Gives correct answers a chance to reward double ammo.',
     academy:'Gives you a chance to be offered an extra card to choose from after a wave.',
 };
+const INVASION_KINGDOM_EFFECTS = {
+    soldiers:'Army: +2% troop castle damage per level.',archives:'Army: +2% troop health per level.',blacksmith:'Army: +1% troop movement speed per level.',siegeengineers:'Army: +5% Siege Engine health and damage per level.',traininggrounds:'Army: +1 deployment slot in every assault.',treasury:'Army: +5% coins earned from castle damage per level.',coinvault:'Army: raises the damage-coin payout cap by 10 per level.',marketplace:'Army: continues reducing every permanent-upgrade price.',supplydepot:'Army: +1 deployment slot per three levels.',warehouse:'Army: +1 base deployment slot per five levels.',walls:'Army: +2% troop health per level.',healers:'Army: +2% troop health per level.',watchtowers:'Army: shows which defence the castle gained between assaults.',studyhall:'Army: +1 preparation deployment slot per correct answer per five levels.',apprenticeships:'Army: after each preparation, randomly improves health, damage, or speed.',library:'Army: each deployment has +3% chance per level to place twice for the same action.',academy:'Army: +5% chance per level to offer a fourth army evolution.'
+};
 
 let kingdomActiveTab = 'permanent';
 
@@ -1586,6 +1673,7 @@ function renderPermanentTab(){
                 <div>
                     <div style="font-size:14px">${u.name}</div>
                     <div style="font-size:10px;color:#888">${KINGDOM_FLAVOR[u.id]||''}</div>
+                    ${invasionUnlocked()?`<div style="font-size:10px;color:#d58cff;margin-top:3px">👹 ${INVASION_KINGDOM_EFFECTS[u.id]||'Benefits your invading army.'}</div>`:''}
                     <div style="font-size:10px;color:#4caf50">Level ${level}${u.maxLevel>1?'/'+u.maxLevel:''}</div>
                 </div>
                 <button class="choice-btn kingdom-buy-btn" data-id="${u.id}" style="width:auto;white-space:nowrap;padding:8px 14px;font-size:12px;${maxed?'opacity:0.4;cursor:default;':(!canAfford?'opacity:0.5;':'')}" ${maxed||!canAfford?'disabled':''}>
@@ -1702,6 +1790,7 @@ function showKingdom(onClose){
 }
 
 function showStart(){
+    const canInvade=invasionUnlocked();
     modalRoot.innerHTML=`<div class="home-page"><canvas id="home-bg-canvas"></canvas><div class="home-inner">
         <h2 class="title-font" style="background:none;border:none;box-shadow:none;font-size:clamp(24px,6vw,40px);">Fortress Facts</h2>
         <p class="subtitle-font" style="margin:6px 0 20px;">Defend the realm. Answer to arm.</p>
@@ -1720,14 +1809,15 @@ function showStart(){
             🪙 Earn coins to unlock permanent Kingdom upgrades
         </p>
         <div id="bank-status" style="font-size:12px;margin:0 0 16px;min-height:16px;color:#aaa"></div>
-        <button class="canva-button title-font" style="width:100%;padding:14px;border-radius:6px;text-align:center;font-size:clamp(13px,2vw,16px);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;cursor:pointer;" id="start-btn">Press Start</button>
+        <button class="canva-button title-font" style="width:100%;padding:14px;border-radius:6px;text-align:center;font-size:clamp(13px,2vw,16px);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;cursor:pointer;" id="start-btn">Defend the Castle</button>
+        ${canInvade?`<button class="choice-btn title-font" style="width:100%;text-align:center;margin-top:9px;color:#ff9b5e;border-color:#ff6b35" id="invasion-start-btn">👹 Goblin General</button><p style="font-size:11px;color:#d58cff;margin-top:6px">Command the enemy army. Correct answers summon troops; destroy the castle to win.</p>`:''}
         ${kingdomSave.equippedPowerups.length ? `<p style="font-size:11px;color:var(--accent-rose);margin-top:6px">Equipped: ${kingdomSave.equippedPowerups.map(id=>(RUN_POWERUPS.find(p=>p.id===id)||{}).name).join(', ')}</p>` : ''}
         <p class="section-label-font" style="opacity:0.6;margin-top:18px;">Created by Nate McKenzie</p>
         <a class="game-home-link" href="../../index.html">🏛️ Back to Arcade Academy</a>
     </div></div>`;
     const status = document.getElementById('bank-status');
     const startBtn = document.getElementById('start-btn');
-    const tryStart = async ()=>{
+    const tryStart = async (playInvasion=false)=>{
         startBtn.disabled = true;
         startBtn.textContent = 'Loading...';
         status.style.color = '#aaa';
@@ -1739,8 +1829,11 @@ function showStart(){
             // flow at the bottom of this file, which reloads the page and
             // re-triggers this same tryStart() function for "Play Again".
             PlatformManager.startSession(GAME_CONFIG.id);
-            applyKingdomStartBonuses();
-            showRelicSelect(()=> runPrerunQuiz(()=> startBetweenWave()));
+            invasionMode=playInvasion;
+            document.getElementById('ammo-btn').textContent=invasionMode?'👹 Summon Troops (Q)':'🏹 Get Ammo (Q)';
+            document.getElementById('target-btn').style.display=invasionMode?'none':'';
+            if(invasionMode){resetInvasionRun();startBetweenWave();}
+            else {applyKingdomStartBonuses();showRelicSelect(()=> runPrerunQuiz(()=> startBetweenWave()));}
         } else {
             startBtn.disabled = false;
             startBtn.textContent = '⚔️ START GAME';
@@ -1750,7 +1843,8 @@ function showStart(){
                 : '⚠️ Could not load the current question bank. Return to the Hub and check the class code.';
         }
     };
-    startBtn.onclick = tryStart;
+    startBtn.onclick = ()=>tryStart(false);
+    const invasionStart=document.getElementById('invasion-start-btn');if(invasionStart)invasionStart.onclick=()=>tryStart(true);
     document.getElementById('kingdom-btn').onclick = ()=> showKingdom(()=>showStart());
     QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE).then(result => {
         if (result.ok) {
@@ -1772,7 +1866,7 @@ function showGameOver(voluntary){
     state='gameover';
     window.ChallengeManager?.finish?.({score:wave*100+kills,wave,waveProgress:kills,alive:!!voluntary});
     if(!gameOverCoinsAwarded){
-        lastRawCoins = Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCoinBonus));
+        lastRawCoins = invasionMode ? Math.min(150+10*kingdomLevel('coinvault'),Math.max(1,Math.floor(invasionDamageDealt/10*(1+0.05*kingdomLevel('treasury'))))) : Math.floor((wave*3 + kills*0.2 + gold*0.05) * (1+curseCoinBonus));
         const coinResult = PlatformManager.settleAccuracyCoins(GAME_CONFIG.id, lastRawCoins);
         lastCoinsEarned = coinResult.coinsAwarded;
         lastCoinAccuracy = coinResult.accuracyPercent;
@@ -1788,14 +1882,14 @@ function showGameOver(voluntary){
             ${pendingUnlockNotifications.map(n=>`<div style="color:#ffcc44;font-size:13px">🎉 ${n}</div>`).join('')}
         </div>`;
     }
-    let title = lastRunWasVoluntary ? '🏆 Run Complete!' : '💀 GAME OVER';
-    let subtitle = lastRunWasVoluntary ? `You banked your progress after ${wave} waves!` : `You survived ${wave} waves!`;
+    let title = invasionMode ? (castleHP<=0?'👹 CASTLE CONQUERED!':'🛡️ INVASION ENDED') : (lastRunWasVoluntary ? '🏆 Run Complete!' : '💀 GAME OVER');
+    let subtitle = invasionMode ? `Your army dealt ${Math.floor(invasionDamageDealt)} castle damage across ${wave} assaults.` : (lastRunWasVoluntary ? `You banked your progress after ${wave} waves!` : `You survived ${wave} waves!`);
     let deathMsg = '';
     if(!lastRunWasVoluntary && lastDamageSource){
         const label = ENEMY_DISPLAY_NAMES[lastDamageSource.type] || lastDamageSource.type;
         deathMsg = `<p style="color:#ff6b6b;font-weight:bold;margin:10px 0">☠️ Defeated by a ${label}${lastDamageSource.flying ? ` — a flying enemy. Next time, upgrade your Archer Tower or Ballista so you can hit flying threats.` : `. Next time, spend some coins in The Kingdom to boost your defenses.`}</p>`;
     }
-    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">Towers built: ${towers.length}<br>Total kills: ${kills}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">🪙 Raw run coins: ${lastRawCoins}<br>Question accuracy: ${lastCoinAccuracy}%<br>Coins awarded due to accuracy (+15%): +${lastCoinsEarned}<br>Shared total: ${PlatformManager.getCoins()}</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — coins won\'t persist after this tab closes.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${title}</h2><p style="margin:16px 0">${subtitle}</p>${deathMsg}<p style="color:#aaa">${invasionMode?`Defensive towers faced: ${towers.length}<br>Troop types unlocked: ${invasionArmy.unlockedTroops.length}`:`Towers built: ${towers.length}<br>Total kills: ${kills}`}</p><p style="color:#ffcc44;font-size:16px;margin:12px 0">🪙 Raw run coins: ${lastRawCoins}<br>Question accuracy: ${lastCoinAccuracy}%<br>Coins awarded due to accuracy (+15%): +${lastCoinsEarned}<br>Shared total: ${PlatformManager.getCoins()}</p>${unlockHtml}${!kingdomStorageOk?'<p style="color:#e74c3c;font-size:11px">⚠️ Save data is blocked in this browser — coins won\'t persist after you close this tab.</p>':''}<button class="choice-btn" style="text-align:center;background:rgba(168,85,247,0.12);border-color:var(--accent-violet)" id="kingdom-btn">The Kingdom</button><button class="choice-btn title-font" style="text-align:center;margin-top:8px;background:linear-gradient(160deg, #3d1155 0%, #240a38 100%);color:var(--accent-blue) !important;text-shadow:0 0 8px rgba(0,212,255,0.6),0 0 18px rgba(0,212,255,0.25);text-transform:uppercase;letter-spacing:2px;" id="restart-btn">Return Home</button></div></div>`;
     document.getElementById('restart-btn').onclick=()=>{
         location.reload();
     };
@@ -1803,7 +1897,7 @@ function showGameOver(voluntary){
 }
 
 canvas.addEventListener('click', (e)=>{
-    if(state!=='playing'||ammo<=0) return;
+    if(invasionMode||state!=='playing'||ammo<=0) return;
     ammo--;
     let rect=canvas.getBoundingClientRect();
     let mx=(e.clientX-rect.left)/scale, my=(e.clientY-rect.top)/scale;
@@ -1867,14 +1961,15 @@ function showCashOutConfirm(){
 function updateHUD(){
     if(state==='playing')window.ChallengeManager?.update?.({score:wave*100+kills,wave,waveProgress:kills,alive:castleHP>0});
     document.getElementById('hud-wave').textContent='⭐ Wave: '+wave;
-    document.getElementById('hud-hp').textContent='❤️ HP: '+Math.floor(castleHP)+'/'+maxHP;
-    document.getElementById('hud-ammo').textContent='🏹 Ammo: '+ammo+'/'+maxAmmo;
-    document.getElementById('hud-gold').textContent='🪙 Run Coins: '+gold;
+    document.getElementById('hud-hp').textContent=(invasionMode?'🏰 Enemy Castle: ':'❤️ HP: ')+Math.floor(castleHP)+'/'+maxHP;
+    document.getElementById('hud-ammo').textContent=invasionMode?`👹 Summon: ×${invasionArmy.summonCount}`:'🏹 Ammo: '+ammo+'/'+maxAmmo;
+    document.getElementById('hud-gold').textContent=invasionMode?'💥 Damage: '+Math.floor(invasionDamageDealt):'🪙 Run Coins: '+gold;
     document.getElementById('hud-shared-coins').textContent='🏦 Shared: '+PlatformManager.getCoins();
     document.getElementById('hud-bank').textContent='📚 '+QuestionManager.getBankName();
     let w = WEATHER_EFFECTS.find(x=>x.id===activeWeather);
     let m = MUTATOR_DEFS.find(x=>x.id===activeMutator);
     document.getElementById('hud-weather').textContent = m ? ('⚠️ '+m.name) : (w ? w.name : '');
+    if(invasionMode){document.getElementById('hud-weather').textContent=`🔥 Morale ${invasionMoraleStreak} · Army ×${invasionMoraleMultiplier().toFixed(2)}`;renderInvasionTroopBar();}
     // Gold income is wasted once you're capped — surface the option to bank
     // the current run reward into shared coins now instead of continuing to overflow it.
     let cashoutBtn = document.getElementById('cashout-btn');
@@ -4526,6 +4621,7 @@ function gameLoop(time){
         enemies.forEach(e=>{
             if(e.dead){ e.deathTimer++; return; }
             let spd=e.speed;
+            if(invasionMode&&e.playerArmy)spd*=invasionMoraleMultiplier();
             if(activeAffix==='vanguard') spd*=1.6;
             if(e.frozen>0){ spd*=0.3; e.frozen--; }
             if(hasMoat && e.x<130) spd*=Math.max(0.05, 0.5/getCardEffectMult('moat'));
@@ -4559,7 +4655,7 @@ function gameLoop(time){
             if(e.frameTimer>8){e.frameTimer=0;e.frame=(e.frame+1)%4;}
             if(e.x<=100){ 
                 // Incremental contact damage (scaled down)
-                castleHP-=e.dmg*0.005*waveContactDmgMult*(1-runPowerupBonuses.luckycharm); 
+                let contact=e.dmg*0.005*waveContactDmgMult*(1-runPowerupBonuses.luckycharm)*(invasionMode&&e.playerArmy?invasionMoraleMultiplier():1);castleHP-=contact;if(invasionMode)invasionDamageDealt+=contact;
                 lastDamageSource = { type: e.type, flying: !!e.flying, method: 'contact' };
                 if(activeMutator==='vampiric' && e.hp<e.maxHp) e.hp=Math.min(e.maxHp, e.hp+e.maxHp*0.004);
                 if(e.x<=70){ 
@@ -4587,7 +4683,7 @@ function gameLoop(time){
                     if(e.type==='wyvern') fullDmg = 34;
                     if(e.type==='stoneburrower') fullDmg = 28;
                     if(e.type==='graveworm') fullDmg = 32;
-                    castleHP -= fullDmg*waveContactDmgMult*(1-runPowerupBonuses.luckycharm);
+                    let impact=fullDmg*waveContactDmgMult*(1-runPowerupBonuses.luckycharm)*(invasionMode?invasionArmy.damageMult*invasionMoraleMultiplier():1);castleHP-=impact;if(invasionMode)invasionDamageDealt+=impact;
                     lastDamageSource = { type: e.type, flying: !!e.flying, method: 'contact' };
                     e.dead=true; 
                 } 
@@ -4778,7 +4874,7 @@ function gameLoop(time){
             castleHP=0;
             const wipe = document.getElementById('screenWipe');
             wipe.classList.add('wipe');
-            setTimeout(()=>{ showGameOver(); wipe.classList.remove('wipe'); }, 750);
+            setTimeout(()=>{ showGameOver(invasionMode); wipe.classList.remove('wipe'); }, 750);
         }
         updateHUD();
     }

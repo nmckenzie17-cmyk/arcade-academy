@@ -10,7 +10,7 @@
   const TIERS = { bronze: 1000, silver: 10000, gold: 100000, platinum: 500000 };
   const GAME_IDS = ['angler-answerer','cavern-crammer','dot-n-box-deducer','fortress-facts','jetpack-journey','note-knowledge','pinball-postulation','pixel-artillery','pool-practice','rocket-recall','shuriken-scholar','tic-tac-toe','wild-west-wordslinger','cube-curiosity'];
   const GAME_NAMES = ['Angler Answerer','Cavern Crammer','Dot-n-Box Deducer','Fortress Facts','Jetpack Journey','Note Knowledge','Pinball Postulation','Thinking Tanks','Pool Practice','Rocket Recall','Shuriken Scholar','Tic-Tac-Toe','Wild West Wordslinger','Cube Curiosity'];
-  const TYPE_UNLOCK_CATALOGUE = ['shuriken-scholar-samurai','rocket-recall-combat-carrier','wild-west-bloody-bandit']; // Current type unlocks: Samurai, Combat Carrier, Bloody Bandit.
+  const TYPE_UNLOCK_CATALOGUE = ['shuriken-scholar-samurai','rocket-recall-combat-carrier','wild-west-bloody-bandit','fortress-facts-goblin-general']; // Current character and alternate-mode unlocks.
   const LEVEL_XP = level => (12 * level ** 3) - (150 * level ** 2) + (1000 * level);
   const slug = value => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
   const achievement = (name, category, tier, metric, target, description, extra = {}) => ({ id: extra.id || slug(name), name, category, tier, metric, target, description, ...extra });
