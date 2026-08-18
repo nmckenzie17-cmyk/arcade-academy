@@ -77,6 +77,10 @@
     { id: "multichoice", label: "Multichoice" },
     { id: "matching", label: "Matching" },
     { id: "category", label: "Category" },
+    { id: "type-answer", label: "Type the Answer" },
+    { id: "falling-words-basic", label: "Falling Words — Basic" },
+    { id: "falling-words-definition", label: "Falling Words — Definition" },
+    { id: "falling-words-category", label: "Falling Words — Category" },
   ];
 
   // ---------------------------------------------------------------

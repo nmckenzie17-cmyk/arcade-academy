@@ -3,7 +3,7 @@
 Game folder: [GAME FOLDER PATH]
 Game name: [GAME NAME]
 Game ID: [LOWERCASE KEBAB-CASE ID]
-Supported question formats: [MATCHING / MULTICHOICE / CATEGORY / MULTIPLE]
+Supported question formats: [MATCHING / MULTICHOICE / CATEGORY / TYPE-ANSWER / FALLING-WORDS / MULTIPLE]
 Correct-answer coin reward: [NUMBER OR NOT DECIDED]
 Incorrect-answer coin penalty: [NUMBER OR NOT DECIDED]
 Challenge metrics available: [SCORE / ALIVE / DISTANCE / WAVE / QUESTIONS]
@@ -165,6 +165,10 @@ Use QuestionManager and the class selected on the Hub.
 - Never fetch a question bank directly from Firebase.
 - Never create a second class-code selector.
 - Validate supported formats and normalize through the shared question architecture.
+- Mixed-format games may declare `type-answer` and the parent format `falling-words` in `supportedQuestionFormats`. The parent expands to the teacher-selectable Basic, Definition Hint, and Category Hint modes.
+- `type-answer.json` uses `{ "q": "...", "a": "..." }` for one accepted answer or `{ "q": "...", "a": ["answer", "accepted alternative"] }` for several. Matching is case-insensitive and ignores leading, trailing, and repeated whitespace. Optional `prefix` and `suffix` fields place units or supporting text around the input without becoming part of the answer.
+- Falling Words does not require duplicate bank files. Basic and Definition Hint use the existing `matching.json` terms and definitions; Category Hint uses each existing `category.json` prompt, correct entries, and distractors. Distractors must not lower the student's result.
+- At the beginning of each normal mixed run, call `QuestionManager.beginMixedRun()` so one available format is chosen for that run. Respect the class/student format policy when a teacher has selected a fixed format or Falling Words subcategory.
 - Record every answer through `PlatformManager.recordQuestionAnswered(gameId, correct)`.
 - Pause active gameplay time while a question overlay is open.
 - Provide clear loading, empty, incompatible-format, missing-class, and bank-load error states.

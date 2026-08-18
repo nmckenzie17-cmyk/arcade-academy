@@ -101,7 +101,7 @@ async function loadGames() {
 function gameSupportsQuestionFormat(game, format) {
   if (!format || format === "mixed") return true;
   const supported = Array.isArray(game.supportedQuestionFormats) ? game.supportedQuestionFormats : [game.questionType];
-  return supported.includes(format);
+  return supported.includes(format) || (format.startsWith('falling-words-') && supported.includes('falling-words'));
 }
 
 function renderDailyMissions() {
@@ -238,6 +238,7 @@ async function showHub(profile) {
   currentProfile = profile;
   activeQuestionPolicy = await window.FirebaseManager.resolveQuestionFormat(profile);
   window.ArcadeQuestionPolicy = activeQuestionPolicy;
+  try { localStorage.setItem('arcadeAcademy.questionPolicy',JSON.stringify(activeQuestionPolicy)); } catch (_) {}
   applyProfileToHub(profile);
   showScreen("hub");
   scheduleSeniorClassExpiry(profile);

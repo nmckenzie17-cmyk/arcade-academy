@@ -11,7 +11,7 @@ window.GAME_CONFIG = {
   primaryMode: "singleplayer",
   players: "1 Player",
   questionType: "multichoice",
-  supportedQuestionFormats: ["multichoice", "matching", "category"],
+  supportedQuestionFormats: ["multichoice", "matching", "category", "type-answer", "falling-words"],
   requiresQuestionBank: true,
   supportsHighScores: true,
   supportsAchievements: true,

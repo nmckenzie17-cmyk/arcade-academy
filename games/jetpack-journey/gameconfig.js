@@ -11,7 +11,7 @@ window.GAME_CONFIG = {
     gameModes: ["singleplayer", "challenge"],
 
     questionType: "matching",
-    supportedQuestionFormats: ["multichoice", "matching", "category"],
+    supportedQuestionFormats: ["multichoice", "matching", "category", "type-answer", "falling-words"],
 
     version: "1.0.0",
 

@@ -8,7 +8,10 @@ order:
 2. Class setting, when it is not `mixed`.
 3. Each game's normal configuration.
 
-Supported stored values are `mixed`, `multichoice`, `matching`, and `category`.
+Supported stored values are `mixed`, `multichoice`, `matching`, `category`,
+`type-answer`, `falling-words-basic`, `falling-words-definition`, and
+`falling-words-category`. The Teacher Dashboard presents the final three as
+subcategories of a single Falling Words question type.
 Class settings are stored in `classSettings/{className}`. Student overrides are
 stored as `questionFormatOverride` on the student's `users/{uid}` document.
 

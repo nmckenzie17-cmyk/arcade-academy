@@ -1,0 +1,21 @@
+{
+  "name": "Year 9 Biology — Type the Answer",
+  "questions": [
+    { "q": "What molecule carries genetic information in living organisms?", "a": "DNA" },
+    { "q": "What organelle controls the activities of a cell?", "a": "Nucleus" },
+    { "q": "What is the movement of particles from high to low concentration called?", "a": "Diffusion" },
+    { "q": "What process uses energy to move substances against a concentration gradient?", "a": "Active transport" },
+    { "q": "What are the building blocks of proteins?", "a": "Amino acids" },
+    { "q": "What structure contains genes and is made from DNA?", "a": "Chromosome" },
+    { "q": "What is the complete set of genetic material in an organism called?", "a": "Genome" },
+    { "q": "What term describes the genetic makeup of an organism?", "a": "Genotype" },
+    { "q": "What term describes an organism's observable characteristics?", "a": "Phenotype" },
+    { "q": "Which DNA base pairs with adenine?", "a": "Thymine" },
+    { "q": "Which DNA base pairs with cytosine?", "a": "Guanine" },
+    { "q": "What liquid component makes up most of blood?", "a": "Plasma" },
+    { "q": "Which blood cells carry oxygen?", "a": ["Red", "Red blood", "Red blood cells"] },
+    { "q": "What green pigment absorbs light for photosynthesis?", "a": "Chlorophyll" },
+    { "q": "What is a community of organisms interacting with their non-living environment called?", "a": "Ecosystem" },
+    { "q": "What word describes the non-living parts of an ecosystem?", "a": "Abiotic" }
+  ]
+}

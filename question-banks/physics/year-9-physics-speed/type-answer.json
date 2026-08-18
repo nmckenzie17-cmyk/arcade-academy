@@ -1,0 +1,325 @@
+{
+  "name": "physics — Year 9 Physics Speed — Type the Answer",
+  "questions": [
+    {
+      "q": "What term matches this definition: The study of matter, energy, forces, and motion.",
+      "a": [
+        "Physics"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A push or pull that can change an object's motion.",
+      "a": [
+        "Force"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The force that attracts objects towards the Earth.",
+      "a": [
+        "Gravity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The force of gravity acting on an object. Measured in newtons (N).",
+      "a": [
+        "Weight"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The amount of matter in an object. Measured in kilograms (kg).",
+      "a": [
+        "Mass"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The unit used to measure force.",
+      "a": [
+        "Newton (N)",
+        "Newton",
+        "N"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A force that opposes motion between two surfaces in contact.",
+      "a": [
+        "Friction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A type of friction caused by air pushing against a moving object.",
+      "a": [
+        "Air Resistance"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Equal and opposite forces that do not change an object's motion.",
+      "a": [
+        "Balanced Forces"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Forces that are not equal, causing an object to accelerate.",
+      "a": [
+        "Unbalanced Forces"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The overall force acting on an object after all forces are combined.",
+      "a": [
+        "Net Force"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A change in an object's position over time.",
+      "a": [
+        "Motion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The total length of the path travelled.",
+      "a": [
+        "Distance"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The straight-line distance and direction from the starting point.",
+      "a": [
+        "Displacement"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The distance travelled per unit of time.",
+      "a": [
+        "Speed"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Speed in a particular direction.",
+      "a": [
+        "Velocity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The rate of change of velocity.",
+      "a": [
+        "Acceleration"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A decrease in an object's speed (negative acceleration).",
+      "a": [
+        "Deceleration"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The tendency of an object to resist changes in its motion.",
+      "a": [
+        "Inertia"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The quantity of motion an object has due to its mass and velocity.",
+      "a": [
+        "Momentum"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The ability to do work or cause change.",
+      "a": [
+        "Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The energy an object has because it is moving.",
+      "a": [
+        "Kinetic Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Stored energy due to an object's position or condition.",
+      "a": [
+        "Potential Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy stored because an object is above the ground.",
+      "a": [
+        "Gravitational Potential Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy stored when an object is stretched or compressed.",
+      "a": [
+        "Elastic Potential Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy stored in food, fuels, and batteries.",
+      "a": [
+        "Chemical Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy associated with the movement of particles.",
+      "a": [
+        "Thermal Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy carried by light waves.",
+      "a": [
+        "Light Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy carried by vibrations travelling through a medium.",
+      "a": [
+        "Sound Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The movement of energy from one object or place to another.",
+      "a": [
+        "Energy Transfer"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A change from one form of energy into another.",
+      "a": [
+        "Energy Transformation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy cannot be created or destroyed, only transferred or transformed.",
+      "a": [
+        "Conservation of Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy transferred when a force moves an object.",
+      "a": [
+        "Work"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The rate at which work is done or energy is transferred.",
+      "a": [
+        "Power"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The force acting over a given area.",
+      "a": [
+        "Pressure"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The amount of mass in a given volume.",
+      "a": [
+        "Density"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The amount of space an object occupies.",
+      "a": [
+        "Volume"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The upward force exerted by a fluid on an object.",
+      "a": [
+        "Buoyancy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Another name for the buoyant force.",
+      "a": [
+        "Upthrust"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A substance that can flow, such as a liquid or gas.",
+      "a": [
+        "Fluid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A disturbance that transfers energy without transferring matter.",
+      "a": [
+        "Wave"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The material through which a wave travels.",
+      "a": [
+        "Medium"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A wave where vibrations are perpendicular to the direction of travel.",
+      "a": [
+        "Transverse Wave"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A wave where vibrations are parallel to the direction of travel.",
+      "a": [
+        "Longitudinal Wave"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The distance between two identical points on consecutive waves.",
+      "a": [
+        "Wavelength"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The number of waves passing a point each second (Hz).",
+      "a": [
+        "Frequency"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The maximum distance a wave moves from its resting position.",
+      "a": [
+        "Amplitude"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The bouncing of a wave off a surface.",
+      "a": [
+        "Reflection"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The bending of a wave as it enters a different medium.",
+      "a": [
+        "Refraction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: When a material takes in wave energy instead of reflecting it.",
+      "a": [
+        "Absorption"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A reflected sound wave.",
+      "a": [
+        "Echo"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A region in a longitudinal wave where particles are close together.",
+      "a": [
+        "Compression"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A region in a longitudinal wave where particles are spread apart.",
+      "a": [
+        "Rarefaction"
+      ]
+    }
+  ]
+}

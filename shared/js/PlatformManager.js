@@ -1264,6 +1264,7 @@
           if (user) {
             await connectFirebase(user.uid);
             const profile = await global.FirebaseManager.getUserProfile?.(user.uid);
+            global.ArcadeQuestionPolicy = await global.FirebaseManager.resolveQuestionFormat?.(profile) || {format:'mixed',source:'game'};
             global.AchievementManager?.connect?.(user.uid, profile?.achievementSystem);
             global.MistakeRematchManager?.connect?.(user.uid, profile?.mistakeRematch);
             global.SuggestedGameManager?.connect?.(user.uid, profile?.suggestedGame);

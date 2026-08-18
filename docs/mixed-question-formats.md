@@ -1,6 +1,7 @@
 # Mixed question runs
 
-Eligible games load the class's `multichoice`, `matching`, and `category`
+Eligible games load the class's `multichoice`, `matching`, `category`,
+`type-answer`, and three `falling-words` modes
 banks through `QuestionManager.loadCurrentBanks()`. At the start of a run,
 `QuestionManager.beginMixedRun()` chooses one of the banks that actually
 exists. That format remains fixed for the run.
@@ -14,6 +15,16 @@ The shared rules live in `shared/js/MixedQuestionRound.js` in `POLICY`.
   correct first attempt earns that pair's reward unit.
 - Category presents a 16-word grid containing four correct words. The first
   four selections are scored, one reward unit for each correct word.
+- Type the Answer presents four short-answer prompts. Each may have one or
+  several accepted answers. Answers are compared case-insensitively after
+  trimming repeated whitespace.
+- Falling Words — Basic asks students to type four falling terms copied from
+  `matching.json`.
+- Falling Words — Definition shows each matching definition as the hint and
+  asks for its falling term.
+- Falling Words — Category shows a category prompt and mixes four correct
+  entries with four distractors from `category.json`. Distractors are ignored
+  and never reduce the score.
 - Every round returns `correct` from 0–4 and `rewardRatio` from 0–1.
 
 Change question counts and grid size in `MixedQuestionRound.POLICY`. Change

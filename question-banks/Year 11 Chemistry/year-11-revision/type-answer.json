@@ -1,0 +1,451 @@
+{
+  "name": "Year 11 Chemistry — Year 11 Revision — Type the Answer",
+  "questions": [
+    {
+      "q": "What term matches this definition: Electrostatic attraction between positively charged metal particles and delocalised electrons in a metallic lattice.",
+      "a": [
+        "Metallic Bonding"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Electrons that are not attached to one particular atom and can move throughout a structure.",
+      "a": [
+        "Delocalised Electrons"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Bonding where attraction acts in all directions, allowing particles to shift while maintaining attraction.",
+      "a": [
+        "Non-directional Bonding"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Strong electrostatic attraction between positively charged cations and negatively charged anions.",
+      "a": [
+        "Ionic Bonding"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A strong attraction formed when atoms share a pair of electrons.",
+      "a": [
+        "Covalent Bond"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A large continuous structure of atoms connected by strong covalent bonds.",
+      "a": [
+        "Covalent Network"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A repeating three-dimensional arrangement of oppositely charged ions held by electrostatic attraction.",
+      "a": [
+        "Ionic Lattice"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A repeating structure of positive metal particles surrounded by delocalised electrons.",
+      "a": [
+        "Metallic Lattice"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Attractive forces acting between separate molecules.",
+      "a": [
+        "Intermolecular Forces"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Attractive forces or bonds acting between atoms within the same particle or molecule.",
+      "a": [
+        "Intramolecular Forces"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The ability of a solid to be hammered, bent or moulded into a different shape without breaking.",
+      "a": [
+        "Malleability"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The ability of a material to be drawn into a wire without breaking.",
+      "a": [
+        "Ductility"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The tendency of a material to break or shatter when sufficient force is applied.",
+      "a": [
+        "Brittleness"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The ability of a substance to allow charged particles to move through it and carry electrical current.",
+      "a": [
+        "Electrical Conductivity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The ability of a solute to dissolve in a solvent to form a solution.",
+      "a": [
+        "Solubility"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Energy associated with the attractive forces holding oppositely charged ions together within an ionic lattice.",
+      "a": [
+        "Lattice Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A molecule with an uneven distribution of charge, producing regions of partial positive and negative charge.",
+      "a": [
+        "Polar Molecule"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A separation of electrical charge that creates a partially positive region and a partially negative region.",
+      "a": [
+        "Dipole"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Electrons in the outer shell of an atom that are involved in chemical bonding.",
+      "a": [
+        "Valence Electrons"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A pair of valence electrons located on an atom that is not involved in a covalent bond.",
+      "a": [
+        "Lone Pair"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A region of electron density associated with a bond between atoms.",
+      "a": [
+        "Bonding Region"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A region around an atom where negatively charged electrons are located.",
+      "a": [
+        "Electron Density"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The three-dimensional arrangement of atoms around a central atom in a molecule.",
+      "a": [
+        "Molecular Geometry"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A molecular arrangement involving four bonding regions around a central atom, arranged for maximum separation.",
+      "a": [
+        "Tetrahedral"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A molecular shape involving three bonding regions and one lone pair around the central atom.",
+      "a": [
+        "Trigonal Pyramidal"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An organic compound made entirely from carbon and hydrogen atoms.",
+      "a": [
+        "Hydrocarbon"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A hydrocarbon in which the carbon atoms have the maximum possible number of hydrogen atoms attached.",
+      "a": [
+        "Saturated Hydrocarbon"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A hydrocarbon containing a carbon-carbon double or triple bond and therefore not having the maximum possible hydrogen atoms.",
+      "a": [
+        "Unsaturated Hydrocarbon"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A saturated hydrocarbon containing only single carbon-carbon bonds.",
+      "a": [
+        "Alkane"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An unsaturated hydrocarbon containing at least one carbon-carbon double bond.",
+      "a": [
+        "Alkene"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An unsaturated hydrocarbon containing at least one carbon-carbon triple bond.",
+      "a": [
+        "Alkyne"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A separation technique that separates components of a mixture according to differences in boiling point or volatility.",
+      "a": [
+        "Fractional Distillation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A measure of how readily a substance vaporises; more volatile substances enter the gas phase more easily.",
+      "a": [
+        "Volatility"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A reaction where atoms are added across a multiple bond, producing a more saturated molecule.",
+      "a": [
+        "Addition Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A rule used to predict the major product when an unsymmetrical molecule is added across an unsymmetrical alkene.",
+      "a": [
+        "Markovnikov's Rule"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The product formed in the greatest amount when a reaction can produce multiple structural products.",
+      "a": [
+        "Major Product"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A possible product formed in a smaller amount than the major product.",
+      "a": [
+        "Minor Product"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A chemical reaction in which a fuel reacts with oxygen and releases energy.",
+      "a": [
+        "Combustion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Combustion occurring with sufficient oxygen, producing carbon dioxide and water from the fuels considered in the exam.",
+      "a": [
+        "Complete Combustion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Combustion occurring with limited oxygen, allowing products such as carbon monoxide and carbon to form.",
+      "a": [
+        "Incomplete Combustion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A chemical reaction that releases energy to the surroundings.",
+      "a": [
+        "Exothermic Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The energy change associated with a chemical reaction; the exam uses a negative ΔH to indicate energy release.",
+      "a": [
+        "Enthalpy Change (ΔH)",
+        "Enthalpy Change",
+        "ΔH"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The principle that matter is not created or destroyed during a chemical reaction.",
+      "a": [
+        "Conservation of Mass"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A system in which matter cannot escape, allowing the total mass before and after a reaction to be compared.",
+      "a": [
+        "Closed System"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A reaction in which two or more reactants combine to form one product.",
+      "a": [
+        "Combination Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A reaction in which one reactant breaks down to form two or more products.",
+      "a": [
+        "Decomposition Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A reaction between an acid and a base that produces a salt and water.",
+      "a": [
+        "Neutralisation Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A reaction involving soluble ionic substances that produces an insoluble solid.",
+      "a": [
+        "Precipitation Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An insoluble solid formed from substances reacting in solution.",
+      "a": [
+        "Precipitate"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A substance capable of donating hydrogen ions, H⁺, and producing a conjugate base.",
+      "a": [
+        "Acid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An acid that fully dissociates into ions in solution.",
+      "a": [
+        "Strong Acid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An acid that only partially dissociates, establishing an equilibrium between ionised and unionised forms.",
+      "a": [
+        "Weak Acid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The process in which a substance separates into ions when in solution.",
+      "a": [
+        "Dissociation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The species remaining after an acid has donated a hydrogen ion.",
+      "a": [
+        "Conjugate Base"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition in which forward and reverse processes occur, represented in the exam using a reversible arrow.",
+      "a": [
+        "Equilibrium"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An acid capable of donating two hydrogen ions.",
+      "a": [
+        "Diprotic Acid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The lowering of ocean pH associated in the exam with CO₂ reacting with seawater and increasing acidity.",
+      "a": [
+        "Ocean Acidification"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A measure related in the exam to the number of successful particle collisions occurring each second.",
+      "a": [
+        "Reaction Rate"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The amount of time required for a reaction to reach completion.",
+      "a": [
+        "Reaction Time"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The idea that reacting particles must collide with sufficient energy and an appropriate orientation for a successful reaction.",
+      "a": [
+        "Collision Theory"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A collision between reactant particles that has sufficient energy and suitable orientation to produce a reaction.",
+      "a": [
+        "Successful Collision"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The minimum energy requirement that must be overcome for a chemical reaction to occur.",
+      "a": [
+        "Activation Energy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A substance that increases reaction rate by providing a pathway with a lower activation energy.",
+      "a": [
+        "Catalyst"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The amount of a substance present within a particular volume of solution.",
+      "a": [
+        "Concentration"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The amount of a solid reactant exposed and available for collisions with other reactant particles.",
+      "a": [
+        "Surface Area"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A different structural form of the same chemical element in the same physical state.",
+      "a": [
+        "Allotrope"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A carbon allotrope consisting of covalently bonded layers with delocalised electrons and weaker attractions between layers.",
+      "a": [
+        "Graphite"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A carbon allotrope consisting of a three-dimensional network of carbon atoms connected by strong covalent bonds.",
+      "a": [
+        "Diamond"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A large molecule made from many smaller repeating units linked together in long chains.",
+      "a": [
+        "Polymer"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A smaller molecule capable of joining with other monomers to form a polymer.",
+      "a": [
+        "Monomer"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A chemical reaction in which monomers join together to form a polymer.",
+      "a": [
+        "Polymerisation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The structural section of a polymer that repeats throughout the polymer chain.",
+      "a": [
+        "Repeating Unit"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A manufactured polymer, such as polyethylene, Kevlar or nylon in the exam classification.",
+      "a": [
+        "Synthetic Polymer"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A naturally occurring polymer, such as DNA, silk or collagen in the exam classification.",
+      "a": [
+        "Natural Polymer"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,563 @@
+{
+  "name": "Year 10 Biology — Year 10 Full — Type the Answer",
+  "questions": [
+    {
+      "q": "What term matches this definition: A microorganism or infectious agent that can cause disease.",
+      "a": [
+        "Pathogen"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Single-celled microorganisms; some species can cause disease.",
+      "a": [
+        "Bacteria"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An infectious agent that must use a host cell to reproduce.",
+      "a": [
+        "Virus"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The maintenance of stable internal conditions in the body.",
+      "a": [
+        "Homeostasis"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A chemical messenger produced by a gland and transported in the blood.",
+      "a": [
+        "Hormone"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A simple sugar used as a major energy source by cells.",
+      "a": [
+        "Glucose"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The main control centre of the nervous system.",
+      "a": [
+        "Brain"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Contamination of the environment by harmful substances or materials.",
+      "a": [
+        "Pollution"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A disease caused by a pathogen that can potentially spread between organisms.",
+      "a": [
+        "Infectious disease"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A disease not caused by a pathogen and which cannot spread between people.",
+      "a": [
+        "Non-infectious disease"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Organisms with cell walls containing chitin; some species can cause infections.",
+      "a": [
+        "Fungi"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Usually single-celled organisms, some of which are parasites that cause disease.",
+      "a": [
+        "Protozoa"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An organism that lives on or inside a host and obtains resources from it.",
+      "a": [
+        "Parasite"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The process by which a pathogen spreads between hosts.",
+      "a": [
+        "Transmission"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An organism, such as a mosquito, that carries a pathogen between hosts.",
+      "a": [
+        "Vector"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The entry and multiplication of pathogens within a host.",
+      "a": [
+        "Infection"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A form of reproduction in which one bacterial cell divides into two cells.",
+      "a": [
+        "Binary fission"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A small ring of bacterial DNA that can carry additional genes.",
+      "a": [
+        "Plasmid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A change in genetic material that can create variation.",
+      "a": [
+        "Mutation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Immediate general defence mechanisms that act against many different pathogens.",
+      "a": [
+        "Non-specific immunity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An immune response targeted toward a particular pathogen or antigen.",
+      "a": [
+        "Specific immunity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An immune cell that surrounds, engulfs and digests pathogens.",
+      "a": [
+        "Phagocyte"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A protein produced by B cells that binds to a specific target on a pathogen.",
+      "a": [
+        "Antibody"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A type of white blood cell involved in specific immunity.",
+      "a": [
+        "Lymphocyte"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A lymphocyte that can produce antibodies against specific pathogens.",
+      "a": [
+        "B cell"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A lymphocyte that can destroy infected cells or help coordinate immune responses.",
+      "a": [
+        "T cell"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A long-lasting immune cell that allows a faster response to a previously encountered pathogen.",
+      "a": [
+        "Memory cell"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The community of microorganisms normally living in and on the body.",
+      "a": [
+        "Microbiome"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Protection that occurs when beneficial microbes occupy space and use resources that pathogens need.",
+      "a": [
+        "Competitive exclusion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A change in the internal or external environment that produces a response.",
+      "a": [
+        "Stimulus"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A structure or cell that detects a change or stimulus.",
+      "a": [
+        "Receptor"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A muscle or gland that carries out a response.",
+      "a": [
+        "Effector"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The part of a regulatory system that processes information and coordinates a response.",
+      "a": [
+        "Control centre"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A control mechanism in which a change causes responses that reverse that change.",
+      "a": [
+        "Negative feedback"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A mechanism in which a response increases or amplifies the original change.",
+      "a": [
+        "Positive feedback"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Maintenance of body temperature within a suitable range.",
+      "a": [
+        "Thermoregulation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A receptor that detects changes in temperature.",
+      "a": [
+        "Thermoreceptor"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A region of the brain involved in regulating conditions such as body temperature.",
+      "a": [
+        "Hypothalamus"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Widening of blood vessels near the skin, increasing heat loss.",
+      "a": [
+        "Vasodilation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Narrowing of blood vessels near the skin, reducing heat loss.",
+      "a": [
+        "Vasoconstriction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A system of glands that produces hormones to regulate body processes.",
+      "a": [
+        "Endocrine system"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An organ that releases hormones directly into the bloodstream.",
+      "a": [
+        "Endocrine gland"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An endocrine gland that releases hormones controlling several other body functions and glands.",
+      "a": [
+        "Pituitary gland"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An organ that produces digestive enzymes and hormones including insulin and glucagon.",
+      "a": [
+        "Pancreas"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A pancreatic hormone that lowers blood glucose concentration.",
+      "a": [
+        "Insulin"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A pancreatic hormone that raises blood glucose concentration.",
+      "a": [
+        "Glucagon"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The stored form of glucose found mainly in the liver and muscles.",
+      "a": [
+        "Glycogen"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Clusters of hormone-producing cells within the pancreas.",
+      "a": [
+        "Islets of Langerhans"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Pancreatic cells within the islets of Langerhans that produce insulin.",
+      "a": [
+        "Beta cells"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Pancreatic cells within the islets of Langerhans that produce glucagon.",
+      "a": [
+        "Alpha cells"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition in which blood glucose concentration is too high.",
+      "a": [
+        "Hyperglycaemia"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The brain and spinal cord.",
+      "a": [
+        "Central nervous system (CNS)",
+        "Central nervous system",
+        "CNS"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The nerves connecting the CNS with the rest of the body.",
+      "a": [
+        "Peripheral nervous system (PNS)",
+        "Peripheral nervous system",
+        "PNS"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A specialised cell that carries electrical signals through the nervous system.",
+      "a": [
+        "Neuron"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A neuron that carries information from receptors toward the CNS.",
+      "a": [
+        "Sensory neuron"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A neuron that carries signals from the CNS to effectors.",
+      "a": [
+        "Motor neuron"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The variety of living organisms within an ecosystem or area.",
+      "a": [
+        "Biodiversity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A measure of how cloudy or unclear water is.",
+      "a": [
+        "Turbidity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A measure of dissolved inorganic and organic substances within water.",
+      "a": [
+        "Total Dissolved Solids (TDS)",
+        "Total Dissolved Solids",
+        "TDS"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The strip of land alongside a river, stream or other waterway.",
+      "a": [
+        "Riparian zone"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A molecule, often on the surface of a pathogen, that can trigger a specific immune response.",
+      "a": [
+        "Antigen"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The body's ability to resist a particular infection, often because of immune memory.",
+      "a": [
+        "Immunity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A large phagocytic immune cell that engulfs pathogens, damaged cells and cellular debris.",
+      "a": [
+        "Macrophage"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A common white blood cell that acts rapidly against invading bacteria and fungi.",
+      "a": [
+        "Neutrophil"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A white blood cell involved particularly in responses to parasites and allergic reactions.",
+      "a": [
+        "Eosinophil"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A white blood cell that releases substances such as histamine during inflammatory and allergic responses.",
+      "a": [
+        "Basophil"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A chemical involved in inflammation and allergic responses.",
+      "a": [
+        "Histamine"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The collection of chemical reactions occurring within cells to maintain life.",
+      "a": [
+        "Cellular metabolism"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Regulation of water and dissolved ion concentrations within the body.",
+      "a": [
+        "Osmoregulation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The target level around which a homeostatically controlled condition is maintained.",
+      "a": [
+        "Set point"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition in which the body's core temperature becomes abnormally high.",
+      "a": [
+        "Hyperthermia"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition in which the body's core temperature becomes dangerously low.",
+      "a": [
+        "Hypothermia"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A thyroid hormone that influences metabolic activity and heat production.",
+      "a": [
+        "Thyroxine"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A hormone involved in preparing the body to respond rapidly to stressful situations.",
+      "a": [
+        "Adrenaline"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A hormone produced by the adrenal glands involved in metabolism, stress and inflammation.",
+      "a": [
+        "Cortisol"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Reduced responsiveness of body cells to insulin, making blood glucose more difficult to regulate.",
+      "a": [
+        "Insulin resistance"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An autoimmune condition in which pancreatic beta cells are destroyed, greatly reducing insulin production.",
+      "a": [
+        "Type I diabetes"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition involving insulin resistance and sometimes insufficient insulin production.",
+      "a": [
+        "Type II diabetes"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Pollution entering an environment from a single identifiable source.",
+      "a": [
+        "Point-source pollution"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Pollution entering an environment from many widespread sources rather than one identifiable location.",
+      "a": [
+        "Non-point-source pollution"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Excessive nutrient enrichment of water that promotes increased growth of organisms such as algae and disrupts the ecosystem.",
+      "a": [
+        "Eutrophication"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Oxygen present in water and available for aquatic organisms to use in respiration.",
+      "a": [
+        "Dissolved oxygen"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The ability of bacteria to survive an antibiotic that would normally kill them or stop their growth.",
+      "a": [
+        "Antibiotic resistance"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Changes to a pathogen's surface antigens that can make existing immune responses less effective.",
+      "a": [
+        "Antigenic variation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition in which the immune system mistakenly attacks the body's own cells or tissues.",
+      "a": [
+        "Autoimmune disease"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The principle that a receptor responds only to molecules or signals with a compatible structure.",
+      "a": [
+        "Receptor specificity"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The conversion of glucose into glycogen for storage.",
+      "a": [
+        "Glycogenesis"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The breakdown of glycogen to release glucose when blood glucose is low.",
+      "a": [
+        "Glycogenolysis"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A change in a protein's three-dimensional structure that can cause it to lose its normal function.",
+      "a": [
+        "Denaturation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition in which tissues or an environment have insufficient available oxygen.",
+      "a": [
+        "Hypoxia"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A rapid increase in algae, often caused by excess nutrients entering an aquatic ecosystem.",
+      "a": [
+        "Algal bloom"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The biological breakdown of dead organic material, often by microorganisms such as bacteria and fungi.",
+      "a": [
+        "Decomposition"
+      ]
+    }
+  ]
+}

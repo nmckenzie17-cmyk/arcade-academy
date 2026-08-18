@@ -1,0 +1,305 @@
+{
+  "name": "Year 11 Chemistry — Year 11 Full — Type the Answer",
+  "questions": [
+    {
+      "q": "What term matches this definition: The smallest, fundamental unit of ordinary matter that forms chemical elements.",
+      "a": [
+        "Atom"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A substance consisting of atoms which all have the same number of protons; neutral overall charge.",
+      "a": [
+        "Element"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An atom or molecule with a net electric charge due to loss or gain of electrons.",
+      "a": [
+        "Ion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A positively charged ion (loses electrons).",
+      "a": [
+        "Cation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A negatively charged ion (gains electrons).",
+      "a": [
+        "Anion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A compound made of metal cations and non-metal anions held together by ionic bonds.",
+      "a": [
+        "Ionic Compound"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The force that attracts oppositely charged particles (ions) and repels like charges.",
+      "a": [
+        "Electrostatic Force of Attraction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Strong electrostatic attraction between oppositely charged ions formed by electron transfer.",
+      "a": [
+        "Ionic Bond"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An ordered, repeating three-dimensional arrangement of ions in an ionic compound.",
+      "a": [
+        "3D Lattice"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A compound made of metal cations surrounded by a 'sea' of delocalised electrons.",
+      "a": [
+        "Metallic Compound"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Electrostatic attraction between metal cations and delocalised electrons.",
+      "a": [
+        "Metallic Bond"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Bonds where attraction extends uniformly in all directions, e.g., ionic and metallic bonds.",
+      "a": [
+        "Non-directional Bonding"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A compound made of molecules held together by covalent bonds and intermolecular forces.",
+      "a": [
+        "Molecular Compound"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Intramolecular bond formed by sharing pairs of valence electrons between atoms.",
+      "a": [
+        "Covalent Bond"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Weak forces of attraction between molecules, including temporary dipoles, permanent dipoles, and hydrogen bonding.",
+      "a": [
+        "Intermolecular Forces"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A pair of valence electrons not involved in bonding (non-bonding electrons).",
+      "a": [
+        "Lone Pair"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Chemical principle that atoms tend to bond to have eight electrons in their valence shell for stability.",
+      "a": [
+        "Octet Rule"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A 2D representation showing valence electrons as dots and covalent bonds as lines.",
+      "a": [
+        "Lewis Diagram"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Valence Shell Electron Pair Repulsion theory predicting 3D molecular shapes by repulsion of electron pairs.",
+      "a": [
+        "VSEPR Theory"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Organic compounds made only of carbon and hydrogen atoms.",
+      "a": [
+        "Hydrocarbon"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Saturated hydrocarbon with only single bonds; general formula CₙH₂ₙ₊₂.",
+      "a": [
+        "Alkane"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Unsaturated hydrocarbon with at least one carbon-carbon double bond; general formula CₙH₂ₙ.",
+      "a": [
+        "Alkene"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Unsaturated hydrocarbon with at least one carbon-carbon triple bond; general formula CₙH₂ₙ₋₂.",
+      "a": [
+        "Alkyne"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Specific group of atoms responsible for characteristic reactions of a compound (e.g., -OH in alcohols).",
+      "a": [
+        "Functional Group"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Part of the name indicating the number of carbon atoms in the main chain (meth-, eth-, prop-, etc.).",
+      "a": [
+        "Prefix (Organic Naming)",
+        "Prefix",
+        "Organic Naming"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Part of the name indicating the type of hydrocarbon or functional group (-ane, -ene, -yne, -ol).",
+      "a": [
+        "Suffix (Organic Naming)",
+        "Suffix",
+        "Organic Naming"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Hydrocarbon branch attached to the main carbon chain but not part of it (e.g., methyl, ethyl).",
+      "a": [
+        "Alkyl Side Chain"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Shows the exact number and types of atoms in a molecule (e.g., C₆H₁₄).",
+      "a": [
+        "Molecular Formula"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Graphic representation showing how atoms are bonded in a molecule.",
+      "a": [
+        "Structural Formula"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Shorthand notation listing atoms in order bonded, grouping hydrogens next to carbons.",
+      "a": [
+        "Condensed Formula"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Simplified organic formula where carbon atoms are vertices/ends of lines and hydrogens are implied.",
+      "a": [
+        "Skeletal Formula"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Compounds with the same molecular formula but different connectivity of atoms.",
+      "a": [
+        "Structural Isomers"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Ring-shaped hydrocarbons with alternating single and double bonds (e.g., benzene).",
+      "a": [
+        "Aromatic"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Process of breaking long-chain hydrocarbons into shorter, more useful molecules using heat and catalysts.",
+      "a": [
+        "Cracking"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Separation technique that separates mixtures based on different boiling points.",
+      "a": [
+        "Fractional Distillation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Laboratory technique to heat reactions at constant temperature without loss of solvent by condensation.",
+      "a": [
+        "Reflux"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Refers to the number of hydrogens attached to carbons; saturated hydrocarbons have maximum hydrogens.",
+      "a": [
+        "Saturation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Reaction where atoms or groups are added to an unsaturated molecule, breaking double or triple bonds.",
+      "a": [
+        "Addition Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Reaction where atoms or groups are removed from a molecule, forming double bonds.",
+      "a": [
+        "Elimination Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: In addition reactions, the hydrogen attaches to the carbon with more hydrogens already attached.",
+      "a": [
+        "Markovnikov’s Rule"
+      ]
+    },
+    {
+      "q": "What term matches this definition: In elimination reactions, the double bond forms at the carbon with fewer hydrogens (least saturated).",
+      "a": [
+        "Saytzeff's Rule"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Organic compounds containing carbon, hydrogen, and at least one halogen atom (F, Cl, Br, I).",
+      "a": [
+        "Haloalkane"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Organic compounds with at least one hydroxyl (-OH) group attached to a carbon.",
+      "a": [
+        "Alcohol"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Organic compounds containing a carboxyl group (-COOH).",
+      "a": [
+        "Carboxylic Acid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Exothermic reaction where a fuel reacts with oxygen to produce carbon dioxide, water, and energy.",
+      "a": [
+        "Combustion Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Heat content of a system; change in enthalpy is heat absorbed or released during a reaction.",
+      "a": [
+        "Enthalpy (ΔH)",
+        "Enthalpy",
+        "ΔH"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Reaction that releases heat; ΔH is negative.",
+      "a": [
+        "Exothermic Reaction"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Combustion with sufficient oxygen producing CO₂ and H₂O.",
+      "a": [
+        "Complete Combustion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Combustion with limited oxygen producing CO, C (soot), and H₂O.",
+      "a": [
+        "Incomplete Combustion"
+      ]
+    }
+  ]
+}

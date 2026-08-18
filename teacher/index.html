@@ -155,7 +155,8 @@
       <div class="overview-card-header"><div><h2 id="question-format-heading">Class Question Format</h2><p>Override game defaults for an entire class. Student overrides take priority.</p></div></div>
       <div class="class-reset-grid">
         <div class="field-inline class-reset-field"><label for="question-format-class">Class</label><select id="question-format-class"></select></div>
-        <div class="field-inline class-reset-field"><label for="class-question-format">Question format</label><select id="class-question-format"><option value="mixed">Game default / mixed</option><option value="multichoice">Multiple choice</option><option value="matching">Matching</option><option value="category">Falling-word category</option></select></div>
+        <div class="field-inline class-reset-field"><label for="class-question-format">Question format</label><select id="class-question-format"><option value="mixed">Game default / mixed</option><option value="multichoice">Multiple choice</option><option value="matching">Matching</option><option value="category">Category grid</option><option value="type-answer">Type the answer</option><option value="falling-words">Falling words</option></select></div>
+        <div class="field-inline class-reset-field" id="class-falling-mode-wrap" hidden><label for="class-falling-mode">Falling Words mode</label><select id="class-falling-mode"><option value="basic">Basic — copy the term</option><option value="definition">Definition hint — type the term</option><option value="category">Category hint — type matching words</option></select></div>
         <button id="class-question-format-save" class="reset-button" type="button">Save Class Format</button>
       </div>
       <p id="class-question-format-result" class="settings-result" role="status"></p>
@@ -312,7 +313,7 @@
         </div>
         <div class="student-class-settings">
           <label for="student-question-format">Question-format override</label>
-          <div class="student-class-row"><select id="student-question-format"><option value="mixed">Use class setting</option><option value="multichoice">Multiple choice</option><option value="matching">Matching</option><option value="category">Falling-word category</option></select><button id="student-question-format-save" class="reset-button" type="button">Save Format</button></div>
+          <div class="student-class-row"><select id="student-question-format"><option value="mixed">Use class setting</option><option value="multichoice">Multiple choice</option><option value="matching">Matching</option><option value="category">Category grid</option><option value="type-answer">Type the answer</option><option value="falling-words">Falling words</option></select><select id="student-falling-mode" hidden aria-label="Falling Words mode"><option value="basic">Basic</option><option value="definition">Definition hint</option><option value="category">Category hint</option></select><button id="student-question-format-save" class="reset-button" type="button">Save Format</button></div>
           <p id="student-question-format-result" class="settings-result" role="status"></p>
         </div>
         <div class="student-coin-settings">

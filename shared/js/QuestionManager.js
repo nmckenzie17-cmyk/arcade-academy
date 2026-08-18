@@ -7,7 +7,7 @@
 // to know where question files live, how teacher codes resolve to a bank,
 // or how selection/weighting/shuffling works internally.
 //
-// Three bank shapes are supported today, chosen by the `questionType`
+// Four source-bank shapes are supported today, chosen by the `questionType`
 // passed in to loadBank()/loadBankFromCode():
 //   'multichoice' — a plain array of { q, o, a } objects (question text,
 //                    options, correct-option index). Normalised to
@@ -20,6 +20,11 @@
 //                    { prompt, correct, distractors, weight }.
 //   'matching'    — a single object { name, cards: [{ term, definition }] }.
 //                    Normalised to a flat array of { term, definition, weight }.
+//   'type-answer' — an array (or { name, questions }) of { q, a } records.
+//                    `a` may be one answer or an array of accepted answers.
+//                    Normalised to { q, answer, answers, prefix, suffix, weight }.
+// Falling Words modes reuse matching/category source files and retain their
+// concrete mode name as the active question type.
 // ─────────────────────────────────────────────────────────────────────────
 const QuestionManager = {
 
@@ -59,8 +64,11 @@ const QuestionManager = {
             const bankDetails = registry[code];
             if (!bankDetails || !bankDetails.subject || !bankDetails.bank) return { error: 'code-not-found' };
 
+            const sourceType = questionType.startsWith('falling-words-')
+                ? (questionType === 'falling-words-category' ? 'category' : 'matching')
+                : questionType;
             const questionFile =
-                `${this.ROOT}/${bankDetails.subject}/${bankDetails.bank}/${questionType}.json`;
+                `${this.ROOT}/${bankDetails.subject}/${bankDetails.bank}/${sourceType}.json`;
 
             const questionsResponse = await fetch(questionFile, { cache: 'no-store' });
             if (!questionsResponse.ok) return { error: 'fetch-failed' };
@@ -82,7 +90,7 @@ const QuestionManager = {
     // code always fails and nothing is loaded.
     // `questionType` selects both which file is requested (see
     // loadBankFromCode) and how the raw JSON is validated/normalised — see
-    // the file header for the three supported shapes.
+    // the file header for the supported shapes.
     async loadBank(code, questionType) {
         code = (code || '').trim().toLowerCase();
         if (!code) return { ok: false, error: 'code-required' };
@@ -92,8 +100,11 @@ const QuestionManager = {
 
         const raw = loaded.data;
         this.questionType = questionType || 'multichoice';
+        const sourceType = questionType?.startsWith('falling-words-')
+            ? (questionType === 'falling-words-category' ? 'category' : 'matching')
+            : questionType;
 
-        if (questionType === 'category') {
+        if (sourceType === 'category') {
             // Bare array of { prompt, correct, distractors }, or wrapped as
             // { subject, categories: [...] }.
             const list = Array.isArray(raw) ? raw : raw.categories;
@@ -112,7 +123,7 @@ const QuestionManager = {
             return { ok: true, name: this.bankName };
         }
 
-        if (questionType === 'matching') {
+        if (sourceType === 'matching') {
             // A single object: { name, cards: [{ term, definition }, ...] }.
             const valid = raw && typeof raw.name === 'string' && Array.isArray(raw.cards) &&
                 raw.cards.length >= 4 &&
@@ -123,6 +134,29 @@ const QuestionManager = {
             this.bankName = raw.name;
             this.bankCode = code;
             return { ok: true, name: this.bankName };
+        }
+
+        if (questionType === 'type-answer') {
+            const list = Array.isArray(raw) ? raw : raw.questions;
+            const validAnswers = value => {
+                const answers = Array.isArray(value) ? value : [value];
+                return answers.length > 0 && answers.every(answer =>
+                    ['string','number'].includes(typeof answer) && String(answer).trim()
+                );
+            };
+            const valid = Array.isArray(list) && list.length > 0 && list.every(item =>
+                item && typeof item.q === 'string' && item.q.trim() &&
+                validAnswers(item.a)
+            );
+            if (!valid) return { ok:false, error:'fetch-failed' };
+            this.questions = list.map(item => {
+                const answers = (Array.isArray(item.a) ? item.a : [item.a]).map(answer => String(answer).trim());
+                return { q:item.q.trim(), answer:answers[0], answers,
+                    prefix:String(item.prefix||''), suffix:String(item.suffix||''), weight:1 };
+            });
+            this.bankName = (!Array.isArray(raw) && raw.name) ? raw.name : ('Bank ' + code);
+            this.bankCode = code;
+            return { ok:true, name:this.bankName };
         }
 
         // Default: 'multichoice' — a plain top-level array of { q, o, a }.
@@ -150,8 +184,12 @@ const QuestionManager = {
             return { ok: false, error: 'class-code-required', available: [] };
         }
         const code = PlatformManager.getClassCode();
-        const enforced = window.ArcadeQuestionPolicy?.format;
-        const requested = questionTypes?.length ? questionTypes : ['multichoice', 'matching', 'category'];
+        let storedPolicy=null;
+        try { storedPolicy=JSON.parse(localStorage.getItem('arcadeAcademy.questionPolicy')||'null'); } catch (_) {}
+        const enforced = window.ArcadeQuestionPolicy?.format || storedPolicy?.format;
+        const requestedBase = questionTypes?.length ? questionTypes : ['multichoice', 'matching', 'category'];
+        const requested = requestedBase.flatMap(type => type === 'falling-words'
+            ? ['falling-words-basic','falling-words-definition','falling-words-category'] : [type]);
         const types = enforced && enforced !== 'mixed' && requested.includes(enforced) ? [enforced] : requested;
         const banks = {}, names = {};
         for (const type of types) {
@@ -180,6 +218,16 @@ const QuestionManager = {
         return this.runQuestionType;
     },
     getRunQuestionType() { return this.runQuestionType || this.questionType; },
+
+    normalizeTypedAnswer(value) {
+        return String(value ?? '').trim().replace(/\s+/g,' ').toLocaleLowerCase();
+    },
+    isTypedAnswerCorrect(question, value) {
+        const submitted = this.normalizeTypedAnswer(value);
+        const accepted = Array.isArray(question?.answers) && question.answers.length
+            ? question.answers : [question?.answer];
+        return accepted.some(answer => submitted === this.normalizeTypedAnswer(answer));
+    },
 
     // The active bank's display name (uppercased teacher code for
     // multichoice banks, or the bank/subject's own name for category and

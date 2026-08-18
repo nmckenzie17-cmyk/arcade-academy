@@ -19,6 +19,9 @@
     const type=context.questionType||'multichoice';let prompt='',answer='',options=[];
     if(type==='matching'&&q.term&&q.definition){prompt=`What matches “${q.term}”?`;answer=q.definition;options=[answer,...takeOthers(context.candidates,'definition',answer,3)];}
     else if(type==='category'&&q.prompt&&q.correct?.length){answer=q.correct[0];prompt=`Which belongs in “${q.prompt}”?`;options=[answer,...(q.distractors||[]).slice(0,3)];}
+    else if(type==='type-answer'&&q.q&&q.answer){prompt=q.q;answer=q.answer;options=[answer,...takeOthers(context.candidates,'answer',answer,3)];}
+    else if(type.startsWith('falling-words-')&&q.term){prompt=type==='falling-words-definition'?q.definition:`Spell “${q.term}”`;answer=q.term;options=[answer,...takeOthers(context.candidates,'term',answer,3)];}
+    else if(type==='falling-words-category'&&q.prompt&&q.correct?.length){answer=q.correct[0];prompt=`Which belongs in “${q.prompt}”?`;options=[answer,...(q.distractors||[]).slice(0,3)];}
     else if(q.q&&Array.isArray(q.a)){prompt=q.q;answer=q.a[q.c];options=[...q.a];}
     if(!prompt||!answer||options.length<2)return null;
     for(let i=options.length-1;i>0;i-=1){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]];}

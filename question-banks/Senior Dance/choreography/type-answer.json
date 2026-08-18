@@ -1,0 +1,466 @@
+{
+  "name": "Senior Dance — Choreography — Type the Answer",
+  "questions": [
+    {
+      "q": "What is the main purpose of choreography?",
+      "a": [
+        "To create and organise movement into a dance"
+      ]
+    },
+    {
+      "q": "What is a motif in dance?",
+      "a": [
+        "A repeated movement idea that can be developed"
+      ]
+    },
+    {
+      "q": "Which choreographic device repeats movement exactly the same each time?",
+      "a": [
+        "Repetition"
+      ]
+    },
+    {
+      "q": "What does \"canon\" mean?",
+      "a": [
+        "Dancers perform the same movement one after another.",
+        "Dancers perform the same movement one after another"
+      ]
+    },
+    {
+      "q": "Which choreographic device changes an existing movement?",
+      "a": [
+        "Development"
+      ]
+    },
+    {
+      "q": "What is improvisation?",
+      "a": [
+        "Creating movement spontaneously without planning everything first"
+      ]
+    },
+    {
+      "q": "Which element of dance refers to speed?",
+      "a": [
+        "Time"
+      ]
+    },
+    {
+      "q": "If dancers perform exactly the same movement at the same time, they are dancing in:",
+      "a": [
+        "Unison"
+      ]
+    },
+    {
+      "q": "What does contrast do in choreography?",
+      "a": [
+        "Creates differences between movements or ideas"
+      ]
+    },
+    {
+      "q": "A Hip Hop choreographer wants the audience to remember one move. Which choreographic device would be most effective?",
+      "a": [
+        "Repetition"
+      ]
+    },
+    {
+      "q": "What is fragmentation?",
+      "a": [
+        "Breaking a movement phrase into smaller sections"
+      ]
+    },
+    {
+      "q": "Which choreographic device is created by reversing a movement phrase?",
+      "a": [
+        "Retrograde"
+      ]
+    },
+    {
+      "q": "If a Breaking crew starts standing, then gradually moves to floorwork before finishing with freezes, they are changing:",
+      "a": [
+        "Levels"
+      ]
+    },
+    {
+      "q": "A choreographer asks dancers to perform robotic movements before transitioning into loose grooves. Which device is being used?",
+      "a": [
+        "Contrast"
+      ]
+    },
+    {
+      "q": "Which process usually comes first when creating choreography?",
+      "a": [
+        "Developing movement ideas from a stimulus"
+      ]
+    },
+    {
+      "q": "A choreographer asks dancers to create movements inspired by machinery. This is an example of using a:",
+      "a": [
+        "Stimulus"
+      ]
+    },
+    {
+      "q": "Which device would best build tension before a powerful Krump section?",
+      "a": [
+        "Repetition with gradual development"
+      ]
+    },
+    {
+      "q": "Which formation gives equal visual importance to every dancer?",
+      "a": [
+        "Circle"
+      ]
+    },
+    {
+      "q": "Changing the direction dancers face mainly develops which element?",
+      "a": [
+        "Space"
+      ]
+    },
+    {
+      "q": "Why might a choreographer repeat a movement several times but change the timing?",
+      "a": [
+        "To develop the motif"
+      ]
+    },
+    {
+      "q": "A choreographer wants a robotics sequence to gradually become more human. Which choreographic concept best achieves this?",
+      "a": [
+        "Contrast through gradual transformation"
+      ]
+    },
+    {
+      "q": "Which choreographic device best demonstrates cause and effect between dancers?",
+      "a": [
+        "Call and response"
+      ]
+    },
+    {
+      "q": "A crew performs identical choreography, but each dancer adds their own stylistic variation. This demonstrates:",
+      "a": [
+        "Personal interpretation within choreographic intent"
+      ]
+    },
+    {
+      "q": "Why is motif development important?",
+      "a": [
+        "It creates unity while allowing variety.",
+        "It creates unity while allowing variety"
+      ]
+    },
+    {
+      "q": "A choreographer intentionally uses silence during a powerful freeze. What principle is being manipulated?",
+      "a": [
+        "Dynamics and time"
+      ]
+    },
+    {
+      "q": "Which device best encourages audience anticipation?",
+      "a": [
+        "Accumulation"
+      ]
+    },
+    {
+      "q": "A choreographer removes one movement from a phrase and inserts a completely different movement. This is an example of:",
+      "a": [
+        "Substitution"
+      ]
+    },
+    {
+      "q": "Why might a Hip Hop choreographer intentionally include moments of stillness?",
+      "a": [
+        "To highlight movement before and after it"
+      ]
+    },
+    {
+      "q": "What is the primary benefit of using multiple choreographic devices on the same motif?",
+      "a": [
+        "Greater complexity while maintaining unity"
+      ]
+    },
+    {
+      "q": "A dance explores \"power\" using sharp robotics, aggressive Krump and controlled contemporary movement. Which choreographic principle connects these contrasting genres?",
+      "a": [
+        "A unified choreographic intention"
+      ]
+    },
+    {
+      "q": "Which choreographic decision is most likely to strengthen audience understanding of a dance's intention?",
+      "a": [
+        "Movement choices consistently communicate the central concept.",
+        "Movement choices consistently communicate the central concept"
+      ]
+    },
+    {
+      "q": "A motif is repeated in canon, then fragmented, then reversed, then performed simultaneously by the full cast. What best describes this process?",
+      "a": [
+        "Progressive motif development"
+      ]
+    },
+    {
+      "q": "A choreographer deliberately changes movement quality from mechanical isolation to fluid locomotion while keeping the same motif. Which choreographic principle is being explored?",
+      "a": [
+        "Transformation through dynamics and quality"
+      ]
+    },
+    {
+      "q": "Why might a choreographer choose asymmetrical formations during a battle-inspired Hip Hop piece?",
+      "a": [
+        "To create visual tension and unpredictability"
+      ]
+    },
+    {
+      "q": "A choreographer develops one movement using repetition, retrograde, inversion, augmentation and fragmentation. What is the greatest advantage of this approach?",
+      "a": [
+        "The dance maintains thematic unity while continually introducing new material.",
+        "The dance maintains thematic unity while continually introducing new material"
+      ]
+    },
+    {
+      "q": "A Breaking crew alternates explosive power moves with slow freezes to manipulate audience attention. Which choreographic concept is being explored most effectively?",
+      "a": [
+        "Dynamic contrast"
+      ]
+    },
+    {
+      "q": "During rehearsals, dancers continually improvise around a central motif before selecting successful ideas. This choreographic process is best described as:",
+      "a": [
+        "Generating and refining movement material"
+      ]
+    },
+    {
+      "q": "A choreographer intentionally avoids synchronisation for most of the dance, bringing everyone together only at the climax. Why?",
+      "a": [
+        "The contrast makes the final unison significantly more impactful.",
+        "The contrast makes the final unison significantly more impactful"
+      ]
+    },
+    {
+      "q": "Which choreographic decision best demonstrates sophisticated motif development?",
+      "a": [
+        "Transforming a single movement idea through multiple choreographic devices while maintaining recognisable characteristics.",
+        "Transforming a single movement idea through multiple choreographic devices while maintaining recognisable characteristics"
+      ]
+    },
+    {
+      "q": "A choreographer's intention is to explore the conflict between technology and humanity. The dance begins with isolated robotic tutting, develops through fragmented motifs and asynchronous timing, and ends with flowing contemporary movement performed in unison. Which statement best explains why this choreography is effective?",
+      "a": [
+        "The choreographic devices and movement qualities consistently reinforce the central intention, allowing the audience to interpret the thematic journey.",
+        "The choreographic devices and movement qualities consistently reinforce the central intention, allowing the audience to interpret the thematic journey"
+      ]
+    },
+    {
+      "q": "A choreographer introduces a motif of a robotic arm isolation. Throughout the work the motif is fragmented, inverted, performed in canon, rhythmically displaced, and finally absorbed into fluid locomotor movement. What is the primary choreographic purpose of this process?",
+      "a": [
+        "To create thematic development while maintaining conceptual unity.",
+        "To create thematic development while maintaining conceptual unity"
+      ]
+    },
+    {
+      "q": "A choreographer wants the audience to feel increasing psychological tension without changing the music. Which combination of choreographic decisions would be most effective?",
+      "a": [
+        "Gradually decreasing personal space, increasing stillness, delaying movement resolution, and introducing asynchronous timing.",
+        "Gradually decreasing personal space, increasing stillness, delaying movement resolution, and introducing asynchronous timing"
+      ]
+    },
+    {
+      "q": "Two dancers perform the same motif simultaneously. One uses sustained, flowing dynamics while the other performs sharp, explosive isolations. Which choreographic principle is primarily being explored?",
+      "a": [
+        "Contrast through movement quality (dynamics)"
+      ]
+    },
+    {
+      "q": "A choreographer repeatedly transforms a single motif using retrograde, inversion, augmentation, diminution, and changes in spatial pathway. Which statement best describes this approach?",
+      "a": [
+        "The motif acts as a structural anchor, allowing complexity while preserving cohesion.",
+        "The motif acts as a structural anchor, allowing complexity while preserving cohesion"
+      ]
+    },
+    {
+      "q": "A Hip Hop crew performs highly synchronised choreography before intentionally breaking into individual freestyle sections. They later return to perfect unison. Why is this structure particularly effective?",
+      "a": [
+        "It creates a dialogue between collective identity and individual expression.",
+        "It creates a dialogue between collective identity and individual expression"
+      ]
+    },
+    {
+      "q": "A choreographer explores the theme of \"control.\" Which choreographic choice is least likely to reinforce this intention?",
+      "a": [
+        "Random improvisation with no compositional constraints.",
+        "Random improvisation with no compositional constraints"
+      ]
+    },
+    {
+      "q": "During rehearsals, dancers generate movement through improvisation before analysing, refining, combining and sequencing successful material. Which choreographic model is this process most closely aligned with?",
+      "a": [
+        "Exploration → Selection → Refinement → Composition"
+      ]
+    },
+    {
+      "q": "A dance intentionally avoids symmetry, predictable phrasing and repeated formations while maintaining a clear choreographic intention. Which statement best explains why the choreography can still appear cohesive?",
+      "a": [
+        "Unity can be achieved through consistent thematic intention, motif development and movement language rather than symmetrical structure.",
+        "Unity can be achieved through consistent thematic intention, motif development and movement language rather than symmetrical structure"
+      ]
+    },
+    {
+      "q": "A choreographer wants to portray increasing emotional isolation. Which progression is the strongest choreographic solution?",
+      "a": [
+        "Full ensemble in close proximity → gradual fragmentation of formations → isolated solo performer surrounded by negative space.",
+        "Full ensemble in close proximity → gradual fragmentation of formations → isolated solo performer surrounded by negative space"
+      ]
+    },
+    {
+      "q": "A high-level choreographic work demonstrates sophisticated use of motif, choreographic devices, spatial design, dynamics, relationships, and performance quality. Which statement best explains why these components are considered successful?",
+      "a": [
+        "They function together to communicate and reinforce the choreographer's intention, creating a coherent and meaningful work.",
+        "They function together to communicate and reinforce the choreographer's intention, creating a coherent and meaningful work"
+      ]
+    },
+    {
+      "q": "A choreographer is creating a Hip Hop piece based on the idea of identity. Which option BEST demonstrates effective use of a choreographic intention?",
+      "a": [
+        "Choosing movement vocabulary, formations and dynamics that consistently communicate ideas about identity.",
+        "Choosing movement vocabulary, formations and dynamics that consistently communicate ideas about identity"
+      ]
+    },
+    {
+      "q": "A choreographer develops a popping sequence by repeating a movement, changing the timing, reversing the pathway, and altering the size of the movement. Which statement BEST describes this process?",
+      "a": [
+        "The choreographer is developing a motif through manipulation and transformation.",
+        "The choreographer is developing a motif through manipulation and transformation"
+      ]
+    },
+    {
+      "q": "Which example BEST demonstrates the use of contrast as a choreographic device?",
+      "a": [
+        "A robotic isolation section followed by a smooth contemporary floor sequence.",
+        "A robotic isolation section followed by a smooth contemporary floor sequence"
+      ]
+    },
+    {
+      "q": "A choreographer wants to create a strong ending for a performance. Which choice would MOST effectively create impact?",
+      "a": [
+        "Developing earlier movement ideas and resolving the choreographic intention.",
+        "Developing earlier movement ideas and resolving the choreographic intention"
+      ]
+    },
+    {
+      "q": "A dance begins with one dancer performing a movement phrase. Other dancers gradually join by performing the same phrase after a delay. Which choreographic device is being used?",
+      "a": [
+        "Canon because dancers perform the same movement at different times.",
+        "Canon because dancers perform the same movement at different times"
+      ]
+    },
+    {
+      "q": "Which statement BEST explains why choreographers use repetition?",
+      "a": [
+        "Repetition helps establish important ideas and allows audiences to recognise movement material.",
+        "Repetition helps establish important ideas and allows audiences to recognise movement material"
+      ]
+    },
+    {
+      "q": "A choreographer creates a dance where dancers move from isolated individual sections into a powerful group sequence. What choreographic idea is MOST clearly being explored?",
+      "a": [
+        "Development of relationships and changing group dynamics.",
+        "Development of relationships and changing group dynamics"
+      ]
+    },
+    {
+      "q": "A dancer performs a sharp, controlled robotic movement before gradually making the same movement more relaxed and fluid. Which choreographic element has changed MOST significantly?",
+      "a": [
+        "Energy through changing movement quality.",
+        "Energy through changing movement quality"
+      ]
+    },
+    {
+      "q": "Which option BEST describes effective motif development?",
+      "a": [
+        "Transforming an original movement idea while keeping links to the original concept.",
+        "Transforming an original movement idea while keeping links to the original concept"
+      ]
+    },
+    {
+      "q": "A choreographer uses different levels by having some dancers on the floor, some standing, and others elevated. What is the PRIMARY purpose of this choice?",
+      "a": [
+        "To make the stage look visually interesting while supporting composition.",
+        "To make the stage look visually interesting while supporting composition"
+      ]
+    },
+    {
+      "q": "A choreographer creates a battle scene where dancers respond directly to each other's movements. Which choice BEST describes this choreographic relationship?",
+      "a": [
+        "Call and response because dancers react to movement ideas from others.",
+        "Call and response because dancers react to movement ideas from others"
+      ]
+    },
+    {
+      "q": "A choreographer wants a section to appear chaotic but still maintain structure. Which approach would be MOST effective?",
+      "a": [
+        "Using controlled improvisation within specific movement rules and timing structures.",
+        "Using controlled improvisation within specific movement rules and timing structures"
+      ]
+    },
+    {
+      "q": "Which choreographic decision would BEST communicate the idea of conflict between two opposing forces?",
+      "a": [
+        "Two groups using contrasting movement qualities and opposing spatial pathways.",
+        "Two groups using contrasting movement qualities and opposing spatial pathways"
+      ]
+    },
+    {
+      "q": "A choreographer uses the same arm movement throughout a dance but changes its speed, direction, size and relationship with other dancers. What does this demonstrate?",
+      "a": [
+        "Motif transformation through choreographic manipulation.",
+        "Motif transformation through choreographic manipulation"
+      ]
+    },
+    {
+      "q": "Which statement BEST explains the relationship between music and choreography?",
+      "a": [
+        "Choreography can respond to rhythm, lyrics, mood, structure or intentionally contrast the music.",
+        "Choreography can respond to rhythm, lyrics, mood, structure or intentionally contrast the music"
+      ]
+    },
+    {
+      "q": "A choreographer creates a sequence where dancers gradually join one at a time until everyone is moving together. Which combination BEST describes this?",
+      "a": [
+        "Accumulation leading into unison.",
+        "Accumulation leading into unison"
+      ]
+    },
+    {
+      "q": "Which choice BEST demonstrates the difference between a movement phrase and a motif?",
+      "a": [
+        "A phrase is longer, while a motif is a recognisable movement idea that can be developed.",
+        "A phrase is longer, while a motif is a recognisable movement idea that can be developed"
+      ]
+    },
+    {
+      "q": "A choreographer wants the audience to focus on one dancer during a group section. Which choice would be MOST effective?",
+      "a": [
+        "Placing the dancer centrally while using contrasting movement quality or focus.",
+        "Placing the dancer centrally while using contrasting movement quality or focus"
+      ]
+    },
+    {
+      "q": "Which option BEST demonstrates successful fusion of Hip Hop and Contemporary dance styles?",
+      "a": [
+        "Using techniques from both styles while maintaining a clear intention and relationship between movement choices.",
+        "Using techniques from both styles while maintaining a clear intention and relationship between movement choices"
+      ]
+    },
+    {
+      "q": "A choreographer reviews their finished dance and decides that the movements are impressive but do not communicate the intended message. What should they MOST likely revise?",
+      "a": [
+        "Adjust movement choices so they better support the choreographic intention.",
+        "Adjust movement choices so they better support the choreographic intention"
+      ]
+    },
+    {
+      "q": "System check: Format successfully locked in. What type of text are we converting next?",
+      "a": [
+        "Absolutely anything you throw my way"
+      ]
+    }
+  ]
+}

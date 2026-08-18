@@ -97,10 +97,13 @@
     els.studentCoinsSave = document.getElementById("student-coins-save");
     els.studentCoinsResult = document.getElementById("student-coins-result");
     els.studentQuestionFormat = document.getElementById("student-question-format");
+    els.studentFallingMode = document.getElementById("student-falling-mode");
     els.studentQuestionFormatSave = document.getElementById("student-question-format-save");
     els.studentQuestionFormatResult = document.getElementById("student-question-format-result");
     els.questionFormatClass = document.getElementById("question-format-class");
     els.classQuestionFormat = document.getElementById("class-question-format");
+    els.classFallingMode = document.getElementById("class-falling-mode");
+    els.classFallingModeWrap = document.getElementById("class-falling-mode-wrap");
     els.classQuestionFormatSave = document.getElementById("class-question-format-save");
     els.classQuestionFormatResult = document.getElementById("class-question-format-result");
     els.gameStatsBody = document.getElementById("game-stats-body");
@@ -270,6 +273,8 @@
     els.studentQuestionFormatSave.addEventListener("click", saveStudentQuestionFormat);
     els.classQuestionFormatSave.addEventListener("click", saveClassQuestionFormat);
     els.questionFormatClass.addEventListener("change", loadClassQuestionFormat);
+    els.classQuestionFormat.addEventListener("change", updateFallingModeControls);
+    els.studentQuestionFormat.addEventListener("change", updateFallingModeControls);
     els.resetCancel.addEventListener("click", closeResetConfirmation);
     els.resetContinue.addEventListener("click", showFinalResetWarning);
     els.resetFinal.addEventListener("click", submitProgressReset);
@@ -303,16 +308,27 @@
   async function loadClassQuestionFormat() {
     const className = els.questionFormatClass.value;
     if (!className) return;
-    els.classQuestionFormat.value = await window.TeacherDataProvider.getClassQuestionFormat(className);
+    const stored = await window.TeacherDataProvider.getClassQuestionFormat(className);
+    const match = /^falling-words-(basic|definition|category)$/.exec(stored);
+    els.classQuestionFormat.value = match ? "falling-words" : stored;
+    if(match) els.classFallingMode.value = match[1];
+    updateFallingModeControls();
   }
+
+  function updateFallingModeControls(){
+    if(els.classFallingModeWrap)els.classFallingModeWrap.hidden=els.classQuestionFormat.value!=="falling-words";
+    if(els.studentFallingMode)els.studentFallingMode.hidden=els.studentQuestionFormat.value!=="falling-words";
+  }
+  function selectedFormat(select,mode){return select.value==="falling-words"?`falling-words-${mode.value}`:select.value;}
 
   async function saveClassQuestionFormat() {
     const className = els.questionFormatClass.value;
     if (!className) return;
     els.classQuestionFormatSave.disabled = true;
     try {
-      await window.TeacherDataProvider.setClassQuestionFormat(className, els.classQuestionFormat.value);
-      els.classQuestionFormatResult.textContent = `Saved ${els.classQuestionFormat.options[els.classQuestionFormat.selectedIndex].text} for ${className}.`;
+      await window.TeacherDataProvider.setClassQuestionFormat(className, selectedFormat(els.classQuestionFormat,els.classFallingMode));
+      const saved=selectedFormat(els.classQuestionFormat,els.classFallingMode);
+      els.classQuestionFormatResult.textContent = `Saved ${questionTypeLabel(saved)} for ${className}.`;
     } catch (error) {
       console.error("Unable to save class question format:", error);
       els.classQuestionFormatResult.textContent = "The class format could not be saved.";
@@ -324,8 +340,9 @@
     if (!detail) return;
     els.studentQuestionFormatSave.disabled = true;
     try {
-      await window.TeacherDataProvider.setStudentQuestionFormat(detail.id, els.studentQuestionFormat.value);
-      detail.questionFormatOverride = els.studentQuestionFormat.value;
+      const format=selectedFormat(els.studentQuestionFormat,els.studentFallingMode);
+      await window.TeacherDataProvider.setStudentQuestionFormat(detail.id, format);
+      detail.questionFormatOverride = format;
       els.studentQuestionFormatResult.textContent = "Student question format saved.";
     } catch (error) {
       console.error("Unable to save student question format:", error);
@@ -597,7 +614,10 @@
     els.studentNameInput.value = detail.name;
     els.studentYearSelect.value = detail.yearLevel;
     els.studentCoinsInput.value = Math.max(0,Math.floor(Number(detail.coins)||0));
-    els.studentQuestionFormat.value = detail.questionFormatOverride || "mixed";
+    const storedFormat=detail.questionFormatOverride||"mixed",fallingMatch=/^falling-words-(basic|definition|category)$/.exec(storedFormat);
+    els.studentQuestionFormat.value=fallingMatch?"falling-words":storedFormat;
+    if(fallingMatch)els.studentFallingMode.value=fallingMatch[1];
+    updateFallingModeControls();
     populateStudentClassOptions(detail);
 
     renderGameStats(detail.games);
@@ -1002,6 +1022,10 @@
       multichoice: "Multichoice",
       matching: "Matching",
       category: "Category",
+      "type-answer": "Type the Answer",
+      "falling-words-basic": "Falling Words — Basic",
+      "falling-words-definition": "Falling Words — Definition Hint",
+      "falling-words-category": "Falling Words — Category Hint",
     };
     if (known[typeId]) return known[typeId];
     return typeId

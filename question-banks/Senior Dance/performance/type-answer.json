@@ -1,0 +1,129 @@
+{
+  "name": "Senior Dance — Performance — Type the Answer",
+  "questions": [
+    {
+      "q": "What term matches this definition: The underlying idea, concept, message, or thematic driving force behind a dance work, realized through deliberate synthesis of movement material, structural choices, and design elements.",
+      "a": [
+        "Choreographic Intent"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The historical, political, social, cultural, and environmental landscape in which a dance work was created or is set, directly influencing the choreographer's values, artistic choices, and ideological perspective.",
+      "a": [
+        "Socio-Cultural Context"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The process of establishing a foundational movement phrase (motif) and systematically transforming it through manipulation of dance elements (space, time, energy, body, relationships) and choreographic devices to mirror thematic progression.",
+      "a": [
+        "Motif Development"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A performer’s internal kinesthetic mindfulness and sensory perception of their own body alignment, muscle tension, breath, and energy efficiency, resulting in nuanced, fluid, and authentic movement execution.",
+      "a": [
+        "Somatic Awareness"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The degree to which the form, sectioning, transitions, and developmental arcs of a dance work logically or aesthetically align to support and amplify the central choreographic vision.",
+      "a": [
+        "Structural Coherence"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The side-by-side placement of contrasting movement qualities, spatial levels, dynamic efforts, or production elements to heighten dramatic tension, underline thematic conflicts, or emphasize differences.",
+      "a": [
+        "Juxtaposition"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The three-dimensional volume of space surrounding a body that can be reached by limbs without shifting weight from a stationary base; used strategically to signal emotional states ranging from vulnerability (constricted kinesphere) to dominance (extended kinesphere).",
+      "a": [
+        "Kinesphere"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The combination of weight (heavy/light), time (sudden/sustained), space (direct/indirect), and flow (bound/free) that gives movement its qualitative texture, emotional tone, and expressive intent.",
+      "a": [
+        "Dynamic Effort"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The visceral, physical reaction an audience member experiences in response to watching movement on stage, where the viewer inwardly feels the momentum, tension, gravity, or weight executed by the dancers.",
+      "a": [
+        "Kinesthetic Empathy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A choreographic arrangement that rejects chronological narrative sequencing in favor of thematic association, fragmented memory, cyclic loops, or abstraction to encourage deeper interpretation.",
+      "a": [
+        "Non-Linear Structure"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The seamless unification of performance technologies (lighting, sound design, costuming, set, projection) with movement material to construct atmosphere, reinforce symbolism, and advance choreographic meaning.",
+      "a": [
+        "Production Integration"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The intentional tracing of body trajectories across the stage floor (floor paths) or through the air (air paths), combined with directional facing, to assert dominance, create isolation, or establish relationship dynamics.",
+      "a": [
+        "Spatial Pathways & Orientation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The concentration of performers, props, or lighting focus within a localized area of the stage, manipulated to evoke feelings of claustrophobia, chaotic energy, isolation, or community.",
+      "a": [
+        "Spatial Density"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The relationship between movement phrasing and the auditory environment (music, spoken word, ambient sound, or silence), where movement either counterpoints, accentuates, or physically embodies the sonic layer.",
+      "a": [
+        "Acoustic / Soundscape Synthesis",
+        "Acoustic",
+        "Soundscape Synthesis"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The performer’s capacity to embody choreographic intent through focused spatial awareness, dynamic commitment, facial alignment, and the deliberate radiation of energy into the performance space.",
+      "a": [
+        "Performance Quality & Projection"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A structural device where movements or dancers are progressively added to a sequence (e.g., 1; 1, 2; 1, 2, 3), building physical momentum, visual complexity, and thematic weight.",
+      "a": [
+        "Accumulation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The execution of a movement phrase in reverse sequence; used choreographically to symbolize memory recall, temporal distortion, or the undoing of a prior thematic state.",
+      "a": [
+        "Retrograde"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The deliberate disruption or breaking of established genre conventions, audience expectations, gender roles, or traditional staging practices to make a critical commentary.",
+      "a": [
+        "Choreographic Subversion"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A state of physical reliance between dancers through weight-sharing, counterbalancing, and contact improvisation that communicates themes of trust, burden, connection, or vulnerability.",
+      "a": [
+        "Interdependence (Relationship Element)",
+        "Interdependence",
+        "Relationship Element"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The final strategic statement of a work, where the central concept is either given thematic closure or left intentionally open-ended (ambiguous) to provoke critical reflection from the audience.",
+      "a": [
+        "Resolution & Ambiguity"
+      ]
+    }
+  ]
+}

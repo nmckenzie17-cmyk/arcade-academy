@@ -1,0 +1,383 @@
+{
+  "name": "Food Tech — Cooking — Type the Answer",
+  "questions": [
+    {
+      "q": "What term matches this definition: To cook food using dry heat in an oven.",
+      "a": [
+        "Bake"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food over direct heat, usually on a grill.",
+      "a": [
+        "Barbecue (BBQ)",
+        "Barbecue",
+        "BBQ"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To spoon or brush liquid or fat over food while it cooks to keep it moist.",
+      "a": [
+        "Baste"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To mix ingredients rapidly to incorporate air and create a smooth texture.",
+      "a": [
+        "Beat"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To briefly cook food in boiling water, then cool it quickly in ice water.",
+      "a": [
+        "Blanch"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To combine ingredients until smooth and evenly mixed.",
+      "a": [
+        "Blend"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food in liquid at 100°C until bubbles continuously rise to the surface.",
+      "a": [
+        "Boil"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To remove bones from meat, poultry, or fish.",
+      "a": [
+        "Bone"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To slowly cook food in a small amount of liquid after browning it.",
+      "a": [
+        "Braise"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To coat food with flour, egg, and breadcrumbs before cooking.",
+      "a": [
+        "Bread (Crumb)",
+        "Bread",
+        "Crumb"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food using intense heat from above or below.",
+      "a": [
+        "Broil/Grill",
+        "Broil",
+        "Grill"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food until its surface develops a golden-brown colour.",
+      "a": [
+        "Brown"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To heat sugar until it melts and turns golden brown, or to slowly brown vegetables to develop sweetness.",
+      "a": [
+        "Caramelise"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cut food into roughly even-sized pieces.",
+      "a": [
+        "Chop"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To make a liquid clear by removing impurities, or to separate butterfat from milk solids.",
+      "a": [
+        "Clarify"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To evenly cover food with a sauce, flour, crumbs, or other ingredient.",
+      "a": [
+        "Coat"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To mix two or more ingredients together.",
+      "a": [
+        "Combine"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To remove the center of fruits such as apples or pears.",
+      "a": [
+        "Core"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To beat butter and sugar together until light and fluffy.",
+      "a": [
+        "Cream"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cut food into evenly sized square pieces.",
+      "a": [
+        "Cube"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To add liquid to a hot pan to dissolve browned food particles for a sauce.",
+      "a": [
+        "Deglaze"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cut food into small, even cubes.",
+      "a": [
+        "Dice"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To remove excess liquid from food.",
+      "a": [
+        "Drain"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To lightly sprinkle food with flour, icing sugar, or another dry ingredient.",
+      "a": [
+        "Dust"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To remove bones from fish or slice meat into boneless portions.",
+      "a": [
+        "Fillet"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To gently combine ingredients while keeping as much air as possible in the mixture.",
+      "a": [
+        "Fold"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food in hot oil or fat.",
+      "a": [
+        "Fry"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To decorate food to improve its appearance and sometimes add flavor.",
+      "a": [
+        "Garnish"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To coat food with a shiny finish using egg wash, syrup, or sauce.",
+      "a": [
+        "Glaze"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To shred food into fine pieces using a grater.",
+      "a": [
+        "Grate"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To coat a pan or tray with fat to prevent sticking.",
+      "a": [
+        "Grease"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cut food into thin, matchstick-sized strips.",
+      "a": [
+        "Julienne"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To work dough by pressing, folding, and stretching to develop gluten.",
+      "a": [
+        "Knead"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To soak food in a seasoned liquid to add flavor and tenderness.",
+      "a": [
+        "Marinate"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To crush cooked food into a smooth or coarse consistency.",
+      "a": [
+        "Mash"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To accurately determine the amount of an ingredient using scales or measuring tools.",
+      "a": [
+        "Measure"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cut food into very small pieces or grind it finely.",
+      "a": [
+        "Mince"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To combine ingredients until evenly distributed.",
+      "a": [
+        "Mix"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To remove the outer skin of fruits or vegetables.",
+      "a": [
+        "Peel"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To gently cook food in liquid below boiling point (approximately 70–85°C).",
+      "a": [
+        "Poach"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To bring an oven or cooking equipment to the required temperature before use.",
+      "a": [
+        "Preheat"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To blend food until completely smooth.",
+      "a": [
+        "Purée"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To simmer a liquid until it thickens.",
+      "a": [
+        "Reduce"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food using dry heat in an oven, often uncovered.",
+      "a": [
+        "Roast"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food quickly in a small amount of fat over high heat.",
+      "a": [
+        "Sauté"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To make shallow cuts on the surface of food to assist cooking or presentation.",
+      "a": [
+        "Score"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook the outside of food quickly over high heat to develop color and flavor.",
+      "a": [
+        "Sear"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To add salt, pepper, herbs, spices, or other flavorings to food.",
+      "a": [
+        "Season"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cut or tear food into long, thin strips.",
+      "a": [
+        "Shred"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To pass dry ingredients through a sieve to remove lumps and add air.",
+      "a": [
+        "Sift"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food gently in liquid just below boiling point (approximately 85–95°C).",
+      "a": [
+        "Simmer"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cut food into thin, even pieces.",
+      "a": [
+        "Slice"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food using steam from boiling water without the food touching the water.",
+      "a": [
+        "Steam"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To cook food slowly in liquid over low heat.",
+      "a": [
+        "Stew"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To move ingredients around with a spoon or spatula to combine or prevent sticking.",
+      "a": [
+        "Stir"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To make meat softer by mechanical or chemical methods.",
+      "a": [
+        "Tenderize"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To brown food using dry heat.",
+      "a": [
+        "Toast"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To gently mix ingredients, often salads, without crushing them.",
+      "a": [
+        "Toss"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To remove unwanted fat, skin, or damaged portions from food.",
+      "a": [
+        "Trim"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To beat ingredients rapidly to incorporate air and increase volume.",
+      "a": [
+        "Whip"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To beat ingredients using a whisk to blend or add air.",
+      "a": [
+        "Whisk"
+      ]
+    },
+    {
+      "q": "What term matches this definition: To remove the coloured outer skin of citrus fruit without the bitter white pith.",
+      "a": [
+        "Zest"
+      ]
+    }
+  ]
+}

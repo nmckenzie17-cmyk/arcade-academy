@@ -170,7 +170,7 @@ export async function updateStudentClass(uid, className) {
   }
 }
 
-const QUESTION_FORMATS = ["mixed", "multichoice", "matching", "category"];
+const QUESTION_FORMATS = ["mixed", "multichoice", "matching", "category", "type-answer", "falling-words-basic", "falling-words-definition", "falling-words-category"];
 function validQuestionFormat(value) { return QUESTION_FORMATS.includes(value) ? value : "mixed"; }
 
 export async function getClassQuestionFormat(className) {
