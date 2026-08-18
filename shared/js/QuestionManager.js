@@ -38,6 +38,9 @@ const QuestionManager = {
     bankName: '',
     bankCode: '',
     questionType: '',
+    banks: {},
+    bankNames: {},
+    runQuestionType: '',
 
     // Resolves a teacher code against the shared registry, then fetches the
     // requested question-type file (e.g. "multichoice.json") from the
@@ -138,6 +141,45 @@ const QuestionManager = {
         }
         return this.loadBank(PlatformManager.getClassCode(), questionType);
     },
+
+    // Mixed-format games load every compatible file once. Missing format
+    // files are skipped, so a run is only randomised across banks that the
+    // current class actually has.
+    async loadCurrentBanks(questionTypes) {
+        if (!window.PlatformManager || !PlatformManager.hasClassCode()) {
+            return { ok: false, error: 'class-code-required', available: [] };
+        }
+        const code = PlatformManager.getClassCode();
+        const enforced = window.ArcadeQuestionPolicy?.format;
+        const requested = questionTypes?.length ? questionTypes : ['multichoice', 'matching', 'category'];
+        const types = enforced && enforced !== 'mixed' && requested.includes(enforced) ? [enforced] : requested;
+        const banks = {}, names = {};
+        for (const type of types) {
+            const result = await this.loadBank(code, type);
+            if (result.ok) { banks[type] = this.questions.slice(); names[type] = this.bankName; }
+        }
+        this.banks = banks; this.bankNames = names;
+        const available = Object.keys(banks);
+        if (!available.length) return { ok: false, error: 'no-compatible-banks', available };
+        const configured = window.GAME_CONFIG?.questionType;
+        this.useBank(banks[configured] ? configured : available[0]);
+        return { ok: true, available, names };
+    },
+
+    getAvailableQuestionTypes() { return Object.keys(this.banks).filter(type => this.banks[type]?.length); },
+    useBank(type) {
+        if (!this.banks[type]?.length) return false;
+        this.questions = this.banks[type]; this.questionType = type;
+        this.bankName = this.bankNames[type] || this.bankName;
+        return true;
+    },
+    beginMixedRun(rngFn) {
+        const types = this.getAvailableQuestionTypes();
+        if (!types.length) return null;
+        this.runQuestionType = types[Math.floor((rngFn || Math.random)() * types.length)];
+        return this.runQuestionType;
+    },
+    getRunQuestionType() { return this.runQuestionType || this.questionType; },
 
     // The active bank's display name (uppercased teacher code for
     // multichoice banks, or the bank/subject's own name for category and

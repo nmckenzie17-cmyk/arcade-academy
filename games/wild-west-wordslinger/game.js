@@ -797,7 +797,7 @@
   const QUESTION_BANK_TYPE = 'category';
 
   async function loadQuestionBank() {
-    return QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
+    return QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
   }
 
   function updateCodeStatus() {
@@ -1182,6 +1182,7 @@
     if (deadManHandTimer) { clearInterval(deadManHandTimer); deadManHandTimer=null; }
     if (!platformSessionStarted) {
       PlatformManager.startSession(GAME_CONFIG.id);
+      QuestionManager.beginMixedRun();
       platformSessionStarted = true;
     }
     runScoreMult=1; runCoinMult=1; runSpawnRateMult=1; runPerformance=0;
@@ -1320,14 +1321,20 @@
     return Math.max(1800, 4200 - baseTier * 100);
   }
 
-  function showStartQuestion() {
+  async function showStartQuestion() {
+    if(QuestionManager.getRunQuestionType()!=='category'&&window.MixedQuestionRound){
+      const result=await MixedQuestionRound.play();
+      if(result.correct>0){totalCorrectAnswers+=result.correct;safeSave();document.getElementById('start-question-overlay').classList.add('hidden');startEnemySpawning();}
+      else setTimeout(showStartQuestion,700);
+      return;
+    }
     const cat = QuestionManager.getNextQuestion();
     const roundCorrect=[...cat.correct].sort(()=>Math.random()-.5).slice(0,4);
     document.getElementById('start-question-category').textContent=cat.prompt;
     const shuffled=[...cat.distractors].sort(()=>Math.random()-0.5);
     const words=[...roundCorrect,...shuffled.slice(0,12)].sort(()=>Math.random()-0.5);
     const grid=document.getElementById('start-question-grid');grid.innerHTML='';grid.className='grid grid-cols-4 gap-2';
-    let found=0; const requiredCorrect=Math.min(3,roundCorrect.length);
+    let found=0; const requiredCorrect=Math.min(4,roundCorrect.length);
     words.slice(0,16).forEach(w=>{
       const cell=document.createElement('button');
       cell.className='word-cell p-2 text-xs text-center rounded font-bold';cell.textContent=w;
@@ -2091,7 +2098,13 @@
     startEnemySpawning();
   }
 
-  function generateGrid() {
+  async function generateGrid() {
+    if(QuestionManager.getRunQuestionType()!=='category'&&window.MixedQuestionRound){
+      const result=await MixedQuestionRound.play();
+      if(result.correct>0){totalCorrectAnswers+=result.correct;safeSave();overallScore+=Math.round(2000*result.rewardRatio);ammo=Math.max(1,Math.round(maxAmmo*result.rewardRatio));updateHUD();closeReload();checkStageProgress();}
+      else setTimeout(generateGrid,700);
+      return;
+    }
     const cat = QuestionManager.getNextQuestion();
     const roundCorrect=[...cat.correct].sort(()=>Math.random()-.5).slice(0,4);
     document.getElementById('reload-category').textContent=cat.prompt;
@@ -2102,7 +2115,7 @@
     cellCount = Math.max(roundCorrect.length + 4, Math.min(16, cellCount));
     const words=[...roundCorrect,...shuffled.slice(0,Math.max(0,cellCount-roundCorrect.length))].sort(()=>Math.random()-0.5);
     const grid=document.getElementById('reload-grid');grid.innerHTML='';grid.className='grid grid-cols-4 gap-2';grid.style.pointerEvents='';
-    let found=0; const requiredCorrect=Math.min(3,roundCorrect.length);
+    let found=0; const requiredCorrect=Math.min(4,roundCorrect.length);
     let wrongCount=0;
     const masteryMult = 1 + 0.25*upStack('mastery');
     const updateScore=()=>{const t=Math.max(50,Math.round((2000-(Date.now()-reloadStartTime)/4)*masteryMult));document.getElementById('reload-score').textContent='+'+t+' Points';};

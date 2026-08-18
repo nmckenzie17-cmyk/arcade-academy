@@ -1098,6 +1098,7 @@
     /* ---------- run lifecycle ---------- */
     startRun(){
       if(!window.QuestionManager?.hasQuestions?.()) return;
+      QuestionManager.beginMixedRun();
       PlatformManager.startSession(GAME_ID);
       this.player.reset();
       this.chunks.reset();
@@ -1133,8 +1134,18 @@
        QuestionManager.js / class-code bank later — everything below this
        point only depends on pickQuestions(n) returning {q,options,correct}.
     --------------------------------------------------------------------*/
-    runQuestionPhase(isMajor){
+    async runQuestionPhase(isMajor){
       this.pendingIsMajor = isMajor;
+      if(window.MixedQuestionRound){
+        const result=await MixedQuestionRound.play();
+        this.questionCorrect=result.correct;
+        this.questionQueue=new Array(4).fill(null);
+        if(!PlatformManager.isPracticeMode()){
+          if(result.correct){PlatformManager.addCoins(CORRECT_REWARD*result.correct);window.AchievementManager?.notify?.('cube_curiosity_correct',{amount:result.correct});}
+          const misses=4-result.correct;if(misses)PlatformManager.deductCoins(INCORRECT_PENALTY*misses);
+        }
+        this._refreshMenuStats();this._finishQuestionPhase();return;
+      }
       this.questionQueue = pickQuestions(4);
       this.questionIndex = 0;
       this.questionCorrect = 0;
@@ -2010,7 +2021,7 @@
     const status = document.getElementById('questionBankStatus');
     const play = document.getElementById('playBtn');
     play.disabled = true;
-    const result = await QuestionManager.loadCurrentBank(QUESTION_TYPE);
+    const result = await QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
     status.classList.toggle('error', !result.ok);
     status.textContent = result.ok
       ? `Class questions ready · ${QuestionManager.getBankName()}`

@@ -1415,7 +1415,14 @@ function grantEducationMilestoneReward(){
     }
 }
 
-function askBetweenQuestion(){
+async function askBetweenQuestion(){
+    if(window.MixedQuestionRound){
+        const result=await MixedQuestionRound.play();betweenWaveQuestions=4;betweenWaveCorrect=result.correct;
+        for(let i=0;i<result.correct;i++){totalBetweenWaveCorrect++;recordCorrectAnswer();if(runCorrectAnswersGiveGold)addGold(10+Math.floor(wave*.5));}
+        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(10*misses);
+        if(invasionMode){invasionQuestionsAnswered+=4;invasionWaveCap+=result.correct;invasionMoraleStreak=result.correct===4?invasionMoraleStreak+4:0;}
+        invasionMode?showInvasionArmyUpgrade(showInvasionDeployment):showCardSelect();return;
+    }
     if(betweenWaveQuestions>=4){ invasionMode ? showInvasionArmyUpgrade(showInvasionDeployment) : showCardSelect(); return; }
     let q=QuestionManager.getNextQuestion();
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
@@ -1599,9 +1606,16 @@ function showCardSelect(){
     });
 }
 
-function showQuestion(){
+async function showQuestion(){
     if(state!=='playing') return;
     state='question';
+    if(window.MixedQuestionRound){
+        const result=await MixedQuestionRound.play(),misses=4-result.correct;
+        for(let i=0;i<result.correct;i++)recordCorrectAnswer();
+        if(invasionMode){invasionQuestionsAnswered+=4;invasionWaveCap+=result.correct;invasionSlotsRemaining+=result.correct;invasionMoraleStreak=result.correct===4?invasionMoraleStreak+4:0;renderInvasionTroopBar();}
+        else{let libraryProc=kingdomLibraryLevel>0&&Math.random()<.05*kingdomLibraryLevel;let reward=ammoPerCorrect*(libraryProc?2:1)*(1+runPowerupBonuses.increasedammo);ammo=Math.min(ammo+Math.round(reward*result.correct),maxAmmo);castleHP=Math.max(0,castleHP-misses);}
+        if(misses)PlatformManager.deductCoins(10*misses);state='playing';updateHUD();return;
+    }
     let q=QuestionManager.getNextQuestion(equippedRelics.includes('relic_quickdraw'));
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
     let html=`<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${invasionMode?'Call Reinforcements!':'Answer for Ammo!'}</h2><p style="margin-bottom:16px;font-size:clamp(15px,2.4vw,20px)">${q.q}</p><p style="color:var(--accent-pink);margin-bottom:16px;font-weight:700;font-size:clamp(12px,2vw,14px)">${invasionMode?'Correct: +1 deployment slot and stronger morale. Incorrect: morale resets.':'⚠️ Warning: Incorrect answers deal 1 damage to your Castle!'}</p>`;
@@ -1822,13 +1836,14 @@ function showStart(){
         startBtn.textContent = 'Loading...';
         status.style.color = '#aaa';
         status.textContent = 'Loading question bank...';
-        const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
+        const result = await QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
         if(result.ok){
             modalRoot.innerHTML='';
             // One PlatformManager session per sitting/reload — see the restart
             // flow at the bottom of this file, which reloads the page and
             // re-triggers this same tryStart() function for "Play Again".
             PlatformManager.startSession(GAME_CONFIG.id);
+            QuestionManager.beginMixedRun();
             invasionMode=playInvasion;
             document.getElementById('ammo-btn').textContent=invasionMode?'👹 Summon Troops (Q)':'🏹 Get Ammo (Q)';
             document.getElementById('target-btn').style.display=invasionMode?'none':'';
@@ -1846,7 +1861,7 @@ function showStart(){
     startBtn.onclick = ()=>tryStart(false);
     const invasionStart=document.getElementById('invasion-start-btn');if(invasionStart)invasionStart.onclick=()=>tryStart(true);
     document.getElementById('kingdom-btn').onclick = ()=> showKingdom(()=>showStart());
-    QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE).then(result => {
+    QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats).then(result => {
         if (result.ok) {
             status.style.color = '#2ecc71';
             status.textContent = `✓ Loaded: ${result.name}`;

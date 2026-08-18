@@ -4,7 +4,7 @@ window.GAME_CONFIG = {
   description: "Race through an endless neon obstacle course and answer class questions at checkpoints to earn run-changing upgrades.",
   genre: "Precision Platformer / Roguelike", entry: "index.html",
   gameModes: ["singleplayer", "challenge"], primaryMode: "singleplayer", players: "1 Player",
-  questionType: "multichoice", supportedQuestionFormats: ["multichoice"], requiresQuestionBank: true,
+  questionType: "mixed", supportedQuestionFormats: ["multichoice", "matching", "category"], requiresQuestionBank: true,
   supportsHighScores: true, supportsAchievements: true, createdBy: "Mr McKenzie",
   saveKey: "cubeCuriosityHighScores", startSelector: "#playBtn",
   achievements: [

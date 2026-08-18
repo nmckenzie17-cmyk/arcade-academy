@@ -96,6 +96,13 @@
     els.studentCoinsInput = document.getElementById("student-coins-input");
     els.studentCoinsSave = document.getElementById("student-coins-save");
     els.studentCoinsResult = document.getElementById("student-coins-result");
+    els.studentQuestionFormat = document.getElementById("student-question-format");
+    els.studentQuestionFormatSave = document.getElementById("student-question-format-save");
+    els.studentQuestionFormatResult = document.getElementById("student-question-format-result");
+    els.questionFormatClass = document.getElementById("question-format-class");
+    els.classQuestionFormat = document.getElementById("class-question-format");
+    els.classQuestionFormatSave = document.getElementById("class-question-format-save");
+    els.classQuestionFormatResult = document.getElementById("class-question-format-result");
     els.gameStatsBody = document.getElementById("game-stats-body");
     els.resetGameSelect = document.getElementById("reset-game-select");
     els.resetGameButton = document.getElementById("reset-game-button");
@@ -260,6 +267,9 @@
     els.studentProfileSave.addEventListener("click", saveStudentProfile);
     els.studentClassSave.addEventListener("click", saveStudentClass);
     els.studentCoinsSave.addEventListener("click", saveStudentCoins);
+    els.studentQuestionFormatSave.addEventListener("click", saveStudentQuestionFormat);
+    els.classQuestionFormatSave.addEventListener("click", saveClassQuestionFormat);
+    els.questionFormatClass.addEventListener("change", loadClassQuestionFormat);
     els.resetCancel.addEventListener("click", closeResetConfirmation);
     els.resetContinue.addEventListener("click", showFinalResetWarning);
     els.resetFinal.addEventListener("click", submitProgressReset);
@@ -284,6 +294,43 @@
     els.classResetSelect.innerHTML = classes.length
       ? classes.map((c) => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.code)} — ${escapeHtml(c.subject)}</option>`).join("")
       : '<option value="">No classes available</option>';
+    els.questionFormatClass.innerHTML = classes.length
+      ? classes.map((c) => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.code)} — ${escapeHtml(c.subject)}</option>`).join("")
+      : '<option value="">No classes available</option>';
+    await loadClassQuestionFormat();
+  }
+
+  async function loadClassQuestionFormat() {
+    const className = els.questionFormatClass.value;
+    if (!className) return;
+    els.classQuestionFormat.value = await window.TeacherDataProvider.getClassQuestionFormat(className);
+  }
+
+  async function saveClassQuestionFormat() {
+    const className = els.questionFormatClass.value;
+    if (!className) return;
+    els.classQuestionFormatSave.disabled = true;
+    try {
+      await window.TeacherDataProvider.setClassQuestionFormat(className, els.classQuestionFormat.value);
+      els.classQuestionFormatResult.textContent = `Saved ${els.classQuestionFormat.options[els.classQuestionFormat.selectedIndex].text} for ${className}.`;
+    } catch (error) {
+      console.error("Unable to save class question format:", error);
+      els.classQuestionFormatResult.textContent = "The class format could not be saved.";
+    } finally { els.classQuestionFormatSave.disabled = false; }
+  }
+
+  async function saveStudentQuestionFormat() {
+    const detail = state.selectedStudentDetail;
+    if (!detail) return;
+    els.studentQuestionFormatSave.disabled = true;
+    try {
+      await window.TeacherDataProvider.setStudentQuestionFormat(detail.id, els.studentQuestionFormat.value);
+      detail.questionFormatOverride = els.studentQuestionFormat.value;
+      els.studentQuestionFormatResult.textContent = "Student question format saved.";
+    } catch (error) {
+      console.error("Unable to save student question format:", error);
+      els.studentQuestionFormatResult.textContent = "The student format could not be saved.";
+    } finally { els.studentQuestionFormatSave.disabled = false; }
   }
 
   async function initializeClassResetControls() {
@@ -550,6 +597,7 @@
     els.studentNameInput.value = detail.name;
     els.studentYearSelect.value = detail.yearLevel;
     els.studentCoinsInput.value = Math.max(0,Math.floor(Number(detail.coins)||0));
+    els.studentQuestionFormat.value = detail.questionFormatOverride || "mixed";
     populateStudentClassOptions(detail);
 
     renderGameStats(detail.games);

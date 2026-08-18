@@ -969,8 +969,14 @@ let deathGauntlet = null;    // {needed, correctSoFar}
 let quizFinishCallback = null;
 let activeDrag = null; // {chip, pointerId, offX, offY}
 
-function openQuizRound(mode, size){
+async function openQuizRound(mode, size){
   STATE = 'quiz';
+  if(QuestionManager.getRunQuestionType()!=='matching'&&window.MixedQuestionRound){
+    const result=await MixedQuestionRound.play();
+    quizRound={mode,pairs:new Array(4).fill(null),filled:4,correctFirstTry:result.correct};
+    if(result.correct<4)PlatformManager.deductCoins((4-result.correct)*10);
+    finishRound();return;
+  }
   activeDrag = null;
   // (rewards now last the whole run once obtained — nothing resets at the next shrine)
   // Pull `size` distinct cards from QuestionManager's weighted pool (missed terms come up
@@ -3034,7 +3040,7 @@ function loop(ts){
 // Loads the Hub-selected class's question bank via QuestionManager and restores this game's saved
 // adaptive weights onto it. Returns true/false so the Start button can be gated on it.
 async function loadQuestionBank(){
-  const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
+  const result = await QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
   if(!result.ok) return false;
   // Adaptive question weighting persists across sessions (see save.questionWeights),
   // unlike the in-memory-only default — restore whatever was saved onto the freshly-loaded bank.
@@ -3067,6 +3073,7 @@ loadCurrentQuestionBank();
 
 startBtn.addEventListener('click', ()=>{
   if(startBtn.disabled || !QuestionManager.hasQuestions()) return;
+  QuestionManager.beginMixedRun();
   document.getElementById('titleScreen').classList.add('hidden');
   // One PlatformManager session per sitting — restarting a run (newRunBtn) doesn't
   // start a new one, it's still the same session.

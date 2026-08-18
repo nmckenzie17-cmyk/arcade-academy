@@ -1278,7 +1278,7 @@
     }
 
     async function loadQuestionBank(){
-    const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
+    const result = await QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
 
     if (!result.ok) return false;
 
@@ -4817,7 +4817,7 @@
     }
 
     let tacticalRethinkUsed=false;
-    function startQuiz(forPowerup) {
+    async function startQuiz(forPowerup) {
       game.paused = true;
       quiz.index = 0;
       quiz.correct = 0;
@@ -4825,6 +4825,13 @@
       quiz.usedQuestions = [];
       quiz.questionCount = activeEvent.doubleQuestions ? 8 : 4;
       tacticalRethinkUsed=false;
+      if(window.MixedQuestionRound){
+        const result=await MixedQuestionRound.play();
+        quiz.correct=result.correct;quiz.questionCount=4;
+        if(result.correct){progress.questionsCorrect=(progress.questionsCorrect||0)+result.correct;saveProgress();checkSamuraiUnlock();}
+        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(10*misses);
+        showQuizResult();return;
+      }
       document.getElementById('quizOverlay').classList.add('show');
       document.getElementById('quizResult').style.display = 'none';
       showQuestion();
@@ -6392,6 +6399,7 @@
       // One PlatformManager session per sitting — restarting a run (below) doesn't
       // start a new one, it's still the same session.
       PlatformManager.startSession(GAME_CONFIG.id);
+      QuestionManager.beginMixedRun();
       reset();
       updateUI();
       showRandomEventThenStart();

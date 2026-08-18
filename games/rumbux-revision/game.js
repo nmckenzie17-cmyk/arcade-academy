@@ -3647,7 +3647,7 @@ class Game {
     const status = document.getElementById('classStatus');
     const start = document.getElementById('btnStart');
     start.disabled = true;
-    const result = await window.QuestionManager?.loadCurrentBank('multichoice');
+    const result = await window.QuestionManager?.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
     this.questionsReady = !!result?.ok;
     if (this.questionsReady) {
       status.textContent = `Class questions ready: ${QuestionManager.getBankName()}`;
@@ -3894,6 +3894,7 @@ class Game {
 
   startRun() {
     if (!this.questionsReady) return;
+    QuestionManager.beginMixedRun();
     window.PlatformManager?.startSession('rumbux-revision');
     this.showScreen(null);
     for (const s of ['menuScreen','charScreen','quizScreen','upgradeScreen','gameOverScreen','shopScreen']) document.getElementById(s).classList.add('hidden');
@@ -4294,8 +4295,16 @@ class Game {
   // 4 multichoice questions gate how many upgrade cards you get to choose
   // from afterward: every correct answer = one more option in the pool
   // (still pick just one). 0 correct = no upgrade offered this round.
-  startQuiz(onDone) {
+  async startQuiz(onDone) {
     this.state = 'quiz';
+    if(window.MixedQuestionRound){
+      this.quizOnDone=onDone;
+      const result=await MixedQuestionRound.play();
+      this.quizCorrectCount=Math.round(result.rewardRatio*4);
+      if(result.questionType!=='multichoice'&&this.quizCorrectCount>0) window.AchievementManager?.notify?.('rumbux_revision_correct',{amount:this.quizCorrectCount});
+      this.finishQuiz();
+      return;
+    }
     this.quizQuestions = this.drawQuestions(4);
     this.quizIndex = 0;
     this.quizCorrectCount = 0;

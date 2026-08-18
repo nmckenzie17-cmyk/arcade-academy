@@ -8,6 +8,7 @@ window.GAME_CONFIG = {
   gameModes: ["singleplayer", "challenge"],
   players: "1 Player",
   questionType: "multichoice",
+  supportedQuestionFormats: ["multichoice", "matching", "category"],
   version: "1.0.0",
   entry: "index.html",
   icon: "🎣",

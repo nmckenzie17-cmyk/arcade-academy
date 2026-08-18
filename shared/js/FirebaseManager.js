@@ -170,6 +170,43 @@ export async function updateStudentClass(uid, className) {
   }
 }
 
+const QUESTION_FORMATS = ["mixed", "multichoice", "matching", "category"];
+function validQuestionFormat(value) { return QUESTION_FORMATS.includes(value) ? value : "mixed"; }
+
+export async function getClassQuestionFormat(className) {
+  if (!className) return "mixed";
+  try {
+    const snapshot = await getDoc(doc(db, "classSettings", className));
+    return snapshot.exists() ? validQuestionFormat(snapshot.data()?.questionFormat) : "mixed";
+  } catch (error) {
+    console.error("Unable to load class question format:", error);
+    return "mixed";
+  }
+}
+
+export async function setClassQuestionFormat(className, questionFormat) {
+  const teacherUid = auth.currentUser?.uid;
+  const teacherProfile = teacherUid ? await getUserProfile(teacherUid) : null;
+  if (teacherProfile?.role !== "teacher" || !String(className || "").trim()) throw new Error("Teacher access required");
+  await setDoc(doc(db, "classSettings", String(className).trim()), { questionFormat: validQuestionFormat(questionFormat), updatedAt: Date.now(), updatedBy: teacherUid }, { merge: true });
+  return true;
+}
+
+export async function setStudentQuestionFormat(uid, questionFormat) {
+  const teacherUid = auth.currentUser?.uid;
+  const teacherProfile = teacherUid ? await getUserProfile(teacherUid) : null;
+  if (teacherProfile?.role !== "teacher" || !uid) throw new Error("Teacher access required");
+  await updateDoc(doc(db, "users", uid), { questionFormatOverride: validQuestionFormat(questionFormat), updatedAt: new Date().toISOString() });
+  return true;
+}
+
+export async function resolveQuestionFormat(profile) {
+  const student = validQuestionFormat(profile?.questionFormatOverride);
+  if (student !== "mixed") return { format: student, source: "student" };
+  const classFormat = await getClassQuestionFormat(profile?.className);
+  return { format: classFormat, source: classFormat === "mixed" ? "game" : "class" };
+}
+
 export async function updateStudentProfile(uid, profileChanges = {}) {
   try {
     const teacherUid = auth.currentUser?.uid;
@@ -993,6 +1030,10 @@ window.FirebaseManager = {
   updateStudentProfile,
   updateStudentCoins,
   updateStudentClass,
+  getClassQuestionFormat,
+  setClassQuestionFormat,
+  setStudentQuestionFormat,
+  resolveQuestionFormat,
   deleteStudentData,
   getPlatformData,
   updatePlatformData,

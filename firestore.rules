@@ -14,10 +14,16 @@ service cloud.firestore {
       allow update: if signedIn() && (isTeacher()
         || (request.auth.uid == uid
           && request.resource.data.get('role', null) == resource.data.get('role', null)
+          && request.resource.data.get('questionFormatOverride', 'mixed') == resource.data.get('questionFormatOverride', 'mixed')
           && (resource.data.get('leaderboardId', '') == request.resource.data.get('leaderboardId', '')
             || (resource.data.get('leaderboardId', '') == ''
               && request.resource.data.get('leaderboardId', '').matches('^[a-f0-9]{32}$')))));
       allow delete: if isTeacher() && resource.data.get('role', 'student') != 'teacher';
+    }
+
+    match /classSettings/{className} {
+      allow read: if signedIn();
+      allow write: if isTeacher();
     }
 
     // Public documents contain no names, emails, auth UIDs, or profile data.

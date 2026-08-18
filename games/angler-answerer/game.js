@@ -444,9 +444,21 @@ function requestCast(){
   if(castReady || state.bait>0){ castReady=false; beginCharge(); return; }
   showCastQuestion();
 }
-function showCastQuestion(){
+async function showCastQuestion(){
   if(!questionBankReady || !window.QuestionManager?.hasQuestions?.()){showBanner("Your class questions are not ready.",2200);return;}
   if(state.bait>=CONFIG.maxBait){castReady=true;showBanner(`Bait is full (${CONFIG.maxBait}/${CONFIG.maxBait}). Go fishing!`,2200);return;}
+  if(window.MixedQuestionRound){
+    RT.paused=true;
+    const result=await MixedQuestionRound.play();
+    const earned=Math.min(result.correct,CONFIG.maxBait-state.bait);
+    if(earned)addBait(earned);
+    const missed=Math.max(0,4-result.correct);
+    if(missed)PlatformManager.deductCoins(5*missed);
+    castReady=state.bait>0;RT.paused=false;refreshHUD();
+    showBanner(earned?`${earned} bait earned · ${state.bait}/${CONFIG.maxBait}`:`No bait earned this round`,2200);
+    hintText.textContent=castReady?`${state.bait} bait ready · hold to charge your cast`:'Answer another round to earn bait';
+    return;
+  }
   currentQuestion=QuestionManager.getNextQuestion();if(!currentQuestion)return;
   RT.paused=true;$("questionPrompt").textContent=currentQuestion.q;$("questionFeedback").textContent="";
   $("questionProgress").textContent=`Bait ${state.bait}/${CONFIG.maxBait} · Correct: +1 bait · Incorrect: −5 coins`;
@@ -2816,7 +2828,7 @@ function tick(now){
    ========================================================================= */
 async function loadClassQuestions(){
   const status=$("questionBankStatus"),button=$("homeStartBtn");button.disabled=true;
-  const result=await QuestionManager.loadCurrentBank(QUESTION_TYPE);
+  const result=await QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
   questionBankReady=!!result.ok;status.classList.toggle("error",!result.ok);
   status.textContent=result.ok?`Class questions ready · ${QuestionManager.getBankName()}`:(result.error==="class-code-required"?"Please enter your class code on the Arcade Academy Hub.":"This class does not have compatible multiple-choice questions for this game.");
   button.disabled=!result.ok;
@@ -2832,6 +2844,7 @@ async function init(){
 }
 function startGame(){
   if(!questionBankReady)return;
+  QuestionManager.beginMixedRun();
   challengeRunCaught=0;
   stopHomeFishAnim();
   $("homeScreen").classList.remove("show");

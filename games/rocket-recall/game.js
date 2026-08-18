@@ -231,7 +231,7 @@
             statusDiv.textContent = 'Loading...';
             statusDiv.style.color = 'var(--blue-highlight)';
 
-            const result = await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
+            const result = await QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
 
             if (!result.ok) {
                 console.error('Question bank load failed:', result.error);
@@ -3656,6 +3656,7 @@
                 return;
             }
             hideAllModals();
+            QuestionManager.beginMixedRun();
             initializeGame();
             startQuiz();
         }
@@ -3908,6 +3909,7 @@
         }
 
         function restartGame(playAgain) {
+            if(playAgain)QuestionManager.beginMixedRun();
             loadPermanentUpgrades();
             const savedTotalEnemiesDefeated = parseInt(localStorage.getItem('totalEnemiesDefeated') || '0');
             
@@ -4039,7 +4041,7 @@
             }
         }
 
-        function startQuiz() {
+        async function startQuiz() {
             if (game.skipQuizzes) {
                 startWave();
                 return;
@@ -4050,6 +4052,11 @@
             game.questionsAnswered = 0;
             game.usedQuestions = [];
             game.quizCorrectCount = 0;
+            if(window.MixedQuestionRound){
+                const result=await MixedQuestionRound.play();
+                game.questionsAnswered=4;game.totalQuestionsThisQuiz=4;game.quizCorrectCount=result.correct;
+                endQuiz();return;
+            }
             
             if (game.difficulty === 'easy') {
                 game.totalQuestionsThisQuiz = 4;

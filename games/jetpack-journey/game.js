@@ -1811,9 +1811,14 @@ return QuestionManager.getRandomSet(count||4, rng);
 }
 // kind is 'fuel', 'magnet', or 'headstart'. All three share this match-pairs quiz;
 // the only difference is the question count and what the reward means when finished.
-function openMemoryGame(kind){
+async function openMemoryGame(kind){
 kind=kind||'fuel';
 player.isClicking=false;player.vy=0;
+if(QuestionManager.getRunQuestionType()!=='matching'&&window.MixedQuestionRound){
+const result=await MixedQuestionRound.play(),wrong=4-result.correct;
+memoryGame={active:true,cards:[],selected:[],matched:8,wrong,reward:kind==='headstart'?0:getQuizTierReward(kind,wrong),kind,finished:true,success:kind==='headstart'&&result.correct===4};
+memoryScreen.style.display='flex';renderMemoryGame();return;
+}
 const pairs=getMemoryPairs(4);
 const cards=[];
 pairs.forEach(function(pair,idx){
@@ -2459,7 +2464,7 @@ codeMessage.style.color=isError?'#ff7777':'#ffdd00';
 // validating and normalising the term/definition card bank. Throws with a
 // user-facing message on failure, same contract this function always had.
 async function loadCurrentQuestionPack(){
-const result=await QuestionManager.loadCurrentBank(QUESTION_BANK_TYPE);
+const result=await QuestionManager.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
 if(!result.ok){
 if(result.error==='class-code-required')throw new Error('Please enter the class code before playing.');
 throw new Error('Question bank could not be loaded. Return to the Hub and check the class code.');
@@ -2482,6 +2487,7 @@ sessionLoading=false;startBtn.disabled=false;
 // screen re-runs beginPreRunSequence() directly without going through
 // handleStartClick(), so it doesn't start a new one.
 PlatformManager.startSession(GAME_CONFIG.id);
+QuestionManager.beginMixedRun(rng);
 showHome=false;homeScreen.style.display='none';resetGame();gameStarted=false;
 beginPreRunSequence();
 }

@@ -36,6 +36,7 @@ const leaderboardOverallBtn = document.querySelector("#leaderboard-overall-btn")
 let loadedGames = [];
 let leaderboardScope = "class";
 let leaderboardRequestId = 0;
+let activeQuestionPolicy = { format: "mixed", source: "game" };
 
 
 async function loadGames() {
@@ -65,18 +66,19 @@ async function loadGames() {
 
   // Build the dashboard first so it can show the favourite game's title,
   // then render the cards (each pulling in its own PlatformManager stats).
-  loadedGames = games;
-  window.AchievementManager?.configureGames(games);
-  window.DailyMissionManager?.configure(games);
+  const visibleGames = games.filter(game => gameSupportsQuestionFormat(game, activeQuestionPolicy.format));
+  loadedGames = visibleGames;
+  window.AchievementManager?.configureGames(visibleGames);
+  window.DailyMissionManager?.configure(visibleGames);
   window.DailyMissionManager?.connect(currentUser?.uid, currentProfile?.dailyMissions);
-  window.SuggestedGameManager?.configure(games);
+  window.SuggestedGameManager?.configure(visibleGames);
   window.SuggestedGameManager?.connect(currentUser?.uid, currentProfile?.suggestedGame);
   window.SuggestedGameManager?.setOnChange(renderSuggestedGame);
   renderDailyMissions();
   renderSuggestedGame();
   initialiseMistakeRematch();
-  displayDashboard(buildGameTitleMap(games));
-  displayGames(games);
+  displayDashboard(buildGameTitleMap(visibleGames));
+  displayGames(visibleGames);
   renderProgression();
   if (LEADERBOARDS_ENABLED) initialiseLeaderboards(games);
   if (LEADERBOARDS_ENABLED && currentUser) {
@@ -94,6 +96,12 @@ async function loadGames() {
       .catch(() => {});
   }
 
+}
+
+function gameSupportsQuestionFormat(game, format) {
+  if (!format || format === "mixed") return true;
+  const supported = Array.isArray(game.supportedQuestionFormats) ? game.supportedQuestionFormats : [game.questionType];
+  return supported.includes(format);
 }
 
 function renderDailyMissions() {
@@ -225,9 +233,11 @@ function showProfileSetup(user) {
 // library / class-code UI that the Hub depends on. Re-showing the Hub
 // on later auth-state changes (e.g. after a sign-out/sign-in without a
 // page reload) doesn't need to redo that work.
-function showHub(profile) {
+async function showHub(profile) {
 
   currentProfile = profile;
+  activeQuestionPolicy = await window.FirebaseManager.resolveQuestionFormat(profile);
+  window.ArcadeQuestionPolicy = activeQuestionPolicy;
   applyProfileToHub(profile);
   showScreen("hub");
   scheduleSeniorClassExpiry(profile);
@@ -1144,7 +1154,7 @@ async function handleAuthStateChanged(user) {
   if (profile) {
     await window.PlatformManager?.connectFirebase(user.uid);
     currentProfile = profile;
-    if (hasCurrentSeniorClass(profile)) showHub(profile);
+    if (hasCurrentSeniorClass(profile)) await showHub(profile);
     else showSeniorClassSelection(profile);
   } else {
     showProfileSetup(user);

@@ -122,6 +122,7 @@ function mapStudent(document, catalog) {
     favouriteGameId,
     lastActive,
     coins: numberOrZero(platform.coins),
+    questionFormatOverride: document.questionFormatOverride || "mixed",
     today: {
       questionsAnswered: questions.date === localDateString() ? numberOrZero(questions.dailyAnswered) : 0,
       accuracy: questions.date === localDateString()
@@ -227,6 +228,20 @@ window.TeacherDataProvider = {
     if (!updated) throw new Error("Firestore rejected the student coin update.");
     studentDocuments = null;
     return true;
+  },
+
+  async setStudentQuestionFormat(studentId, questionFormat) {
+    const updated = await window.FirebaseManager.setStudentQuestionFormat(studentId, questionFormat);
+    studentDocuments = null;
+    return updated;
+  },
+
+  async getClassQuestionFormat(className) {
+    return window.FirebaseManager.getClassQuestionFormat(className);
+  },
+
+  async setClassQuestionFormat(className, questionFormat) {
+    return window.FirebaseManager.setClassQuestionFormat(className, questionFormat);
   },
 
   async deleteStudent(studentId) {

@@ -2720,6 +2720,7 @@ class Game{
   }
 
   newRun(){
+    QuestionManager.beginMixedRun();
     window.PlatformManager?.startSession(GAME_ID);
     const charDef = CHARACTER_DEFS[META.character] || CHARACTER_DEFS.default;
     const eq = META.cosmetics.equipped;
@@ -3048,8 +3049,15 @@ class Game{
     this.startQuiz();
   }
 
-  startQuiz(){
+  async startQuiz(){
     this.phase='quiz';
+    if(window.MixedQuestionRound){
+      const result=await MixedQuestionRound.play();
+      this.quizCorrectCount=Math.round(result.rewardRatio*4);
+      if(result.questionType!=='multichoice'&&this.quizCorrectCount>0) window.AchievementManager?.notify?.('ko_klarity_correct',{amount:this.quizCorrectCount});
+      this.finishQuiz();
+      return;
+    }
     this.quizQuestions = QuestionManager.getRandomSet(4).map(q=>({source:q,q:q.q,options:q.a,correct:q.c}));
     this.quizIndex = 0;
     this.quizCorrectCount = 0;
@@ -3361,7 +3369,7 @@ async function loadClassQuestions(){
   const status=document.getElementById('classStatus');
   const fightButton=document.getElementById('btnFight');
   fightButton.disabled=true;
-  const result=await window.QuestionManager?.loadCurrentBank('multichoice');
+  const result=await window.QuestionManager?.loadCurrentBanks(window.GAME_CONFIG?.supportedQuestionFormats);
   classQuestionsReady=!!result?.ok;
   if(classQuestionsReady){
     status.textContent=`Class questions ready: ${QuestionManager.getBankName()}`;
