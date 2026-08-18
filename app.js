@@ -108,7 +108,7 @@ function renderDailyMissions() {
   const grid=document.querySelector('#daily-mission-grid');
   if(!grid||!window.DailyMissionManager)return;
   const missions=window.DailyMissionManager.getMissions();
-  grid.innerHTML=missions.map(mission=>`<article class="daily-mission-card${mission.completed?' completed':''}"><span class="daily-mission-status" aria-hidden="true">${mission.completed?'✓':'✦'}</span><div><h3>${mission.title}</h3><p>${mission.detail}</p><strong>${mission.completed?'Completed':mission.progressText}</strong><small>🪙 50 coins · ⭐ 200 XP</small></div>${mission.gameId&&!mission.completed?`<a href="${loadedGames.find(game=>game.id===mission.gameId)?.path||'#'}">Play now →</a>`:''}</article>`).join('');
+  grid.innerHTML=missions.map(mission=>`<article class="daily-mission-card${mission.completed?' completed':''}"><span class="daily-mission-status" aria-hidden="true">${mission.completed?'✓':'✦'}</span><div><h3>${mission.title}</h3><p>${mission.detail}</p><strong>${mission.completed?'Completed':mission.progressText}</strong><small>🪙 50 coins · ⭐ 200 XP</small></div>${mission.gameId&&!mission.completed?`<a href="${loadedGames.find(game=>game.id===mission.gameId)?.path||'#'}" data-game-link>Play now →</a>`:''}</article>`).join('');
   renderProgression();
   displayDashboard(buildGameTitleMap(loadedGames));
 }
@@ -118,7 +118,7 @@ function renderSuggestedGame(){
   if(!panel||!manager)return;
   const suggestion=manager.getSuggestion();
   if(!suggestion){panel.innerHTML='<p>No game suggestion is available yet.</p>';return;}
-  panel.innerHTML=`<article class="suggested-game-card${suggestion.completed?' completed':''}"><span class="suggested-game-icon" aria-hidden="true">${suggestion.completed?'✓':'🎮'}</span><div><h3>${suggestion.title}</h3><p>${suggestion.completed?'Suggestion completed — reward awarded!':'This is one of your least-played games. Give it five focused minutes today.'}</p><strong>${suggestion.completed?'🪙 50 coins and ⭐ 200 XP awarded':suggestion.progressText+' · 🪙 50 coins · ⭐ 200 XP'}</strong></div>${suggestion.completed?'':`<a href="${suggestion.path}">Play suggested game →</a>`}</article>`;
+  panel.innerHTML=`<article class="suggested-game-card${suggestion.completed?' completed':''}"><span class="suggested-game-icon" aria-hidden="true">${suggestion.completed?'✓':'🎮'}</span><div><h3>${suggestion.title}</h3><p>${suggestion.completed?'Suggestion completed — reward awarded!':'This is one of your least-played games. Give it five focused minutes today.'}</p><strong>${suggestion.completed?'🪙 50 coins and ⭐ 200 XP awarded':suggestion.progressText+' · 🪙 50 coins · ⭐ 200 XP'}</strong></div>${suggestion.completed?'':`<a href="${suggestion.path}" data-game-link>Play suggested game →</a>`}</article>`;
   renderProgression();
 }
 
@@ -710,6 +710,22 @@ function initClassCodeUI() {
   classEditForm.addEventListener("submit", handleClassCodeSubmit);
   changeClassBtn.addEventListener("click", showClassEditForm);
   classCancelBtn.addEventListener("click", hideClassEditForm);
+  document.querySelector("#hub")?.addEventListener("click", guideGameLaunchWithoutClassCode);
+
+}
+
+
+// Keep students in the Hub when they choose a game before entering the
+// question-bank/class code that every game needs. Delegation covers game
+// cards as well as dynamically rendered mission and suggestion links.
+function guideGameLaunchWithoutClassCode(event) {
+
+  const gameLink = event.target.closest("a[data-game-link]");
+  if (!gameLink || PlatformManager.hasClassCode()) return;
+
+  event.preventDefault();
+  showClassEditForm();
+  document.querySelector("#class-code")?.scrollIntoView({ behavior: "smooth", block: "center" });
 
 }
 
@@ -899,6 +915,7 @@ function displayGames(games) {
     const art = card.querySelector(".game-art");
 
     link.href = game.path;
+    link.dataset.gameLink = "";
 
     link.setAttribute(
       "aria-label",

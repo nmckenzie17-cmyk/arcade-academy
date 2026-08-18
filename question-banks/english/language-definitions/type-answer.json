@@ -4,7 +4,8 @@
     {
       "q": "What term matches this definition: Words chosen specifically to trigger an emotional response.",
       "a": [
-        "Emotive Language"
+        "Emotive Language",
+        "emotive"
       ]
     },
     {
@@ -18,13 +19,15 @@
     {
       "q": "What term matches this definition: Words that aim to make the audience feel part of a group.",
       "a": [
-        "Inclusive Language"
+        "Inclusive Language",
+        "inclusive"
       ]
     },
     {
       "q": "What term matches this definition: Command verbs used to demand or encourage action.",
       "a": [
-        "Imperative Language"
+        "Imperative Language",
+        "imperative"
       ]
     },
     {
@@ -128,7 +131,8 @@
     {
       "q": "What term matches this definition: A question asked to make a point rather than get an answer.",
       "a": [
-        "Rhetorical Question"
+        "Rhetorical Question",
+        "rhetorical"
       ]
     },
     {

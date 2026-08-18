@@ -214,7 +214,29 @@ const QuestionManager = {
     beginMixedRun(rngFn) {
         const types = this.getAvailableQuestionTypes();
         if (!types.length) return null;
-        this.runQuestionType = types[Math.floor((rngFn || Math.random)() * types.length)];
+
+        const random = rngFn || Math.random;
+        const fallingTypes = types.filter(type => type.startsWith('falling-words-'));
+        const modes = [
+            { id: 'type-answer', types: types.includes('type-answer') ? ['type-answer'] : [] },
+            { id: 'falling-words', types: fallingTypes },
+            { id: 'matching', types: types.includes('matching') ? ['matching'] : [] },
+            { id: 'multichoice', types: types.includes('multichoice') ? ['multichoice'] : [] },
+            { id: 'category', types: types.includes('category') ? ['category'] : [] }
+        ].filter(mode => mode.types.length);
+
+        const previousMode = this.runQuestionType.startsWith('falling-words-')
+            ? 'falling-words'
+            : this.runQuestionType;
+        const eligibleModes = modes.length > 1
+            ? modes.filter(mode => mode.id !== previousMode)
+            : modes;
+        const pick = choices => choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))];
+        const selectedMode = pick(eligibleModes);
+
+        // Falling Words gets one equal top-level chance. Only after it is
+        // selected do we randomly choose among its available variants.
+        this.runQuestionType = pick(selectedMode.types);
         return this.runQuestionType;
     },
     getRunQuestionType() { return this.runQuestionType || this.questionType; },

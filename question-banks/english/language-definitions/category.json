@@ -20,7 +20,7 @@
         "Inclusive Language",
         "Motif",
         "Euphemism",
-        "Irony (Verbal)",
+        "Irony",
         "Oxymoron"
       ]
     },
@@ -130,7 +130,7 @@
         "Jargon",
         "Rule of Three (Tricolon)",
         "Simile",
-        "Irony (Verbal)",
+        "Irony",
         "Oxymoron",
         "Assonance",
         "Sibilance",
@@ -172,7 +172,7 @@
       ],
       "distractors": [
         "Hyperbole",
-        "Irony (Verbal)",
+        "Irony",
         "Inclusive Language",
         "Motif",
         "Simile",
@@ -190,7 +190,7 @@
       "correct": [
         "Juxtaposition",
         "Oxymoron",
-        "Irony (Verbal)",
+        "Irony",
         "Allusion"
       ],
       "distractors": [
