@@ -1848,7 +1848,7 @@ function showStart(){
             document.getElementById('ammo-btn').textContent=invasionMode?'👹 Summon Troops (Q)':'🏹 Get Ammo (Q)';
             document.getElementById('target-btn').style.display=invasionMode?'none':'';
             if(invasionMode){resetInvasionRun();startBetweenWave();}
-            else {applyKingdomStartBonuses();showRelicSelect(()=> runPrerunQuiz(()=> startBetweenWave()));}
+            else {applyKingdomStartBonuses();showRelicSelect(()=> { prerunQuizCorrect=0; prerunQuizTimes=[]; computeRunPowerupBonuses(); startBetweenWave(); });}
         } else {
             startBtn.disabled = false;
             startBtn.textContent = '⚔️ START GAME';
