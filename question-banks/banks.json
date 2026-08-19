@@ -28,11 +28,11 @@
     "bank": "choreography"
   },
   "elfdef": {
-    "subject": "English",
+    "subject": "english",
     "bank": "language-definitions"
   },
   "elfex": {
-    "subject": "English",
+    "subject": "english",
     "bank": "language-examples"
   },
   "chef": {
