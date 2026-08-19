@@ -38,5 +38,9 @@
   "chef": {
     "subject": "Food Tech",
     "bank": "cooking"
+  },
+  "910bsc": {
+    "subject": "Business Studies",
+    "bank": "year-9-10-full"
   }
 }

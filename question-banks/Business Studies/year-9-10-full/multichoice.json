@@ -1,0 +1,152 @@
+[
+  {
+    "q": "Which term describes an organisation that produces goods or services to satisfy customer needs, usually to make a profit?",
+    "o": ["Entrepreneur", "Enterprise", "Business", "Capital"],
+    "a": 2
+  },
+  {
+    "q": "What is a person called who takes financial risks to start and manage a new venture?",
+    "o": ["Manager", "Entrepreneur", "Employee", "Investor"],
+    "a": 1
+  },
+  {
+    "q": "Which term refers to the dynamic capability to innovate, take risks, and start a venture?",
+    "o": ["Enterprise", "Opportunity Cost", "Capital", "Revenue"],
+    "a": 0
+  },
+  {
+    "q": "What are tangible products that can be physically seen and touched (e.g., clothes, books) called?",
+    "o": ["Services", "Needs", "Wants", "Goods"],
+    "a": 3
+  },
+  {
+    "q": "Which term refers to intangible activities provided by a business to satisfy a need or want?",
+    "o": ["Goods", "Services", "Expenses", "Capital"],
+    "a": 1
+  },
+  {
+    "q": "What are essential things required for basic human survival (e.g., water, food, shelter) called?",
+    "o": ["Wants", "Needs", "Expenses", "Services"],
+    "a": 1
+  },
+  {
+    "q": "Which term describes things people desire but do not need to survive (e.g., gaming consoles, designer clothing)?",
+    "o": ["Needs", "Wants", "Opportunity Costs", "Goods"],
+    "a": 1
+  },
+  {
+    "q": "What is defined as the value of the next best alternative that is given up when a choice is made?",
+    "o": ["Loss", "Expense", "Opportunity Cost", "Capital"],
+    "a": 2
+  },
+  {
+    "q": "What is an enterprise operating based on Māori cultural identity, heritage, and values called?",
+    "o": ["SME", "Māori Business", "Social Enterprise", "Public Sector Enterprise"],
+    "a": 1
+  },
+  {
+    "q": "In Māori business values, what does Kaitiakitanga represent?",
+    "o": [
+      "Leadership and authority",
+      "Guardianship, stewardship, and environmental sustainability for future generations",
+      "Hospitality, kindness, and generosity",
+      "Building family-like connections within a team"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which Māori value represents leadership, authority, ownership, and self-determination in business operations?",
+    "o": ["Rangatiratanga", "Kaitiakitanga", "Manaakitanga", "Whanaungatanga"],
+    "a": 0
+  },
+  {
+    "q": "What does the Māori cultural value of Manaakitanga focus on in a business context?",
+    "o": [
+      "Environmental sustainability",
+      "Hospitality, kindness, generosity, and mutual respect within the workplace and community",
+      "Self-determination and ownership",
+      "Financial risk-taking"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Which concept refers to building strong family-like connections, relationships, and a sense of belonging within a team?",
+    "o": ["Kaitiakitanga", "Whanaungatanga", "Rangatiratanga", "Manaakitanga"],
+    "a": 1
+  },
+  {
+    "q": "In New Zealand, what is an SME (Small to Medium Enterprise)?",
+    "o": [
+      "A business that employs more than 500 people",
+      "A business that makes no profit",
+      "A business that typically employs fewer than 50 people",
+      "A state-owned corporation"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is a target market?",
+    "o": [
+      "The total population of a country",
+      "The specific group of consumers a business aims to sell its products or services to",
+      "The venue where goods are sold physically",
+      "A market with no competitors"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What are the four core elements of the Marketing Mix (4 Ps)?",
+    "o": [
+      "People, Process, Profit, Promotion",
+      "Product, Price, Place, Promotion",
+      "Planning, Production, Placement, Pricing",
+      "Product, Passion, Purpose, Profit"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the process of collecting and analysing data about consumers, competitors, and the market called?",
+    "o": ["Financial Accounting", "Market Research", "Strategic Planning", "Human Resource Management"],
+    "a": 1
+  },
+  {
+    "q": "What is revenue?",
+    "o": [
+      "The money left over after paying expenses",
+      "The total operational cost of a business",
+      "The total amount of money earned by a business from selling goods or services",
+      "Money borrowed from a financial institution"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which term describes operational costs incurred from running a business (e.g., rent, wages, electricity)?",
+    "o": ["Revenue", "Profit", "Capital", "Expenses"],
+    "a": 3
+  },
+  {
+    "q": "When is a business considered to be making a profit?",
+    "o": [
+      "When total revenue equals total expenses",
+      "When total expenses are greater than total revenue",
+      "When total revenue is greater than total expenses",
+      "When no capital is invested"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is a financial deficit incurred when total expenses are greater than total revenue?",
+    "o": ["Profit", "Loss", "Revenue", "Capital"],
+    "a": 1
+  },
+  {
+    "q": "What is capital in a business context?",
+    "o": [
+      "Money, tools, machinery, or physical assets invested to help the business function and grow",
+      "The total sales revenue earned in a year",
+      "The location of the primary head office",
+      "The tax paid to the government"
+    ],
+    "a": 0
+  }
+]

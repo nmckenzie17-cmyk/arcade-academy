@@ -1,0 +1,143 @@
+{
+  "subject": "Business Studies — Enterprise, Marketing & Finance",
+  "categories": [
+    {
+      "prompt": "Introduction to Business & Enterprise",
+      "correct": [
+        "Business",
+        "Entrepreneur",
+        "Enterprise",
+        "Goods"
+      ],
+      "distractors": [
+        "Services",
+        "Needs",
+        "Wants",
+        "Opportunity Cost",
+        "Māori Business",
+        "Kaitiakitanga",
+        "Rangatiratanga",
+        "Manaakitanga",
+        "Whanaungatanga",
+        "SME (Small to Medium Enterprise)",
+        "Target Market",
+        "Marketing Mix (4 Ps)"
+      ]
+    },
+    {
+      "prompt": "New Zealand Business Context",
+      "correct": [
+        "Māori Business",
+        "Kaitiakitanga",
+        "Rangatiratanga",
+        "Manaakitanga"
+      ],
+      "distractors": [
+        "Whanaungatanga",
+        "SME (Small to Medium Enterprise)",
+        "Business",
+        "Entrepreneur",
+        "Enterprise",
+        "Goods",
+        "Services",
+        "Needs",
+        "Wants",
+        "Opportunity Cost",
+        "Market Research",
+        "Revenue"
+      ]
+    },
+    {
+      "prompt": "Marketing & Consumer Awareness",
+      "correct": [
+        "Target Market",
+        "Marketing Mix (4 Ps)",
+        "Market Research",
+        "Services"
+      ],
+      "distractors": [
+        "Business",
+        "Entrepreneur",
+        "Enterprise",
+        "Goods",
+        "Needs",
+        "Wants",
+        "Opportunity Cost",
+        "Revenue",
+        "Expenses",
+        "Profit",
+        "Loss",
+        "Capital"
+      ]
+    },
+    {
+      "prompt": "Business Finance & Operations",
+      "correct": [
+        "Revenue",
+        "Expenses",
+        "Profit",
+        "Loss"
+      ],
+      "distractors": [
+        "Capital",
+        "Business",
+        "Entrepreneur",
+        "Enterprise",
+        "Goods",
+        "Services",
+        "Needs",
+        "Wants",
+        "Opportunity Cost",
+        "Target Market",
+        "Marketing Mix (4 Ps)",
+        "Market Research"
+      ]
+    },
+    {
+      "prompt": "Core Business Motivations & Choices",
+      "correct": [
+        "Needs",
+        "Wants",
+        "Opportunity Cost",
+        "Capital"
+      ],
+      "distractors": [
+        "Revenue",
+        "Expenses",
+        "Profit",
+        "Loss",
+        "Māori Business",
+        "Kaitiakitanga",
+        "Rangatiratanga",
+        "Manaakitanga",
+        "Whanaungatanga",
+        "SME (Small to Medium Enterprise)",
+        "Market Research",
+        "Target Market"
+      ]
+    },
+    {
+      "prompt": "Māori Values & Small Business Structure",
+      "correct": [
+        "Whanaungatanga",
+        "SME (Small to Medium Enterprise)",
+        "Kaitiakitanga",
+        "Rangatiratanga"
+      ],
+      "distractors": [
+        "Target Market",
+        "Marketing Mix (4 Ps)",
+        "Market Research",
+        "Revenue",
+        "Expenses",
+        "Profit",
+        "Loss",
+        "Capital",
+        "Business",
+        "Entrepreneur",
+        "Enterprise",
+        "Goods"
+      ]
+    }
+  ]
+}

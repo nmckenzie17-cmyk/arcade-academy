@@ -1,0 +1,143 @@
+{
+  "name": "Business — Language Definitions — Type the Answer",
+  "questions": [
+    {
+      "q": "What term matches this definition: An organisation that produces goods or services to satisfy customer needs, usually to make a profit.",
+      "a": [
+        "Business"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A person who takes financial risks to start and manage a new venture.",
+      "a": [
+        "Entrepreneur"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The dynamic capability to innovate, take risks, and start a venture.",
+      "a": [
+        "Enterprise"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Tangible products that can be physically seen and touched (e.g., clothes, books).",
+      "a": [
+        "Goods"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Intangible activities provided by a business to satisfy a need or want (e.g., a haircut, internet provider).",
+      "a": [
+        "Services"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Essential things required for basic human survival (e.g., water, food, shelter).",
+      "a": [
+        "Needs"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Things people desire but do not need to survive (e.g., gaming consoles, designer clothing).",
+      "a": [
+        "Wants"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The value of the next best alternative that is given up when a choice is made.",
+      "a": [
+        "Opportunity Cost"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An enterprise operating based on Māori cultural identity, heritage, and values.",
+      "a": [
+        "Māori Business",
+        "Maori Business"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Guardianship, stewardship, and environmental sustainability for future generations.",
+      "a": [
+        "Kaitiakitanga"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Leadership, authority, ownership, and self-determination in business operations.",
+      "a": [
+        "Rangatiratanga"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Hospitality, kindness, generosity, and mutual respect within the workplace and community.",
+      "a": [
+        "Manaakitanga"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Building strong family-like connections, relationships, and a sense of belonging within a team.",
+      "a": [
+        "Whanaungatanga"
+      ]
+    },
+    {
+      "q": "What term matches this definition: In New Zealand, a business that typically employs fewer than 50 people.",
+      "a": [
+        "SME (Small to Medium Enterprise)",
+        "SME",
+        "Small to Medium Enterprise"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The specific group of consumers a business aims to sell its products or services to.",
+      "a": [
+        "Target Market"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The four core elements used to market a business: Product, Price, Place, and Promotion.",
+      "a": [
+        "Marketing Mix (4 Ps)",
+        "Marketing Mix",
+        "4 Ps",
+        "4Ps"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The process of collecting and analysing data about consumers, competitors, and the market.",
+      "a": [
+        "Market Research"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The total amount of money earned by a business from selling goods or services.",
+      "a": [
+        "Revenue"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The operational costs incurred from running a business (e.g., rent, wages, electricity).",
+      "a": [
+        "Expenses"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The financial gain made when total revenue is greater than total expenses.",
+      "a": [
+        "Profit"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The financial deficit incurred when total expenses are greater than total revenue.",
+      "a": [
+        "Loss"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Money, tools, machinery, or physical assets invested to help the business function and grow.",
+      "a": [
+        "Capital"
+      ]
+    }
+  ]
+}
