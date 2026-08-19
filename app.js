@@ -743,6 +743,10 @@ function renderClassCodeState() {
 
     classView.hidden = false;
     classEditForm.hidden = true;
+    const forced = PlatformManager.getForcedQuestionBank?.();
+    changeClassBtn.disabled = Boolean(forced);
+    changeClassBtn.textContent = forced ? "Assigned by teacher" : "Change class code";
+    if (forced) classSubjectValueEl.textContent = `${PlatformManager.getCurrentSubject() || ""} · Teacher assignment until ${new Date(forced.expiresAt).toLocaleTimeString("en-NZ", { hour: "numeric", minute: "2-digit" })}`;
     clearClassError();
 
   } else {
@@ -1171,6 +1175,7 @@ async function handleAuthStateChanged(user) {
 
   if (profile) {
     await window.PlatformManager?.connectFirebase(user.uid);
+    await window.PlatformManager?.applyClassQuestionBankAssignment(profile);
     currentProfile = profile;
     if (hasCurrentSeniorClass(profile)) await showHub(profile);
     else showSeniorClassSelection(profile);

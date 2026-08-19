@@ -197,6 +197,22 @@ function mapQuestionBankHistory(document) {
     }));
 }
 
+function mapClassHistory(documents) {
+  const dates = new Map();
+  documents.forEach(document => {
+    Object.values(document?.platform?.questionBanks || {}).forEach(bank => {
+      Object.entries(bank.byDate || {}).forEach(([date, daily]) => {
+        const record = dates.get(date) || { answered: 0, correct: 0 };
+        record.answered += numberOrZero(daily.answered);
+        record.correct += numberOrZero(daily.correct);
+        dates.set(date, record);
+      });
+    });
+  });
+  return Array.from(dates, ([date, record]) => ({ date, value: accuracy(record.correct, record.answered) }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 window.TeacherDataProvider = {
   clearCache() {
     studentDocuments = null;
@@ -242,6 +258,18 @@ window.TeacherDataProvider = {
 
   async setClassQuestionFormat(className, questionFormat) {
     return window.FirebaseManager.setClassQuestionFormat(className, questionFormat);
+  },
+
+  async getClassQuestionBankAssignment(className) {
+    return window.FirebaseManager.getClassQuestionBankAssignment(className);
+  },
+
+  async setClassQuestionBankAssignment(className, code) {
+    return window.FirebaseManager.setClassQuestionBankAssignment(className, code);
+  },
+
+  async clearClassQuestionBankAssignment(className) {
+    return window.FirebaseManager.clearClassQuestionBankAssignment(className);
   },
 
   async deleteStudent(studentId) {
@@ -316,6 +344,18 @@ window.TeacherDataProvider = {
   async getStudentHistory(studentId) {
     const students = await loadStudents();
     return mapQuestionBankHistory(students.find((student) => student.uid === studentId));
+  },
+
+  async getClassHistory(className) {
+    const students = await loadStudents();
+    return mapClassHistory(students.filter(student => (student.className || "Unassigned") === className));
+  },
+
+  async getQuestionBankCatalog() {
+    const response = await fetch("../question-banks/banks.json", { cache: "no-cache" });
+    if (!response.ok) throw new Error("Question-bank catalog could not be loaded");
+    const catalog = await response.json();
+    return Object.entries(catalog).map(([code, entry]) => ({ code, subject: entry.subject || "Question bank", bank: entry.bank || "" }));
   },
 
   async getGamesCatalog() {

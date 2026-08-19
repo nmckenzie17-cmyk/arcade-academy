@@ -192,6 +192,42 @@ export async function setClassQuestionFormat(className, questionFormat) {
   return true;
 }
 
+const CLASS_BANK_DURATION_MS = 30 * 60 * 1000;
+
+export async function getClassQuestionBankAssignment(className) {
+  if (!String(className || "").trim()) return null;
+  try {
+    const snapshot = await getDoc(doc(db, "classSettings", String(className).trim()));
+    const assignment = snapshot.data()?.questionBankAssignment;
+    const expiresAt = Number(assignment?.expiresAt);
+    if (!snapshot.exists() || !assignment?.code || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
+    return { ...assignment, expiresAt, active: true };
+  } catch (error) {
+    console.error("Unable to load class question-bank assignment:", error);
+    return null;
+  }
+}
+
+export async function setClassQuestionBankAssignment(className, code) {
+  const teacherUid = auth.currentUser?.uid;
+  const teacherProfile = teacherUid ? await getUserProfile(teacherUid) : null;
+  const cleanedClass = String(className || "").trim();
+  const cleanedCode = String(code || "").trim().toLowerCase();
+  if (teacherProfile?.role !== "teacher" || !cleanedClass || !/^[a-z0-9-]{2,20}$/.test(cleanedCode)) throw new Error("Teacher access required");
+  const assignment = { code: cleanedCode, assignedAt: Date.now(), expiresAt: Date.now() + CLASS_BANK_DURATION_MS, assignedBy: teacherUid };
+  await setDoc(doc(db, "classSettings", cleanedClass), { questionBankAssignment: assignment, updatedAt: Date.now(), updatedBy: teacherUid }, { merge: true });
+  return { ...assignment, active: true };
+}
+
+export async function clearClassQuestionBankAssignment(className) {
+  const teacherUid = auth.currentUser?.uid;
+  const teacherProfile = teacherUid ? await getUserProfile(teacherUid) : null;
+  const cleanedClass = String(className || "").trim();
+  if (teacherProfile?.role !== "teacher" || !cleanedClass) throw new Error("Teacher access required");
+  await setDoc(doc(db, "classSettings", cleanedClass), { questionBankAssignment: null, updatedAt: Date.now(), updatedBy: teacherUid }, { merge: true });
+  return true;
+}
+
 export async function setStudentQuestionFormat(uid, questionFormat) {
   const teacherUid = auth.currentUser?.uid;
   const teacherProfile = teacherUid ? await getUserProfile(teacherUid) : null;
@@ -1032,6 +1068,9 @@ window.FirebaseManager = {
   updateStudentClass,
   getClassQuestionFormat,
   setClassQuestionFormat,
+  getClassQuestionBankAssignment,
+  setClassQuestionBankAssignment,
+  clearClassQuestionBankAssignment,
   setStudentQuestionFormat,
   resolveQuestionFormat,
   deleteStudentData,

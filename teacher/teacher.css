@@ -989,6 +989,25 @@ tbody th {
 
 /* ------------------------------ Responsive -------------------------- */
 
+.dashboard-actions { display:flex; justify-content:flex-end; gap:.75rem; margin:-.5rem 0 1.5rem; }
+.dashboard-action-button { padding:.72rem 1rem; border:1px solid var(--aa-cyan); border-radius:var(--radius-sm); background:transparent; color:var(--aa-cyan); font:700 .88rem var(--font-body); cursor:pointer; }
+.dashboard-action-button--primary { background:var(--aa-accent); border-color:var(--aa-accent); color:#fff; }
+.dashboard-action-button:hover { transform:translateY(-1px); filter:brightness(1.08); }
+.workspace-overlay { position:fixed; inset:0; z-index:70; display:grid; place-items:center; padding:1rem; background:rgba(8,10,24,.78); }
+.workspace-dialog { width:min(100%,980px); max-height:calc(100vh - 2rem); display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--aa-border); border-radius:var(--radius-lg); background:var(--surface); box-shadow:var(--shadow-panel); }
+.workspace-dialog--chart { width:min(100%,760px); }
+.workspace-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.15rem 1.3rem; background:var(--aa-panel); color:#f4f5ff; }
+.workspace-header h2 { margin:0; font-size:1.2rem; }
+.workspace-body { overflow-y:auto; padding:1rem; }
+.settings-card { box-shadow:none; border:1px solid var(--surface-border); }
+.settings-card + .settings-card, .workspace-body > .overview-card + .overview-card { margin-top:1rem; }
+.overview-card-header p { margin:.35rem 0 0; color:var(--text-muted); }
+.question-bank-assignment-grid { display:grid; grid-template-columns:minmax(240px,1fr) auto auto; gap:.75rem; align-items:end; }
+.panel-tabs { display:flex; gap:.5rem; margin-bottom:1.25rem; padding:.3rem; border-radius:var(--radius-sm); background:#eceef5; }
+.panel-tab { flex:1; padding:.65rem; border:0; border-radius:6px; background:transparent; color:var(--text-muted); font:700 .88rem var(--font-body); cursor:pointer; }
+.panel-tab.active { background:var(--surface-alt); color:var(--aa-accent); box-shadow:0 2px 8px rgba(10,12,30,.1); }
+body.modal-open { overflow:hidden; }
+
 @media (max-width: 900px) {
   .stat-strip {
     grid-template-columns: repeat(2, 1fr);
@@ -999,6 +1018,8 @@ tbody th {
   .class-reset-grid {
     grid-template-columns: 1fr 1fr;
   }
+  .question-bank-assignment-grid { grid-template-columns:1fr; }
+  .dashboard-actions { flex-direction:column; }
 }
 
 @media (max-width: 640px) {

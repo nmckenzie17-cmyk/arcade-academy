@@ -13,6 +13,8 @@
 (function () {
   "use strict";
 
+  const SELECTED_CLASS_STORAGE_KEY = "arcadeAcademy.teacher.selectedClass";
+
   // ---------------------------------------------------------------
   // State
   // ---------------------------------------------------------------
@@ -80,12 +82,25 @@
     els.statisticsHeading = document.getElementById("statistics-heading");
     els.statisticsScope = document.getElementById("statistics-scope");
     els.overviewHeading = document.getElementById("overview-heading");
+    els.classActions = document.getElementById("class-actions");
+    els.classSettingsButton = document.getElementById("class-settings-button");
+    els.classSettingsOverlay = document.getElementById("class-settings-overlay");
+    els.classSettingsClose = document.getElementById("class-settings-close");
+    els.classTrendButton = document.getElementById("class-trend-button");
+    els.classTrendOverlay = document.getElementById("class-trend-overlay");
+    els.classTrendClose = document.getElementById("class-trend-close");
+    els.classTrendGraph = document.getElementById("class-trend-graph");
+    els.classTrendSummary = document.getElementById("class-trend-summary");
 
     els.panel = document.getElementById("student-panel");
     els.panelOverlay = document.getElementById("student-panel-overlay");
     els.panelClose = document.getElementById("panel-close");
     els.panelTitle = document.getElementById("panel-student-name");
     els.panelMeta = document.getElementById("panel-student-meta");
+    els.studentProgressTab = document.getElementById("student-progress-tab");
+    els.studentSettingsTab = document.getElementById("student-settings-tab");
+    els.studentProgressSections = document.querySelectorAll("#student-panel .panel-section:not(.student-settings)");
+    els.studentSettingsSection = document.querySelector("#student-panel .student-settings");
     els.studentNameInput = document.getElementById("student-name-input");
     els.studentYearSelect = document.getElementById("student-year-select");
     els.studentProfileSave = document.getElementById("student-profile-save");
@@ -106,6 +121,10 @@
     els.classFallingModeWrap = document.getElementById("class-falling-mode-wrap");
     els.classQuestionFormatSave = document.getElementById("class-question-format-save");
     els.classQuestionFormatResult = document.getElementById("class-question-format-result");
+    els.classQuestionBank = document.getElementById("class-question-bank");
+    els.classQuestionBankSave = document.getElementById("class-question-bank-save");
+    els.classQuestionBankClear = document.getElementById("class-question-bank-clear");
+    els.classQuestionBankStatus = document.getElementById("class-question-bank-status");
     els.gameStatsBody = document.getElementById("game-stats-body");
     els.resetGameSelect = document.getElementById("reset-game-select");
     els.resetGameButton = document.getElementById("reset-game-button");
@@ -217,8 +236,17 @@
   function bindStaticEvents() {
     els.classFilter.addEventListener("change", async (e) => {
       state.classCode = e.target.value;
+      try { localStorage.setItem(SELECTED_CLASS_STORAGE_KEY, state.classCode); } catch (_) {}
+      syncSelectedClassControls();
       await refreshOverview();
     });
+
+    els.classSettingsButton.addEventListener("click", openClassSettings);
+    els.classSettingsClose.addEventListener("click", closeClassSettings);
+    els.classSettingsOverlay.addEventListener("click", e => { if (e.target === els.classSettingsOverlay) closeClassSettings(); });
+    els.classTrendButton.addEventListener("click", openClassTrend);
+    els.classTrendClose.addEventListener("click", closeClassTrend);
+    els.classTrendOverlay.addEventListener("click", e => { if (e.target === els.classTrendOverlay) closeClassTrend(); });
 
     els.refreshClassButton.addEventListener("click", refreshSelectedClass);
 
@@ -249,8 +277,14 @@
     els.panelClose.addEventListener("click", closeStudentPanel);
     els.panelOverlay.addEventListener("click", closeStudentPanel);
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !els.panel.hidden) closeStudentPanel();
+      if (e.key !== "Escape") return;
+      if (!els.resetOverlay.hidden) closeResetConfirmation();
+      else if (!els.classSettingsOverlay.hidden) closeClassSettings();
+      else if (!els.classTrendOverlay.hidden) closeClassTrend();
+      else if (!els.panel.hidden) closeStudentPanel();
     });
+    els.studentProgressTab.addEventListener("click", () => showStudentTab("progress"));
+    els.studentSettingsTab.addEventListener("click", () => showStudentTab("settings"));
 
     els.trendScope.addEventListener("change", () => {
       state.trendScope = els.trendScope.value;
@@ -275,6 +309,8 @@
     els.questionFormatClass.addEventListener("change", loadClassQuestionFormat);
     els.classQuestionFormat.addEventListener("change", updateFallingModeControls);
     els.studentQuestionFormat.addEventListener("change", updateFallingModeControls);
+    els.classQuestionBankSave.addEventListener("click", assignClassQuestionBank);
+    els.classQuestionBankClear.addEventListener("click", clearClassQuestionBank);
     els.resetCancel.addEventListener("click", closeResetConfirmation);
     els.resetContinue.addEventListener("click", showFinalResetWarning);
     els.resetFinal.addEventListener("click", submitProgressReset);
@@ -296,6 +332,11 @@
       classes
         .map((c) => `<option value="${c.code}">${c.code} — ${escapeHtml(c.subject)}</option>`)
         .join("");
+    let rememberedClass = "all";
+    try { rememberedClass = localStorage.getItem(SELECTED_CLASS_STORAGE_KEY) || "all"; } catch (_) {}
+    const available = Array.from(els.classFilter.options).some(option => option.value === rememberedClass);
+    state.classCode = available ? rememberedClass : "all";
+    els.classFilter.value = state.classCode;
     els.classResetSelect.innerHTML = classes.length
       ? classes.map((c) => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.code)} — ${escapeHtml(c.subject)}</option>`).join("")
       : '<option value="">No classes available</option>';
@@ -303,6 +344,86 @@
       ? classes.map((c) => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.code)} — ${escapeHtml(c.subject)}</option>`).join("")
       : '<option value="">No classes available</option>';
     await loadClassQuestionFormat();
+    await populateQuestionBankOptions();
+    syncSelectedClassControls();
+  }
+
+  function syncSelectedClassControls() {
+    const hasClass = state.classCode && state.classCode !== "all";
+    els.classActions.hidden = !hasClass;
+    if (!hasClass) return;
+    [els.questionFormatClass, els.classResetSelect].forEach(select => {
+      if (Array.from(select.options).some(option => option.value === state.classCode)) select.value = state.classCode;
+    });
+  }
+
+  async function openClassSettings() {
+    syncSelectedClassControls();
+    await Promise.all([loadClassQuestionFormat(), updateClassResetCount(), loadClassQuestionBankAssignment()]);
+    els.classSettingsOverlay.hidden = false;
+    document.body.classList.add("modal-open");
+    els.classSettingsClose.focus();
+  }
+
+  function closeClassSettings() {
+    els.classSettingsOverlay.hidden = true;
+    document.body.classList.remove("modal-open");
+    els.classSettingsButton.focus();
+  }
+
+  async function openClassTrend() {
+    els.classTrendOverlay.hidden = false;
+    document.body.classList.add("modal-open");
+    els.classTrendGraph.innerHTML = '<p class="trend-empty">Loading class history…</p>';
+    els.classTrendSummary.textContent = "";
+    const points = await window.TeacherDataProvider.getClassHistory(state.classCode);
+    renderClassTrend(points);
+    els.classTrendClose.focus();
+  }
+
+  function closeClassTrend() {
+    els.classTrendOverlay.hidden = true;
+    document.body.classList.remove("modal-open");
+    els.classTrendButton.focus();
+  }
+
+  async function populateQuestionBankOptions() {
+    const banks = await window.TeacherDataProvider.getQuestionBankCatalog();
+    els.classQuestionBank.innerHTML = banks.map(bank => `<option value="${escapeHtml(bank.code)}">${escapeHtml(bank.code)} — ${escapeHtml(bank.subject)} · ${escapeHtml(bank.bank)}</option>`).join("");
+    els.classQuestionBankSave.disabled = !banks.length;
+  }
+
+  async function loadClassQuestionBankAssignment() {
+    if (!state.classCode || state.classCode === "all") return;
+    const assignment = await window.TeacherDataProvider.getClassQuestionBankAssignment(state.classCode);
+    if (assignment?.active) {
+      els.classQuestionBank.value = assignment.code;
+      els.classQuestionBankStatus.textContent = `${assignment.code} is locked for this class until ${new Date(assignment.expiresAt).toLocaleTimeString("en-NZ", { hour: "numeric", minute: "2-digit" })}.`;
+      els.classQuestionBankClear.disabled = false;
+    } else {
+      els.classQuestionBankStatus.textContent = "No active question-bank assignment.";
+      els.classQuestionBankClear.disabled = true;
+    }
+  }
+
+  async function assignClassQuestionBank() {
+    const code = els.classQuestionBank.value;
+    if (!code || state.classCode === "all") return;
+    els.classQuestionBankSave.disabled = true;
+    try {
+      const assignment = await window.TeacherDataProvider.setClassQuestionBankAssignment(state.classCode, code);
+      els.classQuestionBankStatus.textContent = `${code} is locked for ${state.classCode} until ${new Date(assignment.expiresAt).toLocaleTimeString("en-NZ", { hour: "numeric", minute: "2-digit" })}.`;
+      els.classQuestionBankClear.disabled = false;
+    } catch (error) {
+      console.error("Unable to assign question bank:", error);
+      els.classQuestionBankStatus.textContent = "The question bank could not be assigned.";
+    } finally { els.classQuestionBankSave.disabled = false; }
+  }
+
+  async function clearClassQuestionBank() {
+    if (state.classCode === "all") return;
+    await window.TeacherDataProvider.clearClassQuestionBankAssignment(state.classCode);
+    await loadClassQuestionBankAssignment();
   }
 
   async function loadClassQuestionFormat() {
@@ -594,6 +715,7 @@
     els.studentClassResult.textContent = "";
     els.studentCoinsResult.textContent = "";
     document.body.classList.add("panel-open");
+    showStudentTab("progress");
 
     let detail;
     try {
@@ -645,6 +767,16 @@
     state.selectedStudentId = null;
     state.selectedStudentDetail = null;
     if (lastFocusedElement) lastFocusedElement.focus();
+  }
+
+  function showStudentTab(tab) {
+    const settings = tab === "settings";
+    els.studentProgressSections.forEach(section => { section.hidden = settings; });
+    els.studentSettingsSection.hidden = !settings;
+    els.studentProgressTab.classList.toggle("active", !settings);
+    els.studentSettingsTab.classList.toggle("active", settings);
+    els.studentProgressTab.setAttribute("aria-selected", String(!settings));
+    els.studentSettingsTab.setAttribute("aria-selected", String(settings));
   }
 
   function renderGameStats(games) {
@@ -1107,6 +1239,22 @@
       `(from ${first}% on ${formatDate(points[0].date)} to ${last}% on ${formatDate(points[points.length - 1].date)}).`;
 
     els.trendGraph.appendChild(buildSvgChart(points, trend.key));
+  }
+
+  function renderClassTrend(points) {
+    els.classTrendGraph.innerHTML = "";
+    if (points.length < 2) {
+      els.classTrendGraph.innerHTML = '<p class="trend-empty">Not enough dated question records to plot this class yet.</p>';
+      els.classTrendSummary.textContent = "";
+      return;
+    }
+    const slope = calculateTrendSlope(points);
+    const trend = classifyTrend(slope);
+    const first = points[0].value;
+    const last = points[points.length - 1].value;
+    const change = last - first;
+    els.classTrendSummary.textContent = `${state.classCode} is ${trend.label.toLowerCase()}: ${first}% to ${last}% across ${points.length} recorded days (${change >= 0 ? "+" : ""}${change} percentage points).`;
+    els.classTrendGraph.appendChild(buildSvgChart(points, trend.key));
   }
 
   function buildSvgChart(points, trendKey) {

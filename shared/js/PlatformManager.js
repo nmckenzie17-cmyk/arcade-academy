@@ -963,6 +963,7 @@
   // In-memory cache of banks.json for the lifetime of the page, so repeated
   // setClassCode() calls (e.g. a student retrying a code) don't re-fetch it.
   let banksIndexCache = null;
+  let forcedQuestionBank = null;
 
   async function fetchJson(url) {
     const res = await global.fetch(url, { cache: 'no-cache' });
@@ -1004,6 +1005,7 @@
   //   const ok = await PlatformManager.setClassCode('93bf');
   //   if (!ok) { /* show "invalid code" to the student */ }
   async function setClassCode(code) {
+    if (isQuestionBankForced()) return false;
     const trimmed = (typeof code === 'string') ? code.trim().toLowerCase() : '';
     if (!trimmed) return false;
 
@@ -1056,6 +1058,40 @@
 
   function hasClassCode() {
     return !!data.class.code;
+  }
+
+  function isQuestionBankForced() {
+    if (!forcedQuestionBank || Number(forcedQuestionBank.expiresAt) <= Date.now()) {
+      forcedQuestionBank = null;
+      return false;
+    }
+    return true;
+  }
+
+  function getForcedQuestionBank() {
+    return isQuestionBankForced() ? { ...forcedQuestionBank } : null;
+  }
+
+  async function applyClassQuestionBankAssignment(profile) {
+    const assignment = await global.FirebaseManager?.getClassQuestionBankAssignment?.(profile?.className);
+    if (!assignment?.active) {
+      forcedQuestionBank = null;
+      return null;
+    }
+    forcedQuestionBank = assignment;
+    const banksIndex = await loadBanksIndex();
+    const resolved = resolveBankEntry(banksIndex?.[assignment.code]);
+    if (!resolved) {
+      forcedQuestionBank = null;
+      return null;
+    }
+    data.class.code = assignment.code;
+    data.class.subject = resolved.subject;
+    data.class.bankPath = resolved.bankPath;
+    data.class.bank = null;
+    markDirty();
+    save();
+    return getForcedQuestionBank();
   }
 
   // Clears the active class selection entirely (e.g. a "change class" button
@@ -1193,6 +1229,9 @@
     getCurrentBank,
     getCurrentSubject,
     getCurrentClass,
+    applyClassQuestionBankAssignment,
+    isQuestionBankForced,
+    getForcedQuestionBank,
 
     // readers
     getOverallStats,
@@ -1264,6 +1303,7 @@
           if (user) {
             await connectFirebase(user.uid);
             const profile = await global.FirebaseManager.getUserProfile?.(user.uid);
+            await applyClassQuestionBankAssignment(profile);
             global.ArcadeQuestionPolicy = await global.FirebaseManager.resolveQuestionFormat?.(profile) || {format:'mixed',source:'game'};
             global.AchievementManager?.connect?.(user.uid, profile?.achievementSystem);
             global.MistakeRematchManager?.connect?.(user.uid, profile?.mistakeRematch);

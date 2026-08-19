@@ -117,6 +117,11 @@
     </dl>
     </section>
 
+    <div id="class-actions" class="dashboard-actions" hidden>
+      <button id="class-trend-button" class="dashboard-action-button" type="button">⌁ Class accuracy over time</button>
+      <button id="class-settings-button" class="dashboard-action-button dashboard-action-button--primary" type="button">⚙ Class settings</button>
+    </div>
+
     <section class="overview-card" aria-labelledby="overview-heading">
       <div class="overview-card-header">
         <h2 id="overview-heading">Class overview</h2>
@@ -151,7 +156,11 @@
       </div>
     </section>
 
-    <section class="overview-card" aria-labelledby="question-format-heading">
+    <div id="class-settings-overlay" class="workspace-overlay" hidden>
+    <section class="workspace-dialog" role="dialog" aria-modal="true" aria-labelledby="class-settings-title">
+      <div class="workspace-header"><div><p class="statistics-kicker">Selected class</p><h2 id="class-settings-title">Class settings</h2></div><button id="class-settings-close" class="panel-close" type="button" aria-label="Close class settings">✕</button></div>
+      <div class="workspace-body">
+    <section class="overview-card settings-card" aria-labelledby="question-format-heading">
       <div class="overview-card-header"><div><h2 id="question-format-heading">Class Question Format</h2><p>Override game defaults for an entire class. Student overrides take priority.</p></div></div>
       <div class="class-reset-grid">
         <div class="field-inline class-reset-field"><label for="question-format-class">Class</label><select id="question-format-class"></select></div>
@@ -160,6 +169,16 @@
         <button id="class-question-format-save" class="reset-button" type="button">Save Class Format</button>
       </div>
       <p id="class-question-format-result" class="settings-result" role="status"></p>
+    </section>
+
+    <section class="overview-card settings-card" aria-labelledby="question-bank-heading">
+      <div class="overview-card-header"><div><h2 id="question-bank-heading">Assigned Question Bank</h2><p>Lock this class to one question bank for 30 minutes. Students cannot change it while the assignment is active.</p></div></div>
+      <div class="question-bank-assignment-grid">
+        <div class="field-inline class-reset-field"><label for="class-question-bank">Question bank</label><select id="class-question-bank"></select></div>
+        <button id="class-question-bank-save" class="reset-button" type="button">Assign for 30 minutes</button>
+        <button id="class-question-bank-clear" class="reset-button" type="button">End assignment</button>
+      </div>
+      <p id="class-question-bank-status" class="settings-result" role="status" aria-live="polite"></p>
     </section>
 
     <section class="overview-card reset-history-card" aria-labelledby="reset-history-heading">
@@ -209,6 +228,16 @@
       </div>
       <p id="class-reset-result" class="reset-result" role="status" aria-live="polite"></p>
     </section>
+      </div>
+    </section>
+    </div>
+
+    <div id="class-trend-overlay" class="workspace-overlay" hidden>
+      <section class="workspace-dialog workspace-dialog--chart" role="dialog" aria-modal="true" aria-labelledby="class-trend-title">
+        <div class="workspace-header"><div><p class="statistics-kicker">Whole-class performance</p><h2 id="class-trend-title">Class accuracy over time</h2></div><button id="class-trend-close" class="panel-close" type="button" aria-label="Close class accuracy graph">✕</button></div>
+        <div class="workspace-body"><div class="trend-graph-wrap"><div id="class-trend-graph"></div><p id="class-trend-summary" class="trend-summary" role="status"></p></div></div>
+      </section>
+    </div>
   </main>
 
   <footer class="app-footer">
@@ -234,6 +263,10 @@
     </div>
 
     <div class="panel-body">
+      <div class="panel-tabs" role="tablist" aria-label="Student details">
+        <button id="student-progress-tab" class="panel-tab active" type="button" role="tab" aria-selected="true">Progress</button>
+        <button id="student-settings-tab" class="panel-tab" type="button" role="tab" aria-selected="false">Student settings</button>
+      </div>
       <section class="panel-section" aria-labelledby="game-stats-heading">
         <h3 id="game-stats-heading">Per-game statistics</h3>
         <table id="game-stats-table">
@@ -281,7 +314,7 @@
         </div>
       </section>
 
-      <section class="panel-section student-settings" aria-labelledby="student-settings-heading">
+      <section class="panel-section student-settings" aria-labelledby="student-settings-heading" hidden>
         <h3 id="student-settings-heading">Student Settings</h3>
         <div class="student-profile-settings">
           <div class="student-profile-fields">
