@@ -718,6 +718,7 @@ let playAgainButtonRect=null;
 let openShopFromGameOverRect=null;
 let postQuizCountdownActive=false;let postQuizCountdownValue=3;let postQuizCountdownTimer=0;
 let headstartImmuneTimer=0;
+let postQuizImmuneTimer=0;
 let sandflies=[];let sandflySpawnTimer=0;let sandstorms=[];let sandstormSpawnTimer=0;
 let floatingEyes=[];let eyeSpawnTimer=0;let laserActive=false;let laserFrameCount=0;
 
@@ -754,7 +755,7 @@ obstacles=[];obstacleSpawnTimer=0;coins=[];coinSpawnTimer=0;
 fuel=getFuelCapacity()*0.50;fuelCans=[];fuelStageKey=-1;fuelCanPlan=[];closeMemoryGame(false);
 deathQuiz={active:false,term:'',options:[],resultMessage:''};deathCoinButtonRect=null;playAgainButtonRect=null;openShopFromGameOverRect=null;
 postQuizCountdownActive=false;postQuizCountdownValue=3;postQuizCountdownTimer=0;
-headstartBoostTimer=0;headstartImmuneTimer=0;
+headstartBoostTimer=0;headstartImmuneTimer=0;postQuizImmuneTimer=0;
 magnets=[];magnetSpawnTimer=0;magnetActiveTimer=0;deathCoins=[];deathCoinStageKey=-1;deathCoinCollected=0;deathRewardMessage='';shieldCharges=shopState.owned.startingShield?1:0;
 sandflies=[];sandflySpawnTimer=0;sandstorms=[];sandstormSpawnTimer=0;
 floatingEyes=[];eyeSpawnTimer=0;laserFrameCount=0;
@@ -1856,6 +1857,10 @@ memoryGame={active:false,cards:[],selected:[],matched:0,wrong:0,reward:0,kind:nu
 if(memoryScreen)memoryScreen.style.display='none';
 if(apply&&(kind==='fuel'||kind==='magnet')){
 clearLeftPortionEnemies();
+// The player can collect a pickup while already very close to the terrain.
+// Give them a brief chance to recover after the modal/countdown instead of
+// applying a lethal ground/cave check on the first resumed frame.
+postQuizImmuneTimer=1200;
 postQuizCountdownActive=true;postQuizCountdownValue=3;postQuizCountdownTimer=0;
 }
 }
@@ -2283,6 +2288,7 @@ return;
 }
 if(headstartBoostTimer>0){headstartBoostTimer=Math.max(0,headstartBoostTimer-delta);}
 if(headstartImmuneTimer>0){headstartImmuneTimer=Math.max(0,headstartImmuneTimer-delta);}
+if(postQuizImmuneTimer>0){postQuizImmuneTimer=Math.max(0,postQuizImmuneTimer-delta);}
 score+=delta*getScoreMultiplier();runElapsedMs+=delta;checkStageChange();
 if(isJetCharacter('chimera')&&!player.isClicking)fuel=Math.min(getFuelCapacity(),fuel+delta*.003);
 if(player.isClicking&&!player.inputDisabled)applyBoost();
@@ -2291,7 +2297,7 @@ player.vy+=getGravity();
 const ceilingThreshold=canvas.height*0.05;
 if(player.y<ceilingThreshold)player.vy+=CEILING_REPEL_FORCE;
 player.y+=player.vy;player.frameCounter++;
-const immune=headstartImmuneTimer>0;
+const immune=headstartImmuneTimer>0||postQuizImmuneTimer>0;
 if(isSnow()){
 const cb=getCaveBoundsAtPlayer();
 if(!immune&&player.y>=cb.bottom-PLAYER_HEIGHT){
