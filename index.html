@@ -143,8 +143,35 @@
       <p class="player-bar-name">
         <span aria-hidden="true">👋</span> <span id="hub-player-name"></span>
       </p>
-      <button type="button" class="class-btn class-btn-secondary" id="sign-out-btn">Sign out</button>
+      <div class="player-bar-actions">
+        <button type="button" class="class-btn class-btn-secondary sound-settings-button" id="sound-settings-button" aria-haspopup="dialog">🔊 Sound</button>
+        <button type="button" class="class-btn class-btn-secondary" id="sign-out-btn">Sign out</button>
+      </div>
     </div>
+
+    <section class="sound-settings-overlay" id="sound-settings-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="sound-settings-title">
+      <div class="sound-settings-panel">
+        <button type="button" class="sound-settings-close" id="sound-settings-close" aria-label="Close sound settings">×</button>
+        <p class="eyebrow">Audio mixer</p>
+        <h2 id="sound-settings-title">Sound Settings</h2>
+        <p class="sound-settings-intro">These levels apply throughout Arcade Academy.</p>
+        <div class="sound-setting">
+          <div><span aria-hidden="true">🎵</span><label for="background-volume">Background music</label><small>Hub and game music</small></div>
+          <output id="background-volume-output" for="background-volume">45%</output>
+          <input id="background-volume" type="range" min="0" max="100" step="1" data-audio-channel="background">
+        </div>
+        <div class="sound-setting">
+          <div><span aria-hidden="true">🌌</span><label for="soundscape-volume">Soundscape</label><small>World ambience and environmental sounds</small></div>
+          <output id="soundscape-volume-output" for="soundscape-volume">65%</output>
+          <input id="soundscape-volume" type="range" min="0" max="100" step="1" data-audio-channel="soundscape">
+        </div>
+        <div class="sound-setting">
+          <div><span aria-hidden="true">🚀</span><label for="player-volume">Player sounds</label><small>Shots, impacts, notes and interface feedback</small></div>
+          <output id="player-volume-output" for="player-volume">80%</output>
+          <input id="player-volume" type="range" min="0" max="100" step="1" data-audio-channel="player">
+        </div>
+      </div>
+    </section>
 
     <section class="hero" aria-labelledby="page-title">
       <p class="eyebrow"><span aria-hidden="true">✦</span> Learning, levelled up</p>
@@ -361,8 +388,9 @@
 </template>
   <script type="module" src="shared/js/FirebaseManager.js"></script>
   <script src="shared/js/GameSaveManager.js"></script>
+  <script src="shared/js/AudioManager.js?v=20260820-audio-mixer-v1"></script>
   <script src="shared/js/PlatformManager.js?v=20260812-challenge-mode-v2"></script>
-  <script src="shared/js/AchievementManager.js?v=20260811-angler-secrets-v7"></script>
+  <script src="shared/js/AchievementManager.js?v=20260820-rumbux-klarity-v1"></script>
   <script src="shared/js/DailyMissionManager.js?v=20260816-daily-missions-v1"></script>
   <script src="shared/js/SuggestedGameManager.js?v=20260818-suggested-game-v1"></script>
   <script src="shared/js/MistakeRematchManager.js?v=20260817-mistake-rematch-v1"></script>

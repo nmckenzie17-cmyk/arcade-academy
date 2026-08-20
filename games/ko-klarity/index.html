@@ -38,7 +38,7 @@
       </div>
       <button class="menuBtn btn" id="btnShop">SHOP</button>
       <div class="home-description htp">
-        <b>HOW TO PLAY:</b> Move with A/D, jump with W, crouch with S, use J for light attacks, K for heavy attacks, L to block, and Space for your special. Direction + Space dodges. Defeat an opponent, answer four class questions, then choose one upgrade from the number of options earned by correct answers. Every fifth fight is a boss, and health carries between fights.
+        <b>HOW TO PLAY:</b> Move with A/D, jump with W, crouch with S, use J for light attacks, K for heavy attacks, and Space for your special. Hold L for a high block or S+L for a low block; guard at the attack's height. Light attacks are stopped, heavy attacks break guard for one second, and pressing block just before impact parries and stuns the attacker. Direction + Space dodges. Defeat an opponent, answer four class questions, then choose an upgrade. Every fifth fight is a boss, and health carries between fights.
       </div>
       <div id="classStatus" class="class-status">Loading your class questions…</div>
       <button class="menuBtn btn" id="btnFight">FIGHT</button>
@@ -103,8 +103,12 @@
   <div id="toast"></div>
 </div>
 
-<script src="gameconfig.js"></script>
+  <script src="../../shared/js/AudioManager.js?v=20260820-audio-mixer-v1"></script>
+  <script type="module" src="../../shared/js/FirebaseManager.js"></script>
+  <script src="gameconfig.js"></script>
+<script src="../../shared/js/GameSaveManager.js"></script>
 <script src="../../shared/js/PlatformManager.js?v=20260818-typed-falling-v1"></script>
+<script src="../../shared/js/AchievementManager.js?v=20260820-rumbux-klarity-v1"></script>
 <script src="../../shared/js/QuestionManager.js?v=20260818-typed-falling-v1"></script>
 <script src="../../shared/js/MixedQuestionRound.js?v=20260819-category-hint-v2"></script>
 <script src="game.js"></script>

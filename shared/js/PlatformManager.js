@@ -881,7 +881,10 @@
     touchActivity();
     save();
     queueStatsSave(gameId ? [gameId] : undefined);
-    achievementEvent('question_answered', { correct: !!wasCorrect });
+    achievementEvent('question_answered', {
+      correct: !!wasCorrect,
+      questionType: global.QuestionManager?.getRunQuestionType?.() || global.QuestionManager?.questionType || null
+    });
   }
 
   function recordMultiplayerResult(gameId, result) {
@@ -1009,7 +1012,8 @@
     const trimmed = (typeof code === 'string') ? code.trim().toLowerCase() : '';
     if (!trimmed) return false;
 
-    if(trimmed==='mr mckenzie'&&global.AchievementManager?.hasSecret?.('secret_cabinet_pet')){
+    if(trimmed==='mr mckenzie'){
+      achievementEvent('cabinet_tapped');
       data.class.code='Mr Mckenzie';data.class.subject='Secret Cabinet';data.class.bankPath=null;data.class.bank=null;markDirty();save();global.AchievementManager.applyEquipped?.();return true;
     }
 
@@ -1183,6 +1187,16 @@
     return Object.keys(data.games).map(getGameStats);
   }
 
+  function getQuestionBankStats() {
+    return Object.values(data.questionBanks || {}).map(bank => ({
+      code: bank.code,
+      totalAnswered: normalizeCount(bank.totalAnswered),
+      totalCorrect: normalizeCount(bank.totalCorrect),
+      totalIncorrect: normalizeCount(bank.totalIncorrect),
+      byDate: { ...(bank.byDate || {}) }
+    }));
+  }
+
   // ---- public API --------------------------------------------------
 
   global.PlatformManager = {
@@ -1237,6 +1251,7 @@
     getOverallStats,
     getGameStats,
     getAllGameStats,
+    getQuestionBankStats,
     getFavouriteGame
   };
 

@@ -378,6 +378,7 @@
     const area = document.getElementById('game-area');
     PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, won);
     if (won) {
+      window.AchievementManager?.notify?.('quickdraw_won',{facts:{mastery_wild_west_wordslinger:1}});
       totalCorrectAnswers++; safeSave();
       const bonusScore = Math.round(120 * runScoreMult);
       const bonusCoins = Math.round(40 * runCoinMult);

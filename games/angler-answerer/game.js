@@ -2854,7 +2854,7 @@ function startGame(){
   if(!animationLoopStarted){animationLoopStarted=true;requestAnimationFrame((t)=>{lastTime=t;requestAnimationFrame(tick);});}
 }
 function returnToArcadeAcademy(){
-  window.location.href = "../../index.html";
+  window.AudioManager?.navigateWithFade("../../index.html");
 }
 setInterval(()=>PlatformManager.heartbeat(GAME_ID,gameStarted&&!RT.paused&&RT.phase!=="idle"),1000);
 init();

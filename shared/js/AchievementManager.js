@@ -8,8 +8,9 @@
   const STORAGE_KEY = 'arcadeAcademy.achievements.v1';
   // XP is stored in tenths so the approved fractional level curve is exact.
   const TIERS = { bronze: 1000, silver: 10000, gold: 100000, platinum: 500000 };
-  const GAME_IDS = ['angler-answerer','cavern-crammer','dot-n-box-deducer','fortress-facts','jetpack-journey','note-knowledge','pinball-postulation','pixel-artillery','pool-practice','rocket-recall','shuriken-scholar','tic-tac-toe','wild-west-wordslinger','cube-curiosity'];
-  const GAME_NAMES = ['Angler Answerer','Cavern Crammer','Dot-n-Box Deducer','Fortress Facts','Jetpack Journey','Note Knowledge','Pinball Postulation','Thinking Tanks','Pool Practice','Rocket Recall','Shuriken Scholar','Tic-Tac-Toe','Wild West Wordslinger','Cube Curiosity'];
+  const GAME_IDS = ['angler-answerer','cavern-crammer','dot-n-box-deducer','fortress-facts','jetpack-journey','note-knowledge','pinball-postulation','pixel-artillery','pool-practice','rocket-recall','shuriken-scholar','tic-tac-toe','wild-west-wordslinger','cube-curiosity','rumbux-revision','ko-klarity'];
+  const GAME_NAMES = ['Angler Answerer','Cavern Crammer','Dot-n-Box Deducer','Fortress Facts','Jetpack Journey','Note Knowledge','Pinball Postulation','Thinking Tanks','Pool Practice','Rocket Recall','Shuriken Scholar','Tic-Tac-Toe','Wild West Wordslinger','Cube Curiosity','Rumbux Revision','KO Klarity'];
+  const GAME_MASTERY_NAMES = ['Master Angler','Vault Seeker','Chain Reaction','Unbroken Kingdom','Time Flyer','Perfect Performance','Multiball Mind','Calculated Shot','Run the Table','Planetary Defender','Shadow Master','Grand Strategist','Quickest Mind','Neon Navigator','Street Scholar','Circuit Champion'];
   const TYPE_UNLOCK_CATALOGUE = ['shuriken-scholar-samurai','rocket-recall-combat-carrier','wild-west-bloody-bandit','fortress-facts-goblin-general']; // Current character and alternate-mode unlocks.
   const LEVEL_XP = level => (12 * level ** 3) - (150 * level ** 2) + (1000 * level);
   const slug = value => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
@@ -46,14 +47,14 @@
     ...milestoneSet(['Quarter Hour','Warming Up','One Hour Hero','Arcade Apprentice','Arcade Regular','Dedicated Learner','Arcade Veteran','Fifty-Hour Scholar','Century Player'],'Playtime', [['bronze',15],['bronze',30],['bronze',60],['silver',120],['silver',300],['gold',600],['gold',1500],['platinum',3000],['platinum',6000]],'playMinutes','Play for'),
     ...milestoneSet(['Coin Collector I','Coin Collector II','Coin Collector III','Coin Collector IV','Coin Collector V','Coin Collector VI','Coin Collector VII'],'Economy', [['bronze',100],['bronze',500],['silver',1000],['silver',5000],['gold',10000],['gold',50000],['platinum',100000]],'coinsEarned','Earn'),
     ...milestoneSet(['Game Sampler','Triple Feature','Arcade Tourist'],'Exploration', [['bronze',2],['bronze',3],['silver',5]],'gamesPlayed','Play'),
-    achievement('Grand Tour','Exploration','gold','gamesPlayed',14,'Play every enabled game.'),
-    achievement('Solo Circuit','Exploration','silver','soloGamesPlayed',9,'Play every enabled single-player game.'),
+    achievement('Grand Tour','Exploration','gold','gamesPlayed',16,'Play every enabled game.'),
+    achievement('Solo Circuit','Exploration','silver','soloGamesPlayed',12,'Play every enabled single-player game.'),
     achievement('Party Circuit','Exploration','silver','multiplayerGamesPlayed',5,'Play every enabled multiplayer game.'),
     achievement('Versatile Scholar','Exploration','gold','gamesCorrect',5,'Answer correctly in five games.'),
     achievement('Score Safari','Exploration','gold','gamesScored',5,'Set a score in five games.'),
     ...milestoneSet(['Three-Day Player','Five-Day Player','Ten-Day Scholar','Dedicated Visitor','Hundred-Day Academy'],'Returning', [['bronze',3],['bronze',5],['silver',10],['gold',25],['platinum',100]],'daysPlayed','Play on'),
     ...milestoneSet(['Wardrobe Starter','Style Collector'],'Collection', [['bronze',5],['gold',25]],'cosmeticsOwned','Own'),
-    achievement('Academy Curator','Collection','platinum','gamesWithCosmetics',14,'Own a cosmetic for every enabled game.'),
+    achievement('Academy Curator','Collection','platinum','gamesWithCosmetics',16,'Own a cosmetic for every enabled game.'),
     ...milestoneSet(['Matchmaker I','Matchmaker II','Matchmaker III','Matchmaker IV','Matchmaker V'],'Multiplayer', [['bronze',5],['silver',10],['silver',25],['gold',50],['platinum',100]],'multiplayerMatches','Complete'),
     ...milestoneSet(["Winner's Circle I","Winner's Circle II","Winner's Circle III","Winner's Circle IV"],'Multiplayer', [['bronze',5],['silver',10],['gold',25],['platinum',50]],'multiplayerWins','Win'),
     ...['Friendly Rival','Low CPU Cleared','Medium CPU Cleared','High CPU Cleared','Comeback Kid','Smart Victory','Sharp Victory','Brilliant Victory','Perfect Victory','Rally and Win','Scholar vs Machine'].map((n,i)=>achievement(n,'Multiplayer',i>7?'platinum':i>4?'gold':i>1?'silver':'bronze',slug(n),1,`${n} challenge completed.`)),
@@ -63,7 +64,9 @@
     ...milestoneSet(['Runner I','Runner II','Runner III'],'Runs', [['bronze',5],['silver',25],['platinum',100]],'runsCompleted','Complete'),
     achievement('Upgrade Enthusiast','Upgrades','gold','upgradesPurchased',50,'Purchase 50 permanent upgrades.'),
     achievement('Completionist Engineer','Upgrades','platinum','upgradeCatalogueCompleted',1,'Complete one permanent-upgrade catalogue.'),
-    ...GAME_NAMES.map((name,i)=>achievement(`${name}: ${['Master Angler','Vault Seeker','Chain Reaction','Unbroken Kingdom','Time Flyer','Perfect Performance','Multiball Mind','Calculated Shot','Run the Table','Planetary Defender','Shadow Master','Grand Strategist','Quickest Mind','Neon Navigator'][i]}`,'Game Mastery',[9,10,12,13].includes(i)?'platinum':'gold',`mastery_${GAME_IDS[i].replaceAll('-','_')}`,1,i===13?'Reach 20 checkpoints in one Cube Curiosity run.':`Complete ${name}'s signature mastery challenge.`)),
+    ...GAME_NAMES.map((name,i)=>achievement(`${name}: ${GAME_MASTERY_NAMES[i]}`,'Game Mastery',[9,10,12,13,14,15].includes(i)?'platinum':'gold',`mastery_${GAME_IDS[i].replaceAll('-','_')}`,1,[
+      'Catch a boss fish in one valid run.','Unlock five chests in one run.','Create a chain of at least four boxes.','Finish wave 25 without taking any castle damage.','Travel through Dinosaur, Space, Dinosaur, and Space in that order.','Hit 64 notes consecutively inside the bonus bar.','Trigger a double shot.','Defeat an enemy.','Win after pocketing at least seven balls.','Unlock every ship.','Reach stage 25.','Win 20 games.','Win a quickdraw duel.','Reach 20 checkpoints in one Cube Curiosity run.','Build a 15-hit combo.','Build a 12-hit combo.'
+    ][i])),
     ...['Game Rookie','Game Skilled','Game Expert','Game Master','Game Legend'].map((n,i)=>achievement(n,'Mastery',['bronze','silver','gold','platinum','platinum'][i],slug(n),1,`Earn ${n} status in a game.`)),
     ...milestoneSet(['Trophy Shelf I','Trophy Shelf II','Trophy Shelf III','Trophy Shelf IV'],'Meta', [['bronze',10],['silver',25],['gold',50],['platinum',100]],'achievements','Earn'),
     achievement('Arcade Legend','Meta','platinum','arcadeLegend',1,'Earn Game Master status in every enabled game.'),
@@ -71,9 +74,67 @@
     achievement('Boss on the Line','Game Mastery','gold','angler_boss_caught',1,'Land a boss fish during a valid Angler Answerer trip.',{id:'angler_answerer_boss_landed'}),
     achievement('Quiz Climber','Game Mastery','silver','cube_curiosity_correct',20,'Answer 20 Cube Curiosity questions correctly.',{id:'cube_curiosity_quiz_climber'}),
     achievement('Checkpoint Champion','Game Mastery','gold','cube_curiosity_run_checkpoints',10,'Reach 10 checkpoints in one Cube Curiosity run.',{id:'cube_curiosity_checkpoint_champion'}),
+    achievement('Revision Rhythm','Game Mastery','silver','rumbux_revision_correct',20,'Answer 20 class questions correctly in Rumbux Revision.',{id:'rumbux_revision_recall'}),
+    achievement('Street Scholar','Game Mastery','gold','rumbuxBestCombo',15,'Build a 15-hit combo in Rumbux Revision.',{id:'rumbux_revision_combo'}),
+    achievement('Clear Thinker','Game Mastery','silver','ko_klarity_correct',20,'Answer 20 class questions correctly in KO Klarity.',{id:'ko_klarity_clear_thinker'}),
+    achievement('Combo Clarity','Game Mastery','gold','koKlarityBestCombo',12,'Land a 12-hit combo in KO Klarity.',{id:'ko_klarity_combo_clarity'}),
     achievement('Proof by Boxes','Game Mastery','gold','dot_box_smart_victory',1,'Win Dot-n-Box Deducer with at least 80% accuracy over five questions.',{id:'dot_n_box_smart_victory'}),
     ...[['secret_by_a_thread','By a Thread','Win or survive at exactly 1 HP.','secret_skeleton'],['secret_two_at_once','Two at Once','Defeat two enemies almost simultaneously.','secret_twin_shot'],['secret_wrong_way_right_place','Wrong Way, Right Place','Find a configured hidden area.','secret_map_border'],['secret_strange_synergy','Strange Synergy','Finish with an unusual upgrade combination.','secret_glitch_aura'],['secret_one_in_a_thousand','One in a Thousand','Encounter a rare event.','secret_lucky_badge'],['secret_hidden_challenger','Hidden Challenger','Discover a secret character or opponent.','secret_shadow_palette'],['secret_cabinet_tap','Cabinet Tap','Trigger the hidden cabinet animation.','secret_cabinet_pet']].map(([id,n,d,reward])=>achievement(n,'Secret','secret',id,1,d,{id,secret:true,rewardId:reward}))
   ];
+
+  // These catalogue ideas originally depended on telemetry the games did not
+  // expose. Keep their stable IDs, but give each one a concrete shared target
+  // that every applicable game records through PlatformManager.
+  const TARGET_OVERRIDES = {
+    better_than_yesterday:['correct',25,'Answer 25 questions correctly.'],
+    five_percent_stronger:['accuracy',60,'Maintain 60% accuracy over at least 25 questions.',25],
+    ten_percent_stronger:['accuracy',70,'Maintain 70% accuracy over at least 50 questions.',50],
+    breakthrough:['correct',100,'Answer 100 questions correctly.'],
+    hat_trick_of_high_scores:['gamesScored',3,'Set a new high score in three different games.'],
+    record_chaser:['gamesScored',5,'Set a new high score in five different games.'],
+    double_take:['runsCompleted',2,'Complete two valid runs.'],
+    learned_from_it:['questions',100,'Answer 100 questions.'],
+    error_hunter:['questions',250,'Answer 250 questions.'],
+    weakness_to_strength:['accuracy',80,'Maintain 80% accuracy over at least 100 questions.',100],
+    new_streak_record:['bestCorrectStreak',15,'Reach a 15-answer correct streak.'],
+    friendly_rival:['multiplayerMatches',2,'Complete two human multiplayer matches.'],
+    low_cpu_cleared:['cpuMatches',1,'Complete one CPU match.'],
+    medium_cpu_cleared:['cpuMatches',5,'Complete five CPU matches.'],
+    high_cpu_cleared:['cpuMatches',10,'Complete ten CPU matches.'],
+    comeback_kid:['multiplayerWins',3,'Win three human multiplayer matches.'],
+    smart_victory:['multiplayerWins',5,'Win five human multiplayer matches.'],
+    sharp_victory:['multiplayerWins',10,'Win ten human multiplayer matches.'],
+    brilliant_victory:['multiplayerWins',20,'Win 20 human multiplayer matches.'],
+    perfect_victory:['multiplayerWins',30,'Win 30 human multiplayer matches.'],
+    rally_and_win:['multiplayerWins',40,'Win 40 human multiplayer matches.'],
+    scholar_vs_machine:['cpuMatches',20,'Complete 20 CPU matches.'],
+    untouchable_boss:['bossesDefeated',5,'Defeat five bosses.'],
+    last_heart:['runsCompleted',10,'Complete ten valid runs.'],
+    clean_run:['perfectRounds',5,'Complete five perfect rounds with at least five questions.'],
+    bare_essentials:['runsCompleted',25,'Complete 25 valid runs.'],
+    completionist_engineer:['upgradesPurchased',100,'Purchase 100 permanent upgrades.'],
+    game_rookie:['achievements',5,'Earn five other achievements.'],
+    game_skilled:['achievements',15,'Earn 15 other achievements.'],
+    game_expert:['achievements',30,'Earn 30 other achievements.'],
+    game_master:['achievements',60,'Earn 60 other achievements.'],
+    game_legend:['achievements',100,'Earn 100 other achievements.'],
+    arcade_legend:['gamesPlayed',16,'Play every enabled game.'],
+    secret_by_a_thread:['runsCompleted',25,'Complete 25 valid runs.'],
+    secret_wrong_way_right_place:['gamesPlayed',16,'Play every enabled game.'],
+    secret_strange_synergy:['upgradesPurchased',25,'Purchase 25 permanent upgrades.'],
+    secret_one_in_a_thousand:['enemiesDefeated',1000,'Defeat 1,000 enemies.'],
+    secret_hidden_challenger:['cpuMatches',10,'Complete ten CPU matches.']
+  };
+  Object.entries(TARGET_OVERRIDES).forEach(([id,[metric,target,description,minimum=null]])=>{
+    const item=CATALOGUE.find(entry=>entry.id===id);
+    if(item)Object.assign(item,{metric,target,description,minimum});
+  });
+
+  const RESOLVED_METRICS = new Set([
+    'sessions','runsCompleted','questions','correct','coinsEarned','upgradesPurchased','cosmeticsOwned','enemiesDefeated','bossesDefeated','multiplayerMatches','multiplayerWins','cpuMatches','achievements','perfectRounds','daysPlayed','bestCorrectStreak','banks25','questionTypes10','accuracy','perfectRounds10','perfectBank50','sessions80','bankMaster','personal_best','playMinutes','gamesPlayed','soloGamesPlayed','multiplayerGamesPlayed','gamesCorrect','gamesScored','gamesWithCosmetics',
+    ...GAME_IDS.map(id=>`mastery_${id.replaceAll('-','_')}`),'angler_correct_streak','angler_boss_caught','cube_curiosity_correct','cube_curiosity_run_checkpoints','rumbux_revision_correct','rumbuxBestCombo','ko_klarity_correct','koKlarityBestCombo','dot_box_smart_victory','secret_two_at_once','secret_cabinet_tap'
+  ]);
+  function validateCatalogue(){return CATALOGUE.filter(item=>!RESOLVED_METRICS.has(item.metric)).map(item=>({id:item.id,name:item.name,metric:item.metric}));}
 
   const gameRewardNames = {
     'angler-answerer':['Lucky Rod','Bioluminescent Line','Pixel Bobber','Moonlit Waters','Fishdex Sparkles','Legendary Angler','Extra Bait'],
@@ -90,6 +151,8 @@
     'shuriken-scholar':['White-shadow Ninja','Cyberpunk Scholar','Neon Smoke','Academy Headband','Wild West Ronin','Eclipse Shinobi','Tactical Rethink'],
     'tic-tac-toe':['Holographic Board','Gemstone Pieces','Confetti Line Win','Classroom Chalk','Thinking Tanks Grid','Quantum Noughts','Second Thought'],
     'wild-west-wordslinger':['Fish Crosshair','Sheriff-star Crosshair','Musical Crosshair','Alien Outlaws','Cavern Prospector','Ghost Town Legend','Loaded Chamber']
+    ,'rumbux-revision':['Neon Knuckles','Revision Trail','Midnight Streets','Impact Flash','Academy Jacket','Street Legend','Study Shield']
+    ,'ko-klarity':['Prismatic Gloves','Focus Trail','Circuit Arena','Clarity Burst','Academy Champion','Perfect Form','Clear Guard']
   };
   const SLOT_OVERRIDES={
     'angler-answerer':['rod','line','bobber','background','catchEffect','character','boost'],
@@ -105,6 +168,8 @@
     'shuriken-scholar':['skin','skin','smokeEffect','weapon','world','skin','boost'],
     'tic-tac-toe':['board','pieces','winEffect','theme','board','pieces','boost'],
     'wild-west-wordslinger':['crosshair','crosshair','crosshair','enemySkin','crossover','theme','boost']
+    ,'rumbux-revision':['skin','trail','world','hitEffect','crossover','theme','boost']
+    ,'ko-klarity':['skin','trail','world','hitEffect','crossover','theme','boost']
   };
   const rewardDetail=(gameId,name,slot,type)=>{if(type==='gameplay')return `${name} is automatically active in eligible single-player runs.`;const explicit={'Midnight Grand Piano':'Turns the lanes into a midnight grand-piano keyboard with black-and-gold trim.','Vampire Flyer':'Recolours the pilot, jetpack and exhaust with the vampire palette.','Alien Flyer':'Recolours the pilot, jetpack and exhaust with the alien palette.','Time-traveller Outfit':'Adds a clockwork explorer palette, animated clock face and temporal-ring exhaust.','Pixel-ring Boost':'Adds expanding neon rings to the jetpack exhaust while boosting.','Note Knowledge Flight':'Removes the flame and sends animated colour-changing music notes from the exhaust.','Temporal Ace':'Applies a coordinated bronze, cyan and gold pilot, jetpack and flame palette.','Neon Piano Tiles':'Changes falling notes into glowing neon piano tiles.','Note-touch Bursts':'Brightens a pressed note with a large white impact glow.','Concert Hall':'Replaces the starfield with a warm concert-stage backdrop.','Gem-spark Jump Trail':'Leaves cyan, violet and gold gem sparks behind airborne movement.','Wild West Hazards':'Turns cavern skies sunset-orange and changes spikes into cactus-green hazards.','Silver Cavern Coins':'Replaces every cavern coin with a silver coin.','Rocket Recall Relic':'Adds a tiny orbiting rocket companion beside the explorer.','Deep Crystal Explorer':'Adds a deep-blue crystal cavern backdrop with floating crystal silhouettes.','Obsidian Castle':'Desaturates and darkens the keep, every turret and every built tower.','Wild West Kingdom':'Replaces the battlefield sky with a desert-sunset palette.','Starburst Projectiles':'Adds a rotating luminous starburst around every projectile.','Moonlit Battlefield':'Replaces the battlefield sky with a deeper blue moonlit palette.','Shuriken Scholar Standard':'Flies a dark standard carrying a rotating silver shuriken from the keep.','Royal Aurora Keep':'Adds animated cyan, violet and rose aurora curtains behind the kingdom.','Prismatic Pinball':'Makes the ball cycle through the spectrum with a shifting coloured glow.','Neon Academy Table':'Adds a cyan neon grid across the pinball play surface.','Star Bumper Flashes':'Makes struck bumpers erupt into a bright rotating star.','Fireball Trail':'Leaves a fading red, orange and yellow flame trail behind moving balls.','Fortress Facts Table':'Adds castle battlements, stonework and gold trim to the table.','Cosmic Multiball':'Adds a starfield and turns balls into small ringed planets.'};return explicit[name]||({skin:'Changes the player or vehicle appearance.',trail:'Replaces the movement or projectile trail.',world:'Reskins the game world and its main play surface.',effect:'Changes impact and action effects.',boostEffect:'Changes the visual boost effect.',tiles:'Changes the game pieces or tiles.',hitEffect:'Changes successful-hit effects.',background:'Changes the game background.',crossover:'Applies a crossover visual set.',theme:'Applies a complete matching visual theme.'}[slot]||'Changes this game’s appearance.');};
   const GAME_REWARDS = Object.entries(gameRewardNames).flatMap(([gameId,names]) => names.map((name,i)=>{const type=i===6?'gameplay':'cosmetic',slot=SLOT_OVERRIDES[gameId]?.[i]||(i===6?'boost':['skin','trail','world','effect','crossover','theme'][i]);return {id:`${gameId}_${slug(name)}`,name,gameId,type,slot,detail:rewardDetail(gameId,name,slot,type)};}));
@@ -184,10 +249,10 @@
   const REWARDS = [...GAME_REWARDS,...HUB_REWARDS,...THEMES,...SECRET_REWARDS];
 
   const ACHIEVEMENT_RESET_VERSION = 3;
-  function fresh(){return {version:ACHIEVEMENT_RESET_VERSION,syncedUid:null,level:1,xpTenthsIntoLevel:0,lifetimeXpTenthsAwarded:0,externalXpAwards:{},unlocked:{},pendingUnlocks:[],typeUnlocks:{},pendingTypeUnlocks:[],ownedRewards:{},equipped:{},resolvedLevels:{},events:{},daysPlayed:[],currentStreak:0,bestCorrectStreak:0,baseline:null,updatedAt:Date.now()};}
+  function fresh(){return {version:ACHIEVEMENT_RESET_VERSION,syncedUid:null,level:1,xpTenthsIntoLevel:0,lifetimeXpTenthsAwarded:0,externalXpAwards:{},unlocked:{},pendingUnlocks:[],typeUnlocks:{},pendingTypeUnlocks:[],ownedRewards:{},equipped:{},resolvedLevels:{},events:{},daysPlayed:[],currentStreak:0,bestCorrectStreak:0,questionTypeCounts:{},run:{answered:0,correct:0,incorrect:0,damageTaken:0,enemiesDefeated:0,lastEnemyAt:0},history:{runAccuracies:[],highScoreGames:[]},baseline:null,updatedAt:Date.now()};}
   function canonicalRewardSlot(reward){return reward.gameId?`${reward.gameId}:${reward.slot||reward.type}`:reward.slot||reward.type;}
   function canonicalizeEquipped(equipped){const clean={};Object.values(equipped||{}).forEach(id=>{const reward=REWARDS.find(r=>r.id===id);if(reward)clean[canonicalRewardSlot(reward)]=id;});return clean;}
-  function migrate(raw){if(!raw||Number(raw.version)<ACHIEVEMENT_RESET_VERSION)return fresh();const next=Object.assign(fresh(),raw);next.equipped=canonicalizeEquipped(next.equipped);next.typeUnlocks=Object.fromEntries(Object.entries(next.typeUnlocks||{}).filter(([id])=>TYPE_UNLOCK_CATALOGUE.includes(id)));next.pendingTypeUnlocks=(Array.isArray(next.pendingTypeUnlocks)?next.pendingTypeUnlocks:[]).filter(item=>TYPE_UNLOCK_CATALOGUE.includes(item.id));return next;}
+  function migrate(raw){if(!raw||Number(raw.version)<ACHIEVEMENT_RESET_VERSION)return fresh();const next=Object.assign(fresh(),raw);next.equipped=canonicalizeEquipped(next.equipped);REWARDS.filter(r=>r.type==='gameplay'&&next.ownedRewards?.[r.id]).forEach(r=>{next.equipped[canonicalRewardSlot(r)]=r.id;});next.typeUnlocks=Object.fromEntries(Object.entries(next.typeUnlocks||{}).filter(([id])=>TYPE_UNLOCK_CATALOGUE.includes(id)));next.pendingTypeUnlocks=(Array.isArray(next.pendingTypeUnlocks)?next.pendingTypeUnlocks:[]).filter(item=>TYPE_UNLOCK_CATALOGUE.includes(item.id));return next;}
   function load(){try{return migrate(JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'));}catch(_){return fresh();}}
   let state=load(), uid=null, syncing=false, cloudSaveTimer=null, cloudSaveQueued=false;
   let enabledGameIds=[...GAME_IDS];
@@ -196,16 +261,53 @@
   async function flushCloudSave(){cloudSaveTimer=null;if(syncing||!cloudSaveQueued)return;cloudSaveQueued=false;syncing=true;const snapshot=JSON.parse(JSON.stringify(state));await global.FirebaseManager.updateUserProfile(uid,{achievementSystem:snapshot});syncing=false;if(cloudSaveQueued)scheduleCloud();}
   function captureBaseline(){const p=global.PlatformManager?.getOverallStats?.()||{},games=global.PlatformManager?.getAllGameStats?.()||[];return {sessions:Number(p.totalSessionsPlayed)||0,questions:Number(p.totalQuestionsAnswered)||0,correct:Number(p.totalCorrect)||0,coinsEarned:Number(p.coins?.totalEarned)||0,playTimeMs:Number(p.totalPlayTimeMs)||0,games:Object.fromEntries(games.map(g=>[g.gameId,{gamesPlayed:Number(g.gamesPlayed)||0,correct:Number(g.correct)||0,highScore:Number(g.highScore)||0}]))};}
   function ensureBaseline(){if(!state.baseline)state.baseline=captureBaseline();return state.baseline;}
-  function metric(name){const p=global.PlatformManager?.getOverallStats?.()||{},games=global.PlatformManager?.getAllGameStats?.()||[],e=state.events||{},b=ensureBaseline(),delta=(value,start)=>Math.max(0,(Number(value)||0)-(Number(start)||0)),questions=delta(p.totalQuestionsAnswered,b.questions),correct=delta(p.totalCorrect,b.correct),gameDelta=g=>({played:delta(g.gamesPlayed,b.games?.[g.gameId]?.gamesPlayed),correct:delta(g.correct,b.games?.[g.gameId]?.correct),scored:(Number(g.highScore)||0)>(Number(b.games?.[g.gameId]?.highScore)||0)});const map={sessions:delta(p.totalSessionsPlayed,b.sessions),questions,correct,coinsEarned:delta(p.coins?.totalEarned,b.coinsEarned),playMinutes:Math.floor(delta(p.totalPlayTimeMs,b.playTimeMs)/60000),gamesPlayed:games.filter(g=>gameDelta(g).played>0).length,soloGamesPlayed:games.filter(g=>gameDelta(g).played>0&&!['pixel-artillery','tic-tac-toe','pool-practice','dot-n-box-deducer'].includes(g.gameId)).length,multiplayerGamesPlayed:games.filter(g=>gameDelta(g).played>0&&['pixel-artillery','tic-tac-toe','fortress-facts','pool-practice','dot-n-box-deducer'].includes(g.gameId)).length,gamesCorrect:games.filter(g=>gameDelta(g).correct>0).length,gamesScored:games.filter(g=>gameDelta(g).scored).length,accuracy:questions?correct/questions*100:0,daysPlayed:(state.daysPlayed||[]).length,bestCorrectStreak:state.bestCorrectStreak||0,achievements:Math.max(0,Object.keys(state.unlocked||{}).length-1),cosmeticsOwned:Object.keys(state.ownedRewards||{}).filter(id=>REWARDS.find(r=>r.id===id)?.type!=='gameplay').length,gamesWithCosmetics:new Set(Object.keys(state.ownedRewards||{}).map(id=>REWARDS.find(r=>r.id===id)?.gameId).filter(Boolean)).size};return map[name]??e[name]??0;}
+  function metric(name){const p=global.PlatformManager?.getOverallStats?.()||{},games=global.PlatformManager?.getAllGameStats?.()||[],banks=global.PlatformManager?.getQuestionBankStats?.()||[],e=state.events||{},b=ensureBaseline(),delta=(value,start)=>Math.max(0,(Number(value)||0)-(Number(start)||0)),questions=delta(p.totalQuestionsAnswered,b.questions),correct=delta(p.totalCorrect,b.correct),gameDelta=g=>({played:delta(g.gamesPlayed,b.games?.[g.gameId]?.gamesPlayed),correct:delta(g.correct,b.games?.[g.gameId]?.correct),scored:(Number(g.highScore)||0)>(Number(b.games?.[g.gameId]?.highScore)||0)}),bankAccuracy=bank=>(Number(bank.totalAnswered)||0)?(Number(bank.totalCorrect)||0)/(Number(bank.totalAnswered)||1)*100:0;const map={sessions:delta(p.totalSessionsPlayed,b.sessions),questions,correct,coinsEarned:delta(p.coins?.totalEarned,b.coinsEarned),playMinutes:Math.floor(delta(p.totalPlayTimeMs,b.playTimeMs)/60000),gamesPlayed:games.filter(g=>gameDelta(g).played>0).length,soloGamesPlayed:games.filter(g=>gameDelta(g).played>0&&!['pixel-artillery','tic-tac-toe','pool-practice','dot-n-box-deducer'].includes(g.gameId)).length,multiplayerGamesPlayed:games.filter(g=>gameDelta(g).played>0&&['pixel-artillery','tic-tac-toe','fortress-facts','pool-practice','dot-n-box-deducer'].includes(g.gameId)).length,gamesCorrect:games.filter(g=>gameDelta(g).correct>0).length,gamesScored:games.filter(g=>gameDelta(g).scored).length,accuracy:questions?correct/questions*100:0,daysPlayed:(state.daysPlayed||[]).length,bestCorrectStreak:state.bestCorrectStreak||0,achievements:Math.max(0,Object.keys(state.unlocked||{}).length-1),cosmeticsOwned:Object.keys(state.ownedRewards||{}).filter(id=>REWARDS.find(r=>r.id===id)?.type!=='gameplay').length,gamesWithCosmetics:new Set(Object.keys(state.ownedRewards||{}).map(id=>REWARDS.find(r=>r.id===id)?.gameId).filter(Boolean)).size,banks25:banks.filter(x=>(Number(x.totalAnswered)||0)>=25).length,perfectBank50:banks.some(x=>(Number(x.totalAnswered)||0)>=50&&bankAccuracy(x)===100)?1:0,bankMaster:banks.some(x=>(Number(x.totalAnswered)||0)>=100&&bankAccuracy(x)>=90)?1:0};return map[name]??e[name]??0;}
   function progress(a){const value=metric(a.metric);return {value,target:a.target,complete:value>=a.target&&(!a.minimum||metric('questions')>=a.minimum)};}
   function rewardForLevel(level){if(level===2||level%10===1)return {id:`coins_level_${level}`,name:`${(level-1)*100} Coins`,type:'coins',amount:(level-1)*100};const reserved=[...HUB_REWARDS,...THEMES].find(r=>r.level===level);if(reserved)return reserved;const existing=state.resolvedLevels[level];if(existing)return REWARDS.find(r=>r.id===existing.rewardId)||existing;const used=new Set(Object.values(state.resolvedLevels).map(r=>r.rewardId));const resolvedGameCount=Object.values(state.resolvedLevels).filter(r=>r.gameId).length;for(let offset=0;offset<enabledGameIds.length;offset++){const gameId=enabledGameIds[(resolvedGameCount+offset)%enabledGameIds.length];const chosen=GAME_REWARDS.find(r=>r.gameId===gameId&&!used.has(r.id));if(chosen){state.resolvedLevels[level]={level,gameId,rewardId:chosen.id};return chosen;}}return {id:`bonus_coins_${level}`,name:'Bonus Coins',type:'coins',amount:level*50};}
-  function grantReward(reward,source){if(!reward||state.ownedRewards[reward.id])return false;if(reward.type==='coins'){global.PlatformManager?.addCoins?.(reward.amount,{countsTowardLifetime:false});return true;}state.ownedRewards[reward.id]={unlockedAt:Date.now(),source};if(reward.secretGlobal)state.equipped[canonicalRewardSlot(reward)]=reward.id;return true;}
+  function grantReward(reward,source){if(!reward||state.ownedRewards[reward.id])return false;if(reward.type==='coins'){global.PlatformManager?.addCoins?.(reward.amount,{countsTowardLifetime:false});return true;}state.ownedRewards[reward.id]={unlockedAt:Date.now(),source};if(reward.secretGlobal||reward.type==='gameplay')state.equipped[canonicalRewardSlot(reward)]=reward.id;return true;}
   function reconcileEarnedLevelRewards(){let changed=false;for(let level=3;level<=state.level;level++){const reward=rewardForLevel(level);if(reward.type!=='coins')changed=grantReward(reward,`level_${level}`)||changed;}return changed;}
   function levelUp(){state.level++;grantReward(rewardForLevel(state.level),`level_${state.level}`);}
   function unlock(a){if(state.unlocked[a.id])return false;const unlockedAt=Date.now();state.unlocked[a.id]={unlockedAt,tier:a.tier};state.pendingUnlocks.push({id:a.id,unlockedAt});if(a.secret){levelUp();grantReward(REWARDS.find(r=>r.id===a.rewardId),a.id);}else{const xp=TIERS[a.tier]||0;state.xpTenthsIntoLevel+=xp;state.lifetimeXpTenthsAwarded+=xp;while(state.xpTenthsIntoLevel>=LEVEL_XP(state.level)){state.xpTenthsIntoLevel-=LEVEL_XP(state.level);levelUp();}}return true;}
   function awardXp(amount,sourceId){const xp=Math.max(0,Math.round(Number(amount)||0)),source=String(sourceId||'').trim();if(!xp||!source||state.externalXpAwards[source])return false;state.externalXpAwards[source]={xp,awardedAt:Date.now()};const tenths=xp*10;state.xpTenthsIntoLevel+=tenths;state.lifetimeXpTenthsAwarded+=tenths;while(state.xpTenthsIntoLevel>=LEVEL_XP(state.level)){state.xpTenthsIntoLevel-=LEVEL_XP(state.level);levelUp();}save();return true;}
   function evaluate(){if(global.PlatformManager?.isPracticeMode?.())return [];const baselineWasMissing=!state.baseline;ensureBaseline();const today=new Date().toISOString().slice(0,10),dayWasAdded=!state.daysPlayed.includes(today);if(dayWasAdded)state.daysPlayed.push(today);const earned=[];let changed=true;while(changed){changed=false;CATALOGUE.forEach(a=>{if(!state.unlocked[a.id]&&progress(a).complete){unlock(a);earned.push(a);changed=true;}});}if(earned.length||baselineWasMissing||dayWasAdded)save();return earned;}
-  function notify(event,payload={}){if(global.PlatformManager?.isPracticeMode?.())return [];const key=String(event),amount=Math.max(1,Number(payload.amount)||1);state.events[key]=(state.events[key]||0)+amount;const aliases={run_completed:'runsCompleted',enemy_defeated:'enemiesDefeated',boss_defeated:'bossesDefeated',upgrade_purchased:'upgradesPurchased',cpu_match:'cpuMatches',perfect_round:'perfectRounds'};if(aliases[key])state.events[aliases[key]]=(state.events[aliases[key]]||0)+amount;if(key==='enemy_defeated'&&hasSecret('secret_lucky_badge'))spawnSecretCoinBurst(payload.x,payload.y);if(key==='question_answered'){state.currentStreak=payload.correct?(state.currentStreak||0)+1:0;state.bestCorrectStreak=Math.max(state.bestCorrectStreak||0,state.currentStreak);}Object.entries(payload.facts||{}).forEach(([k,v])=>{if(typeof v==='number')state.events[k]=Math.max(state.events[k]||0,v);else if(v)state.events[k]=1;});return evaluate();}
+  function notify(event,payload={}){
+    if(global.PlatformManager?.isPracticeMode?.())return [];
+    const key=String(event),amount=Math.max(1,Number(payload.amount)||1),now=Date.now();
+    state.events[key]=(state.events[key]||0)+amount;
+    state.run=state.run||fresh().run;state.history=state.history||fresh().history;
+    const aliases={run_completed:'runsCompleted',enemy_defeated:'enemiesDefeated',boss_defeated:'bossesDefeated',upgrade_purchased:'upgradesPurchased',cpu_match:'cpuMatches',perfect_round:'perfectRounds'};
+    if(aliases[key])state.events[aliases[key]]=(state.events[aliases[key]]||0)+amount;
+    if(key==='game_started')state.run={answered:0,correct:0,incorrect:0,damageTaken:0,enemiesDefeated:0,lastEnemyAt:0};
+    if(key==='question_answered'){
+      state.currentStreak=payload.correct?(state.currentStreak||0)+1:0;
+      state.bestCorrectStreak=Math.max(state.bestCorrectStreak||0,state.currentStreak);
+      state.run.answered++;state.run[payload.correct?'correct':'incorrect']++;
+      if(payload.questionType){const type=String(payload.questionType);state.questionTypeCounts[type]=(state.questionTypeCounts[type]||0)+1;state.events.questionTypes10=Object.values(state.questionTypeCounts).filter(count=>count>=10).length;}
+    }
+    if(key==='damage_taken')state.run.damageTaken+=amount;
+    if(key==='enemy_defeated'){
+      if(state.run.lastEnemyAt&&now-state.run.lastEnemyAt<=750)state.events.secret_two_at_once=1;
+      state.run.lastEnemyAt=now;state.run.enemiesDefeated+=amount;
+      if(hasSecret('secret_lucky_badge'))spawnSecretCoinBurst(payload.x,payload.y);
+    }
+    if(key==='run_completed'){
+      const r={...state.run,...(payload.run||{})},accuracy=r.answered?r.correct/r.answered*100:0;
+      if(r.answered>=5&&r.incorrect===0){state.events.perfectRounds=(state.events.perfectRounds||0)+1;if(r.answered>=10)state.events.perfectRounds10=1;}
+      if(r.answered>=5&&accuracy>=80)state.events.sessions80=(state.events.sessions80||0)+1;
+      if(r.damageTaken===0)state.events.clean_run=1;
+      if(Number(r.health)===1&&(payload.won||payload.survived))state.events.secret_by_a_thread=1;
+      const history=state.history.runAccuracies,previous=history.at(-1);
+      if(r.answered>=5&&previous!=null){const gain=accuracy-previous;if(gain>0)state.events.better_than_yesterday=1;if(gain>=5)state.events.five_percent_stronger=1;if(gain>=10)state.events.ten_percent_stronger=1;if(previous<60&&accuracy>=80)state.events.breakthrough=1;}
+      if(r.answered>=5){history.push(accuracy);if(history.length>30)history.shift();}
+    }
+    if(key==='secret_area_found')state.events.secret_wrong_way_right_place=1;
+    if(key==='unusual_upgrade_combo')state.events.secret_strange_synergy=1;
+    if(key==='hidden_challenger_found')state.events.secret_hidden_challenger=1;
+    if(key==='rare_event_encountered')state.events.secret_one_in_a_thousand=1;
+    if(key==='cabinet_tapped')state.events.secret_cabinet_tap=1;
+    Object.entries(payload.facts||{}).forEach(([k,v])=>{if(typeof v==='number')state.events[k]=Math.max(state.events[k]||0,v);else if(v)state.events[k]=1;});
+    return evaluate();
+  }
   function isRewardOwned(rewardId){return UNLOCK_ALL_REWARDS_FOR_TESTING||!!state.ownedRewards[rewardId];}
   function hasSecret(rewardId){return !!SECRET_REWARDS.find(r=>r.id===rewardId)&&isRewardOwned(rewardId);}
   function equip(rewardId){const r=REWARDS.find(x=>x.id===rewardId);if(!r||!isRewardOwned(rewardId))return false;const slot=canonicalRewardSlot(r),alreadyActive=Object.values(state.equipped).includes(rewardId);Object.keys(state.equipped).forEach(key=>{if(state.equipped[key]===rewardId)delete state.equipped[key];});if(!alreadyActive)state.equipped[slot]=rewardId;save();applyEquipped();return true;}
@@ -251,6 +353,18 @@ html[data-arcade-theme="theme_prismatic_academy"] :is(button,input,select,.panel
 html[data-arcade-theme="hub_centurion_hub"]{--arcade-theme-bg:#35130b;--arcade-theme-bg-art:radial-gradient(circle at 50% -10%,rgba(255,205,99,.35),transparent 35%),repeating-linear-gradient(90deg,rgba(118,24,15,.35) 0 42px,rgba(28,8,8,.35) 42px 84px),linear-gradient(#541e12,#160807);--arcade-answer-correct:#e8b84f;--arcade-answer-incorrect:#1747b0}html[data-arcade-theme="hub_centurion_hub"] body{font-family:Georgia,'Times New Roman',serif!important}html[data-arcade-theme="hub_centurion_hub"] :is(button,input,select,.panel,.modal,.canva-card,.question-panel,.question-container,.hud-panel,.box){border-color:#e8b84f!important;box-shadow:inset 0 0 0 2px #7a2017,0 0 12px rgba(232,184,79,.3)!important}html[data-arcade-theme="hub_centurion_hub"] :is(h1,h2,h3,.title-font){font-family:Georgia,'Times New Roman',serif!important;color:#f0c86d!important;text-transform:uppercase}
 html[data-arcade-theme] :is(.choice-btn.correct,.option.right,.word-cell.selected,.memory-card.matched,.correct-answer,.answer-correct){background:var(--arcade-answer-correct)!important;border-color:var(--arcade-answer-correct)!important;color:var(--arcade-answer-correct-text)!important;box-shadow:0 0 12px color-mix(in srgb,var(--arcade-answer-correct) 65%,transparent)!important}
 html[data-arcade-theme] :is(.choice-btn.wrong,.option.wrong,.word-cell.wrong,.wrongFlash,.incorrect-answer,.answer-incorrect){background:var(--arcade-answer-incorrect)!important;border-color:var(--arcade-answer-incorrect)!important;color:var(--arcade-answer-incorrect-text)!important;box-shadow:0 0 12px color-mix(in srgb,var(--arcade-answer-incorrect) 65%,transparent)!important}
+html[data-arcade-cosmetics~="rumbux-revision_neon_knuckles"] canvas{filter:saturate(1.35) drop-shadow(0 0 5px #ff2f92)}
+html[data-arcade-cosmetics~="rumbux-revision_revision_trail"] canvas{filter:contrast(1.08) drop-shadow(4px 0 3px #4ff0ff)}
+html[data-arcade-cosmetics~="rumbux-revision_midnight_streets"] canvas{filter:brightness(.78) saturate(1.45) hue-rotate(18deg)}
+html[data-arcade-cosmetics~="rumbux-revision_impact_flash"] canvas{filter:contrast(1.25) saturate(1.25)}
+html[data-arcade-cosmetics~="rumbux-revision_academy_jacket"] canvas{filter:hue-rotate(145deg) saturate(1.2)}
+html[data-arcade-cosmetics~="rumbux-revision_street_legend"] canvas{filter:sepia(.25) saturate(1.45) drop-shadow(0 0 6px #ffce2f)}
+html[data-arcade-cosmetics~="ko-klarity_prismatic_gloves"] canvas{filter:saturate(1.5) hue-rotate(12deg)}
+html[data-arcade-cosmetics~="ko-klarity_focus_trail"] canvas{filter:contrast(1.08) drop-shadow(4px 0 3px #4fd6ff)}
+html[data-arcade-cosmetics~="ko-klarity_circuit_arena"] canvas{filter:brightness(.8) saturate(1.5) hue-rotate(32deg)}
+html[data-arcade-cosmetics~="ko-klarity_clarity_burst"] canvas{filter:contrast(1.3) saturate(1.2)}
+html[data-arcade-cosmetics~="ko-klarity_academy_champion"] canvas{filter:hue-rotate(155deg) saturate(1.25)}
+html[data-arcade-cosmetics~="ko-klarity_perfect_form"] canvas{filter:sepia(.2) saturate(1.4) drop-shadow(0 0 6px #ffd15c)}
 html[data-arcade-cosmetics~="hub_golden_hover"] button:hover,html[data-arcade-cosmetics~="hub_golden_hover"] a:hover{outline:2px solid #ffd15c;box-shadow:0 0 16px #ffd15c!important}
 html[data-arcade-cosmetics~="hub_dark_silver_cabinets"] .panel,html[data-arcade-cosmetics~="hub_dark_silver_cabinets"] .modal,html[data-arcade-cosmetics~="hub_dark_silver_cabinets"] .canva-card{background:linear-gradient(135deg,#353944,#11131a)!important}
 html[data-arcade-cosmetics~="hub_neon_grid"] body{background-image:linear-gradient(rgba(0,212,255,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.09) 1px,transparent 1px)!important;background-size:35px 35px!important}
@@ -352,6 +466,6 @@ style.textContent=rules;document.head.appendChild(style);}
     if(!shop){shop=document.createElement('section');shop.id='arcade-generated-shop';shop.hidden=true;shop.innerHTML='<div class="panel"><header><h2>Shop</h2><button type="button" data-close>×</button></header><nav><button type="button" class="active-tab">Cosmetics</button></nav><div class="arcade-native-cosmetics-grid"></div></div>';document.body.appendChild(shop);open=document.createElement('button');open.id='arcade-generated-shop-button';open.type='button';open.textContent='✨ Cosmetics';open.onclick=()=>{shop.hidden=false;};const homeTargets={'angler-answerer':['#modalShop .modalBox','.closeModalBtn','shopBtn'],'dot-n-box-deducer':['#screen-home','.description-panel','big-btn btn'],'tic-tac-toe':['#menu-screen','.section-title','action secondary'],'pixel-artillery':['#menu-screen','h2','']},target=homeTargets[gameId],home=target&&document.querySelector(target[0]),before=home&&home.querySelector(target[1]);if(home&&before){open.className=target[2];open.style.cssText='width:100%;max-width:560px;margin:0 0 16px';home.insertBefore(open,before);}else{open.style.cssText='position:fixed;right:12px;bottom:12px;z-index:9998';document.body.appendChild(open);}if(gameId==='pinball-postulation')open.hidden=true;shop.querySelector('[data-close]').onclick=()=>{shop.hidden=true;};const style=document.createElement('style');style.textContent='#arcade-generated-shop{position:fixed;z-index:10000;inset:0;padding:20px;overflow:auto;background:rgba(0,0,0,.88)}#arcade-generated-shop[hidden]{display:none}#arcade-generated-shop>.panel{max-width:760px;margin:auto;padding:18px}#arcade-generated-shop header{display:flex;justify-content:space-between}html[data-arcade-cosmetics] #arcade-generated-shop .arcade-native-cosmetics-grid{grid-template-columns:1fr}#arcade-generated-shop .arcade-native-cosmetic{display:grid;grid-template-columns:minmax(150px,.65fr) 1fr auto;align-items:center;gap:12px}#arcade-generated-shop .arcade-native-cosmetic span{margin:0}#arcade-generated-shop .arcade-native-cosmetic button{padding:10px 16px;color:var(--accent-blue,#00d4ff);font:700 12px var(--font-title,monospace);background:var(--gradient-btn,linear-gradient(160deg,#3d1155,#240a38));border:2px solid var(--accent-violet,#a855f7);border-radius:8px;box-shadow:var(--glow-card,0 0 8px rgba(168,85,247,.35))}#arcade-generated-shop .arcade-native-cosmetic.enabled button{color:#1a0a2e;background:#ffd15c;border-color:#ffd15c}@media(max-width:560px){#arcade-generated-shop .arcade-native-cosmetic{grid-template-columns:1fr}}';document.head.appendChild(style);}
     const owned=getRewards({gameId}).filter(r=>r.owned),grid=shop.querySelector('.arcade-native-cosmetics-grid');grid.innerHTML=owned.length?owned.map(r=>`<article class="shop-item arcade-native-cosmetic ${r.equipped?'enabled':''}"><b>${r.name}</b><span>${r.detail}</span>${r.secretGlobal?'<em>Always active</em>':`<button type="button" data-id="${r.id}">${r.equipped?'Disable':'Enable'}</button>`}</article>`).join(''):'<p>No cosmetics unlocked yet.</p>';grid.querySelectorAll('[data-id]').forEach(button=>button.onclick=()=>{equip(button.dataset.id);renderGeneratedGameShop(gameId);});
   }
-  global.AchievementManager={catalogue:CATALOGUE,typeUnlockCatalogue:[...TYPE_UNLOCK_CATALOGUE],rewards:REWARDS,tiers:TIERS,testing:{unlockAllRewards:UNLOCK_ALL_REWARDS_FOR_TESTING},evaluate,notify,awardXp,connect,disconnect,reset,equip,unequip,owns,hasBoost,hasSecret,grantTypeUnlock,hasTypeUnlock,getTypeUnlocks,takePendingTypeUnlocks,spawnSecretCoinBurst,configureGames,getSummary,getAchievements,takePendingUnlocks,getRewards,getEquipped,getState:()=>JSON.parse(JSON.stringify(state)),applyEquipped,renderGameRewardShop:renderNativeCosmeticsTab};
+  global.AchievementManager={catalogue:CATALOGUE,typeUnlockCatalogue:[...TYPE_UNLOCK_CATALOGUE],rewards:REWARDS,tiers:TIERS,testing:{unlockAllRewards:UNLOCK_ALL_REWARDS_FOR_TESTING},evaluate,notify,awardXp,connect,disconnect,reset,equip,unequip,owns,hasBoost,hasSecret,grantTypeUnlock,hasTypeUnlock,getTypeUnlocks,takePendingTypeUnlocks,spawnSecretCoinBurst,configureGames,getSummary,getAchievements,takePendingUnlocks,getRewards,getEquipped,getState:()=>JSON.parse(JSON.stringify(state)),validateCatalogue,applyEquipped,renderGameRewardShop:renderNativeCosmeticsTab};
   reconcileEarnedLevelRewards();applyEquipped();setTimeout(()=>{evaluate();renderNativeCosmeticsTab();},0);dispatchEvent(new Event('arcade-achievement-manager-ready'));
 })(window);

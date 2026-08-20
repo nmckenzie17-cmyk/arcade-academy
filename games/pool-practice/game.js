@@ -23,7 +23,7 @@
         const gain = c.createGain();
         osc.type = type || 'square';
         osc.frequency.value = freq;
-        gain.gain.value = gainVal || 0.06;
+        gain.gain.value = (gainVal || 0.06) * (window.AudioManager?.getVolume('player') ?? 1);
         osc.connect(gain); gain.connect(c.destination);
         osc.start();
         gain.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + durMs / 1000);
@@ -254,7 +254,7 @@
   }
 
   // ---- leave the game entirely, back to the wider arcade collection ----
-  $('btn-return-hub-home').addEventListener('click', () => { window.location.href = GameConfig.hub.url; });
+  $('btn-return-hub-home').addEventListener('click', () => { window.AudioManager?.navigateWithFade(GameConfig.hub.url); });
 
   // ---- lobby (create/join, now inline on the home screen) ----
   function resetLobbyUI() {

@@ -1105,6 +1105,7 @@ function update() {
       balls.splice(__bi, 1);
       balls.push(makeBall(120 + Math.random() * 40, 35, (Math.random() - 0.5) * 1.5, 1.125 + Math.random() * 1.125, false));
       balls.push(makeBall(240 + Math.random() * 40, 35, (Math.random() - 0.5) * 1.5, 1.125 + Math.random() * 1.125, false));
+      window.AchievementManager?.notify?.('pinball_double_shot',{facts:{mastery_pinball_postulation:1}});
       uWellDestroyed=true;for(let i=0;i<34;i++)uWellPixels.push({x:U_WELL.x1+Math.random()*(U_WELL.x2-U_WELL.x1),y:U_WELL.yTop+Math.random()*(U_WELL.yBottom-U_WELL.yTop),vx:(Math.random()-.5)*5,vy:-Math.random()*4,life:35+Math.random()*30});
       __locked = true;
     }

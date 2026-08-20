@@ -431,6 +431,7 @@ class Projectile{
   constructor(owner,x,y,dir,dmg,speed,color,pierce){
     this.owner=owner;this.x=x;this.y=y;this.dir=dir;this.dmg=dmg;this.speed=speed;this.color=color||'#4fd6ff';
     this.w=26;this.h=14;this.dead=false;this.pierce=!!pierce;this.hitSet=new Set();
+    this.attackInfo={type:owner?.attack?.type==='heavy'?'heavy':'special',level:owner?.attack?.level||'high'};
   }
   update(){ this.x += this.dir*this.speed; if(this.x<CFG.ARENA_L-50||this.x>CFG.ARENA_R+50) this.dead=true; }
   draw(ctx){
@@ -495,6 +496,10 @@ class Fighter{
     this.state = 'idle'; // idle, walk, jump, crouch, attack, block, hitstun, ko
     this.crouching = false;
     this.blocking = false;
+    this.blockLevel = 'high';
+    this.perfectBlockTimer = 0;
+    this.guardBreakTimer = 0;
+    this.guardRecoveryMult = 1;
     this.grounded = true;
 
     this.attack = null; // active attack data
@@ -502,6 +507,7 @@ class Fighter{
     this.comboStep = 0;
     this.comboWindow = 0;
     this.hitThisAttack = false;
+    this.attackSerial = 0;
 
     this.hitstunTimer = 0;
     this.flashTimer = 0;
@@ -620,8 +626,9 @@ class Fighter{
       startup, active: cfgBase.active, recovery,
       t:0, dmg: cfgBase.dmg*dmgMult, knockback: cfgBase.knockback, range: cfgBase.range,
       airborne: !this.grounded, isFinal, charged: !!o.charged, chargeMult: o.chargeMult||1,
-      activeHand, visualKind: type==='light' ? this.lightVisual : (type==='heavy' ? this.heavyVisual : 'default')
+      activeHand, level:o.level||(this.crouching?'low':'high'), visualKind: type==='light' ? this.lightVisual : (type==='heavy' ? this.heavyVisual : 'default')
     };
+    this.attackSerial++;
     this.attackTimer = 0;
     this.hitThisAttack = false;
     this.state='attack';
@@ -634,7 +641,9 @@ class Fighter{
     this.handToggle = -this.handToggle;
     this.attack = Object.assign({type:'special', kind, phase:'startup', t:0,
       hitsLanded:0, nextHitT:0, spawned:false, countered:false, resolved:false,
-      fallbackDone:false, airborne:!this.grounded, activeHand:this.handToggle}, def);
+      fallbackDone:false, airborne:!this.grounded, activeHand:this.handToggle,
+      level:['hurricanekick','meteorslam'].includes(kind)?'low':'high'}, def);
+    this.attackSerial++;
     this.attackTimer = 0; this.hitThisAttack = false;
     this.state='attack';
     if(kind==='meteorslam'){ this.vy = CFG.JUMP_V*1.3; this.grounded=false; }
@@ -644,7 +653,7 @@ class Fighter{
 
   gainMeter(v){ this.meter = clamp(this.meter + v*this.meterGainMult, 0, this.meterMax); }
 
-  takeHit(dmg, kb, dir, blocked, attacker){
+  takeHit(dmg, kb, dir, blocked, attacker, attackInfo){
     // Dodge i-frames: fully negate the hit. With Counter unlocked, retaliate instantly.
     if(this.dodgeIframes>0){
       this.dodgeIframes = 0; // consumed
@@ -664,9 +673,22 @@ class Fighter{
       this.flashTimer = 4;
       return reducedDmg;
     }
+    const incoming=attackInfo||attacker?.attack||{type:'special',level:'high'};
+    const incomingLevel=incoming.level||'high';
+    const guardMatches=!!blocked&&this.blocking&&this.guardBreakTimer<=0&&this.blockLevel===incomingLevel;
+    let perfectGuard=false,guardBroken=false;
+    if(guardMatches){
+      if(this.perfectBlockTimer>0&&attacker&&attacker.alive){
+        perfectGuard=true;attacker.attack=null;attacker.state='hitstun';attacker.hitstunTimer=30;attacker.vx=-dir*2;attacker.flashTimer=8;
+      } else if(incoming.type==='heavy'){
+        guardBroken=true;this.blocking=false;this.guardBreakTimer=Math.round(60*this.guardRecoveryMult);this.state='idle';this.flashTimer=10;
+      }
+    }
+    this.lastGuardResult={blocked:guardMatches,perfect:perfectGuard,broken:guardBroken,level:incomingLevel};
+    blocked=guardMatches;
     let finalDmg = dmg;
     if(blocked){
-      finalDmg *= CFG.BLOCK_DMG_MULT * (1-this.blockReduction);
+      finalDmg = 0;
       kb *= CFG.BLOCK_KB_MULT;
     } else {
       finalDmg *= this.defMult * (1-this.dmgReduction);
@@ -686,7 +708,7 @@ class Fighter{
       this.hitstunTimer = airCombo ? CFG.HITSTUN+10 : CFG.HITSTUN;
       this.state = 'hitstun';
       this.flashTimer = 8;
-    } else {
+    } else if(!guardBroken) {
       this.state = 'block';
       this.flashTimer = 4;
     }
@@ -698,6 +720,8 @@ class Fighter{
   update(other, game){
     this.animT++;
     if(this.flashTimer>0) this.flashTimer--;
+    if(this.perfectBlockTimer>0)this.perfectBlockTimer--;
+    if(this.guardBreakTimer>0)this.guardBreakTimer--;
     if(this.comboWindow>0) this.comboWindow--; else this.comboStep=0;
 
     // held in a grab — freeze at the grabber's side, skip normal physics/state machine
@@ -782,7 +806,9 @@ class Fighter{
   startTechnique(kind, other){
     const def = TECHNIQUE_DEFS[kind];
     if(kind==='uppercut' || kind==='runningattack'){ this.handToggle = -this.handToggle; }
-    this.attack = Object.assign({type:'technique', kind, phase:'startup', t:0, spawned:false, airborne:!this.grounded, activeHand:this.handToggle}, def);
+    this.attack = Object.assign({type:'technique', kind, phase:'startup', t:0, spawned:false, airborne:!this.grounded, activeHand:this.handToggle,
+      level:['slidekick','groundpound'].includes(kind)?'low':'high'}, def);
+    this.attackSerial++;
     this.attackTimer = 0; this.hitThisAttack = false;
     this.state = 'attack';
   }
@@ -802,9 +828,10 @@ class Fighter{
               : {x, y:this.y-this.h*0.72, w:range, h:this.h*0.5};
             if(rectOverlap(hb, other.hurtbox())){
               this.hitThisAttack = true;
-              const blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
+              let blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
               const dir = Math.sign(other.x-this.x) || this.facing;
               const dealt = other.takeHit(this.attackDamage(a.dmg), a.knockback, dir, blocked, this);
+              blocked=!!other.lastGuardResult?.blocked;
               if(!blocked) game.onHitLanded(this, other, dealt, {type:'light'});
               else game.onBlockedHit(this, other, {type:'light'});
             }
@@ -819,9 +846,10 @@ class Fighter{
           const hb = {x, y:this.y-this.h*0.85, w:range, h:this.h*0.6};
           if(rectOverlap(hb, other.hurtbox())){
             this.hitThisAttack = true;
-            const blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
+            let blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
             const dir = Math.sign(other.x-this.x) || this.facing;
             const dealt = other.takeHit(this.attackDamage(a.dmg), a.knockback, dir, blocked, this);
+            blocked=!!other.lastGuardResult?.blocked;
             if(!blocked){
               other.vy = -14; other.grounded = false;
               game.onHitLanded(this, other, dealt, {type:'heavy'});
@@ -837,9 +865,10 @@ class Fighter{
           game.spawnHitParticles(this.x, CFG.GROUND_Y, '#ffd166', 14, 1.4);
           game.shake = Math.max(game.shake, 12);
           if(dist < this.w*1.3){
-            const blocked = other.blocking;
+            let blocked = other.blocking;
             const dir = Math.sign(other.x-this.x) || this.facing;
             const dealt = other.takeHit(this.attackDamage(a.dmg), a.knockback, dir, blocked, this);
+            blocked=!!other.lastGuardResult?.blocked;
             if(!blocked) game.onHitLanded(this, other, dealt, {type:'heavy'});
             else game.onBlockedHit(this, other, {type:'heavy'});
           }
@@ -961,10 +990,11 @@ class Fighter{
     }
     a.hitsLanded++;
     if(rectOverlap(hb, other.hurtbox())){
-      const blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
+      let blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
       const dir = Math.sign(other.x-this.x) || this.facing;
       const dmg = this.attackDamage(a.dmgPerHit, 1/a.hits);
       const dealt = other.takeHit(dmg, a.knockbackPerHit||1.5, dir, blocked, this);
+      blocked=!!other.lastGuardResult?.blocked;
       if(!blocked) game.onHitLanded(this, other, dealt, {type: a.kind==='whirlwind'?'heavy':'light'});
       else game.onBlockedHit(this, other, {type:'special'});
     }
@@ -976,14 +1006,16 @@ class Fighter{
     a.nextHitT = a.t + a.hitInterval;
     const range = 420;
     const x = this.facing===1 ? this.x+this.w*0.3 : this.x-this.w*0.3-range;
-    const by = this.y-this.h*0.62;
+    const eye = this.eyeWorldPosition();
+    const by = eye.y;
     const hb = {x, y:by-this.h*0.17, w:range, h:this.h*0.34};
     a.hitsLanded++;
-    game.beams.push(new Beam(this.x+this.facing*this.w*0.3, by, this.x+this.facing*range, by, '#4fd6ff', 4, 12));
+    game.beams.push(new Beam(eye.x, by, this.x+this.facing*range, by, '#4fd6ff', 4, 12));
     if(rectOverlap(hb, other.hurtbox())){
-      const blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
+      let blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
       const dir = Math.sign(other.x-this.x) || this.facing;
       const dealt = other.takeHit(this.attackDamage(a.dmgPerHit, 1/25), 0.25, dir, blocked, this);
+      blocked=!!other.lastGuardResult?.blocked;
       game.damageDealt += dealt;
       if(a.hitsLanded % 5 === 0){
         game.spawnHitParticles(other.x, other.y-other.h*0.55, '#4fd6ff', 3, 0.4);
@@ -993,20 +1025,21 @@ class Fighter{
   }
 
   resolveEyeLaser(other, game, a, colorOverride){
-    const blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
+    const wantsBlock = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
     const dir = Math.sign(other.x-this.x) || this.facing;
     const dmgMult = this.currentDamageMult()*(1+(this.specialDmgBonus||0));
-    if(blocked && !this.specialPierce){
+    const dmgBase=a.dmg*dmgMult;
+    const dealt=other.takeHit(dmgBase,a.knockback,dir,wantsBlock&&!this.specialPierce,this,a);
+    const blocked=!!other.lastGuardResult?.blocked;
+    if(blocked){
       game.onBlockedHit(this, other, {type:'special'});
       other.vx = dir*2*other.knockbackMult;
       other.flashTimer = 4;
       game.spawnLaserBeamFX(this, other, true, colorOverride);
     } else {
-      const dmgBase = a.dmg*dmgMult*(blocked?0.15:1);
-      const dealt = other.takeHit(dmgBase, a.knockback*(blocked?0.3:1), dir, false, this);
       game.onHitLanded(this, other, dealt, {type:'special'});
-      game.shake = Math.max(game.shake, blocked?6:16);
-      game.hitPause = Math.max(game.hitPause, blocked?4:12);
+      game.shake = Math.max(game.shake,16);
+      game.hitPause = Math.max(game.hitPause,12);
       if(this.specialTwin && !blocked && other.alive){
         const dealt2 = other.takeHit(dmgBase, a.knockback*0.6, dir, false, this);
         game.onHitLanded(this, other, dealt2, {type:'special'});
@@ -1016,9 +1049,10 @@ class Fighter{
   }
 
   resolveLightning(other, game, a){
-    const blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
+    let blocked = other.blocking && ((this.x<other.x && other.facing===-1) || (this.x>other.x && other.facing===1));
     const dir = Math.sign(other.x-this.x) || this.facing;
     const dealt = other.takeHit(this.attackDamage(a.dmg), a.knockback, dir, blocked, this);
+    blocked=!!other.lastGuardResult?.blocked;
     if(!blocked) game.onHitLanded(this, other, dealt, {type:'special'});
     else game.onBlockedHit(this, other, {type:'special'});
     game.shake = Math.max(game.shake, blocked?10:22);
@@ -1031,15 +1065,16 @@ class Fighter{
   }
 
   resolvePush(other, game, a){
-    const blocked = other.blocking;
+    let blocked = other.blocking;
     const dir = Math.sign(other.x-this.x) || this.facing;
+    const dealt=other.takeHit(this.attackDamage(a.dmg),a.knockback,dir,blocked,this,a);
+    blocked=!!other.lastGuardResult?.blocked;
     if(blocked){
       other.vx = dir*a.knockback*other.knockbackMult;
       other.flashTimer = 6;
       game.spawnHitParticles(other.x, other.y-other.h*0.5, '#8fd0ff', 8, 1.2);
       game.shake = Math.max(game.shake, 10);
     } else {
-      const dealt = other.takeHit(this.attackDamage(a.dmg), a.knockback, dir, false, this);
       game.onHitLanded(this, other, dealt, {type:'heavy'});
       game.shake = Math.max(game.shake, 18);
       game.hitPause = Math.max(game.hitPause, 14);
@@ -1064,9 +1099,10 @@ class Fighter{
     game.shake = Math.max(game.shake, 22);
     game.hitPause = Math.max(game.hitPause, 16);
     if(dist < radius){
-      const blocked = other.blocking;
+      let blocked = other.blocking;
       const dir = Math.sign(other.x-this.x) || this.facing;
       const dealt = other.takeHit(this.attackDamage(a.dmg), a.knockback, dir, blocked, this);
+      blocked=!!other.lastGuardResult?.blocked;
       if(!blocked) game.onHitLanded(this, other, dealt, {type:'heavy'});
       else game.onBlockedHit(this, other, {type:'heavy'});
     }
@@ -1077,9 +1113,10 @@ class Fighter{
     const oldX = this.x;
     this.x = clamp(other.x + side*this.w*0.9, CFG.ARENA_L+this.w/2, CFG.ARENA_R-this.w/2);
     this.facing = -side;
-    const blocked = other.blocking;
+    let blocked = other.blocking;
     const dir = -side;
     const dealt = other.takeHit(this.attackDamage(a.dmg), a.knockback, dir, blocked, this);
+    blocked=!!other.lastGuardResult?.blocked;
     game.beams.push(new Beam(oldX, this.y-this.h*0.5, this.x, this.y-this.h*0.5, 'rgba(40,40,60,0.65)', 10, this.w*0.55));
     game.spawnHitParticles(this.x, this.y-this.h*0.5, '#2b2b3a', 14, 1.4);
     game.shake = Math.max(game.shake, 14);
@@ -1091,8 +1128,10 @@ class Fighter{
     if(a.countered && !a.resolved){
       a.resolved = true;
       const dir = Math.sign(other.x-this.x) || this.facing;
-      const dealt = other.takeHit(this.attackDamage(a.dmgFinal), a.knockbackFinal, dir, other.blocking, this);
-      game.onHitLanded(this, other, dealt, {type:'heavy'});
+      let blocked=other.blocking;
+      const dealt = other.takeHit(this.attackDamage(a.dmgFinal), a.knockbackFinal, dir, blocked, this);
+      blocked=!!other.lastGuardResult?.blocked;
+      if(blocked)game.onBlockedHit(this,other,{type:'heavy'});else game.onHitLanded(this, other, dealt, {type:'heavy'});
       game.shake = Math.max(game.shake, 16);
       game.spawnHitParticles(other.x, other.y-other.h*0.6, '#5bd6a0', 12, 1.4);
     } else if(a.phase==='active' && a.t>=a.active-4 && !a.countered && !a.fallbackDone){
@@ -1101,9 +1140,10 @@ class Fighter{
       const x = this.facing===1 ? this.x+this.w*0.3 : this.x-this.w*0.3-range;
       const box = {x, y:this.y-this.h*0.75, w:range, h:this.h*0.55};
       if(rectOverlap(box, other.hurtbox())){
-        const blocked = other.blocking;
+        let blocked = other.blocking;
         const dir = Math.sign(other.x-this.x) || this.facing;
         const dealt = other.takeHit(this.attackDamage(a.fallbackDmg), CFG.HEAVY.knockback*1.4, dir, blocked, this);
+        blocked=!!other.lastGuardResult?.blocked;
         if(!blocked) game.onHitLanded(this, other, dealt, {type:'heavy'});
         else game.onBlockedHit(this, other, {type:'heavy'});
       }
@@ -1124,7 +1164,7 @@ class Fighter{
   }
 
   resolveHit(other, game, a){
-    const blocked = other.blocking && Math.sign(other.x-this.x)!==0 &&
+    let blocked = other.blocking && Math.sign(other.x-this.x)!==0 &&
                      ((this.x < other.x && other.facing===-1) || (this.x > other.x && other.facing===1));
     let dmg = this.attackDamage(a.dmg);
     if(a.type==='light') dmg += (this.metaLightDmg||0);
@@ -1139,6 +1179,7 @@ class Fighter{
 
     const dir = Math.sign(other.x - this.x) || this.facing;
     const dealt = other.takeHit(dmg, kb, dir, blocked, this);
+    blocked=!!other.lastGuardResult?.blocked;
 
     if(!blocked){
       this.momentumStacks = Math.min(6, this.momentumStacks+1);
@@ -1159,6 +1200,15 @@ class Fighter{
     g = clamp(Math.round(g + (amt>0?(255-g):g)*amt), 0, 255);
     b = clamp(Math.round(b + (amt>0?(255-b):b)*amt), 0, 255);
     return `rgb(${r},${g},${b})`;
+  }
+
+  eyeWorldPosition(far=false){
+    const crouchOffset=this.crouching?this.h*.178:0;
+    const bodyH=this.h-crouchOffset;
+    const bob=this.grounded&&this.state!=='hitstun'?Math.sin(this.animT*.25)*(this.state==='walk'?2.2:.7):0;
+    const headR=bodyH*.135;
+    const headY=-(bodyH*.46)-bob-(bodyH*.36)-headR-bodyH*.02;
+    return {x:this.x+this.facing*headR*(far?-.18:.42),y:this.y-crouchOffset+headY};
   }
 
   draw(ctx){
@@ -1238,8 +1288,8 @@ class Fighter{
     const thighLen = legH*0.54, shinLen = legH*0.52;
     const upperArmLen = torsoH*0.62, foreArmLen = torsoH*0.58;
     const frontHipX = facing*w*0.13, backHipX = -facing*w*0.13;
-    const frontShoulderX = facing*w*0.17, backShoulderX = -facing*w*0.17;
-    const limbW = w*0.155, armW = w*0.13*(this.armWMult||1);
+    const frontShoulderX = facing*w*0.235, backShoulderX = -facing*w*0.235;
+    const limbW = w*0.15, armW = w*0.115*(this.armWMult||1);
 
     // ---- attack progress (0..1 extension) ----
     let atkExt = 0, atkPhase = null, atkType = null, isFinalKick=false, isSpecial=false;
@@ -1390,6 +1440,9 @@ class Fighter{
       ctx.fillStyle = front ? light : Fighter.shade(dark,0.1);
       ctx.beginPath(); ctx.arc(elbow.x, elbow.y, armW*0.32, 0, Math.PI*2); ctx.fill();
       drawTaperedLimb(ctx, elbow.x,elbow.y,armW*0.38, hand.x,hand.y,armW*0.27, this.skinColor, skinLight);
+      // Forearm muscle and elbow crease keep the bent arm anatomical at small sizes.
+      ctx.strokeStyle='rgba(80,45,32,.22)';ctx.lineWidth=1.1;
+      ctx.beginPath();ctx.moveTo(elbow.x+(hand.x-elbow.x)*.16,elbow.y+(hand.y-elbow.y)*.16);ctx.quadraticCurveTo(elbow.x+(hand.x-elbow.x)*.48+facing*armW*.08,elbow.y+(hand.y-elbow.y)*.48,hand.x+(elbow.x-hand.x)*.2,hand.y+(elbow.y-hand.y)*.2);ctx.stroke();
       if(this.isPlayer){
         // wrist tape
         const t = 0.32;
@@ -1412,6 +1465,8 @@ class Fighter{
       }
       ctx.fillStyle='rgba(255,255,255,0.28)';
       ctx.beginPath(); ctx.arc(-armW*0.15, -armW*0.16, armW*0.16, 0, Math.PI*2); ctx.fill();
+      // thumb pad on the palm side
+      ctx.fillStyle='rgba(70,35,28,.2)';ctx.beginPath();ctx.ellipse(-armW*.04,armW*.34,armW*.22,armW*.13,.35,0,Math.PI*2);ctx.fill();
       ctx.restore();
     };
     // back arm first, BEHIND the torso, so it actually reads as being on the far side of the body
@@ -1458,6 +1513,14 @@ class Fighter{
     ctx.moveTo(-torsoW*0.32, shoulderY+torsoH*0.14);
     ctx.quadraticCurveTo(0, shoulderY+torsoH*0.2, torsoW*0.32, shoulderY+torsoH*0.14);
     ctx.stroke();
+    // Neckline, shoulder seams and side folds make the costume wrap around
+    // a human torso instead of reading as one flat coloured polygon.
+    ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.arc(0,torsoTop+torsoH*.04,torsoW*.16,0,Math.PI);ctx.stroke();
+    [-1,1].forEach(side=>{
+      ctx.beginPath();ctx.moveTo(side*torsoW*.14,torsoTop+torsoH*.08);ctx.quadraticCurveTo(side*torsoW*.34,torsoTop+torsoH*.13,side*torsoW*.43,torsoTop+torsoH*.27);ctx.stroke();
+      ctx.strokeStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.moveTo(side*waistHalf*.8,waistY);ctx.quadraticCurveTo(side*hipHalf*.92,torsoBottom-torsoH*.18,side*hipHalf*.75,torsoBottom-torsoH*.05);ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.2)';
+    });
     // ab/chest shading lines + center linea alba
     ctx.strokeStyle = 'rgba(0,0,0,0.18)';
     ctx.lineWidth = 2.3;
@@ -1510,6 +1573,11 @@ class Fighter{
     // trunks/shorts band
     ctx.fillStyle = Fighter.shade(this.color,-0.5);
     ctx.fillRect(-hipHalf, hipY-torsoH*0.16, hipHalf*2, torsoH*0.16);
+    // shaped pelvis and separate shorts legs bridge the torso into both thighs
+    // without the old narrow rectangular pinch at the hips.
+    ctx.fillStyle=Fighter.shade(this.color,-0.28);ctx.beginPath();
+    ctx.moveTo(-hipHalf,hipY-torsoH*.08);ctx.lineTo(hipHalf,hipY-torsoH*.08);ctx.lineTo(hipHalf*.92,hipY+torsoH*.15);ctx.lineTo(w*.035,hipY+torsoH*.12);ctx.lineTo(0,hipY+torsoH*.03);ctx.lineTo(-w*.035,hipY+torsoH*.12);ctx.lineTo(-hipHalf*.92,hipY+torsoH*.15);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(0,hipY+torsoH*.02);ctx.lineTo(0,hipY+torsoH*.13);ctx.stroke();
     // belt highlight
     ctx.fillStyle = this.isPlayer ? this.accentColor : 'rgba(255,255,255,0.15)';
     ctx.fillRect(-hipHalf, hipY-torsoH*0.16, hipHalf*2, this.isPlayer?3:2);
@@ -1598,6 +1666,10 @@ class Fighter{
     };
     headPath();
     ctx.fill();
+    // Temple and cheek planes keep the small face dimensional after pixel scaling.
+    ctx.save();headPath();ctx.clip();
+    ctx.fillStyle='rgba(255,255,255,.13)';ctx.beginPath();ctx.ellipse(facing*headR*.3,headY-headR*.2,headR*.34,headR*.48,-facing*.18,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(92,48,38,.12)';ctx.beginPath();ctx.ellipse(-facing*headR*.38,headY+headR*.32,headR*.38,headR*.3,0,0,Math.PI*2);ctx.fill();ctx.restore();
     // nose (facing-side profile bump)
     ctx.fillStyle = skinDark;
     ctx.globalAlpha = 0.55;
@@ -1622,16 +1694,6 @@ class Fighter{
       ctx.lineTo(-facing*headR*1.6, headY+headR*0.5+Math.sin(this.animT*0.3)*3);
       ctx.lineTo(-facing*headR*1.3, headY+headR*0.15);
       ctx.closePath(); ctx.fill();
-      // spiky hair silhouette
-      ctx.fillStyle = this.hairColor;
-      ctx.beginPath();
-      for(let i=-2;i<=2;i++){
-        const sx = i*headR*0.32, sh = headR*(0.55+Math.abs(i)*0.08);
-        ctx.moveTo(sx-headR*0.14, headY-headR*0.55);
-        ctx.lineTo(sx, headY-headR*0.55-sh);
-        ctx.lineTo(sx+headR*0.14, headY-headR*0.55);
-      }
-      ctx.fill();
     }
     // ear (poking out past the head silhouette, drawn last so nothing covers it)
     ctx.fillStyle = this.skinColor;
@@ -1714,16 +1776,17 @@ class Fighter{
         ctx.stroke();
       });
     } else {
-      // eyes (facing indicator) + brow
-      ctx.fillStyle='#fff';
-      ctx.beginPath(); ctx.ellipse(facing*headR*0.42, headY, headR*0.22, headR*0.16, 0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#1a1a1a';
-      ctx.beginPath(); ctx.arc(facing*headR*0.42+facing*headR*0.06, headY, headR*0.1,0,Math.PI*2); ctx.fill();
-      // eyelid crease — the arc that actually makes an eye read as human rather than a dot
-      ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.arc(facing*headR*0.42, headY-headR*0.02, headR*0.24, Math.PI*1.08, Math.PI*1.92);
-      ctx.stroke();
+      // Near and far eyes create a readable three-quarter human face instead of
+      // the old single cyclops-like profile eye.
+      const eyeData=[{x:facing*headR*0.42,scale:1,alpha:1},{x:-facing*headR*0.18,scale:1,alpha:1}];
+      eyeData.forEach(eye=>{
+        ctx.globalAlpha=eye.alpha;ctx.fillStyle='#f7f3eb';
+        ctx.beginPath();ctx.ellipse(eye.x,headY,headR*0.22*eye.scale,headR*0.15*eye.scale,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#30251f';ctx.beginPath();ctx.arc(eye.x+facing*headR*0.055,headY,headR*0.09*eye.scale,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(eye.x+facing*headR*0.075,headY-headR*.035,headR*.025,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='rgba(45,30,24,.55)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(eye.x,headY-headR*.02,headR*.24*eye.scale,Math.PI*1.08,Math.PI*1.92);ctx.stroke();
+      });
+      ctx.globalAlpha=1;
       if(this.femaleBody){
         // a couple of short lashes flicking up from the outer corner
         ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 1.3;
@@ -1735,25 +1798,25 @@ class Fighter{
           ctx.stroke();
         }
       }
-      ctx.strokeStyle='#2a1a12'; ctx.lineWidth=2.4;
-      ctx.beginPath();
+      ctx.strokeStyle='#2a1a12'; ctx.lineWidth=2.2;
       const browY = headY-headR*0.35;
       const angry = this.state==='attack' || this.state==='hitstun';
-      ctx.moveTo(facing*headR*0.15, browY+(angry?headR*0.12:0));
-      ctx.lineTo(facing*headR*0.7, browY-(angry?headR*0.05:0));
-      ctx.stroke();
-      // mouth
+      [1,-.48].forEach((depth,index)=>{ctx.globalAlpha=index ? .65 : 1;ctx.beginPath();ctx.moveTo(facing*headR*(index?-.02:.15),browY+(angry?headR*.12:0));ctx.lineTo(facing*headR*(index?-.36:.7),browY-(angry?headR*.05:0));ctx.stroke();});ctx.globalAlpha=1;
+      // nose bridge, nostril and two-part mouth make expressions survive pixelation.
+      ctx.strokeStyle='rgba(80,48,35,.45)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(facing*headR*.13,headY-headR*.13);ctx.quadraticCurveTo(facing*headR*.32,headY+headR*.13,facing*headR*.2,headY+headR*.25);ctx.stroke();
+      ctx.fillStyle='rgba(70,38,30,.55)';ctx.beginPath();ctx.arc(facing*headR*.28,headY+headR*.24,headR*.035,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#5b3029';ctx.lineWidth=1.7;
       ctx.beginPath();
       ctx.moveTo(-headR*0.1, headY+headR*0.55);
       ctx.lineTo(headR*0.35, headY+headR*0.55);
       ctx.stroke();
+      ctx.strokeStyle='rgba(165,76,68,.7)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-headR*.04,headY+headR*.61);ctx.lineTo(headR*.27,headY+headR*.61);ctx.stroke();
     }
 
     // ---- archetype / boss visual flourishes (silhouette, not just color) ----
-    // Hairstyle — player can override via cosmetics; everyone else falls back to
-    // gender-based auto (skipped for archetypes with their own dedicated head covering).
-    const ownHairLook = (!this.isBoss && (this.archetype==='grappler' || this.archetype==='zoner')) ||
-                         (this.isBoss && (this.bossKind==='shadow' || this.bossKind==='pyro'));
+    // Hairstyle — player cosmetics override archetype-aware defaults.
+    // All fighters use this one hair system. Archetype flourishes are drawn
+    // afterwards, so hoods, flames and boss auras can layer over real hair.
     const drawPonytailHair = ()=>{
       const sway = Math.sin(this.animT*0.28)*4;
       ctx.fillStyle = this.hairColor;
@@ -1767,11 +1830,11 @@ class Fighter{
       ctx.beginPath(); ctx.moveTo(-facing*headR*0.72, headY-headR*0.32); ctx.lineTo(-facing*headR*0.55, headY-headR*0.05); ctx.stroke();
       ctx.fillStyle = this.hairColor;
       ctx.beginPath();
-      ctx.moveTo(-headR*0.95, headY-headR*0.05);
-      ctx.quadraticCurveTo(-headR*0.85, headY-headR*0.85, 0, headY-headR*0.95);
-      ctx.quadraticCurveTo(headR*0.85, headY-headR*0.85, headR*0.95, headY-headR*0.05);
-      ctx.quadraticCurveTo(headR*0.6, headY-headR*0.25, 0, headY-headR*0.32);
-      ctx.quadraticCurveTo(-headR*0.6, headY-headR*0.25, -headR*0.95, headY-headR*0.05);
+      ctx.moveTo(-headR, headY-headR*0.08);
+      ctx.quadraticCurveTo(-headR*0.9, headY-headR*1.18, 0, headY-headR*1.24);
+      ctx.quadraticCurveTo(headR*0.9, headY-headR*1.18, headR, headY-headR*0.08);
+      ctx.quadraticCurveTo(headR*0.68, headY-headR*0.34, 0, headY-headR*0.42);
+      ctx.quadraticCurveTo(-headR*0.68, headY-headR*0.34, -headR, headY-headR*0.08);
       ctx.closePath();
       ctx.fill();
     };
@@ -1822,16 +1885,29 @@ class Fighter{
       ctx.fillStyle='rgba(255,255,255,0.3)';
       ctx.beginPath(); ctx.ellipse(-facing*headR*0.2, headY-headR*0.6, headR*0.28, headR*0.14, 0,0,Math.PI*2); ctx.fill();
     };
+    const drawHairTexture = style=>{
+      if(style==='bald')return;
+      ctx.save();ctx.globalAlpha=.3;ctx.strokeStyle=Fighter.shade(this.hairColor,.28);ctx.lineWidth=1.1;
+      for(let i=-2;i<=2;i++){const x=i*headR*.28;ctx.beginPath();ctx.moveTo(x,headY-headR*.92);ctx.quadraticCurveTo(x+facing*headR*.12,headY-headR*.68,x+facing*headR*.08,headY-headR*.42);ctx.stroke();}
+      ctx.restore();
+    };
+    let renderedHairStyle='short';
     if(this.isPlayer && this.hairStyle && this.hairStyle!=='auto' && this.hairStyle!=='hair_auto'){
       const style = this.hairStyle.replace('hair_','');
+      renderedHairStyle=style;
       if(style==='short') drawShortHair();
       else if(style==='ponytail') drawPonytailHair();
       else if(style==='mohawk') drawMohawkHair();
       else if(style==='long') drawLongHair();
       else if(style==='bald') drawBaldShine();
-    } else if(!ownHairLook){
-      if(this.femaleBody) drawPonytailHair(); else drawShortHair();
+    } else {
+      renderedHairStyle=this.femaleBody?'ponytail':(this.archetype==='rushdown'||this.bossKind==='pyro')?'mohawk':(this.archetype==='zoner'||this.bossKind==='shadow')?'long':'short';
+      if(renderedHairStyle==='ponytail')drawPonytailHair();
+      else if(renderedHairStyle==='mohawk')drawMohawkHair();
+      else if(renderedHairStyle==='long')drawLongHair();
+      else drawShortHair();
     }
+    drawHairTexture(renderedHairStyle);
     // Facial hair — player cosmetic choice, or the Brawler archetype's default beard.
     const drawBeard = ()=>{
       ctx.fillStyle = this.hairColor;
@@ -1959,10 +2035,11 @@ class Fighter{
 
     // block shield glow
     if(this.state==='block'){
+      const guardY=this.blockLevel==='low' ? hipY+legH*0.22 : shoulderY+torsoH*0.3;
       ctx.strokeStyle='rgba(120,190,255,0.7)';
       ctx.lineWidth=3;
       ctx.beginPath();
-      ctx.arc(facing*w*0.35, shoulderY+torsoH*0.3, 24, 0, Math.PI*2);
+      ctx.arc(facing*w*0.35, guardY, 24, 0, Math.PI*2);
       ctx.stroke();
       ctx.fillStyle='rgba(120,190,255,0.12)';
       ctx.fill();
@@ -2009,7 +2086,7 @@ const ARCHETYPES = {
   rushdown:  {label:'RUSHDOWN',  hp:0.75,dmg:0.8, spd:1.45,aggro:0.85,color:'#ff5d8a', special:'flurry', armWMult:0.82},
   tank:      {label:'TANK',      hp:1.6, dmg:1.25,spd:0.65,aggro:0.4, color:'#6b5b95', special:'megapush', bodyMult:1.1, armWMult:1.1},
   defensive: {label:'DEFENSIVE', hp:1.0, dmg:0.95,spd:0.9, aggro:0.3, color:'#4fa8ff', special:'fireball'},
-  zoner:     {label:'ZONER',     hp:0.85,dmg:0.9, spd:0.95,aggro:0.35,color:'#4fd6ff', ranged:true, special:'megalaser', heavyIsRanged:true},
+  zoner:     {label:'ZONER',     hp:0.95,dmg:1.0, spd:1.12,aggro:0.62,color:'#4fd6ff', ranged:true, special:'megalaser', heavyIsRanged:true},
   grappler:  {label:'GRAPPLER',  hp:1.4, dmg:1.5, spd:0.55,aggro:0.55,color:'#8a6d3b', shortRange:true, special:'suplex'},
 };
 const BOSS_ARCHETYPES = {
@@ -2083,30 +2160,42 @@ function updateAI(enemy, player, game){
   enemy.aiTimer--;
 
   const dist = Math.abs(enemy.x - player.x);
-  const wantsRange = enemy.ranged ? 260 : (enemy.shortRange ? 46 : 90);
+  const wantsRange = enemy.ranged ? 320 : (enemy.shortRange ? 46 : 90);
+  const learned=game.playerLearning||{high:0,low:0,light:0,heavy:0,total:0};
+  const learnStrength=Math.min(.62,(learned.total||0)*.012+Math.max(0,game.fightNumber-1)*.012);
+  const expectedLevel=learned.low>learned.high?'low':'high';
+  const movementSamples=(learned.jump||0)+(learned.crouch||0);
+  const jumpHabit=movementSamples ? (learned.jump||0)/movementSamples : 0;
 
   // reaction-delayed re-decision
   if(enemy.aiTimer<=0){
     enemy.aiTimer = randInt(enemy.reaction, enemy.reaction+30);
     const r = RNG();
-    if(player.state==='attack' && player.attack && player.attack.phase==='startup' && dist<130 && RNG()<enemy.intelligence){
-      enemy.aiState = RNG()<0.6 ? 'block' : 'retreat';
+    if(player.state==='attack' && player.attack && player.attack.phase==='startup' && dist<180 && RNG()<enemy.intelligence+learnStrength){
+      enemy.aiState = RNG()<0.68+learnStrength*.25 ? 'block' : (RNG()<.5?'retreat':'jump');
+      enemy.blockLevel=(RNG()<learnStrength?player.attack.level:expectedLevel)||'high';
+      if(RNG()<Math.min(.3,learnStrength*.35))enemy.perfectBlockTimer=6;
     } else if(dist > wantsRange+40){
       enemy.aiState = RNG()<enemy.aggression+0.2 ? 'approach' : 'wait';
     } else if(dist < wantsRange-30 && enemy.ranged){
-      enemy.aiState = 'retreat';
+      enemy.aiState = RNG()<.22?'jump':'retreat';
     } else if(dist < 70){
       if(RNG() < enemy.aggression) enemy.aiState = 'attack';
-      else enemy.aiState = RNG()<0.3?'block':'attack';
+      else enemy.aiState = RNG()<0.3?'block':(RNG()<.18?'crouch':'attack');
     } else {
       enemy.aiState = RNG()<0.5?'approach':'attack';
     }
+    // Even passive archetypes mix in movement. Learned jump habits gradually make
+    // the opponent more willing to meet the player in the air.
+    if(enemy.grounded&&RNG()<.035+learnStrength*jumpHabit*.12)enemy.aiState='jump';
     // punish opportunity
     if(player.state==='hitstun' && dist<110 && RNG()<0.7) enemy.aiState='punish';
     if(player.state==='block' && RNG()<0.2) enemy.aiState='wait';
+    if(enemy.aiState==='block'&&player.state!=='attack')enemy.blockLevel=RNG()<learnStrength?expectedLevel:(RNG()<.5?'high':'low');
   }
 
   enemy.blocking = false;
+  enemy.crouching = false;
   const dir = player.x > enemy.x ? 1 : -1;
 
   if(enemy.state==='attack'){ return; } // committed
@@ -2117,7 +2206,7 @@ function updateAI(enemy, player, game){
       enemy.state = enemy.grounded ? 'walk' : enemy.state;
       break;
     case 'retreat':
-      enemy.vx = -dir*enemy.speed*0.9;
+      enemy.vx = -dir*enemy.speed*(enemy.ranged?1.18:0.9);
       enemy.state = enemy.grounded ? 'walk' : enemy.state;
       break;
     case 'wait':
@@ -2125,9 +2214,15 @@ function updateAI(enemy, player, game){
       if(enemy.state==='walk') enemy.state='idle';
       break;
     case 'block':
-      enemy.blocking = true;
-      enemy.state = 'block';
+      enemy.blocking = enemy.guardBreakTimer<=0;
+      enemy.blockLevel=enemy.blockLevel||expectedLevel;
+      enemy.crouching=enemy.blockLevel==='low';
+      enemy.state = enemy.blocking?'block':(enemy.crouching?'crouch':'idle');
       enemy.vx *= CFG.BLOCK_SPEED_MULT;
+      break;
+    case 'crouch':
+      enemy.crouching=true;enemy.blocking=false;enemy.vx*=.5;enemy.state='crouch';
+      if(RNG()<.35)enemy.startAttack(RNG()<.7?'light':'heavy',player,{level:'low'});
       break;
     case 'jump':
       if(enemy.grounded && enemy.jumpsLeft>0){ enemy.vy = CFG.JUMP_V; enemy.jumpsLeft--; enemy.state='jump'; }
@@ -2137,11 +2232,22 @@ function updateAI(enemy, player, game){
       const closeSpecials = ['whirlwind','flurry','megapush','suplex','comboburst'];
       const specialReady = enemy.meter>=enemy.meterMax;
       const specialNeedsClose = closeSpecials.includes(enemy.specialKind);
-      if(specialReady && RNG()<0.5 && (!specialNeedsClose || dist < wantsRange+30)){
+      if(specialReady && RNG()<(enemy.ranged ? .78 : .5) && (!specialNeedsClose || dist < wantsRange+30)){
         enemy.startSpecial();
       } else if(dist < wantsRange+20 || enemy.ranged){
-        const useHeavy = RNG() < (enemy.aiState==='punish'?0.65:0.35);
-        enemy.startAttack(useHeavy?'heavy':'light', player);
+        const learnedHeavy=(learned.light>learned.heavy?0.12:-0.05)*learnStrength;
+        const heavyChance=(enemy.ranged ? .72 : (enemy.aiState==='punish' ? .65 : .35))+learnedHeavy;
+        const useHeavy = RNG() < heavyChance;
+        // Slowly exploit a repeated guard height. A heavy sometimes challenges the
+        // current guard directly; a light more often switches height to open it up.
+        let attackLevel='high';
+        if(player.blocking&&RNG()<learnStrength){
+          attackLevel=useHeavy&&RNG()<.55?player.blockLevel:(player.blockLevel==='low'?'high':'low');
+        } else if(RNG()<learnStrength*.55){
+          attackLevel=expectedLevel;
+        }
+        enemy.crouching=attackLevel==='low';
+        enemy.startAttack(useHeavy?'heavy':'light', player, {level:attackLevel});
       } else {
         enemy.vx = dir*enemy.speed;
         enemy.state = enemy.grounded?'walk':enemy.state;
@@ -2198,16 +2304,19 @@ function updatePlayerControl(p, other, game){
     Input.pressed['j']=false; Input.pressed['k']=false; // consume so no normal attack also fires
   }
 
-  p.blocking = !!held['l'] && p.state!=='attack';
+  if(Input.pressed['l']&&p.guardBreakTimer<=0)p.perfectBlockTimer=6;
+  p.blockLevel=held['s']?'low':'high';
+  p.blocking = !!held['l'] && p.state!=='attack' && p.guardBreakTimer<=0;
 
   if(p.state==='attack'){
     // allow nothing but let attack finish; still apply light physics elsewhere
   } else if(p.blocking){
     p.state='block';
+    p.crouching=p.blockLevel==='low';
     let mv=0;
     if(held['a']) mv-=1; if(held['d']) mv+=1;
     p.vx = mv*p.speed*(1+p.speedBonus)*CFG.BLOCK_SPEED_MULT;
-    p.crouching=false;
+    if(p.blockLevel==='high')p.crouching=false;
   } else {
     let mv=0;
     if(held['a']) mv-=1; if(held['d']) mv+=1;
@@ -2286,7 +2395,7 @@ const UPGRADE_POOL = [
   {id:'rapid_recovery', name:'Rapid Recovery', rarity:'uncommon', tree:'speed', desc:'Reduced attack recovery time.', apply:p=>{p.recoveryReduction=clamp(p.recoveryReduction+0.18,0,0.6);}},
   // Defence
   {id:'tough_skin', name:'Tough Skin', rarity:'common', tree:'defence', desc:'Take 10% less damage.', apply:p=>{p.dmgReduction=clamp(p.dmgReduction+0.1,0,0.7);}},
-  {id:'iron_guard', name:'Iron Guard', rarity:'uncommon', tree:'defence', desc:'Blocking prevents more damage.', apply:p=>{p.blockReduction=clamp(p.blockReduction+0.25,0,0.8);}},
+  {id:'iron_guard', name:'Iron Guard', rarity:'uncommon', tree:'defence', desc:'Recover 20% faster after a guard break.', apply:p=>{p.guardRecoveryMult=Math.max(.4,p.guardRecoveryMult*.8);}},
   {id:'last_stand', name:'Last Stand', rarity:'rare', tree:'defence', desc:'Deal increased damage below 25% health.', apply:p=>{p.lastStand=true;}},
   // Health
   {id:'conditioning', name:'Conditioning', rarity:'common', tree:'health', desc:'+15 maximum HP.', apply:p=>{p.maxHp+=15; p.hp+=15;}},
@@ -2760,6 +2869,7 @@ class Game{
     p.metaLightDmg = metaLevel('stronger_strikes');
     p.metaHeavyDmg = metaLevel('heavy_training');
     p.maxHp += metaLevel('conditioning_meta') + metaLevel('toughened_up');
+    if(window.AchievementManager?.hasBoost?.('ko-klarity_clear_guard')) p.maxHp += 10;
     p.hp = p.maxHp;
     p.speedBonus += metaLevel('footwork')*0.01;
     p.dodgeCooldownMeta = metaLevel('recovery_training')*0.01;
@@ -2789,6 +2899,8 @@ class Game{
     this.rejectAvailable = metaLevel('reject')>0;
     this.rejectUsedThisRun = false;
     this.extraChoiceUsed = false;
+    // Run-local adaptation: deliberately reset whenever a new run begins.
+    this.playerLearning={high:0,low:0,light:0,heavy:0,special:0,jump:0,crouch:0,total:0,lastAttackSerial:0,lastMotionSample:0};
 
     if(metaLevel('starting_upgrade')>0){
       const picks = rollUpgrades(1, false, {});
@@ -2910,11 +3022,15 @@ class Game{
   }
 
   spawnLaserBeamFX(caster, target, blocked, colorOverride){
-    const y = caster.y-caster.h*0.86;
+    const eye = caster.eyeWorldPosition();
     const baseColor = colorOverride || '#ff3030';
     const blockedColor = colorOverride ? Fighter.shade(colorOverride, 0.3) : '#ff8080';
-    this.beams.push(new Beam(caster.x+caster.facing*caster.w*0.28, y, target.x, target.y-target.h*0.55,
+    this.beams.push(new Beam(eye.x, eye.y, target.x, target.y-target.h*0.55,
       blocked?blockedColor:baseColor, 14, blocked?4:10));
+    if(caster.specialTwin){
+      const farEye=caster.eyeWorldPosition(true);
+      this.beams.push(new Beam(farEye.x,farEye.y,target.x,target.y-target.h*.55,blocked?blockedColor:baseColor,11,blocked?4:9));
+    }
     this.spawnHitParticles(target.x, target.y-target.h*0.55, blocked?blockedColor:baseColor, blocked?4:14, blocked?0.5:1.6);
   }
 
@@ -2924,7 +3040,7 @@ class Game{
       this.bestHit = Math.max(this.bestHit, dealt);
       attacker.hitCombo = (attacker.hitCombo||0)+1;
       this.longestCombo = Math.max(this.longestCombo, attacker.hitCombo);
-      window.AchievementManager?.notify?.('ko_klarity_hit', { facts:{ koKlarityBestCombo:this.longestCombo } });
+      window.AchievementManager?.notify?.('ko_klarity_hit', { facts:{ koKlarityBestCombo:this.longestCombo, mastery_ko_klarity:this.longestCombo>=12?1:0 } });
     } else {
       // defender is player, reset their combo counter
     }
@@ -2944,8 +3060,11 @@ class Game{
   onBlockedHit(attacker, defender, atk){
     const hx = defender.x - Math.sign(defender.x-attacker.x)*defender.w*0.3;
     const hy = defender.y - defender.h*0.6;
-    this.spawnHitParticles(hx,hy,'#8fd0ff',6,0.6);
-    this.texts.push(new FloatingText(hx,hy-6,'BLOCK','#8fd0ff',13));
+    const guard=defender.lastGuardResult||{};
+    const label=guard.perfect?'PARRY!':guard.broken?'GUARD BREAK!':`${String(guard.level||'').toUpperCase()} BLOCK`;
+    const color=guard.perfect?'#ffe56b':guard.broken?'#ff6a55':'#8fd0ff';
+    this.spawnHitParticles(hx,hy,color,guard.perfect?12:7,guard.perfect?1.2:.7);
+    this.texts.push(new FloatingText(hx,hy-6,label,color,guard.broken?17:14));
   }
 
   update(){
@@ -2957,6 +3076,17 @@ class Game{
 
     const p=this.player, e=this.enemy;
     updatePlayerControl(p, e, this);
+    const learning=this.playerLearning;
+    if(learning&&p.attack&&p.attackSerial!==learning.lastAttackSerial){
+      learning.lastAttackSerial=p.attackSerial;learning.total++;
+      learning[p.attack.level||'high']++;
+      learning[p.attack.type==='special'?'special':p.attack.type==='heavy'?'heavy':'light']++;
+    }
+    if(learning&&this.frame-learning.lastMotionSample>=45){
+      learning.lastMotionSample=this.frame;
+      if(!p.grounded)learning.jump++;
+      if(p.crouching)learning.crouch++;
+    }
     updateAI(e, p, this);
 
     p.update(e,this);
@@ -2984,8 +3114,9 @@ class Game{
       const target = proj.owner===p ? e : p;
       if(!proj.dead && !proj.hitSet.has(target)){
         if(rectOverlap(proj.box, target.hurtbox())){
-          const blocked = target.blocking;
-          const dealt = target.takeHit(proj.dmg, proj.knockback!==undefined?proj.knockback:CFG.SPECIAL.knockback, Math.sign(proj.dir), blocked, proj.owner);
+          let blocked = target.blocking;
+          const dealt = target.takeHit(proj.dmg, proj.knockback!==undefined?proj.knockback:CFG.SPECIAL.knockback, Math.sign(proj.dir), blocked, proj.owner,proj.attackInfo);
+          blocked=!!target.lastGuardResult?.blocked;
           proj.hitSet.add(target);
           if(!blocked){
             this.onHitLanded(proj.owner, target, dealt, {type:'special'});

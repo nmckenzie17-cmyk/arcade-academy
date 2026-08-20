@@ -19,11 +19,18 @@
     let ctx;
     const canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
+    const terrainCache=document.createElement('canvas');terrainCache.width=800;terrainCache.height=600;
+    const terrainCacheCtx=terrainCache.getContext('2d');let terrainCacheKey='';
 
     // Game state
     let game = { active: false, paused: false, time: 0, frame: 0 };
     const secretMoveKeys={};let secretWorldX=0,secretWorldY=0;
-    addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){secretMoveKeys[e.code]=true;if(shurikenSecret('secret_map_border'))e.preventDefault();}});
+    const PLAYER_MOVE_SPEED=0.8;
+    const SPRITE_RENDER_SCALE=0.9;
+    let touchMove={active:false,pointerId:null,startX:0,startY:0,x:0,y:0,moved:false};
+    let tapMoveTarget={x:400,y:300,active:false};
+    let suppressNextCanvasClick=false;
+    addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){secretMoveKeys[e.code]=true;if(game.active&&!game.paused)e.preventDefault();}});
     addEventListener('keyup',e=>{secretMoveKeys[e.code]=false;});
     let player = { x: 400, y: 300, hp: 100, maxHp: 100, level: 1, exp: 0, kills: 0, character: 'ninja', facingAngle: 0 };
     const NINJA_WEAPON_KEYS = ['shuriken', 'dart', 'smoke', 'trap'];
@@ -426,7 +433,8 @@
     let targetY = 300;
     let samuraiWalkTargetX = 400;
     let samuraiWalkTargetY = 300;
-    const SAMURAI_WALK_SPEED = 2.4;
+    let samuraiHasWalkTarget = false;
+    const SAMURAI_WALK_SPEED = 0.6;
     let shadowReady = true;
 
     // Quiz state. usedQuestions holds references to question objects already
@@ -447,11 +455,92 @@
       }
     }
 
+    function terrainRandom(tileX,tileY){
+      const stageSalt=progress.selectedStage==='nightmare-forest'?0x51f15e:progress.selectedStage==='ruined-kingdom'?0x8b17d3:0x294a67;
+      const cosmeticSalt=shurikenCosmetic('shuriken-scholar_wild_west_ronin')?0x77e57:0;
+      let seed=(Math.imul(tileX,374761393)^Math.imul(tileY,668265263)^stageSalt^cosmeticSalt^0x9e3779b9)>>>0;
+      return ()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+    }
+
+    function drawProceduralTerrainProps(originX,originY,tileX,tileY){
+      const random=terrainRandom(tileX,tileY);
+      const point=()=>({x:originX+45+random()*710,y:originY+45+random()*510});
+      const counts={skulls:Math.floor(random()*5),bones:1+Math.floor(random()*6),lamps:Math.floor(random()*4),pots:Math.floor(random()*5)};
+      const forest=progress.selectedStage==='nightmare-forest',ruins=progress.selectedStage==='ruined-kingdom';
+      const western=shurikenCosmetic('shuriken-scholar_wild_west_ronin');
+      ctx.save();
+      // Ambient shade is drawn per world tile so the entire map stays subtly
+      // dark while the corner lamps can provide readable pools of warm light.
+      ctx.fillStyle=forest?'rgba(0,10,7,.22)':ruins?'rgba(7,3,13,.20)':'rgba(3,4,14,.16)';
+      ctx.fillRect(originX,originY,800,600);
+      for(let i=0;i<counts.skulls;i++){
+        const p=point();ctx.fillStyle=forest?'#b8c5a7':'#d4d4c8';ctx.fillRect(p.x-10,p.y-10,20,18);
+        ctx.fillStyle='#1a1a1a';ctx.fillRect(p.x-6,p.y-5,4,4);ctx.fillRect(p.x+2,p.y-5,4,4);ctx.fillRect(p.x-3,p.y+3,6,3);
+      }
+      for(let i=0;i<counts.bones;i++){
+        const p=point(),angle=random()*Math.PI;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(angle);
+        ctx.fillStyle='#d4d4c8';ctx.fillRect(-9,-2,18,4);ctx.fillRect(-11,-4,5,5);ctx.fillRect(6,1,5,5);ctx.restore();
+      }
+      for(let i=0;i<counts.lamps;i++){
+        const p=point();ctx.fillStyle='#353443';ctx.fillRect(p.x-3,p.y-14,6,24);ctx.fillRect(p.x-8,p.y+8,16,4);
+        ctx.fillStyle='#ffcc55';ctx.fillRect(p.x-7,p.y-18,14,11);ctx.fillStyle='rgba(255,204,85,.22)';ctx.beginPath();ctx.arc(p.x,p.y-13,18,0,Math.PI*2);ctx.fill();
+      }
+      for(let i=0;i<counts.pots;i++){
+        const p=point(),size=10+Math.floor(random()*7);ctx.fillStyle=ruins?'#504658':forest?'#3e593d':'#654321';ctx.fillRect(p.x-size*.55,p.y-size*.45,size*1.1,size);
+        ctx.fillStyle=ruins?'#776b82':forest?'#587651':'#8b4513';ctx.fillRect(p.x-size*.7,p.y-size*.55,size*1.4,4);ctx.fillRect(p.x-size*.4,p.y-size*.35,size*.8,3);
+      }
+      // A few short wall remnants preserve the old arena-border visual without
+      // stamping an identical full frame around every world tile.
+      const wallCount=Math.floor(random()*4);
+      ctx.fillStyle='#252535';
+      for(let i=0;i<wallCount;i++){
+        const p=point(),horizontal=random()>.5,length=45+Math.floor(random()*90);
+        ctx.fillRect(p.x,p.y,horizontal?length:14,horizontal?14:length);
+      }
+      // Stage-specific scatter keeps each biome's procedural squares visually
+      // distinct instead of merely recolouring the same prop collection.
+      const stagePropCount=2+Math.floor(random()*5);
+      for(let i=0;i<stagePropCount;i++){
+        const p=point();
+        if(western){
+          ctx.fillStyle='#416b2d';ctx.fillRect(p.x-4,p.y-18,8,36);ctx.fillRect(p.x-14,p.y-5,10,7);ctx.fillRect(p.x+4,p.y+1,11,7);
+        }else if(forest){
+          const cap=random()>.5?'#8f3153':'#6752a3';ctx.fillStyle='#d7c7a0';ctx.fillRect(p.x-2,p.y,4,10);ctx.fillStyle=cap;ctx.beginPath();ctx.arc(p.x,p.y,7,Math.PI,0);ctx.fill();
+        }else if(ruins){
+          ctx.fillStyle='#514a59';for(let b=0;b<3;b++)ctx.fillRect(p.x+b*7,p.y-(b%2)*5,9,7);ctx.fillStyle='#756c7d';ctx.fillRect(p.x,p.y-(random()>.5?7:0),18,2);
+        }else{
+          ctx.strokeStyle='#242433';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.x-12,p.y-8);ctx.lineTo(p.x,p.y+5);ctx.lineTo(p.x+14,p.y-4);ctx.stroke();
+        }
+      }
+      const drawCornerLamp=(x,y)=>{
+        const glow=ctx.createRadialGradient(x,y,3,x,y,95);glow.addColorStop(0,'rgba(255,226,125,.34)');glow.addColorStop(.45,'rgba(255,184,65,.15)');glow.addColorStop(1,'rgba(255,160,40,0)');
+        ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,95,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#292735';ctx.fillRect(x-3,y-9,6,21);ctx.fillRect(x-9,y+10,18,4);
+        ctx.fillStyle='#ffd66b';ctx.fillRect(x-7,y-18,14,12);ctx.fillStyle='#fff2ad';ctx.fillRect(x-3,y-16,6,7);
+      };
+      for(const [x,y] of [[24,24],[776,24],[24,576],[776,576]])drawCornerLamp(originX+x,originY+y);
+      ctx.restore();
+    }
+
     function drawBackground() {
+      const nextTerrainKey=`${progress.selectedStage}:${shurikenCosmetic('shuriken-scholar_wild_west_ronin')}`;
+      if(terrainCacheKey===nextTerrainKey){
+        const offX=((secretWorldX%800)+800)%800-800,offY=((secretWorldY%600)+600)%600-600;
+        const firstCol=Math.floor(-secretWorldX/800),firstRow=Math.floor(-secretWorldY/600);
+        let row=firstRow;
+        for(let y=offY;y<600;y+=600,row++){
+          let col=firstCol;
+          for(let x=offX;x<800;x+=800,col++){
+            ctx.drawImage(terrainCache,x,y);
+            drawProceduralTerrainProps(x,y,col,row);
+          }
+        }
+        return;
+      }
       ctx.fillStyle = progress.selectedStage==='nightmare-forest'?'#07150f':progress.selectedStage==='ruined-kingdom'?'#17131d':'#2a2a3e';
       ctx.fillRect(0, 0, 800, 600);
 
-      const bgOffX=shurikenSecret('secret_map_border')?((secretWorldX%64)+64)%64:0,bgOffY=shurikenSecret('secret_map_border')?((secretWorldY%64)+64)%64:0;
+      const bgOffX=0,bgOffY=0;
       for (let y = -64+bgOffY; y < 664; y += 64) {
         for (let x = -64+bgOffX; x < 864; x += 64) {
           ctx.fillStyle = progress.selectedStage==='nightmare-forest'?(((x/64+y/64)%2===0)?'#10281c':'#0b2016'):progress.selectedStage==='ruined-kingdom'?(((x/64+y/64)%2===0)?'#302839':'#241e2b'):(((x/64 + y/64) % 2 === 0) ? '#3a3a52' : '#2f2f45');
@@ -462,67 +551,6 @@
         }
       }
 
-      ctx.strokeStyle = '#1a1a28';
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(150, 100); ctx.lineTo(180, 140); ctx.lineTo(200, 160); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(400, 300); ctx.lineTo(450, 320); ctx.lineTo(480, 340); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(600, 200); ctx.lineTo(630, 230); ctx.lineTo(650, 250); ctx.stroke();
-
-      ctx.fillStyle = '#d4d4c8';
-      ctx.fillRect(100, 450, 20, 20);
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fillRect(105, 455, 4, 4);
-      ctx.fillRect(111, 455, 4, 4);
-      ctx.fillRect(107, 463, 6, 3);
-
-      ctx.fillStyle = '#d4d4c8';
-      ctx.fillRect(700, 100, 20, 20);
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fillRect(705, 105, 4, 4);
-      ctx.fillRect(711, 105, 4, 4);
-      ctx.fillRect(707, 113, 6, 3);
-
-      ctx.fillStyle = '#4a4a5a';
-      ctx.fillRect(50, 50, 30, 80);
-      ctx.fillStyle = '#3a3a4a';
-      ctx.fillRect(52, 52, 26, 76);
-      ctx.fillStyle = '#2a2a3a';
-      ctx.fillRect(55, 55, 20, 10);
-
-      ctx.fillStyle = '#4a4a5a';
-      ctx.fillRect(720, 480, 30, 90);
-      ctx.fillStyle = '#3a3a4a';
-      ctx.fillRect(722, 482, 26, 86);
-      ctx.fillStyle = '#2a2a3a';
-      ctx.fillRect(725, 485, 20, 10);
-
-      ctx.fillStyle = '#8b4513';
-      ctx.fillRect(660, 520, 25, 40);
-      ctx.fillRect(655, 530, 35, 30);
-      ctx.fillStyle = '#654321';
-      ctx.fillRect(665, 525, 15, 10);
-
-      ctx.fillStyle = '#8b4513';
-      ctx.fillRect(120, 200, 25, 40);
-      ctx.fillRect(115, 210, 35, 30);
-      ctx.fillStyle = '#654321';
-      ctx.fillRect(125, 205, 15, 10);
-
-      ctx.fillStyle = '#d4d4c8';
-      ctx.fillRect(250, 500, 15, 3);
-      ctx.fillRect(500, 150, 15, 3);
-      ctx.fillRect(300, 80, 3, 15);
-      ctx.fillRect(550, 450, 3, 15);
-
-      ctx.fillStyle = '#1a1a28';
-      ctx.fillRect(0, 0, 800, 30);
-      ctx.fillRect(0, 570, 800, 30);
-      ctx.fillRect(0, 0, 30, 600);
-      ctx.fillRect(770, 0, 30, 600);
-
-      ctx.fillStyle = '#252535';
-      for (let i = 0; i < 800; i += 40) { ctx.fillRect(i, 5, 38, 20); ctx.fillRect(i + 20, 575, 38, 20); }
-      for (let i = 0; i < 600; i += 40) { ctx.fillRect(5, i, 20, 38); ctx.fillRect(775, i + 20, 20, 38); }
       if(shurikenCosmetic('shuriken-scholar_wild_west_ronin')){
         const g=ctx.createLinearGradient(0,0,0,600);g.addColorStop(0,'#b75a28');g.addColorStop(.55,'#df9850');g.addColorStop(1,'#75401f');ctx.fillStyle=g;ctx.fillRect(0,0,800,600);
         ctx.fillStyle='#9b592a';ctx.fillRect(0,0,800,600);ctx.fillStyle='#6f381f';for(let i=0;i<34;i++){ctx.fillRect((i*137+43)%800,(i*211+71)%600,24+(i%5)*14,4+(i%2)*2);}
@@ -535,6 +563,10 @@
         ctx.strokeStyle='#d8c28e';ctx.lineWidth=3;for(const [x,y,a] of [[120,520,.2],[455,105,-.5],[745,555,.4]]){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.beginPath();ctx.moveTo(-16,0);ctx.lineTo(16,0);ctx.moveTo(-8,-6);ctx.lineTo(-8,6);ctx.moveTo(0,-6);ctx.lineTo(0,6);ctx.moveTo(8,-6);ctx.lineTo(8,6);ctx.stroke();ctx.restore();}
         ctx.strokeStyle='#8a5a31';ctx.lineWidth=3;for(const [x,y] of [[275,80],[620,380],[360,450]]){ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);ctx.arc(x-7,y+2,9,0,Math.PI*2);ctx.arc(x+6,y-4,8,0,Math.PI*2);ctx.stroke();}
       }
+      terrainCacheCtx.clearRect(0,0,800,600);
+      terrainCacheCtx.drawImage(canvas,0,0);
+      terrainCacheKey=nextTerrainKey;
+      drawBackground();
     }
 
     function shadeColor(hex, percent) {
@@ -1350,6 +1382,15 @@
       ctx.fillStyle = '#5d4e37';
       ctx.fillRect(e.x - 12 + rumble, e.y + 18 + breathe, 8, 10);
       ctx.fillRect(e.x + 4 + rumble, e.y + 18 + breathe, 8, 10);
+
+      // Layered boulder plates, chipped edges, moss and glowing fault lines.
+      ctx.strokeStyle='#33291d';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(e.x-17+rumble,e.y-5+breathe);ctx.lineTo(e.x-8+rumble,e.y+breathe);ctx.lineTo(e.x-13+rumble,e.y+9+breathe);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(e.x+17+rumble,e.y-1+breathe);ctx.lineTo(e.x+8+rumble,e.y+5+breathe);ctx.lineTo(e.x+13+rumble,e.y+13+breathe);ctx.stroke();
+      ctx.fillStyle='#91815a';ctx.fillRect(e.x-17+rumble,e.y-17+breathe,9,3);ctx.fillRect(e.x+5+rumble,e.y+10+breathe,10,3);
+      ctx.fillStyle='#526b32';ctx.fillRect(e.x-20+rumble,e.y-11+breathe,5,9);ctx.fillRect(e.x-17+rumble,e.y-13+breathe,8,4);ctx.fillRect(e.x+12+rumble,e.y+12+breathe,5,5);
+      ctx.strokeStyle='#a85baa';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(e.x+rumble,e.y-1+breathe);ctx.lineTo(e.x-4+rumble,e.y+5+breathe);ctx.lineTo(e.x+1+rumble,e.y+10+breathe);ctx.stroke();
+      ctx.fillStyle='#261f18';ctx.fillRect(e.x-8+rumble,e.y+10+breathe,16,3);ctx.fillStyle='#a18b62';ctx.fillRect(e.x-6+rumble,e.y+10+breathe,3,2);ctx.fillRect(e.x+2+rumble,e.y+10+breathe,3,2);
     }
 
     function drawTreeGolem(e) {
@@ -1388,6 +1429,15 @@
       ctx.fillStyle = '#3e2723';
       ctx.fillRect(e.x - 14 + sway, e.y + 18 + breathe, 10, 10);
       ctx.fillRect(e.x + 4 + sway, e.y + 18 + breathe, 10, 10);
+
+      // Branch crown, bark rings, curling vines and asymmetric leaf growth.
+      ctx.strokeStyle='#2b1a16';ctx.lineWidth=5;ctx.lineCap='square';
+      ctx.beginPath();ctx.moveTo(e.x-9+sway,e.y-16+breathe);ctx.lineTo(e.x-17+sway,e.y-28+breathe);ctx.lineTo(e.x-23+sway,e.y-32+breathe);ctx.moveTo(e.x+8+sway,e.y-16+breathe);ctx.lineTo(e.x+15+sway,e.y-30+breathe);ctx.lineTo(e.x+23+sway,e.y-34+breathe);ctx.stroke();
+      ctx.strokeStyle='#795548';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(e.x-9+sway,e.y-16+breathe);ctx.lineTo(e.x-17+sway,e.y-28+breathe);ctx.moveTo(e.x+8+sway,e.y-16+breathe);ctx.lineTo(e.x+15+sway,e.y-30+breathe);ctx.stroke();
+      ctx.fillStyle='#39743b';for(const [lx,ly,sz] of [[-24,-34,8],[-15,-28,7],[24,-35,9],[14,-30,7],[-29,-7,6],[27,-5,7]]){ctx.fillRect(e.x+lx+sway,e.y+ly+breathe,sz,sz-2);}
+      ctx.strokeStyle='#2f6e35';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(e.x-14+sway,e.y-10+breathe);ctx.bezierCurveTo(e.x-25+sway,e.y,e.x-5+sway,e.y+8,e.x-18+sway,e.y+18);ctx.stroke();
+      ctx.strokeStyle='#8d6652';ctx.lineWidth=1;for(let yy=-9;yy<=11;yy+=7){ctx.beginPath();ctx.moveTo(e.x-13+sway,e.y+yy+breathe);ctx.quadraticCurveTo(e.x+sway,e.y+yy+4+breathe,e.x+13+sway,e.y+yy+breathe);ctx.stroke();}
+      ctx.fillStyle='#9ccc65';ctx.fillRect(e.x-2+sway,e.y-3+breathe,4,4);ctx.fillRect(e.x+18+sway,e.y-27+breathe,3,3);
     }
 
     function drawSmokeGolem(e) {
@@ -1420,6 +1470,13 @@
       ctx.fillRect(e.x + 4, e.y - 12 + breathe + float, 6, 8);
 
       ctx.globalAlpha = 1;
+
+      // Layered vapor lobes and animated spiral wisps keep the body gaseous.
+      ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#d9e1e8';
+      for(let i=0;i<6;i++){const a=e.anim*.025+i*Math.PI/3,r=17+(i%2)*5;ctx.beginPath();ctx.arc(e.x+Math.cos(a)*r,e.y+float+Math.sin(a)*11,8+(i%3)*2,0,Math.PI*2);ctx.fill();}
+      ctx.globalAlpha=.55;ctx.strokeStyle='#cfd8dc';ctx.lineWidth=2;
+      for(let i=0;i<3;i++){const side=i%2?1:-1,wy=e.y-20-i*7+float;ctx.beginPath();ctx.moveTo(e.x+side*8,wy+14);ctx.bezierCurveTo(e.x+side*26,wy+8,e.x-side*5,wy-2,e.x+side*18,wy-10);ctx.stroke();}
+      ctx.globalAlpha=.85;ctx.fillStyle='#eceff1';ctx.fillRect(e.x-8,e.y-10+breathe+float,3,3);ctx.fillRect(e.x+5,e.y-10+breathe+float,3,3);ctx.restore();
     }
 
     function drawFireGolem(e) {
@@ -1457,6 +1514,13 @@
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(e.x - 8 * scale + flicker, e.y - 10 * scale + breathe, 2 * scale, 4 * scale);
       ctx.fillRect(e.x + 6 * scale + flicker, e.y - 10 * scale + breathe, 2 * scale, 4 * scale);
+
+      // Obsidian armor plates split by animated magma seams and drifting embers.
+      ctx.fillStyle='#3a1717';ctx.fillRect(e.x-17*scale+flicker,e.y+2*scale+breathe,12*scale,10*scale);ctx.fillRect(e.x+5*scale+flicker,e.y+2*scale+breathe,12*scale,10*scale);
+      ctx.fillStyle='#1f1518';ctx.fillRect(e.x-22*scale+flicker,e.y-5*scale+breathe,6*scale,17*scale);ctx.fillRect(e.x+16*scale+flicker,e.y-5*scale+breathe,6*scale,17*scale);
+      ctx.strokeStyle='#ffb000';ctx.lineWidth=Math.max(1,1.5*scale);ctx.beginPath();ctx.moveTo(e.x-13*scale+flicker,e.y-15*scale+breathe);ctx.lineTo(e.x-4*scale+flicker,e.y-4*scale+breathe);ctx.lineTo(e.x-9*scale+flicker,e.y+8*scale+breathe);ctx.moveTo(e.x+14*scale+flicker,e.y-12*scale+breathe);ctx.lineTo(e.x+6*scale+flicker,e.y-2*scale+breathe);ctx.lineTo(e.x+11*scale+flicker,e.y+10*scale+breathe);ctx.stroke();
+      ctx.fillStyle='#ffd740';for(let i=0;i<4;i++){const ex=e.x+((i*13+e.anim*.35)%38-19)*scale,ey=e.y-(24+((e.anim*.8+i*11)%22))*scale;ctx.fillRect(ex,ey,Math.max(1,2*scale),Math.max(1,2*scale));}
+      ctx.fillStyle='#ff6d00';ctx.beginPath();ctx.moveTo(e.x-13*scale+flicker,e.y-18*scale+breathe);ctx.lineTo(e.x-7*scale+flicker,e.y-31*scale-flicker);ctx.lineTo(e.x-2*scale+flicker,e.y-18*scale+breathe);ctx.moveTo(e.x+1*scale+flicker,e.y-18*scale+breathe);ctx.lineTo(e.x+8*scale+flicker,e.y-34*scale+flicker);ctx.lineTo(e.x+14*scale+flicker,e.y-18*scale+breathe);ctx.fill();
     }
 
     function drawBullet(b) {
@@ -1785,11 +1849,16 @@
     }
 
     function maintainEnemies() {
+      // Enemies left far behind by camera movement no longer occupy population
+      // slots forever. Bosses are exempt so players cannot escape a boss fight.
+      enemies=enemies.filter(e=>e.isBoss||Math.abs(e.x-player.x)<1000&&Math.abs(e.y-player.y)<900);
       for(const e of enemies){if(e.stageModifierApplied)continue;e.stageModifierApplied=true;if(progress.selectedStage==='nightmare-forest')e.speed*=1.15;if(progress.selectedStage==='ruined-kingdom'){e.hp*=2;e.maxHp*=2;}}
       const upgradeSpawnAmount = SPAWNING_ADDS_UPGRADE_AMOUNT
         ? Math.pow(1.15, currentCharUpgrades() / 2)
         : 0;
-      const target = Math.max(1, Math.round((player.level + upgradeSpawnAmount) * curseEffects.spawnRateMult));
+      const bossWave=enemies.some(e=>e.isBoss&&!e.dead);
+      const baseTarget=(bossWave?-2:3)+player.level*2+upgradeSpawnAmount;
+      const target = Math.max(1, Math.round(baseTarget * curseEffects.spawnRateMult));
       if (enemies.length < target && (game.frame % 5 === 0)) spawnEnemy();
     }
 
@@ -3038,6 +3107,62 @@
       maintainEnemies();
     }
 
+    // The fighter remains at screen centre while the battlefield moves in the
+    // opposite direction. Keeping combat objects in screen space lets the
+    // existing targeting/collision system continue to work unchanged.
+    function shiftBattlefield(dx,dy){
+      if(!dx&&!dy)return;
+      secretWorldX-=dx;secretWorldY-=dy;
+      const groups=[enemies,bullets,darts,shadowTraps,rootSpikes,poisonPools,smokeClouds,
+        healingOrbs,trollFireballs,ectoplasmMarkers,naginataSpears,bowArrows,enemyArrows,
+        particles,samuraiServants,katanaSlashFX,shockwaves,arrowRainMarkers,toxicMistPools,
+        earthquakeZones,crackedEarthZones,voidGhostTrail];
+      for(const group of groups){
+        for(const item of group){
+          if(Number.isFinite(item.x))item.x-=dx;
+          if(Number.isFinite(item.y))item.y-=dy;
+        }
+      }
+      for(const e of enemies){
+        if(e.smokeTrail)for(const trail of e.smokeTrail){trail.x-=dx;trail.y-=dy;}
+      }
+      for(const laser of voidLasers){
+        if(Number.isFinite(laser.x1))laser.x1-=dx;
+        if(Number.isFinite(laser.y1))laser.y1-=dy;
+        if(Number.isFinite(laser.x2))laser.x2-=dx;
+        if(Number.isFinite(laser.y2))laser.y2-=dy;
+      }
+      targetX-=dx;targetY-=dy;
+      if(tapMoveTarget.active){tapMoveTarget.x-=dx;tapMoveTarget.y-=dy;}
+      if(samuraiHasWalkTarget){samuraiWalkTargetX-=dx;samuraiWalkTargetY-=dy;}
+      player.x=400;player.y=300;
+    }
+
+    function updatePlayerMovement(){
+      let mx=(secretMoveKeys.ArrowRight||secretMoveKeys.KeyD?1:0)-(secretMoveKeys.ArrowLeft||secretMoveKeys.KeyA?1:0);
+      let my=(secretMoveKeys.ArrowDown||secretMoveKeys.KeyS?1:0)-(secretMoveKeys.ArrowUp||secretMoveKeys.KeyW?1:0);
+      let speed=PLAYER_MOVE_SPEED;
+      const keyboardInput=!!(mx||my);
+      if(keyboardInput)tapMoveTarget.active=false;
+      if(!mx&&!my&&tapMoveTarget.active){
+        const tap=norm(tapMoveTarget.x-player.x,tapMoveTarget.y-player.y);
+        if(tap.d>6){mx=tap.nx;my=tap.ny;}
+        else tapMoveTarget.active=false;
+      }
+      const directInput=!!(mx||my||touchMove.active);
+      if((keyboardInput||tapMoveTarget.active)&&player.character==='samurai')samuraiHasWalkTarget=false;
+      if(!mx&&!my&&player.character==='samurai'&&samuraiHasWalkTarget){
+        const walk=norm(samuraiWalkTargetX-player.x,samuraiWalkTargetY-player.y);
+        if(walk.d>4){mx=walk.nx;my=walk.ny;speed=SAMURAI_WALK_SPEED;}
+        else samuraiHasWalkTarget=false;
+      }
+      const movement=norm(mx,my);
+      if(movement.d){
+        shiftBattlefield(movement.nx*speed, movement.ny*speed);
+        player.facingAngle=Math.atan2(movement.ny,movement.nx);
+      }
+    }
+
     function update() {
       if (!game.active || game.paused) return;
 
@@ -3045,19 +3170,11 @@
         game.time += 16;
         game.frame++;
 
-        if(shurikenSecret('secret_map_border')){const mx=(secretMoveKeys.ArrowRight||secretMoveKeys.KeyD?1:0)-(secretMoveKeys.ArrowLeft||secretMoveKeys.KeyA?1:0),my=(secretMoveKeys.ArrowDown||secretMoveKeys.KeyS?1:0)-(secretMoveKeys.ArrowUp||secretMoveKeys.KeyW?1:0),v=norm(mx,my),sx=v.nx*3.2,sy=v.ny*3.2;if(v.d){secretWorldX-=sx;secretWorldY-=sy;const groups=[enemies,bullets,darts,shadowTraps,poisonPools,smokeClouds,healingOrbs,trollFireballs,ectoplasmMarkers,naginataSpears,bowArrows,enemyArrows,particles];for(const group of groups)for(const item of group){if(Number.isFinite(item.x))item.x-=sx;if(Number.isFinite(item.y))item.y-=sy;}player.x=400;player.y=300;targetX-=sx;targetY-=sy;}}
+        updatePlayerMovement();
 
         maintainEnemies();
         if(player.character==='paradox'&&game.frame%120===0){for(const e of enemies){if(!e.dead&&Math.hypot(e.x-player.x,e.y-player.y)<145)dealWeaponDamage(e,Math.max(2,upgrades.damage*1.2),'shuriken');}for(let i=0;i<18;i++){const a=i*Math.PI/9;particles.push({x:player.x,y:player.y,vx:Math.cos(a)*3,vy:Math.sin(a)*3,size:4,color:i%2?'#54f5ff':'#ff4fc8',start:Date.now(),life:500});}}
         if (player.character === 'samurai') {
-          const wv = norm(samuraiWalkTargetX - player.x, samuraiWalkTargetY - player.y);
-          if (wv.d > 4) {
-            player.x += wv.nx * SAMURAI_WALK_SPEED;
-            player.y += wv.ny * SAMURAI_WALK_SPEED;
-            player.facingAngle = Math.atan2(wv.ny, wv.nx);
-            player.x = Math.max(30, Math.min(770, player.x));
-            player.y = Math.max(30, Math.min(570, player.y));
-          }
           katanaSlash();
           if (upgrades.naginataUnlocked) naginataThrow();
           if (upgrades.bowUnlocked) bowShoot();
@@ -4428,6 +4545,12 @@
       ctx.globalAlpha = 1;
     }
 
+    function drawScaledSprite(drawFn,item,centerX,centerY){
+      const x=Number.isFinite(centerX)?centerX:Number.isFinite(item?.x)?item.x:Number.isFinite(item?.x1)&&Number.isFinite(item?.x2)?(item.x1+item.x2)/2:player.x;
+      const y=Number.isFinite(centerY)?centerY:Number.isFinite(item?.y)?item.y:Number.isFinite(item?.y1)&&Number.isFinite(item?.y2)?(item.y1+item.y2)/2:player.y;
+      ctx.save();ctx.translate(x,y);ctx.scale(SPRITE_RENDER_SCALE,SPRITE_RENDER_SCALE);ctx.translate(-x,-y);drawFn(item);ctx.restore();
+    }
+
     function draw() {
       const shake = getShakeOffset();
       ctx.save();
@@ -4437,31 +4560,37 @@
       
       for (const e of enemies) {
         if ((e.type === 'smoke_golem' || (e.type === 'mimic' && e.mimicking === 'smoke_golem')) && e.smokeTrail) {
-          e.smokeTrail.forEach(drawSmokeTrail);
+          e.smokeTrail.forEach(trail=>drawScaledSprite(drawSmokeTrail,trail));
         }
       }
       
-      smokeClouds.forEach(drawSmokeCloud);
-      poisonPools.forEach(drawPoisonPool);
-      ectoplasmMarkers.forEach(drawEctoplasm);
-      voidGhostTrail.forEach(drawVoidGhostTrail);
-      voidLasers.forEach(drawVoidLaser);
-      shadowTraps.forEach(drawShadowTrap);
-      rootSpikes.forEach(drawRootSpike);
-      healingOrbs.forEach(drawHealingOrb);
-      trollFireballs.forEach(drawTrollFireball);
-      arrowRainMarkers.forEach(drawArrowRainMarker);
-      samuraiServants.forEach(drawServant);
-      enemies.forEach(drawEnemy);
-      bullets.forEach(drawBullet);
-      darts.forEach(drawDart);
-      naginataSpears.forEach(drawNaginataSpear);
-      bowArrows.forEach(drawBowArrow);
-      katanaSlashFX.forEach(drawKatanaSlash);
-      shockwaves.forEach(drawShockwave);
-      enemyArrows.forEach(drawEnemyArrow);
-      particles.forEach(drawParticle);
-      drawPlayer();
+      smokeClouds.forEach(item=>drawScaledSprite(drawSmokeCloud,item));
+      poisonPools.forEach(item=>drawScaledSprite(drawPoisonPool,item));
+      ectoplasmMarkers.forEach(item=>drawScaledSprite(drawEctoplasm,item));
+      voidGhostTrail.forEach(item=>drawScaledSprite(drawVoidGhostTrail,item));
+      voidLasers.forEach(item=>drawScaledSprite(drawVoidLaser,item));
+      shadowTraps.forEach(item=>drawScaledSprite(drawShadowTrap,item));
+      rootSpikes.forEach(item=>drawScaledSprite(drawRootSpike,item));
+      healingOrbs.forEach(item=>drawScaledSprite(drawHealingOrb,item));
+      trollFireballs.forEach(item=>drawScaledSprite(drawTrollFireball,item));
+      arrowRainMarkers.forEach(item=>drawScaledSprite(drawArrowRainMarker,item));
+      samuraiServants.forEach(item=>drawScaledSprite(drawServant,item));
+      enemies.forEach(item=>drawScaledSprite(drawEnemy,item));
+      bullets.forEach(item=>drawScaledSprite(drawBullet,item));
+      darts.forEach(item=>drawScaledSprite(drawDart,item));
+      naginataSpears.forEach(item=>drawScaledSprite(drawNaginataSpear,item));
+      bowArrows.forEach(item=>drawScaledSprite(drawBowArrow,item));
+      katanaSlashFX.forEach(item=>drawScaledSprite(drawKatanaSlash,item));
+      shockwaves.forEach(item=>drawScaledSprite(drawShockwave,item));
+      enemyArrows.forEach(item=>drawScaledSprite(drawEnemyArrow,item));
+      particles.forEach(item=>drawScaledSprite(drawParticle,item));
+      drawScaledSprite(drawPlayer,null,player.x,player.y);
+      if(tapMoveTarget.active){
+        ctx.save();ctx.globalAlpha=.65;ctx.strokeStyle='#00d4ff';ctx.lineWidth=2;ctx.setLineDash([7,7]);
+        ctx.beginPath();ctx.moveTo(player.x,player.y);ctx.lineTo(tapMoveTarget.x,tapMoveTarget.y);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='rgba(19,10,36,.55)';ctx.beginPath();ctx.arc(tapMoveTarget.x,tapMoveTarget.y,18,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#00d4ff';ctx.lineWidth=3;ctx.stroke();ctx.restore();
+      }
       ctx.restore();
     }
 
@@ -4794,6 +4923,7 @@
       if (player.exp >= expReq) {
         player.exp -= expReq;
         player.level++;
+        if(player.level>=25) window.AchievementManager?.notify?.('shuriken_stage_25',{facts:{mastery_shuriken_scholar:1}});
         progress.stageBestLevels[progress.selectedStage]=Math.max(progress.stageBestLevels[progress.selectedStage]||0,player.level);saveProgress();
         game.paused = true;
         showLevelUpText();
@@ -6076,6 +6206,7 @@
       player.x = 400; player.y = 300;
       player.facingAngle = 0;
       samuraiWalkTargetX = 400; samuraiWalkTargetY = 300;
+      samuraiHasWalkTarget = false;
       player.hp = 100; player.maxHp = 100;
       player.level = 1; player.exp = 0; player.kills = 0;
       player.character = progress.selectedCharacter==='skeleton'&&shurikenSecret('secret_skeleton')?'skeleton':progress.selectedCharacter==='paradox'&&shurikenSecret('secret_glitch_aura')?'paradox':progress.selectedCharacter === 'samurai' && progress.samuraiUnlocked ? 'samurai' : 'ninja';
@@ -6098,6 +6229,7 @@
       shadowReady = true; servantReady = true;
       targetX = 401; targetY = 300;
       secretWorldX=0;secretWorldY=0;
+      tapMoveTarget={x:400,y:300,active:false};
 
       upgrades.projSpeed = 5;
       upgrades.damage = 1;
@@ -6304,17 +6436,43 @@
       }
     }
 
+    function canvasPoint(e){
+      const rect=canvas.getBoundingClientRect();
+      return {x:(e.clientX-rect.left)*(canvas.width/rect.width),y:(e.clientY-rect.top)*(canvas.height/rect.height)};
+    }
+    canvas.addEventListener('pointerdown',e=>{
+      if(e.pointerType!=='touch'||!game.active||game.paused)return;
+      const point=canvasPoint(e);touchMove={active:true,pointerId:e.pointerId,startX:point.x,startY:point.y,x:point.x,y:point.y,moved:false};
+      tapMoveTarget={x:point.x,y:point.y,active:true};
+      canvas.setPointerCapture?.(e.pointerId);
+    });
+    canvas.addEventListener('pointermove',e=>{
+      if(!touchMove.active||e.pointerId!==touchMove.pointerId)return;
+      const point=canvasPoint(e);touchMove.x=point.x;touchMove.y=point.y;
+      tapMoveTarget.x=point.x;tapMoveTarget.y=point.y;
+      if(Math.hypot(point.x-touchMove.startX,point.y-touchMove.startY)>10)touchMove.moved=true;
+    });
+    const finishTouchMove=e=>{
+      if(!touchMove.active||e.pointerId!==touchMove.pointerId)return;
+      suppressNextCanvasClick=touchMove.moved;touchMove.active=false;touchMove.pointerId=null;
+      if(suppressNextCanvasClick)setTimeout(()=>{suppressNextCanvasClick=false;},400);
+    };
+    canvas.addEventListener('pointerup',finishTouchMove);
+    canvas.addEventListener('pointercancel',finishTouchMove);
+
     canvas.addEventListener('click', (e) => {
       if (!game.active || game.paused) return;
+      if(suppressNextCanvasClick){suppressNextCanvasClick=false;return;}
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
       const clickX = (e.clientX - rect.left) * scaleX;
       const clickY = (e.clientY - rect.top) * scaleY;
+      tapMoveTarget = {x:clickX,y:clickY,active:true};
 
       if (player.character === 'samurai') {
         if (upgrades.servantUnlocked) placeServant(clickX, clickY);
-        samuraiWalkTargetX = clickX; samuraiWalkTargetY = clickY;
+        samuraiWalkTargetX = clickX; samuraiWalkTargetY = clickY; samuraiHasWalkTarget = true;
         return;
       }
 

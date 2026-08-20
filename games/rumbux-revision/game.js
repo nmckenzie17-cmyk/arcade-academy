@@ -1910,6 +1910,11 @@ class Player extends Entity {
 
     this.maxHealth = Math.round(metaMaxHealth);
     this.health = this.maxHealth;
+    if (window.AchievementManager?.hasBoost?.('rumbux-revision_study_shield')) {
+      this.baseMaxHealth += 10;
+      this.maxHealth += 10;
+      this.health += 10;
+    }
     this.baseDamage = def.damage;
     this.baseSpeed = def.speed;
     this.palette = def.palette;
@@ -4176,7 +4181,8 @@ class Game {
 
   onEnemyDefeated(e) {
     this.run.enemiesDefeated++;
-    window.AchievementManager?.notify?.('enemy_defeated', { amount:1, facts:{ rumbuxBestCombo:this.player.comboCount||0 } });
+    const combo = this.player.comboCount||0;
+    window.AchievementManager?.notify?.('enemy_defeated', { amount:1, facts:{ rumbuxBestCombo:combo, mastery_rumbux_revision:combo>=15?1:0 } });
     this.player.stats.defeats++;
     const val = (e.def && e.def.scoreValue) || 100;
     this.run.score += Math.round(val * (1 + this.player.comboCount*0.02));

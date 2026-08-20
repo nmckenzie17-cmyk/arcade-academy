@@ -177,6 +177,28 @@ function showScreen(name) {
     if (el) el.hidden = key !== name;
   });
 
+  if (name === "hub") startHubMusic();
+  else stopHubMusic();
+
+}
+
+let hubMusic = null;
+
+function unlockHubMusic() {
+  document.removeEventListener('pointerdown', unlockHubMusic);
+  document.removeEventListener('keydown', unlockHubMusic);
+  startHubMusic();
+}
+
+function startHubMusic() {
+  if (screens.hub?.hidden || (hubMusic && !hubMusic.paused)) return;
+  hubMusic = window.AudioManager?.playSyncedMusic('shared/music/hub-menu.mp3');
+}
+
+function stopHubMusic() {
+  hubMusic?.pause();
+  document.removeEventListener('pointerdown', unlockHubMusic);
+  document.removeEventListener('keydown', unlockHubMusic);
 }
 
 
@@ -665,6 +687,44 @@ function clearProfileError() {
 
 const hubPlayerNameEl = document.querySelector("#hub-player-name");
 const signOutBtn = document.querySelector("#sign-out-btn");
+const soundSettingsButton = document.querySelector("#sound-settings-button");
+const soundSettingsOverlay = document.querySelector("#sound-settings-overlay");
+const soundSettingsClose = document.querySelector("#sound-settings-close");
+
+function renderSoundSettings() {
+  const settings = window.AudioManager?.getSettings();
+  if (!settings) return;
+  soundSettingsOverlay?.querySelectorAll('[data-audio-channel]').forEach(input => {
+    const value = Math.round(settings[input.dataset.audioChannel] * 100);
+    input.value = value;
+    document.querySelector(`#${input.id}-output`).textContent = `${value}%`;
+  });
+}
+
+function closeSoundSettings() {
+  if (!soundSettingsOverlay) return;
+  soundSettingsOverlay.hidden = true;
+  soundSettingsButton?.focus();
+}
+
+soundSettingsButton?.addEventListener('click', () => {
+  renderSoundSettings();
+  soundSettingsOverlay.hidden = false;
+  soundSettingsClose?.focus();
+});
+soundSettingsClose?.addEventListener('click', closeSoundSettings);
+soundSettingsOverlay?.addEventListener('click', event => {
+  if (event.target === soundSettingsOverlay) closeSoundSettings();
+});
+soundSettingsOverlay?.querySelectorAll('[data-audio-channel]').forEach(input => {
+  input.addEventListener('input', () => {
+    window.AudioManager?.setVolume(input.dataset.audioChannel, Number(input.value) / 100);
+    document.querySelector(`#${input.id}-output`).textContent = `${input.value}%`;
+  });
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && soundSettingsOverlay && !soundSettingsOverlay.hidden) closeSoundSettings();
+});
 
 
 signOutBtn?.addEventListener("click", async () => {

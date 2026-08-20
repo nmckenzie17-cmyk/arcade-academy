@@ -459,6 +459,7 @@
     if (isSinglePlayer) {
       const result = finishedMatch.winner === 'draw' ? 'draw' : finishedMatch.winner === player.uid ? 'win' : 'loss';
       PlatformManager.recordMultiplayerResult(GAME_ID, result);
+      if(result==='win'&&(PlatformManager.getGameStats(GAME_ID)?.wins||0)>=20) window.AchievementManager?.notify?.('tic_tac_toe_twenty_wins',{facts:{mastery_tic_tac_toe:1}});
       updateHomeStats();
       return;
     }
@@ -466,6 +467,7 @@
       const reward = await MultiplayerManager.claimRoundReward(finishedMatch.id, finishedMatch.round);
       if (reward) {
         PlatformManager.recordMultiplayerResult(GAME_ID, reward.result);
+        if(reward.result==='win'&&(PlatformManager.getGameStats(GAME_ID)?.wins||0)>=20) window.AchievementManager?.notify?.('tic_tac_toe_twenty_wins',{facts:{mastery_tic_tac_toe:1}});
         updateHomeStats();
       }
     } catch (error) {

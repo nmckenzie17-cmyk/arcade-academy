@@ -497,6 +497,7 @@ let currentStageId=0;
 let nextStageId=null;
 let lastStageBoundaryCount=0;
 let baseProgressIndex=0;
+let masteryStageSequence=[];
 let forceRainbowNextRun=false;
 // Any future stage just needs to be added to ALL_REAL_STAGES (and BASE_STAGE_ORDER if it
 // should be part of the normal rotation) to be picked up by this system automatically.
@@ -579,6 +580,10 @@ if(boundaryCount!==lastStageBoundaryCount){
 lastStageBoundaryCount=boundaryCount;
 currentStageId=nextStageId!==null?nextStageId:resolveNextStage();
 nextStageId=null;
+const masteryTarget=[0,2,0,2];
+const candidate=[...masteryStageSequence,currentStageId];
+masteryStageSequence=masteryTarget.slice(0,candidate.length).every((id,index)=>id===candidate[index])?candidate:(currentStageId===0?[0]:[]);
+if(masteryStageSequence.length===masteryTarget.length)window.AchievementManager?.notify?.('jetpack_time_flyer',{facts:{mastery_jetpack_journey:1}});
 // Any obstacles still on screen from the previous stage are left alone here - they keep
 // scrolling and get cleaned up naturally once off-screen (see updateObstacles). Only new
 // spawning of that stage's obstacles is what actually stops.
@@ -742,8 +747,9 @@ function resetGame(){
 runCoins=0;
 player.y=canvas.height/2;player.vy=0;player.frameCounter=0;player.inputDisabled=false;player.fireFrame=0;
 groundOffset=0;gameStarted=false;countdownValue=3;countdownTime=0;score=0;gameOver=false;finalScore=0;
-lastStageBoundaryCount=0;nextStageId=null;baseProgressIndex=0;
+lastStageBoundaryCount=0;nextStageId=null;baseProgressIndex=0;masteryStageSequence=[];
 if(forceRainbowNextRun){currentStageId=5;forceRainbowNextRun=false;}else{currentStageId=0;}
+if(currentStageId===0)masteryStageSequence=[0];
 obstacles=[];obstacleSpawnTimer=0;coins=[];coinSpawnTimer=0;
 fuel=getFuelCapacity()*0.50;fuelCans=[];fuelStageKey=-1;fuelCanPlan=[];closeMemoryGame(false);
 deathQuiz={active:false,term:'',options:[],resultMessage:''};deathCoinButtonRect=null;playAgainButtonRect=null;openShopFromGameOverRect=null;

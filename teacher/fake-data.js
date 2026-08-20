@@ -55,6 +55,8 @@
     { id: "jetpack", name: "Pixel Jetpack" },
     { id: "nova-guardians", name: "Nova Guardians" },
     { id: "bloom-brigade", name: "Bloom Brigade" },
+    { id: "rumbux-revision", name: "Rumbux Revision" },
+    { id: "ko-klarity", name: "KO Klarity" },
   ];
   const GAME_SCORE_RANGE = {
     "cavern-crammer": [400, 3200],
@@ -63,6 +65,8 @@
     jetpack: [500, 9000],
     "nova-guardians": [300, 4200],
     "bloom-brigade": [400, 5200],
+    "rumbux-revision": [500, 12000],
+    "ko-klarity": [500, 9000],
   };
 
   // ---------------------------------------------------------------

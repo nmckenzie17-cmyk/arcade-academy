@@ -15,6 +15,8 @@ const gameFolders = [
   "tic-tac-toe",
   "pool-practice"
   ,"dot-n-box-deducer"
+  ,"rumbux-revision"
+  ,"ko-klarity"
 ];
 
 let studentDocuments = null;

@@ -155,7 +155,7 @@ try {
     // starts, mutated locally as coins are earned/spent during play, and
     // reconciled back into PlatformManager at each commit point (game over,
     // shop purchase, cheat code) — see commitCoinsToPlatform().
-    let scoreUpgradeLevel=0, chainUpgradeLevel=0, superBonusLevel=0, chain=0, graceNoteUsed=false;
+    let scoreUpgradeLevel=0, chainUpgradeLevel=0, superBonusLevel=0, chain=0, perfectZoneStreak=0, graceNoteUsed=false;
     let highScore=0, totalCorrectAnswers=0, totalNotesPlayed=0, playerData=null, notesHitSession=0;
     let gameOverReason='';
     function upgradeCost(){return PlatformManager.permanentUpgradeCost(scoreUpgradeLevel);}
@@ -407,7 +407,8 @@ try {
       }
       cancelAnimationFrame(animFrame);
       document.querySelectorAll('.lane-note').forEach(n=>n.remove());
-      notes=[];gameState='playing';score=0;health=100;totalCorrect=0;coins=PlatformManager.getCoins();notesHitSession=0;gameOverReason='';chain=0;graceNoteUsed=false;
+      notes=[];gameState='playing';score=0;health=100;totalCorrect=0;coins=PlatformManager.getCoins();notesHitSession=0;gameOverReason='';chain=0;perfectZoneStreak=0;graceNoteUsed=false;
+      window.AudioManager?.fadeOutMusic();
       // One PlatformManager session per sitting — playing another song after
       // this one (via backToMenu -> startGame again) doesn't start a new one.
       PlatformManager.startSession(GAME_CONFIG.id);
@@ -586,6 +587,8 @@ try {
       const idx=notes.findIndex(n=>n.el===el);if(idx===-1)return;
       const n=notes[idx];
       const perfect=isInPerfectZone(n);
+      perfectZoneStreak=perfect?perfectZoneStreak+1:0;
+      if(perfectZoneStreak>=64) window.AchievementManager?.notify?.('note_perfect_performance',{facts:{mastery_note_knowledge:1}});
       if(perfect)spawnPerfectEffect(el,!n.isChorus||n.isCorrect);
       el.remove();notes.splice(idx,1);
       notesHitSession++;
@@ -604,6 +607,8 @@ try {
       const idx=notes.findIndex(n=>n.el===el);if(idx===-1)return;
       const n=notes[idx];
       const perfect=isInPerfectZone(n);
+      perfectZoneStreak=perfect?perfectZoneStreak+1:0;
+      if(perfectZoneStreak>=64) window.AchievementManager?.notify?.('note_perfect_performance',{facts:{mastery_note_knowledge:1}});
       if(perfect){spawnPerfectEffect(el,true);score+=Math.round(n.holdTicks*5*0.5);}
       clearInterval(n.holdTimer);el.remove();notes.splice(idx,1);notesHitSession++;registerChainHit();playTone(300,0.15);updateHUD();
     }
@@ -611,6 +616,7 @@ try {
     function hitHoldNote(el,duration){ completeHoldNote(el); }
 
     function missNote(idx){
+      perfectZoneStreak=0;
       const n=notes[idx];
       if(!n.isChorus||n.isCorrect) spawnFloatingWord(n.el, MISS_WORDS);
       n.el.remove();notes.splice(idx,1);
@@ -687,6 +693,7 @@ try {
 
     function backToMenu(){
       cancelAnimationFrame(animFrame);gameState='menu';
+      window.AudioManager?.playSyncedMusic('../../shared/music/jetpack-journey-menu.mp3');
       PlatformManager.heartbeat(GAME_CONFIG.id, false);
       document.getElementById('gameover-screen').classList.add('hidden');
       document.getElementById('game-screen').style.display='none';
@@ -712,7 +719,7 @@ try {
       if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
       const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
       osc.type='square';osc.frequency.value=freq;
-      gain.gain.setValueAtTime(0.15,audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.15*(window.AudioManager?.getVolume('player')??1),audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
       osc.connect(gain);gain.connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+dur);
     }

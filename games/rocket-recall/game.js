@@ -11,6 +11,9 @@
 
         // Top border that aliens can't spawn past (highest/most-negative allowed spawn Y).
         const TOP_BORDER = -250;
+        function playLaserFireSound() {
+            window.AudioManager?.playOneShot('music/laser-fire.mp3', { channel: 'player', baseVolume: 1 });
+        }
         function rocketCosmetic(id){return typeof AchievementManager!=='undefined'&&Object.values(AchievementManager.getEquipped('rocket-recall')).some(r=>r?.id===id);}
         let secretRocketCharacter=localStorage.getItem('rocketSecretCharacter')||'fighter';
         function isRocketCharacter(id){return secretRocketCharacter===id;}
@@ -19,6 +22,7 @@
         function saveRocketShips(){localStorage.setItem('rocketStarships',JSON.stringify(rocketShipProgress));}
         function carrierUnlocked(){if(window.AchievementManager?.hasTypeUnlock?.('rocket-recall-combat-carrier'))return true;const overall=PlatformManager.getOverallStats?.()||{};const other=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!=='rocket-recall'&&(g.correct||0)>=250),earned=(overall.totalCorrect||0)>=1000&&other.length>=3;if(earned)window.AchievementManager?.grantTypeUnlock?.('rocket-recall-combat-carrier',{name:'Combat Carrier',kind:'character',gameId:'rocket-recall',detail:'Build escort fighters instead of firing directly.'});return earned;}
         function shipOwned(id){return id==='carrier'?carrierUnlocked():rocketShipProgress.owned.includes(id);}
+        function checkAllShipsMastery(){if(['fighter','scout','destroyer'].every(id=>rocketShipProgress.owned.includes(id))&&carrierUnlocked())window.AchievementManager?.notify?.('rocket_all_ships',{facts:{mastery_rocket_recall:1}});}
         function setRocketCharacter(id){if(!shipOwned(id)&&!['bone','phase'].includes(id))return;secretRocketCharacter=id;localStorage.setItem('rocketSecretCharacter',id);renderSecretRocketCharacters();renderStarshipsTab();}
         function renderSecretRocketCharacters(){const host=document.getElementById('gameOverShopUpgrades');if(!host)return;document.getElementById('secretRocketCharacters')?.remove();const choices=[['fighter','Academy Fighter','Standard controls.'],...(window.AchievementManager?.hasSecret?.('secret_skeleton')?[['bone','Bone Revenant','Half hull, bone ammunition and alien resurrection.']]:[]),...(window.AchievementManager?.hasSecret?.('secret_glitch_aura')?[['phase','Phase Weaver','40% faster, wraps across screen edges and fires dimensional side shots.']]:[])];if(choices.length<2)return;const box=document.createElement('div');box.id='secretRocketCharacters';box.className='shop-item';box.innerHTML='<p class="shop-name">Secret Ships</p>'+choices.map(c=>`<button class="shop-btn" data-character="${c[0]}" style="width:100%;margin:4px 0">${isRocketCharacter(c[0])?'✅ ':''}${c[1]} — ${c[2]}</button>`).join('');host.prepend(box);box.querySelectorAll('[data-character]').forEach(b=>b.onclick=()=>setRocketCharacter(b.dataset.character));}
         window.addEventListener('arcade-achievement-manager-ready',()=>{if(document.getElementById('shopScreen')?.style.display==='block')renderSecretRocketCharacters();});
@@ -462,6 +466,7 @@
                 const mods = buildBulletMods(extraForce);
                 const specs = this.buildShotSpecs();
                 this.fireBullets(specs, mods);
+                playLaserFireSound();
 
                 if (game.rapidFireActive) {
                     game.rapidFireShotCounter += shotAmmoCost;
@@ -483,6 +488,7 @@
                             if (game.state !== GameState.PLAYING) return;
                             if (game.ammo < shotAmmoCost) return;
                             this.fireBullets(this.buildShotSpecs(), mods);
+                            playLaserFireSound();
                             game.ammo -= shotAmmoCost;
                             updateUI();
                         }, b * 70);
@@ -3862,7 +3868,7 @@
             renderStarshipsTab();
         }
 
-        function renderStarshipsTab(){const container=document.getElementById('gameOverShopStarships');if(!container)return;container.innerHTML='';for(const [id,def] of Object.entries(STARSHIPS)){if(def.hidden&&!carrierUnlocked())continue;const owned=shipOwned(id),selected=isRocketCharacter(id),previousBest=def.previous?(rocketShipProgress.bestWaves[def.previous]||0):20,eligible=!def.previous||previousBest>=20;const item=document.createElement('div');item.className='shop-item'+(selected?' equipped':'')+(!owned&&!eligible?' locked':'');item.innerHTML=`<p class="shop-name">${owned?'':'🔒 '}${def.name}</p><p class="shop-desc">${def.desc}</p>${def.previous&&!eligible?`<p class="shop-owned">Reach wave 20 with ${STARSHIPS[def.previous].name} (${previousBest}/20)</p>`:''}${id==='carrier'?'<p class="shop-owned">Unlocked: 1,000 total correct, including 250 correct in each of 3 other games.</p>':''}<button class="shop-btn" ${!owned&&!eligible?'disabled':''}>${selected?'✅ Selected':owned?'Select':`Buy (${def.cost} 🪙)`}</button>`;item.querySelector('button').onclick=()=>{if(owned)setRocketCharacter(id);else if(eligible&&PlatformManager.spendCoins(def.cost)){rocketShipProgress.owned.push(id);saveRocketShips();setRocketCharacter(id);game.coins=PlatformManager.getCoins();renderGameOverShop();}};container.appendChild(item);}}
+        function renderStarshipsTab(){const container=document.getElementById('gameOverShopStarships');if(!container)return;checkAllShipsMastery();container.innerHTML='';for(const [id,def] of Object.entries(STARSHIPS)){if(def.hidden&&!carrierUnlocked())continue;const owned=shipOwned(id),selected=isRocketCharacter(id),previousBest=def.previous?(rocketShipProgress.bestWaves[def.previous]||0):20,eligible=!def.previous||previousBest>=20;const item=document.createElement('div');item.className='shop-item'+(selected?' equipped':'')+(!owned&&!eligible?' locked':'');item.innerHTML=`<p class="shop-name">${owned?'':'🔒 '}${def.name}</p><p class="shop-desc">${def.desc}</p>${def.previous&&!eligible?`<p class="shop-owned">Reach wave 20 with ${STARSHIPS[def.previous].name} (${previousBest}/20)</p>`:''}${id==='carrier'?'<p class="shop-owned">Unlocked: 1,000 total correct, including 250 correct in each of 3 other games.</p>':''}<button class="shop-btn" ${!owned&&!eligible?'disabled':''}>${selected?'✅ Selected':owned?'Select':`Buy (${def.cost} 🪙)`}</button>`;item.querySelector('button').onclick=()=>{if(owned)setRocketCharacter(id);else if(eligible&&PlatformManager.spendCoins(def.cost)){rocketShipProgress.owned.push(id);saveRocketShips();setRocketCharacter(id);game.coins=PlatformManager.getCoins();renderGameOverShop();}};container.appendChild(item);}}
 
         function renderRunPowerupsTab() {
             const container = document.getElementById('gameOverShopPowerups');

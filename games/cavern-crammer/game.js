@@ -1881,6 +1881,7 @@ function updateHazards(){
      aabb(player.x-3,player.y,player.w+6,player.h,door.x,door.y,door.w,door.h)){
     door.opened = true; door.solid = false; session.hasKey = false;
     session.stats.vaultsOpened++;
+    if(session.stats.vaultsOpened>=5) window.AchievementManager?.notify?.('cavern_vault_mastery',{facts:{mastery_cavern_crammer:1}});
     spawnParticles(door.x+door.w/2, door.y+door.h/2, 20, '#f2b84b', 2.6);
     showToast('The vault door creaks open — loot inside!', 1800);
   }

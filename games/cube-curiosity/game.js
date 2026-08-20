@@ -972,7 +972,7 @@
         // Adjust this to match Arcade Academy's actual hub path once this
         // game is dropped into its subfolder — kept as a single, easy-to-
         // change spot rather than scattered through the code.
-        window.location.href = CONFIG.ARCADE_HUB_URL;
+        window.AudioManager?.navigateWithFade(CONFIG.ARCADE_HUB_URL);
       };
       document.getElementById('menuFromGoBtn').onclick = ()=>{ this._refreshMenuStats(); this._show('menuOverlay'); };
       window.addEventListener('arcade-coins-changed', ()=>this._refreshMenuStats());

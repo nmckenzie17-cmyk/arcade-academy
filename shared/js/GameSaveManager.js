@@ -31,6 +31,14 @@
     "shuriken-scholar": ["ninjaShurikenGameProgress"],
     "wild-west-wordslinger": ["wildwestwordslingerGameProgress"],
     "cube-curiosity": ["cubeCuriosityHighScores", "cubeCuriositySkin", "cubeCuriosityWallet"]
+    ,"rumbux-revision": ["rumbuxRevisionProgress", "neonStreetsMetaProgress"]
+    ,"ko-klarity": [
+      "koKlarityProgress",
+      "ko_klarity_meta_v1",
+      "ironcircuit_meta_v1",
+      "ko_klarity_hs",
+      "ironcircuit_hs"
+    ]
   };
 
   function resetGame(gameId) {

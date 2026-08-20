@@ -24,6 +24,7 @@ window.addEventListener('resize', resize);
 
 let state = 'start';
 let wave = 0, castleHP = 100, maxHP = 100, ammo = 3, maxAmmo = 10, gold = 0, maxGold = 150, kills = 0;
+let runCastleDamaged = false;
 let invasionMode = false, invasionDamageDealt = 0, invasionPendingTroops = [];
 let lastInvasionDefence = '';
 let invasionMoraleStreak=0, invasionWaveCap=4, invasionSlotsRemaining=0, invasionQuestionsAnswered=0;
@@ -88,7 +89,7 @@ const ENEMY_DISPLAY_NAMES = {
 // Keep's own bonus is always computed fresh off THIS value (see
 // recomputeMaxHP), so repeat Keep picks can never compound on themselves.
 let maxHPBeforeKeep = 100;
-let enemies = [], projectiles = [], particles = [], towers = [], cards = [], burningGround = [];
+let enemies = [], projectiles = [], particles = [], damageNumbers = [], towers = [], cards = [], burningGround = [];
 // Friendly melee minions spawned periodically by the Necromancer tower.
 // Each one walks to the nearest living enemy inside the tower's range and
 // pokes it for skeletonDmg every ~0.5s, until its lifespan runs out.
@@ -290,6 +291,7 @@ function applyKingdomStartBonuses(){
     maxHPBeforeKeep = 100 + kingdomLevel('walls')*5;
     maxHP = maxHPBeforeKeep;
     castleHP = maxHP;
+    runCastleDamaged = false;
     maxAmmo = 10 + kingdomLevel('warehouse');
     maxGold = 150 + kingdomLevel('coinvault')*10;
     ammo = 3 + kingdomLevel('supplydepot');
@@ -645,7 +647,17 @@ function applyDamageToEnemy(e, rawDmg, sourceId, viaPoisonTick){
     if(activeMutator==='ironclad') dmgDealt *= 0.7;
     if(equippedRelics.includes('relic_frozenheart') && e.frozen>0) dmgDealt *= 1.5;
     if(e.shieldActive) dmgDealt *= (1-e.shieldReduction);
+    const actualDamage = Math.min(e.hp, Math.max(0, dmgDealt));
     e.hp -= dmgDealt;
+    if(actualDamage>0){
+        damageNumbers.push({
+            x:e.x+(Math.random()-0.5)*8,
+            y:e.y-12,
+            value:actualDamage,
+            life:42,
+            maxLife:42
+        });
+    }
     if(e.hp<=0){
         e.dead=true;
         kills++;
@@ -1058,7 +1070,7 @@ function bossUpdate(e){
             e.abilityTimers.ranged++;
             if(e.abilityTimers.ranged>=rate){
                 e.abilityTimers.ranged=0;
-                castleHP=Math.max(0,castleHP-dmg);
+                castleHP=Math.max(0,castleHP-dmg);if(dmg>0&&!invasionMode)runCastleDamaged=true;
                 lastDamageSource = { type: e.type, flying: !!e.flying, method: 'ranged' };
                 let col = ab.effect==='lightning' ? '#aaeeff' : '#ff6600';
                 for(let i=0;i<6;i++){
@@ -1357,6 +1369,13 @@ function startBetweenWave(){
         invasionWaveCap+=(kingdomLevel('traininggrounds')?1:0)+Math.floor(kingdomLevel('supplydepot')/3);
         askBetweenQuestion();return;
     }
+    // Wave 1 begins as soon as the run is ready. Question/card rounds still
+    // happen normally after every completed wave.
+    if(wave===0){
+        modalRoot.innerHTML='';
+        startWave();
+        return;
+    }
     if(pendingFreeTowerAfterBoss){
         pendingFreeTowerAfterBoss=false;
         let towerCards = getUnlockedCards().filter(c=>c.type==='tower');
@@ -1613,7 +1632,7 @@ async function showQuestion(){
         const result=await MixedQuestionRound.play(),misses=4-result.correct;
         for(let i=0;i<result.correct;i++)recordCorrectAnswer();
         if(invasionMode){invasionQuestionsAnswered+=4;invasionWaveCap+=result.correct;invasionSlotsRemaining+=result.correct;invasionMoraleStreak=result.correct===4?invasionMoraleStreak+4:0;renderInvasionTroopBar();}
-        else{let libraryProc=kingdomLibraryLevel>0&&Math.random()<.05*kingdomLibraryLevel;let reward=ammoPerCorrect*(libraryProc?2:1)*(1+runPowerupBonuses.increasedammo);ammo=Math.min(ammo+Math.round(reward*result.correct),maxAmmo);castleHP=Math.max(0,castleHP-misses);}
+        else{let libraryProc=kingdomLibraryLevel>0&&Math.random()<.05*kingdomLibraryLevel;let reward=ammoPerCorrect*(libraryProc?2:1)*(1+runPowerupBonuses.increasedammo);ammo=Math.min(ammo+Math.round(reward*result.correct),maxAmmo);castleHP=Math.max(0,castleHP-misses);if(misses>0&&!invasionMode)runCastleDamaged=true;}
         if(misses)PlatformManager.deductCoins(10*misses);state='playing';updateHUD();return;
     }
     let q=QuestionManager.getNextQuestion(equippedRelics.includes('relic_quickdraw'));
@@ -1636,7 +1655,7 @@ async function showQuestion(){
             }
             else { 
                 btn.classList.add('wrong'); 
-                if(!invasionMode) castleHP = Math.max(0, castleHP - 1);
+                if(!invasionMode){castleHP = Math.max(0, castleHP - 1);runCastleDamaged=true;}
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); 
             }
             modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
@@ -4670,7 +4689,7 @@ function gameLoop(time){
             if(e.frameTimer>8){e.frameTimer=0;e.frame=(e.frame+1)%4;}
             if(e.x<=100){ 
                 // Incremental contact damage (scaled down)
-                let contact=e.dmg*0.005*waveContactDmgMult*(1-runPowerupBonuses.luckycharm)*(invasionMode&&e.playerArmy?invasionMoraleMultiplier():1);castleHP-=contact;if(invasionMode)invasionDamageDealt+=contact;
+                let contact=e.dmg*0.005*waveContactDmgMult*(1-runPowerupBonuses.luckycharm)*(invasionMode&&e.playerArmy?invasionMoraleMultiplier():1);castleHP-=contact;if(contact>0&&!invasionMode)runCastleDamaged=true;if(invasionMode)invasionDamageDealt+=contact;
                 lastDamageSource = { type: e.type, flying: !!e.flying, method: 'contact' };
                 if(activeMutator==='vampiric' && e.hp<e.maxHp) e.hp=Math.min(e.maxHp, e.hp+e.maxHp*0.004);
                 if(e.x<=70){ 
@@ -4698,7 +4717,7 @@ function gameLoop(time){
                     if(e.type==='wyvern') fullDmg = 34;
                     if(e.type==='stoneburrower') fullDmg = 28;
                     if(e.type==='graveworm') fullDmg = 32;
-                    let impact=fullDmg*waveContactDmgMult*(1-runPowerupBonuses.luckycharm)*(invasionMode?invasionArmy.damageMult*invasionMoraleMultiplier():1);castleHP-=impact;if(invasionMode)invasionDamageDealt+=impact;
+                    let impact=fullDmg*waveContactDmgMult*(1-runPowerupBonuses.luckycharm)*(invasionMode?invasionArmy.damageMult*invasionMoraleMultiplier():1);castleHP-=impact;if(impact>0&&!invasionMode)runCastleDamaged=true;if(invasionMode)invasionDamageDealt+=impact;
                     lastDamageSource = { type: e.type, flying: !!e.flying, method: 'contact' };
                     e.dead=true; 
                 } 
@@ -4879,6 +4898,7 @@ function gameLoop(time){
         projectiles=projectiles.filter(p=>p.life>0);
 
         if(spawnQueue.length===0 && enemies.filter(e=>!e.dead).length===0 && enemies.length===0){
+            if(!invasionMode&&wave>=25&&!runCastleDamaged)window.AchievementManager?.notify?.('fortress_wave_25_untouched',{facts:{mastery_fortress_facts:1}});
             if(lastWaveWasBoss && kingdomHealAfterBossPct>0){
                 castleHP = Math.min(maxHP, castleHP + maxHP*kingdomHealAfterBossPct);
             }
@@ -4933,6 +4953,25 @@ function gameLoop(time){
         ctx.fillRect(p.x*s,p.y*s, (p.size||4)*s, (p.size||4)*s);
     });
     particles=particles.filter(p=>p.life>0);
+
+    damageNumbers.forEach(number=>{
+        number.y-=0.45;
+        number.life--;
+        const alpha=Math.min(1,number.life/12);
+        const label=number.value>=10?String(Math.round(number.value)):String(Math.round(number.value*10)/10);
+        ctx.save();
+        ctx.globalAlpha=alpha;
+        ctx.font=`bold ${Math.max(10,11*s)}px 'Lexend', sans-serif`;
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.lineWidth=Math.max(2,2*s);
+        ctx.strokeStyle='rgba(35,8,48,.95)';
+        ctx.strokeText(label,(ox+number.x)*s,(oy+number.y)*s);
+        ctx.fillStyle='#ffe66d';
+        ctx.fillText(label,(ox+number.x)*s,(oy+number.y)*s);
+        ctx.restore();
+    });
+    damageNumbers=damageNumbers.filter(number=>number.life>0);
 
     requestAnimationFrame(gameLoop);
 }
