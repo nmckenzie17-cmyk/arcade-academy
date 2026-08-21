@@ -76,6 +76,7 @@
     els.statTotal = document.getElementById("stat-total");
     els.statAccuracy = document.getElementById("stat-accuracy");
     els.statQuestions = document.getElementById("stat-questions");
+    els.statAccuracyToday = document.getElementById("stat-accuracy-today");
     els.statTotalQuestions = document.getElementById("stat-total-questions");
     els.statTotalPlaytime = document.getElementById("stat-total-playtime");
     els.statTotalLabel = document.getElementById("stat-total-label");
@@ -559,6 +560,11 @@
     const totalCorrect = rows.reduce((sum, row) => sum + row.overall.totalCorrect, 0);
     const avgAccuracy = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
     const questionsToday = rows.reduce((s, r) => s + r.today.questionsAnswered, 0);
+    const correctToday = rows.reduce(
+      (sum, row) => sum + (row.today.questionsAnswered * row.today.accuracy / 100),
+      0
+    );
+    const accuracyToday = questionsToday ? Math.round((correctToday / questionsToday) * 100) : null;
     const totalPlaytime = rows.reduce((sum, row) => sum + row.overall.totalPlaytimeMinutes, 0);
     const allClasses = state.classCode === "all";
     const selectedOption = els.classFilter.options[els.classFilter.selectedIndex];
@@ -568,6 +574,7 @@
     els.statTotal.textContent = String(rows.length);
     els.statAccuracy.textContent = rows.length ? `${avgAccuracy}%` : "—";
     els.statQuestions.textContent = String(questionsToday);
+    els.statAccuracyToday.textContent = accuracyToday === null ? "—" : `${accuracyToday}%`;
     els.statTotalQuestions.textContent = totalQuestions.toLocaleString();
     els.statTotalPlaytime.textContent = formatMinutes(totalPlaytime);
     els.statTotalLabel.textContent = allClasses ? "Total students" : "Students in class";
@@ -602,6 +609,8 @@
         return row.active ? Date.now() - row.sessionStartedAt : -1;
       case "today":
         return row.today.questionsAnswered;
+      case "accuracyToday":
+        return row.today.questionsAnswered ? row.today.accuracy : -1;
       case "questions":
         return row.overall.totalQuestionsAnswered;
       case "accuracy":
@@ -643,6 +652,7 @@
     els.tableBody.innerHTML = rows
       .map((row) => {
         const accClass = accuracyClass(row.overall.accuracy);
+        const todayAccClass = accuracyClass(row.today.accuracy);
         return `
           <tr tabindex="0" data-student-id="${row.id}" class="student-row">
             <th scope="row" class="cell-name">
@@ -659,6 +669,11 @@
               ${row.active ? formatDuration(Date.now() - row.sessionStartedAt) : "—"}
             </td>
             <td class="cell-numeric">${row.today.questionsAnswered}</td>
+            <td class="cell-numeric">
+              ${row.today.questionsAnswered
+                ? `<span class="accuracy-badge accuracy-badge--${todayAccClass}">${row.today.accuracy}%</span>`
+                : "—"}
+            </td>
             <td class="cell-numeric">${row.overall.totalQuestionsAnswered}</td>
             <td class="cell-numeric">
               <span class="accuracy-badge accuracy-badge--${accClass}">${row.overall.accuracy}%</span>
