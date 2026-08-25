@@ -515,6 +515,22 @@
     return data.games[gameId];
   }
 
+  function ensureCurrentQuestionBank() {
+    const bankCode = data.class.code;
+    if (!bankCode) return null;
+    const bank = data.questionBanks[bankCode] || {
+      code: bankCode, subject: data.class.subject || bankCode,
+      bankPath: data.class.bankPath || null, totalAnswered: 0,
+      totalCorrect: 0, totalIncorrect: 0, lastAnswered: null,
+      byDate: {}, byGame: {}
+    };
+    bank.subject = data.class.subject || bank.subject || bankCode;
+    bank.bankPath = data.class.bankPath || bank.bankPath || null;
+    bank.byGame = bank.byGame || {};
+    data.questionBanks[bankCode] = bank;
+    return bank;
+  }
+
   // ---- session tracking --------------------------------------------------
 
   // The in-progress session lives only in memory (not persisted every tick)
@@ -646,6 +662,13 @@
     g.gamesPlayed += 1;
     g.lastPlayed = now;
     data.sessions.totalSessions += 1;
+    const bank = ensureCurrentQuestionBank();
+    if (bank) {
+      const bankGame = bank.byGame[gameId] || { questionsAnswered: 0, correct: 0, incorrect: 0, playTimeMs: 0, gamesPlayed: 0, lastPlayed: null };
+      bankGame.gamesPlayed = normalizeCount(bankGame.gamesPlayed) + 1;
+      bankGame.lastPlayed = now;
+      bank.byGame[gameId] = bankGame;
+    }
     currentSession = {
       gameId, startedAt: now, lastReconciledAt: now, activeSince: null,
       questionsAnsweredAtStart: data.questions.totalAnswered,
@@ -673,6 +696,13 @@
     const elapsed = Math.max(0, now - currentSession.lastReconciledAt);
     g.playTimeMs += elapsed;
     data.sessions.totalPlayTimeMs += elapsed;
+    const bank = ensureCurrentQuestionBank();
+    if (bank) {
+      const bankGame = bank.byGame[currentSession.gameId] || { questionsAnswered: 0, correct: 0, incorrect: 0, playTimeMs: 0, gamesPlayed: 0, lastPlayed: now };
+      bankGame.playTimeMs = normalizeCount(bankGame.playTimeMs) + elapsed;
+      bankGame.lastPlayed = now;
+      bank.byGame[currentSession.gameId] = bankGame;
+    }
     currentSession.lastReconciledAt = now;
 
     if (currentSession.activeSince !== null) {
@@ -907,26 +937,31 @@
     const bankCode = data.class.code;
     if (bankCode) {
       const date = todayString();
-      const bank = data.questionBanks[bankCode] || {
-        code: bankCode,
-        subject: data.class.subject || bankCode,
-        bankPath: data.class.bankPath || null,
-        totalAnswered: 0,
-        totalCorrect: 0,
-        totalIncorrect: 0,
-        lastAnswered: null,
-        byDate: {}
-      };
-      bank.subject = data.class.subject || bank.subject || bankCode;
-      bank.bankPath = data.class.bankPath || bank.bankPath || null;
+      const bank = ensureCurrentQuestionBank();
       bank.totalAnswered = normalizeCount(bank.totalAnswered) + 1;
       if (wasCorrect) bank.totalCorrect = normalizeCount(bank.totalCorrect) + 1;
       else bank.totalIncorrect = normalizeCount(bank.totalIncorrect) + 1;
       bank.lastAnswered = Date.now();
-      const daily = bank.byDate?.[date] || { answered: 0, correct: 0, incorrect: 0 };
+      const questionType = global.QuestionManager?.getRunQuestionType?.() || global.QuestionManager?.questionType || 'unknown';
+      const daily = bank.byDate?.[date] || { answered: 0, correct: 0, incorrect: 0, byGame: {}, byQuestionType: {} };
       daily.answered = normalizeCount(daily.answered) + 1;
       if (wasCorrect) daily.correct = normalizeCount(daily.correct) + 1;
       else daily.incorrect = normalizeCount(daily.incorrect) + 1;
+      daily.byGame = daily.byGame || {};
+      daily.byQuestionType = daily.byQuestionType || {};
+      const gameDaily = daily.byGame[gameId] || { answered: 0, correct: 0, incorrect: 0 };
+      gameDaily.answered = normalizeCount(gameDaily.answered) + 1;
+      if (wasCorrect) gameDaily.correct = normalizeCount(gameDaily.correct) + 1; else gameDaily.incorrect = normalizeCount(gameDaily.incorrect) + 1;
+      daily.byGame[gameId || 'unknown'] = gameDaily;
+      const typeDaily = daily.byQuestionType[questionType] || { answered: 0, correct: 0, incorrect: 0 };
+      typeDaily.answered = normalizeCount(typeDaily.answered) + 1;
+      if (wasCorrect) typeDaily.correct = normalizeCount(typeDaily.correct) + 1; else typeDaily.incorrect = normalizeCount(typeDaily.incorrect) + 1;
+      daily.byQuestionType[questionType] = typeDaily;
+      const bankGame = bank.byGame[gameId || 'unknown'] || { questionsAnswered: 0, correct: 0, incorrect: 0, playTimeMs: 0, gamesPlayed: 0, lastPlayed: Date.now() };
+      bankGame.questionsAnswered = normalizeCount(bankGame.questionsAnswered) + 1;
+      if (wasCorrect) bankGame.correct = normalizeCount(bankGame.correct) + 1; else bankGame.incorrect = normalizeCount(bankGame.incorrect) + 1;
+      bankGame.lastPlayed = Date.now();
+      bank.byGame[gameId || 'unknown'] = bankGame;
       bank.byDate = { ...(bank.byDate || {}), [date]: daily };
       const dates = Object.keys(bank.byDate).sort();
       dates.slice(0, Math.max(0, dates.length - 120)).forEach(oldDate => delete bank.byDate[oldDate]);

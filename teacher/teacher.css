@@ -613,6 +613,11 @@ body.student-panel-resizing {
   margin: 0 0 0.75rem 0;
 }
 
+.student-bank-filter { margin: 0 0 1rem; padding: .8rem; border: 1px solid var(--surface-border); border-radius: var(--radius-sm); background: var(--surface-alt); }
+.student-bank-filter label { display: block; margin-bottom: .35rem; font-weight: 700; }
+.student-bank-filter select { width: 100%; }
+.student-bank-filter p { margin: .35rem 0 0; color: var(--text-muted); font-size: .78rem; }
+
 .panel-section + .panel-section {
   margin-top: 1.75rem;
 }

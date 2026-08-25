@@ -103,6 +103,7 @@
     els.panelClose = document.getElementById("panel-close");
     els.panelTitle = document.getElementById("panel-student-name");
     els.panelMeta = document.getElementById("panel-student-meta");
+    els.studentQuestionBankFilter = document.getElementById("student-question-bank-filter");
     els.studentProgressTab = document.getElementById("student-progress-tab");
     els.studentSettingsTab = document.getElementById("student-settings-tab");
     els.studentProgressSections = document.querySelectorAll("#student-panel .panel-section:not(.student-settings)");
@@ -294,6 +295,7 @@
     });
     els.studentProgressTab.addEventListener("click", () => showStudentTab("progress"));
     els.studentSettingsTab.addEventListener("click", () => showStudentTab("settings"));
+    els.studentQuestionBankFilter.addEventListener("change", () => refreshStudentBankView());
 
     els.gameStatsHeaders.forEach((th) => {
       th.addEventListener("click", () => {
@@ -841,6 +843,8 @@
     els.panelTitle.textContent = detail.name;
     els.integrityReviewButton.hidden = !detail.integrityFlag;
     els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
+    els.studentQuestionBankFilter.innerHTML = '<option value="">All question banks</option>' + detail.questionBanks
+      .map(bank => `<option value="${escapeHtml(bank.code)}">${escapeHtml(bank.label)}</option>`).join('');
     els.studentNameInput.value = detail.name;
     els.studentYearSelect.value = detail.yearLevel;
     els.studentCoinsInput.value = Math.max(0,Math.floor(Number(detail.coins)||0));
@@ -1248,9 +1252,23 @@
   // ---------------------------------------------------------------
   let cachedHistory = [];
 
-  async function loadAndRenderTrend(studentId) {
-    cachedHistory = await window.TeacherDataProvider.getStudentHistory(studentId);
+  async function refreshStudentBankView() {
+    const studentId = state.selectedStudentId;
+    if (!studentId) return;
+    const selectedBankCode = els.studentQuestionBankFilter.value || null;
+    const detail = await window.TeacherDataProvider.getStudentDetail(studentId, selectedBankCode);
+    if (!detail || state.selectedStudentId !== studentId) return;
+    state.selectedStudentDetail = detail;
+    renderGameStats(detail.games);
+    await loadAndRenderTrend(studentId, selectedBankCode);
+    updateTrendSeriesOptions();
+    renderTrendGraph();
+  }
+
+  async function loadAndRenderTrend(studentId, selectedBankCode = null) {
+    cachedHistory = await window.TeacherDataProvider.getStudentHistory(studentId, selectedBankCode);
     if (state.selectedStudentId !== studentId) return;
+    updateTrendSeriesOptions();
     renderTrendGraph();
   }
 

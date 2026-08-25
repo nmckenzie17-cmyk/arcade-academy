@@ -163,11 +163,12 @@ function mapGameStats(gameStats, catalog) {
   }).sort((a, b) => (b.lastPlayed || 0) - (a.lastPlayed || 0));
 }
 
-function mapQuestionBankHistory(document) {
+function mapQuestionBankHistory(document, selectedBankCode = null) {
   const banks = document?.platform?.questionBanks || {};
   const dates = new Map();
 
   Object.entries(banks).forEach(([code, bank]) => {
+    if (selectedBankCode && code !== selectedBankCode) return;
     const label = bank.subject
       ? `${bank.subject} (${code})`
       : code;
@@ -179,7 +180,9 @@ function mapQuestionBankHistory(document) {
           correct: 0,
           byGame: {},
           bySubject: {},
-          byQuestionType: {}
+          byQuestionType: {},
+          gameTotals: {},
+          questionTypeTotals: {}
         });
       }
       const record = dates.get(date);
@@ -188,6 +191,20 @@ function mapQuestionBankHistory(document) {
       record.answered += answered;
       record.correct += correct;
       record.bySubject[label] = accuracy(correct, answered);
+      Object.entries(daily.byGame || {}).forEach(([gameId, stats]) => {
+        const total = record.gameTotals[gameId] || { answered: 0, correct: 0 };
+        total.answered += numberOrZero(stats.answered);
+        total.correct += numberOrZero(stats.correct);
+        record.gameTotals[gameId] = total;
+        record.byGame[gameId] = accuracy(total.correct, total.answered);
+      });
+      Object.entries(daily.byQuestionType || {}).forEach(([typeId, stats]) => {
+        const total = record.questionTypeTotals[typeId] || { answered: 0, correct: 0 };
+        total.answered += numberOrZero(stats.answered);
+        total.correct += numberOrZero(stats.correct);
+        record.questionTypeTotals[typeId] = total;
+        record.byQuestionType[typeId] = accuracy(total.correct, total.answered);
+      });
     });
   });
 
@@ -340,22 +357,34 @@ window.TeacherDataProvider = {
       .map((student) => mapStudent(student, catalog));
   },
 
-  async getStudentDetail(studentId) {
+  async getStudentDetail(studentId, selectedBankCode = null) {
     const [students, catalog] = await Promise.all([
       loadStudents(),
       loadGameCatalog()
     ]);
     const document = students.find((student) => student.uid === studentId);
     if (!document) return null;
+    const globalGames = mapGameStats(document.games || document.platform?.games, catalog);
+    const banks = document.platform?.questionBanks || {};
+    const selectedBank = selectedBankCode ? banks[selectedBankCode] : null;
+    const bankGames = selectedBank ? mapGameStats(selectedBank.byGame || {}, catalog) : null;
+    const selectedGames = bankGames?.map(bankGame => {
+      const globalGame = globalGames.find(game => game.gameId === bankGame.gameId);
+      return { ...bankGame, highScore: globalGame?.highScore || 0 };
+    }) || globalGames;
     return {
       ...mapStudent(document, catalog),
-      games: mapGameStats(document.games || document.platform?.games, catalog)
+      games: selectedGames,
+      questionBanks: Object.entries(banks).map(([code, bank]) => ({
+        code, label: bank.subject ? `${bank.subject} (${code})` : code
+      })).sort((a, b) => a.label.localeCompare(b.label)),
+      selectedBankCode
     };
   },
 
-  async getStudentHistory(studentId) {
+  async getStudentHistory(studentId, selectedBankCode = null) {
     const students = await loadStudents();
-    return mapQuestionBankHistory(students.find((student) => student.uid === studentId));
+    return mapQuestionBankHistory(students.find((student) => student.uid === studentId), selectedBankCode);
   },
 
   async getClassHistory(className) {
