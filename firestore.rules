@@ -15,6 +15,8 @@ service cloud.firestore {
         || (request.auth.uid == uid
           && request.resource.data.get('role', null) == resource.data.get('role', null)
           && request.resource.data.get('questionFormatOverride', 'mixed') == resource.data.get('questionFormatOverride', 'mixed')
+          && request.resource.data.get('integrityReviewedAt', null) == resource.data.get('integrityReviewedAt', null)
+          && request.resource.data.get('integrityReviewedBy', null) == resource.data.get('integrityReviewedBy', null)
           && (resource.data.get('leaderboardId', '') == request.resource.data.get('leaderboardId', '')
             || (resource.data.get('leaderboardId', '') == ''
               && request.resource.data.get('leaderboardId', '').matches('^[a-f0-9]{32}$')))));

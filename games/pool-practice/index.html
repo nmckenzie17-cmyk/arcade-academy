@@ -32,6 +32,14 @@
 
       <div class="setup-panel arcade-panel">
         <div class="setup-group">
+          <p class="setup-label">POOL TYPE</p>
+          <div class="toggle-row">
+            <button class="toggle-btn active" data-pool-type="eight">✓ 8-BALL</button>
+            <button class="toggle-btn" data-pool-type="nine">🔒 9-BALL</button>
+          </div>
+          <p class="lobby-status" id="pool-type-progress"></p>
+        </div>
+        <div class="setup-group">
           <p class="setup-label">MATCH TYPE</p>
           <div class="toggle-row">
             <button class="toggle-btn active" data-player-mode="single">🤖 SINGLE PLAYER</button>
@@ -185,15 +193,15 @@
 
 <script type="module" src="../../shared/js/FirebaseManager.js"></script>
 <script src="../../shared/js/AudioManager.js?v=20260820-audio-mixer-v1"></script>
-<script src="../../shared/js/PlatformManager.js?v=20260818-typed-falling-v1"></script>
+  <script src="../../shared/js/PlatformManager.js?v=20260825-nine-ball-v1"></script>
 <script src="../../shared/js/QuestionManager.js?v=20260818-typed-falling-v1"></script>
 <script src="../../shared/js/MultiplayerManager.js"></script>
 <script src="../../shared/js/MultiplayerQuestionHelper.js"></script>
 <script src="gameconfig.js"></script>
-<script src="poolPhysics.js"></script>
-<script src="poolAI.js"></script>
+<script src="poolPhysics.js?v=20260825-nine-ball-v1"></script>
+<script src="poolAI.js?v=20260825-nine-ball-v1"></script>
 <script src="multiplayer.js"></script>
-<script src="game.js"></script>
+<script src="game.js?v=20260825-nine-ball-v1"></script>
 <script src="../../shared/js/NonEnemyHomeBackdrops.js?v=20260818-v1"></script>
 </body>
 </html>

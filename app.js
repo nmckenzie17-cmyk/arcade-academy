@@ -337,6 +337,7 @@ function renderProgression() {
   document.querySelector("#level-progress").style.width = `${Math.min(100, summary.xpIntoLevel / summary.xpForNext * 100)}%`;
   document.querySelector("#level-progress").parentElement.setAttribute("aria-valuenow", summary.xpIntoLevel);
   document.querySelector("#level-progress").parentElement.setAttribute("aria-valuemax", summary.xpForNext);
+  renderNextTypeUnlock(manager);
   const all = manager.getAchievements();
   const categories = ["All", ...new Set(all.map(item => item.category))];
   const filters = document.querySelector("#achievement-filters");
@@ -356,6 +357,43 @@ function renderProgression() {
     return `<div class="game-cosmetic-count"><span>${game.title}</span><strong>${count}</strong></div>`;
   }).join("");
 }
+
+function renderNextTypeUnlock(manager) {
+  const overall = window.PlatformManager?.getOverallStats?.() || {};
+  const games = window.PlatformManager?.getAllGameStats?.() || [];
+  const totalCorrect = Number(overall.totalCorrect) || 0;
+  const unlocks = [
+    { id:"wild-west-bloody-bandit", gameId:"wild-west-wordslinger", name:"Bloody Bandit mode", target:200, perGame:50, game:"Wild West Wordslinger" },
+    { id:"fortress-facts-goblin-general", gameId:"fortress-facts", name:"Goblin General mode", target:400, perGame:100, game:"Fortress Facts" },
+    { id:"shuriken-scholar-samurai", gameId:"shuriken-scholar", name:"Samurai", target:600, perGame:150, game:"Shuriken Scholar" },
+    { id:"rocket-recall-combat-carrier", gameId:"rocket-recall", name:"Combat Carrier", target:800, perGame:200, game:"Rocket Recall" },
+    { id:"pinball-postulation-theme-tables", gameId:"pinball-postulation", name:"Space & Ninja tables", target:1000, perGame:250, game:"Pinball Postulation" },
+    { id:"cavern-crammer-endless-escape", gameId:"cavern-crammer", name:"Cavern Escape mode", target:1200, perGame:300, game:"Cavern Crammer" },
+    { id:"pool-practice-nine-ball", gameId:"pool-practice", name:"9-Ball Pool", target:1400, perGame:350, game:"Pool Practice" }
+  ];
+  const next = unlocks.find(item => !manager.hasTypeUnlock(item.id));
+  const title = document.querySelector("#next-type-unlock");
+  const detail = document.querySelector("#next-type-unlock-detail");
+  const bar = document.querySelector("#type-unlock-progress-bar");
+  if (!title || !detail || !bar) return;
+  if (!next) {
+    title.textContent = "All character and game-type unlocks earned!";
+    detail.textContent = `${totalCorrect.toLocaleString()} lifetime correct answers`;
+    bar.style.width = "100%";
+    return;
+  }
+  const eligibleGames = games.filter(game => game.gameId !== next.gameId);
+  const qualifying = eligibleGames.filter(game => (Number(game.correct) || 0) >= next.perGame).length;
+  const qualifierDeficits = eligibleGames.filter(game => (Number(game.correct) || 0) < next.perGame).map(game => next.perGame - (Number(game.correct) || 0)).sort((a,b) => a-b);
+  while (qualifierDeficits.length < 3 - qualifying) qualifierDeficits.push(next.perGame);
+  const correctForGameRequirement = qualifierDeficits.slice(0, Math.max(0, 3 - qualifying)).reduce((sum,value) => sum + value, 0);
+  const remaining = Math.max(0, next.target - totalCorrect, correctForGameRequirement);
+  title.textContent = `${remaining.toLocaleString()} correct question${remaining === 1 ? "" : "s"} until ${next.name}`;
+  detail.textContent = `${Math.min(totalCorrect,next.target).toLocaleString()} / ${next.target.toLocaleString()} lifetime correct · also requires ${Math.min(qualifying,3)} / 3 other games with ${next.perGame} correct (${next.game})`;
+  bar.style.width = `${Math.min(100, totalCorrect / next.target * 100)}%`;
+  bar.parentElement.setAttribute("aria-valuenow", Math.min(totalCorrect,next.target));
+  bar.parentElement.setAttribute("aria-valuemax", next.target);
+}
 window.addEventListener("arcade-progression-changed", () => {
   renderProgression();
   queueMicrotask(showPendingAchievementUnlocks);
@@ -371,6 +409,7 @@ function setHubView(viewId = null) {
 document.querySelectorAll("[data-open-hub-view]").forEach(button => button.addEventListener("click", () => setHubView(button.dataset.openHubView)));
 document.querySelectorAll("[data-close-hub-view]").forEach(button => button.addEventListener("click", () => setHubView()));
 document.addEventListener("keydown", event => { if (event.key === "Escape" && document.body.classList.contains("hub-view-active")) setHubView(); });
+if (new URLSearchParams(location.search).get("view") === "hub-upgrades") setHubView("hub-upgrades");
 
 
 function applyProfileToHub(profile) {

@@ -1588,7 +1588,7 @@
       if(this.player.timeSlowActive>0) dtEff *= 0.4;
       if(this._tempSpeedTimer>0){ this._tempSpeedTimer -= dt; }
 
-      let speed = CONFIG.RUN_SPEED * this.speedMult * (this._tempSpeedTimer>0 ? this._tempSpeedMult : 1);
+      let speed = CONFIG.RUN_SPEED * this.speedMult * PlatformManager.getDifficultyRateMultiplier() * (this._tempSpeedTimer>0 ? this._tempSpeedMult : 1);
 
       if(this.input.consumeJumpPress()) this.jumpBufferTimer = CONFIG.JUMP_BUFFER_TIME;
       if(this.jumpBufferTimer > 0 && this.player.jump()) this.jumpBufferTimer = 0;

@@ -56,6 +56,7 @@ const PoolAI = {
 
   _legalTargets(table, group) {
     const active = table.activeBalls.filter(b => !b.isCue);
+    if(group==='nine'){const lowest=Math.min(...active.map(b=>b.number));return active.filter(b=>b.number===lowest);}
     if (!group) return active.filter(b => !b.isEight); // open table: any non-eight ball
     const groupBalls = active.filter(b => group === 'solids' ? b.isSolid : b.isStripe);
     if (groupBalls.length > 0) return groupBalls;

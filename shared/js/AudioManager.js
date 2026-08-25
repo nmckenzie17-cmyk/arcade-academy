@@ -4,6 +4,9 @@
   const STORAGE_KEY = 'arcadeAcademy.audioSettings';
   const CLOCK_KEY = 'arcadeAcademy.musicStartedAt';
   const FADE_MS = 650;
+  const TEMPO_RAMP_MS = 2000;
+  const MENU_TEMPO = 1;
+  const GAMEPLAY_TEMPO = 1.2;
   const DEFAULTS = Object.freeze({ background: 0.45, soundscape: 0.65, player: 0.8 });
   const GAME_MUSIC = Object.freeze({
     'angler-answerer': 'angler-answerer-menu.mp3',
@@ -41,6 +44,35 @@
   let settings = readSettings();
   const managedAudio = new Set();
   let activeMusic = null;
+  let tempoAnimation = null;
+  let gameplayTempoActive = false;
+
+  function rampMusicTempo(destination, durationMs = TEMPO_RAMP_MS) {
+    gameplayTempoActive = destination > MENU_TEMPO;
+    if (!activeMusic) return Promise.resolve();
+    if (tempoAnimation) cancelAnimationFrame(tempoAnimation);
+    const music = activeMusic;
+    const from = Number(music.playbackRate) || MENU_TEMPO;
+    const started = performance.now();
+    return new Promise(resolve => {
+      const step = now => {
+        if (music !== activeMusic) return resolve();
+        const progress = Math.min(1, (now - started) / Math.max(1, durationMs));
+        // Smoothstep keeps both ends of the two-second change gentle.
+        const eased = progress * progress * (3 - 2 * progress);
+        music.playbackRate = from + (destination - from) * eased;
+        if (progress < 1) tempoAnimation = requestAnimationFrame(step);
+        else { tempoAnimation = null; resolve(); }
+      };
+      tempoAnimation = requestAnimationFrame(step);
+    });
+  }
+
+  function setGameplayMusic(active, durationMs = TEMPO_RAMP_MS) {
+    const next = Boolean(active);
+    if (next === gameplayTempoActive) return Promise.resolve();
+    return rampMusicTempo(next ? GAMEPLAY_TEMPO : MENU_TEMPO, durationMs);
+  }
 
   function getMusicStartedAt() {
     let startedAt = Number(sessionStorage.getItem(CLOCK_KEY));
@@ -106,6 +138,7 @@
     const targetVolume = audio.volume;
     audio.volume = 0;
     activeMusic = audio;
+    audio.playbackRate = gameplayTempoActive ? GAMEPLAY_TEMPO : MENU_TEMPO;
 
     const begin = () => {
       if (audio.duration && Number.isFinite(audio.duration)) {
@@ -167,6 +200,7 @@
     const outgoing = activeMusic;
     const incoming = createAudio(src, { channel: 'background', loop: true, baseVolume: 1 });
     incoming.volume = 0;
+    incoming.playbackRate = gameplayTempoActive ? GAMEPLAY_TEMPO : MENU_TEMPO;
     const begin = () => {
       if (incoming.duration && Number.isFinite(incoming.duration)) incoming.currentTime = getMusicElapsedSeconds() % incoming.duration;
       return incoming.play().then(() => Promise.all([
@@ -215,6 +249,7 @@
     navigateWithFade,
     playOneShot,
     playSyncedMusic,
+    setGameplayMusic,
     setVolume,
     subscribe(listener) {
       listeners.add(listener);
@@ -223,6 +258,108 @@
   });
 
   document.addEventListener('DOMContentLoaded', startPageMusic);
+
+  // Every game already reports true only while its action is running (never
+  // for questions, menus, shops or game over), so this is the shared source
+  // of truth for music tempo too.
+  function connectGameplayHeartbeat() {
+    const manager = window.PlatformManager;
+    if (!manager?.heartbeat || manager.heartbeat.__controlsMusicTempo) return false;
+    const original = manager.heartbeat;
+    function heartbeat(gameId, isActive) {
+      setGameplayMusic(Boolean(isActive));
+      return original.apply(this, arguments);
+    }
+    heartbeat.__controlsMusicTempo = true;
+    manager.heartbeat = heartbeat;
+    return true;
+  }
+
+  // Supply the same complete action set on every end screen, including older
+  // games whose bespoke screen only offered Return Home.
+  const REPLAY_SELECTORS = Object.freeze({
+    'angler-answerer':'#homeStartBtn', 'cavern-crammer':'#startBtn',
+    'cube-curiosity':'#playBtn', 'dot-n-box-deducer':'[data-mode="single"]|#rematch-btn',
+    'fortress-facts':'#start-btn', 'jetpack-journey':'#start-btn',
+    'ko-klarity':'#btnStart', 'note-knowledge':'#start-btn',
+    'pinball-postulation':'#start-btn', 'pixel-artillery':'#single-btn|#start-single-btn',
+    'pool-practice':'#btn-start-game', 'rocket-recall':'#beginGameBtn',
+    'rumbux-revision':'#btnStart', 'shuriken-scholar':'#startBtn',
+    'tic-tac-toe':'#single-btn|#start-single-btn', 'wild-west-wordslinger':'#start-button'
+  });
+  const SHOP_SELECTORS = Object.freeze({
+    'angler-answerer':'#homeShopBtn', 'cavern-crammer':'#openHomeShopBtn',
+    'cube-curiosity':'#shopBtn', 'jetpack-journey':'#shop-btn', 'ko-klarity':'#btnShop',
+    'note-knowledge':'button[onclick="openShop()"]', 'pool-practice':'#btn-shop',
+    'rocket-recall':'button[onclick="showShop(\'home\')"]', 'rumbux-revision':'#btnMenuShop',
+    'shuriken-scholar':'#homeShopBtn', 'wild-west-wordslinger':'button[onclick="openShop()"]'
+  });
+  const pendingActionKey = 'arcadeAcademy.pendingGameAction';
+
+  function runSelectorSequence(sequence) {
+    const selectors = String(sequence || '').split('|').filter(Boolean);
+    let index = 0, attempts = 0;
+    const timer = setInterval(() => {
+      const target = document.querySelector(selectors[index]);
+      if (target && !target.disabled) { target.click(); index++; attempts = 0; }
+      else attempts++;
+      if (index >= selectors.length || attempts > 80) clearInterval(timer);
+    }, 100);
+  }
+
+  function performPendingGameAction() {
+    const gameId = currentGameId();
+    let action = '';
+    try { action = sessionStorage.getItem(pendingActionKey) || ''; sessionStorage.removeItem(pendingActionKey); } catch (_) {}
+    if (action === 'play') runSelectorSequence(REPLAY_SELECTORS[gameId]);
+    if (action === 'shop') runSelectorSequence(SHOP_SELECTORS[gameId]);
+  }
+
+  function endScreenCandidates() {
+    const selectors = '[id*="gameover" i], [id*="game-over" i], #result:not([hidden]), #result-actions:not([hidden]), [role="dialog"], .modal-overlay';
+    const visible = [...document.querySelectorAll(selectors)].filter(node => {
+      const style = getComputedStyle(node);
+      if (node.hidden || style.display === 'none' || style.visibility === 'hidden' || node.classList.contains('hidden')) return false;
+      return /game over|run over|knocked out|match complete|you win|you lose|draw|wins|run complete|invasion ended|castle conquered/i.test(node.textContent || '');
+    });
+    return visible.filter(node => !visible.some(other => other !== node && other.contains(node)));
+  }
+
+  function enhanceGameOverScreens() {
+    if (!currentGameId()) return;
+    const screens = endScreenCandidates();
+    if (screens.length) setGameplayMusic(false);
+    screens.forEach(screen => {
+      if (screen.querySelector('.arcade-standard-gameover-actions')) return;
+      const actions = document.createElement('div');
+      actions.className = 'arcade-standard-gameover-actions';
+      actions.style.cssText = 'display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:10px;width:min(520px,94%);margin:18px auto 4px;position:relative;z-index:10001';
+      actions.innerHTML = '<button type="button" data-action="play">Play Again</button><button type="button" data-action="shop">Shop</button><button type="button" data-action="home">Return to Home Screen</button><button type="button" data-action="academy">Return to Arcade Academy</button>';
+      actions.querySelectorAll('button').forEach(button => button.style.cssText = 'min-height:44px;padding:10px;border:2px solid #00d4ff;border-radius:7px;background:#21123d;color:#fff;font:700 12px "Press Start 2P",monospace;cursor:pointer');
+      actions.onclick = event => {
+        const action = event.target.closest('button')?.dataset.action;
+        if (!action) return;
+        setGameplayMusic(false);
+        if (action === 'academy') return navigateWithFade('../../index.html');
+        if (action === 'home') return location.reload();
+        const sequence = action === 'play' ? REPLAY_SELECTORS[currentGameId()] : SHOP_SELECTORS[currentGameId()];
+        if (!sequence) return action === 'shop' ? navigateWithFade('../../index.html?view=hub-upgrades') : location.reload();
+        try { sessionStorage.setItem(pendingActionKey, action); } catch (_) {}
+        location.reload();
+      };
+      (screen.querySelector('.panel,.box,.menuBox,.modal-box,.canva-card,.gameover-panel') || screen).appendChild(actions);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!connectGameplayHeartbeat()) {
+      const timer = setInterval(() => { if (connectGameplayHeartbeat()) clearInterval(timer); }, 50);
+      setTimeout(() => clearInterval(timer), 5000);
+    }
+    performPendingGameAction();
+    enhanceGameOverScreens();
+    new MutationObserver(enhanceGameOverScreens).observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style','hidden'] });
+  });
   document.addEventListener('click', event => {
     const link = event.target.closest?.('a[href]');
     if (!link || link.target || link.hasAttribute('download')) return;

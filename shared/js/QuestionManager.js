@@ -294,10 +294,12 @@ const QuestionManager = {
             return easyPool[Math.floor(Math.random() * easyPool.length)];
         }
 
-        let totalWeight = pool.reduce((sum, q) => sum + (q.weight ?? 1), 0);
+        const difficultyRate = window.PlatformManager?.getDifficultyRateMultiplier?.() || 1;
+        const effectiveWeight = q => Math.pow(Math.max(0.1, q.weight ?? 1), difficultyRate);
+        let totalWeight = pool.reduce((sum, q) => sum + effectiveWeight(q), 0);
         let r = Math.random() * totalWeight;
         for (let q of pool) {
-            r -= (q.weight ?? 1);
+            r -= effectiveWeight(q);
             if (r <= 0) return q;
         }
         return pool[pool.length - 1]; // floating-point fallback, practically never hit

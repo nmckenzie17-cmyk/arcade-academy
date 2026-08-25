@@ -127,6 +127,11 @@
         lastActive: null,
         syncedUid: null
       },
+      integrity: {
+        detectedAt: null,
+        gameId: null,
+        fastestAnswerMs: null
+      },
       games: {}, // keyed by GAME_CONFIG.id -> emptyGameStats()
       questionBanks: {}, // keyed by class/question-bank code, with daily accuracy history
       class: {
@@ -152,6 +157,7 @@
         questions: Object.assign(fresh.questions, parsed.questions),
         sessions: Object.assign(fresh.sessions, parsed.sessions),
         activity: Object.assign(fresh.activity, parsed.activity),
+        integrity: Object.assign(fresh.integrity, parsed.integrity),
         games: (parsed.games && typeof parsed.games === 'object') ? parsed.games : {},
         questionBanks: (parsed.questionBanks && typeof parsed.questionBanks === 'object') ? parsed.questionBanks : {},
         class: Object.assign(fresh.class, parsed.class)
@@ -168,6 +174,8 @@
   // Firebase synchronization mirrors educator-relevant platform and per-game
   // statistics. Game-specific progression remains local to each game.
   let firebaseUid = null;
+  let currentUserRole = null;
+  try { currentUserRole = sessionStorage.getItem('arcadeAcademy.currentUserRole'); } catch (_) {}
   let firebaseConnectionPromise = null;
   let firebaseConnected = false;
   let firebaseWriteQueue = Promise.resolve();
@@ -222,6 +230,7 @@
       } : null,
       lastActive: data.activity.lastActive,
       favouriteGame: stats.favouriteGame,
+      integrity: JSON.parse(JSON.stringify(data.integrity || {})),
       questionBanks: JSON.parse(JSON.stringify(data.questionBanks || {}))
     };
   }
@@ -298,6 +307,9 @@
 
     if (platformData && Number.isFinite(Number(platformData.lastActive))) {
       data.activity.lastActive = Number(platformData.lastActive);
+    }
+    if (platformData?.integrity && typeof platformData.integrity === 'object') {
+      data.integrity = Object.assign(defaultData().integrity, platformData.integrity);
     }
 
     if (platformData?.questionBanks && typeof platformData.questionBanks === 'object') {
@@ -637,7 +649,11 @@
     currentSession = {
       gameId, startedAt: now, lastReconciledAt: now, activeSince: null,
       questionsAnsweredAtStart: data.questions.totalAnswered,
-      questionsCorrectAtStart: data.questions.totalCorrect
+      questionsCorrectAtStart: data.questions.totalCorrect,
+      lastAnswerAt: null,
+      consecutiveFastAnswers: 0,
+      integrityTriggered: false,
+      coinsAwarded: 0
     };
     data.activity.lastActive = now;
     markDirty();
@@ -735,12 +751,14 @@
 
   function addCoins(amount, options) {
     if (practiceMode) return data.coins.balance;
+    if (currentSession?.integrityTriggered && currentSession.gameId !== 'note-knowledge') return data.coins.balance;
     const base = Math.max(0, Math.floor(Number(amount) || 0));
     const n = global.AchievementManager?.hasSecret?.('secret_lucky_badge')
       ? Math.floor(base * 1.5)
       : base;
     if (n > 0) {
       data.coins.balance += n;
+      if (currentSession) currentSession.coinsAwarded = normalizeCount(currentSession.coinsAwarded) + n;
       if (options?.countsTowardLifetime !== false) data.coins.totalEarned += n;
       touchActivity();
       save();
@@ -822,7 +840,7 @@
       fallbackAccuracy=previousAnswered>0?previousCorrect/previousAnswered:0;
     }
     const result = calculateAccuracyCoinAward(baseCoins, correct, answered, fallbackAccuracy);
-    if (practiceMode) result.coinsAwarded = 0;
+    if (practiceMode || (currentSession?.integrityTriggered && currentSession.gameId !== 'note-knowledge')) result.coinsAwarded = 0;
     else if (result.coinsAwarded > 0) addCoins(result.coinsAwarded);
     if (currentSession && (!gameId || currentSession.gameId === gameId)) {
       currentSession.questionsAnsweredAtStart = data.questions.totalAnswered;
@@ -833,8 +851,44 @@
 
   // ---- questions --------------------------------------------------
 
+  function checkAnswerTiming(gameId, wasCorrect) {
+    if (!wasCorrect || gameId === 'note-knowledge' || !currentSession || currentSession.gameId !== gameId) return;
+    const now = Date.now();
+    const elapsed = currentSession.lastAnswerAt === null ? null : now - currentSession.lastAnswerAt;
+    currentSession.lastAnswerAt = now;
+    if (elapsed !== null && elapsed <= 300) currentSession.consecutiveFastAnswers += 1;
+    else currentSession.consecutiveFastAnswers = 0;
+    if (currentSession.integrityTriggered || currentSession.consecutiveFastAnswers < 3) return;
+
+    currentSession.integrityTriggered = true;
+    const rollback = Math.min(normalizeCount(currentSession.coinsAwarded), data.coins.balance);
+    if (rollback > 0) {
+      data.coins.balance -= rollback;
+      data.coins.totalEarned = Math.max(0, data.coins.totalEarned - rollback);
+      if (firebaseConnectionPromise && !firebaseConnected) coinChangesWhileConnecting -= rollback;
+      currentSession.coinsAwarded = 0;
+      emitCoinsChanged();
+    }
+    data.integrity = {
+      detectedAt: now,
+      gameId,
+      fastestAnswerMs: elapsed
+    };
+    touchActivity();
+    save();
+    queueStatsSave(gameId ? [gameId] : undefined);
+    if (typeof global.dispatchEvent === 'function' && typeof global.CustomEvent === 'function') {
+      global.dispatchEvent(new global.CustomEvent('arcade-difficulty-rate-changed', { detail: { multiplier: 5 } }));
+    }
+  }
+
+  function getDifficultyRateMultiplier() {
+    return currentSession?.integrityTriggered && currentSession.gameId !== 'note-knowledge' ? 5 : 1;
+  }
+
   function recordQuestionAnswered(gameId, wasCorrect) {
     rollDailyIfNeeded();
+    checkAnswerTiming(gameId, wasCorrect);
     data.questions.totalAnswered += 1;
     data.questions.dailyAnswered += 1;
     if (wasCorrect) {
@@ -1213,6 +1267,7 @@
     getCoins,
     calculateAccuracyCoinAward,
     settleAccuracyCoins,
+    getDifficultyRateMultiplier,
     connectFirebase,
     disconnectFirebase,
     getConnectedUid,
@@ -1254,13 +1309,14 @@
     getQuestionBankStats,
     getFavouriteGame
   };
+  global.PlatformManager.isTeacher = () => currentUserRole === 'teacher';
 
   // AchievementManager is shared by every game and hooks the platform events
   // above. Loading it here prevents each game from growing its own save format.
   if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && !global.AchievementManager && /\/games\//.test(location.pathname)) {
     const achievementScript = document.createElement('script');
     const achievementUrl = new URL('AchievementManager.js', PLATFORM_SCRIPT_URL);
-    achievementUrl.searchParams.set('v','20260818-fighter-shop-touch-v1');
+    achievementUrl.searchParams.set('v','20260825-nine-ball-v3');
     achievementScript.src = achievementUrl.href;
     achievementScript.defer = true;
     document.head.appendChild(achievementScript);
@@ -1318,12 +1374,17 @@
           if (user) {
             await connectFirebase(user.uid);
             const profile = await global.FirebaseManager.getUserProfile?.(user.uid);
+            currentUserRole = profile?.role || null;
+            try { sessionStorage.setItem('arcadeAcademy.currentUserRole', currentUserRole || ''); } catch (_) {}
+            global.dispatchEvent(new CustomEvent('arcade-user-role-changed', { detail: { role: currentUserRole } }));
             await applyClassQuestionBankAssignment(profile);
             global.ArcadeQuestionPolicy = await global.FirebaseManager.resolveQuestionFormat?.(profile) || {format:'mixed',source:'game'};
             global.AchievementManager?.connect?.(user.uid, profile?.achievementSystem);
             global.MistakeRematchManager?.connect?.(user.uid, profile?.mistakeRematch);
             global.SuggestedGameManager?.connect?.(user.uid, profile?.suggestedGame);
           } else {
+            currentUserRole = null;
+            try { sessionStorage.removeItem('arcadeAcademy.currentUserRole'); } catch (_) {}
             disconnectFirebase();
             global.AchievementManager?.disconnect?.();
             global.SuggestedGameManager?.disconnect?.();

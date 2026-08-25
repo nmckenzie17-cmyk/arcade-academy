@@ -65,6 +65,7 @@
   // Game state
   // ---------------------------------------------------------
   const S = {
+    gameType: localStorage.getItem('pool-practice.gameType') || 'eight',
     playerMode: 'single',    // 'single' | 'multiplayer'
     difficulty: 'medium',
     questionMode: 'earn_your_shot',
@@ -94,6 +95,7 @@
     ballsPocketedTotal: 0,
     loadedQuestionKey: null,
     safetyShotUsed: false,
+    requiredBallAtShot: 1,
 
     mp: null,                // { roomCode, playerId, localSeat, lastAppliedVersion }
     cosmetics: { felt: null, cueStick: null, cueBall: null, aimLine: null }
@@ -141,6 +143,12 @@
     if (S.playerMode !== 'multiplayer') return true;
     return activePlayer().seat === S.mp.localSeat;
   }
+
+  const NINE_BALL_UNLOCK_ID='pool-practice-nine-ball';
+  function nineBallUnlockState(){const total=PlatformManager.getOverallStats?.().totalCorrect||0,otherGames=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!==GameConfig.meta.id&&(g.correct||0)>=350).length;const unlocked=window.AchievementManager?.hasTypeUnlock?.(NINE_BALL_UNLOCK_ID)||(total>=1400&&otherGames>=3);if(unlocked)window.AchievementManager?.grantTypeUnlock?.(NINE_BALL_UNLOCK_ID,{name:'9-Ball Pool',kind:'game-mode',gameId:GameConfig.meta.id,detail:'Lowest-ball-first rotation pool with a nine-ball win.'});return{unlocked,total,otherGames};}
+  function renderPoolTypeSelect(){const state=nineBallUnlockState();if(!state.unlocked&&S.gameType==='nine')S.gameType='eight';document.querySelectorAll('[data-pool-type]').forEach(btn=>{const locked=btn.dataset.poolType==='nine'&&!state.unlocked,selected=btn.dataset.poolType===S.gameType;btn.disabled=locked;btn.classList.toggle('active',selected);btn.textContent=(locked?'🔒 ':selected?'✓ ':'')+(btn.dataset.poolType==='nine'?'9-BALL':'8-BALL');btn.onclick=()=>{if(locked)return;S.gameType=btn.dataset.poolType;localStorage.setItem('pool-practice.gameType',S.gameType);if(S.gameType==='nine'&&S.playerMode==='multiplayer')document.querySelector('[data-player-mode="single"]').click();document.querySelector('[data-player-mode="multiplayer"]').disabled=S.gameType==='nine';renderPoolTypeSelect();};});const p=$('pool-type-progress');if(p)p.textContent=state.unlocked?(S.gameType==='nine'?'Hit the lowest numbered ball first. Sink the 9 legally to win.':'9-Ball unlocked.'):`${Math.min(1400,state.total)}/1400 correct · ${Math.min(3,state.otherGames)}/3 other games at 350 correct`;const multi=document.querySelector('[data-player-mode="multiplayer"]');if(multi)multi.disabled=S.gameType==='nine';}
+  window.addEventListener('arcade-achievement-manager-ready',renderPoolTypeSelect);
+  window.addEventListener('arcade-user-role-changed',renderPoolTypeSelect);
 
   // ===========================================================
   // HOME SCREEN — match setup (all condensed onto screen-menu)
@@ -499,10 +507,10 @@
   // ===========================================================
   function startLocalMatch() {
     PlatformManager.startSession(GameConfig.meta.id);
-    S.table.rack();
+    rackCurrentGame();
     S.players = [
-      { name: 'You', group: null, seat: 0, isAI: false },
-      { name: 'CPU', group: null, seat: 1, isAI: S.playerMode === 'single' }
+      { name: 'You', group: S.gameType==='nine'?'nine':null, seat: 0, isAI: false },
+      { name: 'CPU', group: S.gameType==='nine'?'nine':null, seat: 1, isAI: S.playerMode === 'single' }
     ];
     S.currentPlayerIndex = Math.random() < 0.5 ? 0 : 1;
     S.firstShotOfMatch = true;
@@ -511,6 +519,7 @@
     resizeCanvas();
     beginTurn();
   }
+  function rackCurrentGame(){if(S.gameType==='nine')S.table.rackNineBall();else S.table.rack();}
 
   function resetMatchCounters() {
     S.matchStartTime = Date.now();
@@ -716,6 +725,7 @@
     setControlsEnabled(false);
     SFX.cueStrike();
 
+    S.requiredBallAtShot=lowestNineBall();
     const { events, frames } = simulateShot(S.table, S.aimAngle, S.power);
     S.lastEvents = events;
     playbackFrames(frames, events);
@@ -797,6 +807,7 @@
   // RULES ENGINE
   // ===========================================================
   function finalizeShot(events) {
+    if(S.gameType==='nine'){finalizeNineBallShot(events);return;}
     const player = activePlayer();
     const opponent = otherPlayer();
     let foul = false;
@@ -870,6 +881,21 @@
     }
   }
 
+  function lowestNineBall(){const nums=S.table.activeBalls.filter(b=>!b.isCue).map(b=>b.number);return nums.length?Math.min(...nums):9;}
+  function respotObjectBall(number){const existing=S.table.balls.find(b=>b.number===number);if(!existing)return;existing.pocketed=false;existing.x=S.table.width*.72;existing.y=S.table.height/2;existing.vx=0;existing.vy=0;}
+  function finalizeNineBallShot(events){
+    const player=activePlayer(),opponent=otherPlayer();let foul=false,reason='';
+    if(!events.firstContact){foul=true;reason='No ball contacted';}
+    else if(events.firstContact.ball!==S.requiredBallAtShot){foul=true;reason=`Hit ${events.firstContact.ball} before ${S.requiredBallAtShot}`;}
+    if(events.cueScratched){foul=true;reason=reason||'Scratched';respotCueBall();}
+    const ninePotted=events.pocketed.includes(9);S.ballsPocketedTotal+=events.pocketed.filter(n=>n!==0).length;
+    if(ninePotted&&!foul){SFX.win();endGame(player,{reason:'Legally pocketed the 9-ball'});pushOnlineStateIfNeeded(true);return;}
+    if(ninePotted&&foul)respotObjectBall(9);
+    const legalObjectPot=events.pocketed.some(n=>n>0&&n!==9);
+    if(foul)showBanner('foul-banner','FOUL: '+reason.toUpperCase());
+    if(foul||!legalObjectPot){SFX.turnChange();finishTurnPass();}else{renderBallTray();if(S.playerMode!=='multiplayer')beginTurn();}
+  }
+
   function respotCueBall() {
     const spotX = S.table.width * 0.25, spotY = S.table.height / 2;
     let x = spotX, y = spotY, tries = 0;
@@ -915,6 +941,7 @@
     S.power = shot.power;
     S.phase = 'simulating';
     SFX.cueStrike();
+    S.requiredBallAtShot=lowestNineBall();
     const { events, frames } = simulateShot(S.table, shot.angle, shot.power);
     S.lastEvents = events;
     playbackFrames(frames, events);
@@ -984,9 +1011,9 @@
     } else {
       $('overlay-gameover').classList.add('hidden');
       S.currentPlayerIndex = 1 - S.currentPlayerIndex; // swap who breaks
-      S.table.rack();
+      rackCurrentGame();
       S.firstShotOfMatch = true;
-      S.players.forEach(p => p.group = null);
+      S.players.forEach(p => p.group = S.gameType==='nine'?'nine':null);
       resetMatchCounters();
       beginTurn();
     }
@@ -1513,6 +1540,7 @@
   }
   function setGroupPill(el, group) {
     el.classList.remove('assigned-solids', 'assigned-stripes');
+    if (group === 'nine') { el.textContent = '🎱 LOWEST BALL'; return; }
     if (group === 'solids') { el.textContent = '🟡 SOLIDS'; el.classList.add('assigned-solids'); }
     else if (group === 'stripes') { el.textContent = '🔵 STRIPES'; el.classList.add('assigned-stripes'); }
     else { el.textContent = 'OPEN TABLE'; }
@@ -1547,6 +1575,7 @@
       tray.appendChild(row);
     };
 
+    if(S.gameType==='nine'){buildRow('🎱 9-BALL ROTATION',[1,2,3,4,5,6,7,8,9],null);return;}
     buildRow('🟡 SOLIDS', [1, 2, 3, 4, 5, 6, 7], 'solids');
     buildRow('⚫ 8-BALL', [8], null);
     buildRow('🔵 STRIPES', [9, 10, 11, 12, 13, 14, 15], 'stripes');
@@ -1600,6 +1629,7 @@
   // INIT
   // ===========================================================
   loadCosmetics();
+  renderPoolTypeSelect();
   window.addEventListener('arcade-progression-changed', () => { render(); window.AchievementManager?.renderGameRewardShop?.(); });
   resizeCanvas();
   showScreen('screen-menu');

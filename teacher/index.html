@@ -259,6 +259,14 @@
     aria-labelledby="panel-student-name"
     hidden
   >
+    <div
+      id="student-panel-resize-handle"
+      class="student-panel-resize-handle"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize student details panel"
+      tabindex="0"
+    ></div>
     <div class="panel-header">
       <div>
         <h2 id="panel-student-name">Student</h2>
@@ -273,20 +281,24 @@
         <button id="student-settings-tab" class="panel-tab" type="button" role="tab" aria-selected="false">Student settings</button>
       </div>
       <section class="panel-section" aria-labelledby="game-stats-heading">
-        <h3 id="game-stats-heading">Per-game statistics</h3>
+        <div class="game-stats-title-row">
+          <h3 id="game-stats-heading">Per-game statistics</h3>
+          <button id="integrity-review-button" class="integrity-review-button" type="button" hidden>Mark results checked</button>
+        </div>
+        <p class="game-stats-help">Select a column heading to sort the student's games.</p>
         <table id="game-stats-table">
           <caption class="visually-hidden">Statistics for each game this student has played</caption>
           <thead>
             <tr>
-              <th scope="col">Game</th>
-              <th scope="col">High score</th>
-              <th scope="col">Accuracy</th>
-              <th scope="col">Questions answered</th>
-              <th scope="col">Correct</th>
-              <th scope="col">Incorrect</th>
-              <th scope="col">Playtime</th>
-              <th scope="col">Last played</th>
-              <th scope="col">Sessions played</th>
+              <th scope="col" data-game-sort-key="gameName" tabindex="0" aria-sort="none">Game</th>
+              <th scope="col" data-game-sort-key="highScore" tabindex="0" aria-sort="none">High score</th>
+              <th scope="col" data-game-sort-key="accuracy" tabindex="0" aria-sort="none">Accuracy</th>
+              <th scope="col" data-game-sort-key="questionsAnswered" tabindex="0" aria-sort="none">Questions answered</th>
+              <th scope="col" data-game-sort-key="correct" tabindex="0" aria-sort="none">Correct</th>
+              <th scope="col" data-game-sort-key="incorrect" tabindex="0" aria-sort="none">Incorrect</th>
+              <th scope="col" data-game-sort-key="playtimeMinutes" tabindex="0" aria-sort="none">Playtime</th>
+              <th scope="col" data-game-sort-key="lastPlayed" tabindex="0" aria-sort="descending">Last played</th>
+              <th scope="col" data-game-sort-key="gamesPlayed" tabindex="0" aria-sort="none">Sessions played</th>
             </tr>
           </thead>
           <tbody id="game-stats-body"></tbody>

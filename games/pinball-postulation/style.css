@@ -31,6 +31,7 @@ canvas { display:block; }
 .home-cosmetics-box p { margin:0 0 5px; color:var(--gold); }
 .home-cosmetics-box span { color:#cfc4df; font-size:12px; }
 .home-cosmetics-box .btn { flex:0 0 auto; padding:10px 12px; }
+.table-select{margin:0 0 18px;padding:13px 15px;background:rgba(8,4,24,.72);border:2px solid var(--border-purple);border-radius:10px}.table-select>p:first-child{margin:0 0 10px;color:var(--gold)}.table-select-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.table-choice{padding:10px 6px;font-size:11px}.table-choice.selected{color:#180a2e!important;background:var(--gold);border-color:#fff2a6;box-shadow:var(--glow-gold)}.table-choice:disabled{cursor:not-allowed;opacity:.58}.table-unlock-progress{min-height:1.4em;margin:9px 0 0;color:var(--accent-blue);font-size:11px;line-height:1.5}
 .description-list { margin:8px 0 16px; color:var(--accent-blue); font-size:clamp(13px,2vw,15px); line-height:1.7; text-align:left; }
 .description-list p { margin:2px 0; }
 .bank-message { min-height:18px; margin:0 0 14px; color:#aaa; font-size:12px; }
@@ -53,6 +54,7 @@ canvas { display:block; }
 @media (max-width:520px) {
   .home-stats { grid-template-columns:repeat(2,1fr); }
   .home-cosmetics-box { align-items:stretch; flex-direction:column; }
+  .table-select-grid{grid-template-columns:1fr}
   .game-ui { padding:8px; }
   .hud-panel h1 { display:none; }
   .flipper-btn { bottom:14px; width:70px; height:70px; }

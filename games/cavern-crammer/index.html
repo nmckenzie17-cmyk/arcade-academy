@@ -52,6 +52,13 @@
 
         <button class="btn shopEntryBtn" id="openHomeShopBtn">Shop</button>
 
+        <h2 class="center" style="margin:16px 0 8px;">GAME TYPE</h2>
+        <div class="center" id="cavernModeSelect">
+          <button class="btn secondary" data-cavern-mode="explorer">✓ RUINS</button>
+          <button class="btn secondary" data-cavern-mode="escape">🔒 CAVERN ESCAPE</button>
+        </div>
+        <p class="center" id="cavernModeProgress" style="font-size:10px;color:var(--moss);"></p>
+
         <h2 class="center" style="margin:16px 0 8px;">DESCRIPTION</h2>
         <div class="descList">
           <p>🏮 Climb tall, crumbling ruins lit only by your lantern.</p>
@@ -145,9 +152,9 @@
 
   <script src="../../shared/js/AudioManager.js?v=20260820-audio-mixer-v1"></script>
   <script src="gameconfig.js"></script>
-<script src="../../shared/js/PlatformManager.js?v=20260818-typed-falling-v1"></script>
+  <script src="../../shared/js/PlatformManager.js?v=20260825-cavern-escape-v2"></script>
 <script src="../../shared/js/QuestionManager.js?v=20260818-typed-falling-v1"></script>
 <script src="../../shared/js/MixedQuestionRound.js?v=20260819-category-hint-v2"></script>
-<script src="game.js"></script>
+<script src="game.js?v=20260825-endless-escape-v1"></script>
 </body>
 </html>

@@ -56,6 +56,16 @@
         <button class="btn" id="home-cosmetics-btn" type="button">✨ Open Cosmetics</button>
       </section>
 
+      <section class="table-select" aria-labelledby="table-select-title">
+        <p class="section-label-font" id="table-select-title">Choose Table</p>
+        <div class="table-select-grid">
+          <button class="btn table-choice" type="button" data-table="academy">Academy</button>
+          <button class="btn table-choice" type="button" data-table="space">🔒 Space</button>
+          <button class="btn table-choice" type="button" data-table="ninja">🔒 Ninja</button>
+        </div>
+        <p id="table-unlock-progress" class="table-unlock-progress"></p>
+      </section>
+
       <p class="section-label-font">Description</p>
       <div class="description-list">
         <p>🕹️ Use ◄ Left / Right ► or Z and M to work the flippers.</p>
@@ -84,8 +94,8 @@
 
   <script src="../../shared/js/AudioManager.js?v=20260820-audio-mixer-v1"></script>
   <script src="gameconfig.js"></script>
-  <script src="../../shared/js/PlatformManager.js?v=20260818-typed-falling-v1"></script>
+  <script src="../../shared/js/PlatformManager.js?v=20260825-type-unlock-fix-v1"></script>
   <script src="../../shared/js/QuestionManager.js?v=20260818-typed-falling-v1"></script>
-  <script src="game.js"></script>
+  <script src="game.js?v=20260825-ninja-zones-v5"></script>
 </body>
 </html>

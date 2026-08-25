@@ -668,7 +668,7 @@ function updateReel(dt){
 
   // --- move the catching zone along the tension axis ---
   const enrageSpeedMult = (RT.isBoss && RT.bossEnraged) ? 1.65 : 1;
-  const speed = RT.zoneBaseSpeed * enrageSpeedMult;
+  const speed = RT.zoneBaseSpeed * enrageSpeedMult * PlatformManager.getDifficultyRateMultiplier();
   RT.zonePhase += dt*0.001*speed;
   let width = RT.zoneWidth * (RT.isBoss && RT.bossEnraged ? 0.75 : 1);
   const center = computeZoneCenter(RT.zonePhase, width, RT.zoneWobble);

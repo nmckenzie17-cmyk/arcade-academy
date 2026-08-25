@@ -170,6 +170,23 @@ export async function updateStudentClass(uid, className) {
   }
 }
 
+export async function reviewStudentIntegrityFlag(uid) {
+  try {
+    const teacherUid = auth.currentUser?.uid;
+    if (!teacherUid || !uid) throw new Error("Invalid integrity review");
+    const teacherProfile = await getUserProfile(teacherUid);
+    if (teacherProfile?.role !== "teacher") throw new Error("Teacher access required");
+    await updateDoc(doc(db, "users", uid), {
+      integrityReviewedAt: Date.now(),
+      integrityReviewedBy: teacherUid
+    });
+    return true;
+  } catch (error) {
+    console.error("Unable to review student integrity flag:", error);
+    return false;
+  }
+}
+
 const QUESTION_FORMATS = ["mixed", "multichoice", "matching", "category", "type-answer", "falling-words-basic", "falling-words-definition", "falling-words-category"];
 function validQuestionFormat(value) { return QUESTION_FORMATS.includes(value) ? value : "mixed"; }
 
@@ -1066,6 +1083,7 @@ window.FirebaseManager = {
   updateStudentProfile,
   updateStudentCoins,
   updateStudentClass,
+  reviewStudentIntegrityFlag,
   getClassQuestionFormat,
   setClassQuestionFormat,
   getClassQuestionBankAssignment,

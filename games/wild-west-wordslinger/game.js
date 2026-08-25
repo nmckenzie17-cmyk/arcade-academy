@@ -528,6 +528,7 @@
     progress.textContent=state.unlocked?'Bloody Bandit unlocked':`${Math.min(200,state.total)}/200 correct · ${Math.min(3,state.otherGames)}/3 other games at 50 correct`;
     if(state.unlocked)showModeMilestone();
   }
+  window.addEventListener('arcade-achievement-manager-ready',updateModeSelection);
   function selectGameMode(mode){if(mode==='bloody'&&!bloodyBanditProgress().unlocked)return;gameMode=mode;updateModeSelection();}
 
   // Screens
@@ -1311,14 +1312,14 @@
   function getSpawnDelay() {
     // Progressively increase difficulty: spawn delay decreases as score increases
     // At score 0: 1400ms, at score 500: 700ms, at score 1000+: 400ms
-    const baseTier = Math.floor(overallScore / 250);
+    const baseTier = Math.floor((overallScore / 250) * PlatformManager.getDifficultyRateMultiplier());
     return Math.max(250, Math.round((1400 - baseTier * 100) * runSpawnRateMult));
   }
 
   function getEnemyLifetime() {
     // Enemies disappear faster as score increases
     // At score 0: 4200ms, at score 500: 3000ms, at score 1000+: 1800ms
-    const baseTier = Math.floor(overallScore / 250);
+    const baseTier = Math.floor((overallScore / 250) * PlatformManager.getDifficultyRateMultiplier());
     return Math.max(1800, 4200 - baseTier * 100);
   }
 

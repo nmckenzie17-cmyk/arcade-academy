@@ -4,6 +4,33 @@ const GAME_CONFIG = { id: 'pinball-postulation', name: 'Pinball Postulation' };
 function pinballCosmetic(id){ return typeof AchievementManager!=='undefined'&&Object.values(AchievementManager.getEquipped('pinball-postulation')).some(r=>r?.id===id); }
 function pinballSecret(id){ return typeof AchievementManager!=='undefined'&&AchievementManager.hasSecret?.(id); }
 let platformSessionStarted = false;
+const PINBALL_TABLE_UNLOCK_ID = 'pinball-postulation-theme-tables';
+let selectedTable = localStorage.getItem('pinball-postulation.selectedTable') || 'academy';
+
+function pinballTableUnlockState(){
+  if(window.AchievementManager?.hasTypeUnlock?.(PINBALL_TABLE_UNLOCK_ID))return{unlocked:true,total:PlatformManager.getOverallStats?.().totalCorrect||0,otherGames:3};
+  const total=PlatformManager.getOverallStats?.().totalCorrect||0;
+  const otherGames=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!==GAME_CONFIG.id&&(g.correct||0)>=250).length;
+  const unlocked=total>=1000&&otherGames>=3;
+  if(unlocked)window.AchievementManager?.grantTypeUnlock?.(PINBALL_TABLE_UNLOCK_ID,{name:'Space & Ninja Tables',kind:'game-mode',gameId:GAME_CONFIG.id,detail:'Two alternate pinball boards with unique layouts and physics.'});
+  return{unlocked,total,otherGames};
+}
+
+function renderTableSelection(){
+  const state=pinballTableUnlockState();
+  if(!state.unlocked&&!['academy'].includes(selectedTable))selectedTable='academy';
+  document.querySelectorAll('[data-table]').forEach(button=>{
+    const locked=button.dataset.table!=='academy'&&!state.unlocked;
+    button.disabled=locked;button.classList.toggle('selected',button.dataset.table===selectedTable);
+    const names={academy:'Academy',space:'Space',ninja:'Ninja'};
+    button.textContent=(locked?'🔒 ':button.dataset.table===selectedTable?'✓ ':'')+names[button.dataset.table];
+    button.onclick=()=>{if(locked)return;selectedTable=button.dataset.table;localStorage.setItem('pinball-postulation.selectedTable',selectedTable);renderTableSelection();};
+  });
+  const progress=document.getElementById('table-unlock-progress');
+  if(progress)progress.textContent=state.unlocked?'Space and Ninja tables unlocked.':`${Math.min(1000,state.total)}/1000 correct · ${Math.min(3,state.otherGames)}/3 other games at 250 correct`;
+}
+window.addEventListener('arcade-achievement-manager-ready',renderTableSelection);
+window.addEventListener('arcade-user-role-changed',renderTableSelection);
 
 let W, H, scale;
 const FEATURE_RAMP3 = true; // coral ramp — parallel-offset design, randomly appears each run
@@ -256,6 +283,8 @@ function randomBumperPos() {
   return pos;
 }
 function randomBumpers() {
+  if(selectedTable==='space')return[{x:110,y:120,r:19,hit:0},{x:285,y:145,r:23,hit:0},{x:245,y:285,r:17,hit:0},{x:315,y:370,r:20,hit:0}];
+  if(selectedTable==='ninja')return[{x:230,y:105,r:14,hit:0},{x:305,y:175,r:14,hit:0},{x:245,y:255,r:14,hit:0},{x:315,y:325,r:14,hit:0},{x:225,y:365,r:14,hit:0}];
   const bs = [];
   for (let i = 0; i < 3; i++) {
     let placed = false;
@@ -330,6 +359,55 @@ function generateSpinnerPosition() {
   spinner.phase = Math.random() * Math.PI * 2;
 }
 generateSpinnerPosition();
+
+// Type-unlock tables have their own moving obstacles instead of relying only on
+// different art and bumper placement.
+let stageClock = 0;
+const spaceAsteroids = [
+  { orbit: 78, angle: 0.2, speed: 0.012, r: 13, hit: 0 },
+  { orbit: 118, angle: 2.4, speed: -0.008, r: 17, hit: 0 },
+  { orbit: 158, angle: 4.1, speed: 0.006, r: 11, hit: 0 },
+  { orbit: 96, angle: 1.25, speed: -0.014, r: 10, hit: 0 },
+  { orbit: 137, angle: 3.15, speed: 0.009, r: 14, hit: 0 },
+  { orbit: 174, angle: 5.35, speed: -0.005, r: 12, hit: 0 }
+];
+const spaceFixedObstacles = [
+  { x: 55, y: 325, r: 20, color: '#63e6d5', hit: 0 },
+  { x: 345, y: 440, r: 24, color: '#ffd166', hit: 0 }
+];
+const ninjaShuriken = [
+  { x: 92, y: 205, baseY: 205, phase: 0, r: 17, hit: 0 },
+  { x: 308, y: 305, baseY: 305, phase: Math.PI, r: 17, hit: 0 }
+];
+const ninjaGates = [
+  { y: 155, gap: 138, phase: 0 },
+  { y: 365, gap: 184.5, phase: Math.PI }
+];
+function makeNinjaTopCurve(mirror = false) {
+  const points = [];
+  for (let i = 0; i <= 18; i++) {
+    const t = i / 18;
+    // Long quadratic sweep from the side wall into the flat top rail.
+    const x = (1-t)*(1-t)*20 + 2*(1-t)*t*20 + t*t*145;
+    const y = (1-t)*(1-t)*190 + 2*(1-t)*t*32 + t*t*20;
+    points.push({ x: mirror ? TW-x : x, y });
+  }
+  return points;
+}
+const ninjaTopCurves = [makeNinjaTopCurve(false), makeNinjaTopCurve(true)];
+const spacePlanets = [
+  { x: 92, y: 170, r: 24, field: 112, strength: 0.052, color: '#49a8ff' },
+  { x: 305, y: 285, r: 31, field: 135, strength: 0.072, color: '#ff8d49' },
+  { x: 120, y: 430, r: 18, field: 92, strength: -0.042, color: '#b56cff' }
+];
+let spaceMeteors = [], nextMeteorFrame = 90;
+function spawnSpaceMeteor() {
+  const fromLeft = Math.random() < .5;
+  const speed = 3.5 + Math.random() * 2.8;
+  spaceMeteors.push({ x: fromLeft ? -25 : TW + 25, y: 75 + Math.random() * 430,
+    vx: fromLeft ? speed : -speed, vy: 0.8 + Math.random() * 1.5, r: 10 + Math.random() * 7, angle: 0, hit: 0 });
+  nextMeteorFrame = stageClock + 100 + Math.floor(Math.random() * 180);
+}
 
 // Drop targets: row of 3 rectangles that disappear when hit, reset once all are down
 function freshDropTargets() {
@@ -519,6 +597,11 @@ function restartGame() {
   dropTargets = freshDropTargets();
   dropTargetsResetTimer = 0;
   spinner.spin = 0;uWellDestroyed=false;uWellPixels=[];nudgeUsed=false;tableShakeFrames=0;
+  stageClock = 0;
+  spaceAsteroids.forEach((a, i) => { a.angle = 0.2 + i * 2.1; a.hit = 0; });
+  spaceFixedObstacles.forEach(o => { o.hit = 0; });
+  ninjaShuriken.forEach(s => { s.y = s.baseY; s.hit = 0; });
+  spaceMeteors = []; nextMeteorFrame = 70 + Math.floor(Math.random() * 100);
   generateSpinnerPosition();
   generateRandomElements();
   generateWells();
@@ -551,6 +634,7 @@ function startFromHomeScreen() {
   document.getElementById('home-screen').classList.add('hidden');
   restartGame();
 }
+renderTableSelection();
 function syncNudgeButton(){const btn=document.getElementById('table-nudge-btn'),enabled=window.AchievementManager?.hasBoost?.('pinball-postulation_table_nudge');btn.classList.toggle('hidden',!enabled||!gameStarted);btn.disabled=nudgeUsed||!balls.length;}
 document.getElementById('table-nudge-btn').onclick=()=>{if(nudgeUsed||!balls.length)return;nudgeUsed=true;tableShakeFrames=28;syncNudgeButton();};
 
@@ -779,6 +863,15 @@ function addScore(basePts) {
 function saveScoreAfterDrain(){if(score>highScore){highScore=score;document.getElementById('high-score-value').textContent=highScore;document.getElementById('home-high-score').textContent=highScore;PlatformManager.setHighScore(GAME_CONFIG.id,highScore);}}
 
 function update() {
+  stageClock++;
+  if (selectedTable === 'space') {
+    spaceAsteroids.forEach(a => { a.angle += a.speed; if (a.hit > 0) a.hit--; });
+    if (stageClock >= nextMeteorFrame) spawnSpaceMeteor();
+    spaceMeteors.forEach(m => { m.x += m.vx; m.y += m.vy; m.angle += .09; if (m.hit > 0) m.hit--; });
+    spaceMeteors = spaceMeteors.filter(m => m.x > -60 && m.x < TW + 60 && m.y < TH + 40);
+  } else if (selectedTable === 'ninja') {
+    ninjaShuriken.forEach(s => { s.y = s.baseY + Math.sin(stageClock * 0.025 + s.phase) * 52; if (s.hit > 0) s.hit--; });
+  }
   const lActive = keys['KeyZ'] || keys['ArrowLeft'] || leftPressed;
   const rActive = keys['KeyM'] || keys['ArrowRight'] || rightPressed;
   const prevLeftFlipper = leftFlipper, prevRightFlipper = rightFlipper;
@@ -789,8 +882,9 @@ function update() {
 
   spinner.angle += spinner.spin;
   spinner.spin *= 0.95;
-  spinner.phase += 0.0087; // slow drift, full cycle roughly every 12 seconds
-  spinner.x = 200 + Math.sin(spinner.phase) * 65; // stays within the middle third of the table width
+  spinner.phase += selectedTable==='ninja'?0.024:0.0087; // Ninja's roaming shuriken patrols much faster.
+  spinner.len = selectedTable==='ninja'?38:26;
+  spinner.x = 200 + Math.sin(spinner.phase) * (selectedTable==='ninja'?105:65);
   triangleTimer = (triangleTimer + 1) % 360; // 3 x 120-frame (2s) slots — one triangle lit at a time
   if (ramp.flash > 0) ramp.flash--;
   for (const g of scoreGates) {
@@ -837,7 +931,14 @@ function update() {
       continue;
     }
 
-    ball.vy += gravity;
+    const difficultyRate = PlatformManager.getDifficultyRateMultiplier();
+    ball.vy += (selectedTable==='space'?gravity*0.58:gravity) * difficultyRate;
+    if(selectedTable==='space'){
+      for (const p of spacePlanets) {
+        const dx=p.x-ball.x,dy=p.y-ball.y,dist=Math.hypot(dx,dy)||1;
+        if(dist<p.field){const influence=(1-dist/p.field)*p.strength;ball.vx+=dx/dist*influence;ball.vy+=dy/dist*influence;}
+      }
+    }
     ball.vx *= friction;
     ball.vy *= friction;
     ball.x += ball.vx;
@@ -850,7 +951,7 @@ function update() {
     // speed and direction, and pauses it there for 1s before launching it back out. A well
     // that was just teleported to goes on a 10s cooldown and can't be entered OR chosen as
     // a destination during that time.
-    for (const w of wells) {
+    for (const w of selectedTable === 'academy' ? wells : []) {
       if (w.cooldown > 0) continue;
       if (Math.hypot(ball.x - w.x, ball.y - w.y) < WELL_RADIUS) {
         let others = wells.filter(o => o !== w && o.cooldown === 0);
@@ -874,6 +975,7 @@ function update() {
 
   // Mint ramp: solid walls along its entire length, same collision as every other obstacle
   // on the board — the ball can only get in or out through the two open ends.
+  if (selectedTable === 'academy') {
   applyFullRampWalls(ramp2LeftWall, ramp2RightWall, br);
   applyMouthAccelerator(rampA);
   applyMouthAccelerator(rampB);
@@ -891,6 +993,7 @@ function update() {
     checkMouthScore(rampD, 'D', 350);
     checkMouthScore(ramp3Quarter1, 'ramp3q1', 100);
     checkMouthScore(ramp3Quarter2, 'ramp3q2', 100);
+  }
   }
 
   const leftWall = 20;
@@ -911,7 +1014,7 @@ function update() {
   // y 490-580 vs the well's y 495-550) — skip it there so guardPush's forced-velocity
   // behavior can't fight the U-well's own walls and rest detection.
   const inUWellZone = ball.x < U_WELL.x2 + 10 && ball.y > U_WELL.yTop - 10 && ball.y < U_WELL.yBottom + 10;
-  if (!inUWellZone) {
+  if (selectedTable !== 'academy' || !inUWellZone) {
     resolveSegment(gutterInnerLeft, cornerTopY, gutterInnerLeft, cornerTopY - 90, br);
     guardPush(gutterInnerLeft, cornerTopY, gutterInnerLeft, cornerTopY - 90, br);
   }
@@ -922,7 +1025,7 @@ function update() {
   resolveSegment(gutterInnerRight, cornerTopY, 300, flipY + 30, br);
   guardPush(gutterInnerRight, cornerTopY, 300, flipY + 30, br);
 
-  for (const b of bumpers) {
+  for (const b of selectedTable === 'academy' ? bumpers : []) {
     const dx = ball.x - b.x, dy = ball.y - b.y;
     const dist = Math.hypot(dx, dy);
     if (dist < b.r + br) {
@@ -941,7 +1044,7 @@ function update() {
   }
 
   // Wall bumps: protruding bumper pieces embedded in the outer walls
-  for (const w of wallBumps) {
+  for (const w of selectedTable === 'academy' ? wallBumps : []) {
     const wx = w.side === 'left' ? leftWall : rightWall;
     const dx = ball.x - wx, dy = ball.y - w.y;
     const dist = Math.hypot(dx, dy);
@@ -961,17 +1064,17 @@ function update() {
   }
 
   // Speed zones: continuously accelerate or decelerate the ball while inside
-  if (speedZone && Math.hypot(ball.x - speedZone.x, ball.y - speedZone.y) < speedZone.r) {
+  if (selectedTable !== 'space' && speedZone && Math.hypot(ball.x - speedZone.x, ball.y - speedZone.y) < speedZone.r) {
     ball.vx *= 1.03; ball.vy *= 1.03;
     const spd = Math.hypot(ball.vx, ball.vy);
     if (spd > 14) { ball.vx *= 14 / spd; ball.vy *= 14 / spd; }
   }
-  if (slowZone && Math.hypot(ball.x - slowZone.x, ball.y - slowZone.y) < slowZone.r) {
+  if (selectedTable !== 'space' && slowZone && Math.hypot(ball.x - slowZone.x, ball.y - slowZone.y) < slowZone.r) {
     ball.vx *= 0.94; ball.vy *= 0.94;
   }
 
   // Directional push zone: shoves the ball along a fixed random direction while inside
-  if (pushZone && Math.hypot(ball.x - pushZone.x, ball.y - pushZone.y) < pushZone.r) {
+  if (selectedTable !== 'space' && pushZone && Math.hypot(ball.x - pushZone.x, ball.y - pushZone.y) < pushZone.r) {
     ball.vx += Math.cos(pushZone.angle) * 0.4;
     ball.vy += Math.sin(pushZone.angle) * 0.4;
   }
@@ -1014,11 +1117,13 @@ function update() {
       addScore(50);
     }
   }
-  handleTriangleCollision(triangle, 0, 35, 2.25);
-  handleTriangleCollision(triangle2, 1, 35, 2.25);
-  handleTriangleCollision(sideTriangle, 2, 25, 2.25);
+  if (selectedTable === 'academy') {
+    handleTriangleCollision(triangle, 0, 35, 2.25);
+    handleTriangleCollision(triangle2, 1, 35, 2.25);
+    handleTriangleCollision(sideTriangle, 2, 25, 2.25);
+  }
 
-  {
+  if (selectedTable === 'academy') {
     const sx1 = spinner.x - Math.cos(spinner.angle) * spinner.len;
     const sy1 = spinner.y - Math.sin(spinner.angle) * spinner.len;
     const sx2 = spinner.x + Math.cos(spinner.angle) * spinner.len;
@@ -1047,8 +1152,68 @@ function update() {
     }
   }
 
+  // Space table: three independently orbiting asteroids and a slingshot ring.
+  if (selectedTable === 'space') {
+    for (const m of spaceMeteors) {
+      const dx=ball.x-m.x,dy=ball.y-m.y,dist=Math.hypot(dx,dy)||.001;
+      if(dist<m.r+br){const nx=dx/dist,ny=dy/dist;ball.x=m.x+nx*(m.r+br+1);ball.y=m.y+ny*(m.r+br+1);ball.vx=m.vx*.65+nx*4.5;ball.vy=m.vy*.65+ny*4.5;m.hit=8;addScore(250);}
+    }
+    for (const a of spaceAsteroids) {
+      const ax = 200 + Math.cos(a.angle) * a.orbit;
+      const ay = 275 + Math.sin(a.angle) * a.orbit * 0.68;
+      const dx = ball.x - ax, dy = ball.y - ay, dist = Math.hypot(dx, dy) || 0.001;
+      if (dist < a.r + br) {
+        const nx = dx / dist, ny = dy / dist, tangent = a.speed * a.orbit * 20;
+        ball.x = ax + nx * (a.r + br + 1); ball.y = ay + ny * (a.r + br + 1);
+        ball.vx = nx * 4.2 - Math.sin(a.angle) * tangent;
+        ball.vy = ny * 4.2 + Math.cos(a.angle) * tangent * 0.68;
+        a.hit = 8; addScore(175);
+      }
+    }
+    for (const o of spaceFixedObstacles) {
+      const dx=ball.x-o.x,dy=ball.y-o.y,dist=Math.hypot(dx,dy)||.001;
+      if(dist<o.r+br){const nx=dx/dist,ny=dy/dist,speed=Math.max(5.2,Math.hypot(ball.vx,ball.vy)*.9);ball.x=o.x+nx*(o.r+br+1);ball.y=o.y+ny*(o.r+br+1);ball.vx=nx*speed;ball.vy=ny*speed;o.hit=8;addScore(200);}
+      if(o.hit>0)o.hit--;
+    }
+    const ringX = 200, ringY = 455, ringR = 46;
+    const rd = Math.hypot(ball.x - ringX, ball.y - ringY);
+    if (!ball.spaceRingInside && rd < ringR) {
+      ball.spaceRingInside = true;
+      const speed = Math.max(8, Math.hypot(ball.vx, ball.vy) * 1.35);
+      const angle = Math.atan2(ball.vy, ball.vx) - 0.28;
+      ball.vx = Math.cos(angle) * speed; ball.vy = Math.sin(angle) * speed;
+      addScore(350);
+    } else if (rd > ringR + 12) ball.spaceRingInside = false;
+  }
+
+  // Ninja table: moving bamboo gates, roaming shuriken and a kick target.
+  if (selectedTable === 'ninja') {
+    for (const curve of ninjaTopCurves) {
+      for (let i=0;i<curve.length-1;i++) resolveSegment(curve[i].x,curve[i].y,curve[i+1].x,curve[i+1].y,br);
+    }
+    for (const g of ninjaGates) {
+      const center = 200 + Math.sin(stageClock * 0.018 + g.phase) * 82;
+      const previousY=ball.y-ball.vy;
+      const crossed=(previousY<g.y&&ball.y>=g.y)||(previousY>g.y&&ball.y<=g.y);
+      const blocked=ball.x<center-g.gap/2||ball.x>center+g.gap/2;
+      if(crossed&&blocked){const fromAbove=previousY<g.y;ball.y=g.y+(fromAbove?-br-1:br+1);ball.vy=fromAbove?-Math.max(4,Math.abs(ball.vy)*1.15):Math.max(4,Math.abs(ball.vy)*1.15);ball.vx+=(ball.x<center?-1:1)*.65;addScore(75);}
+    }
+    for (const s of ninjaShuriken) {
+      const dx = ball.x - s.x, dy = ball.y - s.y, dist = Math.hypot(dx, dy) || 0.001;
+      if (dist < s.r + br) {
+        const nx = dx / dist, ny = dy / dist;
+        ball.x = s.x + nx * (s.r + br + 1); ball.y = s.y + ny * (s.r + br + 1);
+        ball.vx = nx * 5.5; ball.vy = ny * 5.5 - 1.2;
+        s.hit = 8; addScore(225);
+      }
+    }
+    if (ball.x > 170 && ball.x < 230 && ball.y > 455 && ball.y < 480 && ball.vy > 0) {
+      ball.vx += (ball.x - 200) * 0.08; ball.vy = -9.5; addScore(400);
+    }
+  }
+
   // Drop targets: knock them down one at a time, clearing the row gives a bonus
-  for (const t of dropTargets) {
+  for (const t of selectedTable === 'academy' ? dropTargets : []) {
     if (t.down) continue;
     if (ball.x > t.x - t.w / 2 - br && ball.x < t.x + t.w / 2 + br &&
         ball.y > t.y - t.h / 2 - br && ball.y < t.y + t.h / 2 + br) {
@@ -1063,7 +1228,7 @@ function update() {
   }
 
   // Ramp gate: shoot the ball through the top lane for a bonus
-  if (!ball.rampScored && ball.vy > 0 && ball.y > ramp.y - 4 && ball.y < ramp.y + 8 &&
+  if (selectedTable === 'academy' && !ball.rampScored && ball.vy > 0 && ball.y > ramp.y - 4 && ball.y < ramp.y + 8 &&
       ball.x > ramp.x1 && ball.x < ramp.x2) {
     ball.rampScored = true;
     ramp.flash = 30;
@@ -1071,7 +1236,7 @@ function update() {
   }
 
   // Score gates: fly the ball through either lane (up or down) for a bonus, once per launch
-  scoreGates.forEach((g, i) => {
+  (selectedTable === 'academy' ? scoreGates : []).forEach((g, i) => {
     if (!ball.gatesScored.has(i) && ball.y > g.y - 5 && ball.y < g.y + 5 &&
         ball.x > g.x1 && ball.x < g.x2) {
       ball.gatesScored.add(i);
@@ -1092,12 +1257,12 @@ function update() {
 
   // U-well pocket walls (an indent in the left wall): open at the top so a ball can fall
   // in, walled on the sides and bottom so it settles rather than rolling back out
-  if(!uWellDestroyed){resolveSegment(U_WELL.x1,U_WELL.yTop,U_WELL.x1,U_WELL.yBottom,br);resolveSegment(U_WELL.x2,U_WELL.yTop,U_WELL.x2,U_WELL.yBottom,br);resolveSegment(U_WELL.x1,U_WELL.yBottom,U_WELL.x2,U_WELL.yBottom,br);}
+  if(selectedTable === 'academy' && !uWellDestroyed){resolveSegment(U_WELL.x1,U_WELL.yTop,U_WELL.x1,U_WELL.yBottom,br);resolveSegment(U_WELL.x2,U_WELL.yTop,U_WELL.x2,U_WELL.yBottom,br);resolveSegment(U_WELL.x1,U_WELL.yBottom,U_WELL.x2,U_WELL.yBottom,br);}
 
   // If the ball has settled (come to rest) inside the U-well, lock it there and drop 2
   // fresh balls from the top to start multiball — but only if this ball hasn't already used
   // up its one shot at triggering the well (balls spawned by a trigger can't trigger again)
-  if (ball.canTriggerWell && ball.x > U_WELL.x1 && ball.x < U_WELL.x2 && ball.y > U_WELL.yTop && ball.y < U_WELL.yBottom + 10) {
+  if (selectedTable === 'academy' && ball.canTriggerWell && ball.x > U_WELL.x1 && ball.x < U_WELL.x2 && ball.y > U_WELL.yTop && ball.y < U_WELL.yBottom + 10) {
     const spd = Math.hypot(ball.vx, ball.vy);
     ball.uWellRest = spd < 0.6 ? ball.uWellRest + 1 : 0;
     if (ball.uWellRest > 20) {
@@ -1162,6 +1327,14 @@ function update() {
   }
 }
 
+function drawUnlockedModeGuards(){
+  const guardTop=flipY-20;ctx.strokeStyle='#3d3dff';ctx.lineWidth=4;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(20+gutterWidth,guardTop);ctx.lineTo(20+gutterWidth,guardTop-90);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(TW-20-gutterWidth,guardTop);ctx.lineTo(TW-20-gutterWidth,guardTop-20);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(20+gutterWidth,guardTop);ctx.lineTo(100,flipY+30);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(TW-20-gutterWidth,guardTop);ctx.lineTo(300,flipY+30);ctx.stroke();
+}
+
 function draw() {
   const neonTable=pinballCosmetic('pinball-postulation_neon_academy_table'),fortressTable=pinballCosmetic('pinball-postulation_fortress_facts_table'),cosmic=pinballCosmetic('pinball-postulation_cosmic_multiball');
   ctx.fillStyle = cosmic?'#020817':neonTable?'#05051e':fortressTable?'#120d18':'#0a0014';
@@ -1170,6 +1343,15 @@ function draw() {
   ctx.translate(ox(), oy());
   ctx.scale(scale, scale);
   const tableShakeX=tableShakeFrames>0?Math.sin(tableShakeFrames*2.8)*5:0,tableShakeY=tableShakeFrames>0?Math.cos(tableShakeFrames*2.15)*3:0;if(tableShakeFrames>0)tableShakeFrames--;ctx.translate(tableShakeX,tableShakeY);
+  if(selectedTable==='space'){
+    const space=ctx.createRadialGradient(200,285,12,200,285,360);space.addColorStop(0,'#30135f');space.addColorStop(.18,'#08051d');space.addColorStop(1,'#01030d');ctx.fillStyle=space;ctx.fillRect(10,10,TW-20,TH-20);
+    ctx.fillStyle='#e8fbff';for(let i=0;i<75;i++)ctx.fillRect((i*83)%370+15,(i*149)%670+15,i%11===0?2:1,i%11===0?2:1);
+    ctx.strokeStyle='#bd75ff';ctx.lineWidth=3;for(let r=15;r<=48;r+=11){ctx.globalAlpha=.55-r/140;ctx.beginPath();ctx.arc(200,285,r,0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(200,285,11,0,Math.PI*2);ctx.fill();
+  }else if(selectedTable==='ninja'){
+    const dojo=ctx.createLinearGradient(0,0,TW,TH);dojo.addColorStop(0,'#100d18');dojo.addColorStop(.52,'#29121b');dojo.addColorStop(1,'#090b12');ctx.fillStyle=dojo;ctx.fillRect(10,10,TW-20,TH-20);
+    ctx.strokeStyle='rgba(224,58,69,.22)';ctx.lineWidth=1;for(let y=35;y<TH;y+=34){ctx.beginPath();ctx.moveTo(12,y);ctx.lineTo(TW-12,y);ctx.stroke();}for(let x=28;x<TW;x+=44){ctx.beginPath();ctx.moveTo(x,12);ctx.lineTo(x,TH-12);ctx.stroke();}
+    ctx.fillStyle='#e3c47a';ctx.font='bold 18px monospace';ctx.textAlign='center';ctx.fillText('忍者',TW/2,42);ctx.textAlign='left';
+  }
   if(cosmic){ctx.fillStyle='#d9f7ff';for(let i=0;i<55;i++){const x=(i*73)%TW,y=(i*137)%TH,a=.25+.65*Math.sin(performance.now()/700+i);ctx.globalAlpha=Math.abs(a);ctx.fillRect(x,y,i%8===0?2:1,i%8===0?2:1);}for(let i=0;i<6;i++){const x=45+(i*67)%320,y=75+(i*109)%520,a=.18+.35*Math.abs(Math.sin(performance.now()/1100+i));ctx.globalAlpha=a;ctx.fillStyle=`hsl(${i*58+190} 70% 55%)`;ctx.beginPath();ctx.arc(x,y,7+i%3*3,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#d7efff';ctx.beginPath();ctx.ellipse(x,y,13+i%3*3,3+i%2,-.3,0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;}
   if(neonTable){ctx.save();ctx.strokeStyle='rgba(0,245,255,.13)';ctx.lineWidth=1;for(let x=20;x<TW;x+=25){ctx.beginPath();ctx.moveTo(x,10);ctx.lineTo(x,TH-10);ctx.stroke();}for(let y=10;y<TH;y+=25){ctx.beginPath();ctx.moveTo(10,y);ctx.lineTo(TW-10,y);ctx.stroke();}ctx.restore();}
   if(fortressTable){const stone=ctx.createLinearGradient(0,0,TW,TH);stone.addColorStop(0,'#20263c');stone.addColorStop(.5,'#3d4965');stone.addColorStop(1,'#171c2d');ctx.fillStyle=stone;ctx.fillRect(18,14,TW-36,TH-28);ctx.strokeStyle='#7d8aa8';ctx.lineWidth=1;for(let y=24;y<TH-22;y+=24){ctx.beginPath();ctx.moveTo(20,y);ctx.lineTo(TW-20,y);ctx.stroke();for(let x=20+((y/24)%2)*18;x<TW-20;x+=36){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+24);ctx.stroke();}}ctx.fillStyle='#101526';ctx.fillRect(42,92,72,118);ctx.fillRect(TW-114,92,72,118);for(const tx of [42,TW-114]){ctx.fillStyle='#586682';for(let i=0;i<4;i++)ctx.fillRect(tx+i*18,76,12,24);ctx.fillRect(tx,94,72,8);ctx.fillStyle='#ffd15c';ctx.fillRect(tx+29,128,14,38);}ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(TW/2,TH-85,48,Math.PI,0);ctx.fill();ctx.fillRect(TW/2-48,TH-85,96,72);ctx.strokeStyle='#ffd15c';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#ffd15c';ctx.font='bold 18px monospace';ctx.textAlign='center';ctx.fillText('FORTRESS FACTS',TW/2,45);ctx.textAlign='left';}
@@ -1434,8 +1616,8 @@ function draw() {
   for (const b of bumpers) {
     ctx.beginPath();
     ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-    const starFlash=pinballCosmetic('pinball-postulation_star_bumper_flashes')&&b.hit>0,planetBumper=cosmic;
-    ctx.fillStyle = planetBumper?`hsl(${(b.x*2+b.y+performance.now()/80)%360} 65% 45%)`:starFlash ? '#fff5a8' : b.hit > 0 ? '#ffb0b0' : '#330d0d';
+    const starFlash=pinballCosmetic('pinball-postulation_star_bumper_flashes')&&b.hit>0,planetBumper=cosmic||selectedTable==='space',ninjaBumper=selectedTable==='ninja';
+    ctx.fillStyle = ninjaBumper?(b.hit>0?'#fff0aa':'#20242d'):planetBumper?`hsl(${(b.x*2+b.y+performance.now()/80)%360} 65% 45%)`:starFlash ? '#fff5a8' : b.hit > 0 ? '#ffb0b0' : '#330d0d';
     ctx.fill();
     ctx.strokeStyle = b.hit > 0 ? '#ffb0b0' : '#ff3b3b';
     ctx.lineWidth = 2;
@@ -1446,6 +1628,7 @@ function draw() {
     ctx.fillStyle = '#ffffff';
     ctx.fill();
     if(planetBumper){ctx.strokeStyle='rgba(210,240,255,.8)';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(b.x,b.y,b.r+8,5,-.35,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=.35;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(b.x-5,b.y-4,3,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+    if(ninjaBumper){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(performance.now()/500+(b.x+b.y));ctx.strokeStyle='#d9dde8';ctx.lineWidth=4;for(let i=0;i<4;i++){ctx.rotate(Math.PI/2);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(b.r+9,0);ctx.stroke();}ctx.restore();}
     if(starFlash){ctx.save();ctx.translate(b.x,b.y);ctx.rotate(performance.now()/160);ctx.fillStyle='#fff36b';ctx.shadowColor='#ff57d5';ctx.shadowBlur=14;ctx.beginPath();for(let i=0;i<10;i++){const r=i%2?b.r+3:b.r+13,a=i*Math.PI/5;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();}
   }
 
@@ -1478,6 +1661,68 @@ function draw() {
     ctx.fill();
   }
 
+  if (selectedTable === 'space') {
+    // Clear the Academy table art before drawing this stage's exclusive layout.
+    const spaceFloor=ctx.createRadialGradient(200,285,10,200,285,390);spaceFloor.addColorStop(0,'#241052');spaceFloor.addColorStop(.3,'#08051d');spaceFloor.addColorStop(1,'#01030d');
+    ctx.fillStyle=spaceFloor;ctx.fillRect(12,12,TW-24,TH-34);
+    ctx.fillStyle='#dff8ff';for(let i=0;i<70;i++)ctx.fillRect((i*83)%365+18,(i*149)%645+18,i%13===0?2:1,i%13===0?2:1);
+    ctx.strokeStyle='#7a5cff';ctx.lineWidth=4;ctx.strokeRect(10,10,TW-20,TH-20);
+    ctx.strokeStyle='#ffc400';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(20,TH-20);ctx.lineTo(TW-20,TH-20);ctx.stroke();
+    drawUnlockedModeGuards();
+    for(const p of spacePlanets){
+      const glow=ctx.createRadialGradient(p.x,p.y,p.r,p.x,p.y,p.field);glow.addColorStop(0,p.color+'55');glow.addColorStop(1,p.color+'00');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(p.x,p.y,p.field,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#e8f7ff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(p.x,p.y,p.r+9,6,-.28,0,Math.PI*2);ctx.stroke();
+      ctx.strokeStyle=p.strength>0?'#aee8ff':'#f0b5ff';ctx.lineWidth=1;ctx.setLineDash([4,6]);ctx.beginPath();ctx.arc(p.x,p.y,p.field,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    }
+    for(const m of spaceMeteors){ctx.save();ctx.translate(m.x,m.y);ctx.rotate(m.angle);ctx.strokeStyle='#ffb164';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-m.vx*5,-m.vy*5);ctx.lineTo(-m.r,0);ctx.stroke();ctx.fillStyle=m.hit?'#fff4b0':'#8b665c';ctx.strokeStyle='#e5c2a6';ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,r=m.r*(i%2?.72:1);ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
+    ctx.strokeStyle = '#45eaff'; ctx.lineWidth = 3; ctx.setLineDash([8, 7]);
+    ctx.beginPath(); ctx.arc(200, 455, 46, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#bffcff'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('SLINGSHOT', 200, 459); ctx.textAlign = 'left';
+    for (const a of spaceAsteroids) {
+      const ax = 200 + Math.cos(a.angle) * a.orbit, ay = 275 + Math.sin(a.angle) * a.orbit * 0.68;
+      ctx.save(); ctx.translate(ax, ay); ctx.rotate(a.angle * 2.3);
+      ctx.fillStyle = a.hit ? '#fff2b0' : '#665b79'; ctx.strokeStyle = '#b9a8d2'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < 9; i++) { const ang = i * Math.PI * 2 / 9, rr = a.r * (i % 2 ? .78 : 1); ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); }
+      ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+    }
+    for(const o of spaceFixedObstacles){ctx.beginPath();ctx.arc(o.x,o.y,o.r+(o.hit?2:0),0,Math.PI*2);ctx.fillStyle=o.hit?'#ffffff':o.color;ctx.fill();ctx.strokeStyle='#e8fbff';ctx.lineWidth=3;ctx.stroke();ctx.beginPath();ctx.arc(o.x,o.y,o.r*.48,0,Math.PI*2);ctx.strokeStyle='#14233b';ctx.lineWidth=2;ctx.stroke();}
+  } else if (selectedTable === 'ninja') {
+    // Clear the Academy table art before drawing this stage's exclusive layout.
+    ctx.fillStyle='#0a0014';ctx.fillRect(6,6,TW-12,TH-12);
+    const dojoFloor=ctx.createLinearGradient(0,0,TW,TH);dojoFloor.addColorStop(0,'#100d18');dojoFloor.addColorStop(.52,'#29121b');dojoFloor.addColorStop(1,'#090b12');ctx.fillStyle=dojoFloor;
+    ctx.beginPath();ctx.moveTo(20,TH-20);ctx.lineTo(20,190);ctx.quadraticCurveTo(20,32,145,20);ctx.lineTo(TW-145,20);ctx.quadraticCurveTo(TW-20,32,TW-20,190);ctx.lineTo(TW-20,TH-20);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(224,58,69,.2)';ctx.lineWidth=1;for(let y=35;y<TH-25;y+=34){ctx.beginPath();ctx.moveTo(13,y);ctx.lineTo(TW-13,y);ctx.stroke();}
+    ctx.strokeStyle='#a62e3b';ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();ctx.moveTo(20,TH-20);ctx.lineTo(20,190);ctx.quadraticCurveTo(20,32,145,20);ctx.lineTo(TW-145,20);ctx.quadraticCurveTo(TW-20,32,TW-20,190);ctx.lineTo(TW-20,TH-20);ctx.stroke();
+    ctx.strokeStyle='#ff5365';ctx.globalAlpha=.32;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(27,190);ctx.quadraticCurveTo(27,43,147,27);ctx.lineTo(TW-147,27);ctx.quadraticCurveTo(TW-27,43,TW-27,190);ctx.stroke();ctx.globalAlpha=1;
+    ctx.strokeStyle='#ffc400';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(20,TH-20);ctx.lineTo(TW-20,TH-20);ctx.stroke();
+    drawUnlockedModeGuards();
+    ctx.fillStyle='#e3c47a';ctx.font='bold 18px monospace';ctx.textAlign='center';ctx.fillText('忍者',TW/2,42);ctx.textAlign='left';
+    if(speedZone){ctx.strokeStyle='#00ffb0';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.arc(speedZone.x,speedZone.y,speedZone.r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#00ffb0';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('»»',speedZone.x,speedZone.y+6);}
+    if(slowZone){ctx.strokeStyle='#6f9fff';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.arc(slowZone.x,slowZone.y,slowZone.r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#6f9fff';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('««',slowZone.x,slowZone.y+6);}
+    if(pushZone){ctx.strokeStyle='#e0009e';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();ctx.arc(pushZone.x,pushZone.y,pushZone.r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.save();ctx.translate(pushZone.x,pushZone.y);ctx.rotate(pushZone.angle);ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-14,0);ctx.lineTo(14,0);ctx.lineTo(6,-8);ctx.moveTo(14,0);ctx.lineTo(6,8);ctx.stroke();ctx.restore();}
+    ctx.textAlign='left';
+    for (const g of ninjaGates) {
+      const center = 200 + Math.sin(stageClock * 0.018 + g.phase) * 82;
+      ctx.strokeStyle = '#d8b16b'; ctx.lineWidth = 9; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(24, g.y); ctx.lineTo(center - g.gap / 2, g.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(center + g.gap / 2, g.y); ctx.lineTo(376, g.y); ctx.stroke();
+      ctx.fillStyle = '#ffe3a6'; ctx.fillRect(center - g.gap / 2 - 3, g.y - 8, 6, 16); ctx.fillRect(center + g.gap / 2 - 3, g.y - 8, 6, 16);
+    }
+    for (const s of ninjaShuriken) {
+      ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(stageClock * .09 + s.phase);
+      ctx.fillStyle = s.hit ? '#fff0a2' : '#98a2b3'; ctx.strokeStyle = '#eef3ff'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) { const ang = i * Math.PI / 4, rr = i % 2 ? 6 : s.r + 7; ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); }
+      ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+    }
+    ctx.fillStyle = '#351018'; ctx.strokeStyle = '#ff4d5f'; ctx.lineWidth = 3;
+    ctx.fillRect(170, 455, 60, 25); ctx.strokeRect(170, 455, 60, 25);
+    ctx.fillStyle = '#ffd98a'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center'; ctx.fillText('KICK', 200, 471); ctx.textAlign = 'left';
+  }
+
   // Flippers
   ctx.lineWidth = 8;
   ctx.lineCap = 'round';
@@ -1502,17 +1747,19 @@ function draw() {
     ctx.fillStyle = color;
     ctx.fill();
   }
-  drawRampTube(ramp2LeftWall, ramp2RightWall, '#0a3d38', '#1de9b6');
-  drawRampMouth(rampA, '#1de9b6');
-  drawRampMouth(rampB, '#1de9b6');
-  drawRampCheckpoint(ramp2Quarter1, '#1de9b6');
-  drawRampCheckpoint(ramp2Quarter2, '#1de9b6');
-  if (FEATURE_RAMP3 && ramp3Active) {
-    drawRampTube(ramp3LeftWall, ramp3RightWall, '#3d1a14', '#ff6f61');
-    drawRampMouth(rampC, '#ff6f61');
-    drawRampMouth(rampD, '#ff6f61');
-    drawRampCheckpoint(ramp3Quarter1, '#ff6f61');
-    drawRampCheckpoint(ramp3Quarter2, '#ff6f61');
+  if (selectedTable === 'academy') {
+    drawRampTube(ramp2LeftWall, ramp2RightWall, '#0a3d38', '#1de9b6');
+    drawRampMouth(rampA, '#1de9b6');
+    drawRampMouth(rampB, '#1de9b6');
+    drawRampCheckpoint(ramp2Quarter1, '#1de9b6');
+    drawRampCheckpoint(ramp2Quarter2, '#1de9b6');
+    if (FEATURE_RAMP3 && ramp3Active) {
+      drawRampTube(ramp3LeftWall, ramp3RightWall, '#3d1a14', '#ff6f61');
+      drawRampMouth(rampC, '#ff6f61');
+      drawRampMouth(rampD, '#ff6f61');
+      drawRampCheckpoint(ramp3Quarter1, '#ff6f61');
+      drawRampCheckpoint(ramp3Quarter2, '#ff6f61');
+    }
   }
 
   // The table and obstacles shake, but balls retain their real position and velocity.

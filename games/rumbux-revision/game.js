@@ -3947,9 +3947,9 @@ class Game {
     // health per stage slot progressed (0-5 across a run), rather than
     // a percentage multiplier — keeps early fights from feeling spongy
     // while still making the back half of a run noticeably tougher.
-    this.difficultyHealthBonus = idx * 5;
-    this.difficultyBossHealthBonus = idx * 10;
-    this.difficultyDamageMult = 1 + idx*0.09;
+    this.difficultyHealthBonus = idx * 5 * (window.PlatformManager?.getDifficultyRateMultiplier?.() || 1);
+    this.difficultyBossHealthBonus = idx * 10 * (window.PlatformManager?.getDifficultyRateMultiplier?.() || 1);
+    this.difficultyDamageMult = 1 + idx*0.09*(window.PlatformManager?.getDifficultyRateMultiplier?.() || 1);
     this.stage = new StageManager(this, def);
     this.player.x = 60;
     this.player.depth = 0.5;

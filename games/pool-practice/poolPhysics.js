@@ -70,6 +70,18 @@ class PoolTable {
     return balls;
   }
 
+  // Standard 9-ball diamond: 1 at the apex, 9 in the centre, others shuffled.
+  rackNineBall() {
+    const cfg = GameConfig.ball, balls = [new Ball(0, this.width * 0.25, this.height / 2)];
+    const others = [2,3,4,5,6,7,8];
+    for(let i=others.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[others[i],others[j]]=[others[j],others[i]];}
+    const order=[1,others[0],others[1],others[2],9,others[3],others[4],others[5],others[6]];
+    const rows=[1,2,3,2,1],apexX=this.width*.72,apexY=this.height/2,spacing=cfg.radius*2.02;
+    let idx=0;
+    rows.forEach((count,row)=>{for(let col=0;col<count;col++){const x=apexX+row*spacing*.87,y=apexY-(count-1)*spacing/2+col*spacing;balls.push(new Ball(order[idx++],x,y));}});
+    this.balls=balls;return balls;
+  }
+
   getBall(number) { return this.balls.find(b => b.number === number && !b.pocketed); }
   get cueBall() { return this.getBall(0); }
   get activeBalls() { return this.balls.filter(b => !b.pocketed); }

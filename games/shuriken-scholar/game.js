@@ -136,6 +136,7 @@
     updateHomeStats();
 
     function renderCharacterSelectors() {
+      if(window.AchievementManager?.hasTypeUnlock?.('shuriken-scholar-samurai'))progress.samuraiUnlocked=true;
       const show = progress.samuraiUnlocked||shurikenSecret('secret_skeleton')||shurikenSecret('secret_glitch_aura');
       const homeDiv = document.getElementById('charSelectHome');
       const guideDiv = document.getElementById('charSelectGuide');
@@ -169,7 +170,7 @@
       if (progress.samuraiUnlocked) {window.AchievementManager?.grantTypeUnlock?.('shuriken-scholar-samurai',{name:'Samurai',kind:'character',gameId:GAME_CONFIG.id,detail:'Playable Samurai and Samurai weapon paths.'});return;}
       const overall=PlatformManager.getOverallStats?.()||{};
       const qualifying=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!==GAME_CONFIG.id&&(g.correct||0)>=150);
-      if ((overall.totalCorrect||progress.questionsCorrect) >= 750 && qualifying.length >= 3) {
+      if ((overall.totalCorrect||progress.questionsCorrect) >= 600 && qualifying.length >= 3) {
         progress.samuraiUnlocked = true;
         window.AchievementManager?.grantTypeUnlock?.('shuriken-scholar-samurai',{name:'Samurai',kind:'character',gameId:GAME_CONFIG.id,detail:'Playable Samurai and Samurai weapon paths.'});
         saveProgress();
@@ -1858,7 +1859,7 @@
         : 0;
       const bossWave=enemies.some(e=>e.isBoss&&!e.dead);
       const baseTarget=(bossWave?-2:3)+player.level*2+upgradeSpawnAmount;
-      const target = Math.max(1, Math.round(baseTarget * curseEffects.spawnRateMult));
+      const target = Math.max(1, Math.round(baseTarget * curseEffects.spawnRateMult * PlatformManager.getDifficultyRateMultiplier()));
       if (enemies.length < target && (game.frame % 5 === 0)) spawnEnemy();
     }
 
@@ -4959,7 +4960,7 @@
         const result=await MixedQuestionRound.play();
         quiz.correct=result.correct;quiz.questionCount=4;
         if(result.correct){progress.questionsCorrect=(progress.questionsCorrect||0)+result.correct;saveProgress();checkSamuraiUnlock();}
-        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(10*misses);
+        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(5*misses);
         showQuizResult();return;
       }
       document.getElementById('quizOverlay').classList.add('show');
@@ -4995,7 +4996,7 @@
         saveQuestionWeights();
       }
       PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
-      if (!correct) PlatformManager.deductCoins(10);
+      if (!correct) PlatformManager.deductCoins(5);
       if (correct) {
         btn.classList.add('right');
         quiz.correct++;
@@ -6357,7 +6358,7 @@
         saveQuestionWeights();
       }
       PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
-      if (!correct) PlatformManager.deductCoins(10);
+      if (!correct) PlatformManager.deductCoins(5);
       if (correct) {
         btn.classList.add('right');
         powerupQuizState.correct++;

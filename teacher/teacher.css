@@ -524,6 +524,42 @@ tbody th {
   animation: slide-in 220ms ease;
 }
 
+.student-panel-resize-handle {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: 12px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.student-panel-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 4px;
+  height: 54px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--surface-border);
+  transition: background 120ms ease, width 120ms ease;
+}
+
+.student-panel-resize-handle:hover::after,
+.student-panel-resize-handle:focus-visible::after,
+.student-panel-resizing .student-panel-resize-handle::after {
+  width: 5px;
+  background: var(--aa-accent);
+}
+
+body.student-panel-resizing {
+  cursor: ew-resize;
+  user-select: none;
+}
+
 @keyframes slide-in {
   from { transform: translateX(24px); opacity: 0.6; }
   to { transform: translateX(0); opacity: 1; }
@@ -598,6 +634,52 @@ tbody th {
   font-size: 0.7rem;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+.game-stats-help {
+  margin: -0.35rem 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.game-stats-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.integrity-review-button {
+  border: 1px solid #d97706;
+  border-radius: 6px;
+  background: #fff7ed;
+  color: #9a3412;
+  padding: 0.35rem 0.6rem;
+  font: 700 0.78rem var(--font-body);
+  cursor: pointer;
+}
+
+.integrity-mark {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  margin-left: 0.3rem;
+  border-radius: 50%;
+  background: #c2410c;
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+#game-stats-table thead th[data-game-sort-key] {
+  cursor: pointer;
+  user-select: none;
+}
+
+#game-stats-table thead th[data-game-sort-key]:hover,
+#game-stats-table thead th[data-game-sort-key]:focus-visible {
+  color: var(--text-primary);
 }
 
 /* Trend controls */
@@ -1014,6 +1096,9 @@ body.modal-open { overflow:hidden; }
   }
   .student-panel {
     width: 100%;
+  }
+  .student-panel-resize-handle {
+    display: none;
   }
   .class-reset-grid {
     grid-template-columns: 1fr 1fr;

@@ -14,6 +14,8 @@
   "use strict";
 
   const SELECTED_CLASS_STORAGE_KEY = "arcadeAcademy.teacher.selectedClass";
+  const STUDENT_PANEL_WIDTH_STORAGE_KEY = "arcadeAcademy.teacher.studentPanelWidth";
+  const STUDENT_PANEL_MIN_WIDTH = 420;
 
   // ---------------------------------------------------------------
   // State
@@ -28,6 +30,8 @@
     selectedStudentDetail: null,
     pendingReset: null,
     gameCatalog: {},
+    gameSortKey: "lastPlayed",
+    gameSortDir: -1,
     trendScope: "overall", // 'overall' | 'game' | 'subject'
     trendSeries: null,     // gameId or subject name, when scope != overall
     sessionTimerId: null,
@@ -94,6 +98,7 @@
     els.classTrendSummary = document.getElementById("class-trend-summary");
 
     els.panel = document.getElementById("student-panel");
+    els.panelResizeHandle = document.getElementById("student-panel-resize-handle");
     els.panelOverlay = document.getElementById("student-panel-overlay");
     els.panelClose = document.getElementById("panel-close");
     els.panelTitle = document.getElementById("panel-student-name");
@@ -127,6 +132,8 @@
     els.classQuestionBankClear = document.getElementById("class-question-bank-clear");
     els.classQuestionBankStatus = document.getElementById("class-question-bank-status");
     els.gameStatsBody = document.getElementById("game-stats-body");
+    els.integrityReviewButton = document.getElementById("integrity-review-button");
+    els.gameStatsHeaders = document.querySelectorAll("#game-stats-table thead th[data-game-sort-key]");
     els.resetGameSelect = document.getElementById("reset-game-select");
     els.resetGameButton = document.getElementById("reset-game-button");
     els.resetLearningButton = document.getElementById("reset-learning-button");
@@ -277,6 +284,7 @@
 
     els.panelClose.addEventListener("click", closeStudentPanel);
     els.panelOverlay.addEventListener("click", closeStudentPanel);
+    bindStudentPanelResize();
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
       if (!els.resetOverlay.hidden) closeResetConfirmation();
@@ -286,6 +294,24 @@
     });
     els.studentProgressTab.addEventListener("click", () => showStudentTab("progress"));
     els.studentSettingsTab.addEventListener("click", () => showStudentTab("settings"));
+
+    els.gameStatsHeaders.forEach((th) => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.gameSortKey;
+        if (state.gameSortKey === key) state.gameSortDir *= -1;
+        else {
+          state.gameSortKey = key;
+          state.gameSortDir = key === "gameName" ? 1 : -1;
+        }
+        renderGameStats(state.selectedStudentDetail?.games || []);
+      });
+      th.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          th.click();
+        }
+      });
+    });
 
     els.trendScope.addEventListener("change", () => {
       state.trendScope = els.trendScope.value;
@@ -306,6 +332,7 @@
     els.studentClassSave.addEventListener("click", saveStudentClass);
     els.studentCoinsSave.addEventListener("click", saveStudentCoins);
     els.studentQuestionFormatSave.addEventListener("click", saveStudentQuestionFormat);
+    els.integrityReviewButton.addEventListener("click", reviewSelectedStudentIntegrityFlag);
     els.classQuestionFormatSave.addEventListener("click", saveClassQuestionFormat);
     els.questionFormatClass.addEventListener("change", loadClassQuestionFormat);
     els.classQuestionFormat.addEventListener("change", updateFallingModeControls);
@@ -671,12 +698,12 @@
             <td class="cell-numeric">${row.today.questionsAnswered}</td>
             <td class="cell-numeric">
               ${row.today.questionsAnswered
-                ? `<span class="accuracy-badge accuracy-badge--${todayAccClass}">${row.today.accuracy}%</span>`
+                ? `<span class="accuracy-badge accuracy-badge--${todayAccClass}">${row.today.accuracy}%${row.integrityFlag ? '<span class="integrity-mark" aria-label="Results need checking" title="Results need checking">!</span>' : ''}</span>`
                 : "—"}
             </td>
             <td class="cell-numeric">${row.overall.totalQuestionsAnswered}</td>
             <td class="cell-numeric">
-              <span class="accuracy-badge accuracy-badge--${accClass}">${row.overall.accuracy}%</span>
+              <span class="accuracy-badge accuracy-badge--${accClass}">${row.overall.accuracy}%${row.integrityFlag ? '<span class="integrity-mark" aria-label="Results need checking" title="Results need checking">!</span>' : ''}</span>
             </td>
             <td class="cell-numeric">${formatMinutes(row.overall.totalPlaytimeMinutes)}</td>
             <td>${escapeHtml(row.favouriteGame)}</td>
@@ -715,6 +742,69 @@
   // ---------------------------------------------------------------
   let lastFocusedElement = null;
 
+  function clampStudentPanelWidth(width) {
+    const maxWidth = Math.max(STUDENT_PANEL_MIN_WIDTH, window.innerWidth - 40);
+    return Math.min(maxWidth, Math.max(STUDENT_PANEL_MIN_WIDTH, Math.round(width)));
+  }
+
+  function setStudentPanelWidth(width, persist = false) {
+    if (window.innerWidth <= 900) {
+      els.panel.style.removeProperty("width");
+      return;
+    }
+    const nextWidth = clampStudentPanelWidth(width);
+    els.panel.style.width = `${nextWidth}px`;
+    els.panelResizeHandle.setAttribute("aria-valuemin", String(STUDENT_PANEL_MIN_WIDTH));
+    els.panelResizeHandle.setAttribute("aria-valuemax", String(Math.max(STUDENT_PANEL_MIN_WIDTH, window.innerWidth - 40)));
+    els.panelResizeHandle.setAttribute("aria-valuenow", String(nextWidth));
+    if (persist) {
+      try { localStorage.setItem(STUDENT_PANEL_WIDTH_STORAGE_KEY, String(nextWidth)); } catch (_) {}
+    }
+  }
+
+  function bindStudentPanelResize() {
+    let savedWidth = 640;
+    try { savedWidth = Number(localStorage.getItem(STUDENT_PANEL_WIDTH_STORAGE_KEY)) || savedWidth; } catch (_) {}
+    setStudentPanelWidth(savedWidth);
+
+    els.panelResizeHandle.addEventListener("pointerdown", (event) => {
+      if (window.innerWidth <= 900 || event.button !== 0) return;
+      event.preventDefault();
+      els.panelResizeHandle.setPointerCapture(event.pointerId);
+      document.body.classList.add("student-panel-resizing");
+    });
+
+    els.panelResizeHandle.addEventListener("pointermove", (event) => {
+      if (!els.panelResizeHandle.hasPointerCapture(event.pointerId)) return;
+      setStudentPanelWidth(window.innerWidth - event.clientX);
+    });
+
+    const finishResize = (event) => {
+      if (!els.panelResizeHandle.hasPointerCapture(event.pointerId)) return;
+      els.panelResizeHandle.releasePointerCapture(event.pointerId);
+      document.body.classList.remove("student-panel-resizing");
+      setStudentPanelWidth(els.panel.getBoundingClientRect().width, true);
+    };
+    els.panelResizeHandle.addEventListener("pointerup", finishResize);
+    els.panelResizeHandle.addEventListener("pointercancel", finishResize);
+
+    els.panelResizeHandle.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      const change = event.key === "ArrowLeft" ? 20 : -20;
+      setStudentPanelWidth(els.panel.getBoundingClientRect().width + change, true);
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth <= 900) els.panel.style.removeProperty("width");
+      else {
+        let width = 640;
+        try { width = Number(localStorage.getItem(STUDENT_PANEL_WIDTH_STORAGE_KEY)) || width; } catch (_) {}
+        setStudentPanelWidth(width);
+      }
+    });
+  }
+
   async function openStudentPanel(studentId) {
     state.selectedStudentId = studentId;
     lastFocusedElement = document.activeElement;
@@ -745,8 +835,11 @@
     }
     if (!detail || state.selectedStudentId !== studentId) return;
     state.selectedStudentDetail = detail;
+    state.gameSortKey = "lastPlayed";
+    state.gameSortDir = -1;
 
     els.panelTitle.textContent = detail.name;
+    els.integrityReviewButton.hidden = !detail.integrityFlag;
     els.panelMeta.textContent = `${detail.yearLevel} · ${detail.className} · ${Math.floor(detail.coins).toLocaleString()} coins · Favourite game: ${detail.favouriteGame}`;
     els.studentNameInput.value = detail.name;
     els.studentYearSelect.value = detail.yearLevel;
@@ -794,12 +887,32 @@
     els.studentSettingsTab.setAttribute("aria-selected", String(settings));
   }
 
+  async function reviewSelectedStudentIntegrityFlag() {
+    const detail = state.selectedStudentDetail;
+    if (!detail?.integrityFlag) return;
+    els.integrityReviewButton.disabled = true;
+    try {
+      await window.TeacherDataProvider.reviewStudentIntegrityFlag(detail.id);
+      detail.integrityFlag = false;
+      els.integrityReviewButton.hidden = true;
+      const overviewStudent = state.overview.find(student => student.id === detail.id);
+      if (overviewStudent) overviewStudent.integrityFlag = false;
+      renderTable();
+    } catch (error) {
+      console.error("Unable to mark student results as checked:", error);
+    } finally {
+      els.integrityReviewButton.disabled = false;
+    }
+  }
+
   function renderGameStats(games) {
+    updateGameStatsSortHeaders();
     if (!games.length) {
       els.gameStatsBody.innerHTML = `<tr><td colspan="9">No game sessions recorded yet.</td></tr>`;
       return;
     }
-    els.gameStatsBody.innerHTML = games
+    const sortedGames = games.slice().sort(compareGameStats);
+    els.gameStatsBody.innerHTML = sortedGames
       .map(
         (g) => `
           <tr>
@@ -818,6 +931,40 @@
         `
       )
       .join("");
+  }
+
+  function compareGameStats(a, b) {
+    const key = state.gameSortKey;
+    const direction = state.gameSortDir;
+    const aValue = a[key];
+    const bValue = b[key];
+
+    // Missing dates always sit below games that have been played.
+    if (key === "lastPlayed") {
+      if (!aValue && bValue) return 1;
+      if (aValue && !bValue) return -1;
+    }
+
+    let result;
+    if (typeof aValue === "string" || typeof bValue === "string") {
+      result = String(aValue || "").localeCompare(String(bValue || ""), undefined, {
+        numeric: true,
+        sensitivity: "base"
+      });
+    } else {
+      result = (Number(aValue) || 0) - (Number(bValue) || 0);
+    }
+    if (result !== 0) return result * direction;
+    return String(a.gameName).localeCompare(String(b.gameName), undefined, { sensitivity: "base" });
+  }
+
+  function updateGameStatsSortHeaders() {
+    els.gameStatsHeaders.forEach((th) => {
+      const active = th.dataset.gameSortKey === state.gameSortKey;
+      th.setAttribute("aria-sort", active
+        ? (state.gameSortDir === 1 ? "ascending" : "descending")
+        : "none");
+    });
   }
 
   function populateResetGameOptions(games) {

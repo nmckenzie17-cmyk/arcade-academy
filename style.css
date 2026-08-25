@@ -140,6 +140,7 @@ body.hub-view-active{overflow:hidden}
 .level-panel { display:flex;align-items:center;gap:1rem;padding:1rem 1.3rem;background:var(--gradient-panel);border:var(--border-width-panel) solid var(--gold);border-radius:var(--radius-panel);box-shadow:var(--glow-card); }
 .level-badge { display:grid;place-items:center;flex:0 0 66px;width:66px;height:66px;color:#160d25;background:var(--gold);border-radius:50%;font-family:var(--font-title);font-size:1.1rem;box-shadow:var(--glow-gold); }
 .level-details { flex:1;min-width:0; }.level-details h2{margin:0;color:#fff;font-family:var(--font-title);font-size:1rem}.level-details>p{margin:.25rem 0;color:#d9d0ee}.level-details .next-level-reward{color:var(--gold);font-weight:700}
+.type-unlock-progress{margin-top:.75rem;padding-top:.7rem;border-top:1px solid rgba(255,255,255,.14)}.type-unlock-progress p{margin:0 0 .35rem;color:var(--cyan);font-weight:800}.type-unlock-progress small{display:block;margin-top:.35rem;color:#cfc6df}.type-unlock-progress .level-track span{background:linear-gradient(90deg,var(--purple),var(--pink))}
 .progression-panel {
   display: flex;
   align-items: center;

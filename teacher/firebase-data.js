@@ -125,6 +125,9 @@ function mapStudent(document, catalog) {
     lastActive,
     coins: numberOrZero(platform.coins),
     questionFormatOverride: document.questionFormatOverride || "mixed",
+    integrityFlag: Number(document.platform?.integrity?.detectedAt || 0) > Number(document.integrityReviewedAt || 0),
+    integrityDetectedAt: timestampMs(document.platform?.integrity?.detectedAt),
+    integrityGameId: document.platform?.integrity?.gameId || null,
     today: {
       questionsAnswered: questions.date === localDateString() ? numberOrZero(questions.dailyAnswered) : 0,
       accuracy: questions.date === localDateString()
@@ -252,6 +255,13 @@ window.TeacherDataProvider = {
     const updated = await window.FirebaseManager.setStudentQuestionFormat(studentId, questionFormat);
     studentDocuments = null;
     return updated;
+  },
+
+  async reviewStudentIntegrityFlag(studentId) {
+    const updated = await window.FirebaseManager.reviewStudentIntegrityFlag(studentId);
+    if (!updated) throw new Error("Firestore rejected the integrity review.");
+    studentDocuments = null;
+    return true;
   },
 
   async getClassQuestionFormat(className) {

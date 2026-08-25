@@ -28,6 +28,9 @@ let runCastleDamaged = false;
 let invasionMode = false, invasionDamageDealt = 0, invasionPendingTroops = [];
 let lastInvasionDefence = '';
 let invasionMoraleStreak=0, invasionWaveCap=4, invasionSlotsRemaining=0, invasionQuestionsAnswered=0;
+const INVASION_WAVE_DURATION_MS=45000;
+const INVASION_TROOP_COSTS={goblin:1,skeleton:2,wolf:2,goblin_armored:3,siege:5};
+let invasionWaveTimeRemainingMs=INVASION_WAVE_DURATION_MS;
 let invasionArmy = { summonCount:1, healthMult:1, damageMult:1, speedMult:1, unlockedTroops:['goblin'] };
 const INVASION_UNLOCK_ID = 'fortress-facts-goblin-general';
 const INVASION_ARMY_UPGRADES = [
@@ -47,7 +50,7 @@ function invasionUnlocked(){
     if(window.AchievementManager?.hasTypeUnlock?.(INVASION_UNLOCK_ID)) return true;
     const overall=PlatformManager.getOverallStats?.()||{};
     const qualifying=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!==GAME_CONFIG.id&&(g.correct||0)>=100);
-    const earned=(overall.totalCorrect||0)>=500&&qualifying.length>=3;
+    const earned=(overall.totalCorrect||0)>=400&&qualifying.length>=3;
     if(earned) window.AchievementManager?.grantTypeUnlock?.(INVASION_UNLOCK_ID,{name:'Goblin General',kind:'game-mode',gameId:GAME_CONFIG.id,detail:'Command an invading army and destroy the castle.'});
     return earned;
 }
@@ -60,20 +63,20 @@ function resetInvasionRun(){
 }
 function invasionMoraleMultiplier(){return 1+invasionMoraleStreak*(0.05+(invasionArmy.moraleBonus||0));}
 function deployInvasionTroop(type){
-    if(!invasionMode||invasionSlotsRemaining<=0||!invasionArmy.unlockedTroops.includes(type))return;
-    const amount=Math.min(invasionSlotsRemaining,invasionArmy.summonCount*(kingdomLevel('library')>0&&Math.random()<0.03*kingdomLevel('library')?2:1));
-    invasionSlotsRemaining-=amount;
+    const cost=INVASION_TROOP_COSTS[type]||1;
+    if(!invasionMode||invasionSlotsRemaining<cost||!invasionArmy.unlockedTroops.includes(type))return;
+    const desired=invasionArmy.summonCount*(kingdomLevel('library')>0&&Math.random()<0.03*kingdomLevel('library')?2:1);
+    const amount=Math.min(Math.floor(invasionSlotsRemaining/cost),desired);
+    invasionSlotsRemaining-=amount*cost;
     for(let i=0;i<amount;i+=1){if(state==='playing')enemies.push(spawnEnemy(type,GAME_W+10+i*8));else invasionPendingTroops.push(type);}
     renderInvasionTroopBar();
 }
 function renderInvasionTroopBar(){
     const bar=document.getElementById('invasion-troop-bar');if(!bar)return;
-    bar.hidden=!invasionMode||!['playing','invasion-deploy'].includes(state);if(bar.hidden)return;
+    bar.hidden=!invasionMode||state!=='playing';if(bar.hidden)return;
     const names={goblin:'👺 Goblin',skeleton:'💀 Skeleton',wolf:'🐺 Wolf',goblin_armored:'🛡️ Armored',siege:'🪵 Siege'};
-    const counts=Object.fromEntries(invasionArmy.unlockedTroops.map(type=>[type,invasionPendingTroops.filter(item=>item===type).length]));
-    bar.innerHTML=`<div class="invasion-troop-summary"><span>Slots: ${invasionSlotsRemaining}</span><span>Morale: ${invasionMoraleStreak} 🔥</span></div>`+invasionArmy.unlockedTroops.map(type=>`<button type="button" class="invasion-troop-btn" data-troop="${type}" ${invasionSlotsRemaining<=0?'disabled':''}><strong>${names[type]||type}</strong><small>${state==='invasion-deploy'?`Placed: ${counts[type]||0}`:'Deploy now'}</small></button>`).join('');
+    bar.innerHTML=`<div class="invasion-troop-summary"><span>Summons: ${invasionSlotsRemaining}</span><span>Time: ${Math.max(0,Math.ceil(invasionWaveTimeRemainingMs/1000))}s</span><span>Morale: ${invasionMoraleStreak} 🔥</span></div>`+invasionArmy.unlockedTroops.map(type=>{const cost=INVASION_TROOP_COSTS[type]||1;return `<button type="button" class="invasion-troop-btn" data-troop="${type}" ${invasionSlotsRemaining<cost?'disabled':''}><strong>${names[type]||type}</strong><small>${cost} summon${cost===1?'':'s'} · Deploy now</small></button>`;}).join('');
     bar.querySelectorAll('[data-troop]').forEach(button=>button.onclick=()=>deployInvasionTroop(button.dataset.troop));
-    const launch=document.getElementById('invasion-launch-btn');if(launch){launch.disabled=invasionSlotsRemaining>0;launch.textContent=invasionSlotsRemaining>0?`Place ${invasionSlotsRemaining} more troop${invasionSlotsRemaining===1?'':'s'}`:'Launch Assault';}
 }
 let lastDamageSource = null;
 const ENEMY_DISPLAY_NAMES = {
@@ -516,7 +519,7 @@ function runPrerunQuiz(onComplete){
                 prerunQuizTimes.push(elapsed);
                 QuestionManager.recordAnswer(q, isCorrect);
                 PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
-                if(!isCorrect) PlatformManager.deductCoins(10);
+                if(!isCorrect) PlatformManager.deductCoins(5);
                 if(isCorrect){ btn.classList.add('correct'); prerunQuizCorrect++; recordCorrectAnswer(); }
                 else { btn.classList.add('wrong'); modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); }
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
@@ -980,6 +983,7 @@ function applyCard(card) {
 
 const QUIET_TOWERSCALE_TYPES = ['skeleton','wolf_dire','irongolem','wyvern'];
 function spawnEnemy(type, x) {
+    const difficultyWave = wave * PlatformManager.getDifficultyRateMultiplier();
     let e = {x: x||GAME_W+10, y: 225+Math.random()*20, type, frame:0, frameTimer:0, hp:10, maxHp:10, speed:0.4, dmg:5, frozen:0, dead:false, deathTimer:0};
     // Goblin and Skeleton counts already grow with wave² (see ENEMY_SPAWN_TABLE)
     // so their HP is fixed rather than also scaling with wave — otherwise late
@@ -987,9 +991,9 @@ function spawnEnemy(type, x) {
     // tankier units too, compounding into an unfair difficulty spike.
     if(type==='goblin'){e.hp=5;e.speed=0.5;e.dmg=3;}
     if(type==='skeleton'){e.hp=15;e.speed=0.35;e.dmg=5;}
-    if(type==='knight'){e.hp=25+wave*3;e.speed=0.3;e.dmg=8;}
+    if(type==='knight'){e.hp=25+difficultyWave*3;e.speed=0.3;e.dmg=8;}
     if(type==='wolf'){e.hp=6+wave;e.speed=0.8;e.dmg=4;}
-    if(type==='siege'){e.hp=75+wave*5;e.speed=0.2;e.dmg=15;}
+    if(type==='siege'){e.hp=75+difficultyWave*5;e.speed=0.2;e.dmg=15;}
     if(type==='wagon'){e.hp=15+wave;e.speed=0.4;e.dmg=0;e.isWagon=true;}
     if(type==='goblin_scout'){e.hp=3+wave;e.speed=0.9;e.dmg=2;}
     if(type==='goblin_armored'){e.hp=14+wave*3;e.speed=0.35;e.dmg=4;e.resist=['archer','axeman','ballista','cannon','player'];e.resistMult=0.5;}
@@ -1203,7 +1207,7 @@ function getSpawnParams(){
 function startWave() {
     wave++;
     if(invasionMode){
-        spawnQueue=invasionPendingTroops.splice(0);spawnTimer=0;activeWeather=null;activeAffix=null;activeMutator=null;waveFrameCount=0;
+        spawnQueue=invasionPendingTroops.splice(0);spawnTimer=0;activeWeather=null;activeAffix=null;activeMutator=null;waveFrameCount=0;invasionWaveTimeRemainingMs=INVASION_WAVE_DURATION_MS;
         state='playing';updateHUD();return;
     }
     if(runPowerupBonuses.stageclear>0) addGold(runPowerupBonuses.stageclear);
@@ -1438,11 +1442,11 @@ async function askBetweenQuestion(){
     if(window.MixedQuestionRound){
         const result=await MixedQuestionRound.play();betweenWaveQuestions=4;betweenWaveCorrect=result.correct;
         for(let i=0;i<result.correct;i++){totalBetweenWaveCorrect++;recordCorrectAnswer();if(runCorrectAnswersGiveGold)addGold(10+Math.floor(wave*.5));}
-        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(10*misses);
+        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(5*misses);
         if(invasionMode){invasionQuestionsAnswered+=4;invasionWaveCap+=result.correct;invasionMoraleStreak=result.correct===4?invasionMoraleStreak+4:0;}
-        invasionMode?showInvasionArmyUpgrade(showInvasionDeployment):showCardSelect();return;
+        invasionMode?showInvasionArmyUpgrade(beginLiveInvasionAssault):showCardSelect();return;
     }
-    if(betweenWaveQuestions>=4){ invasionMode ? showInvasionArmyUpgrade(showInvasionDeployment) : showCardSelect(); return; }
+    if(betweenWaveQuestions>=4){ invasionMode ? showInvasionArmyUpgrade(beginLiveInvasionAssault) : showCardSelect(); return; }
     let q=QuestionManager.getNextQuestion();
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
     let html=`<div class="modal-overlay"><div class="modal-box question-modal"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">Between Waves — Q${betweenWaveQuestions+1}/4</h2><p style="margin-bottom:16px">${q.q}</p>`;
@@ -1455,7 +1459,7 @@ async function askBetweenQuestion(){
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if(invasionMode){invasionQuestionsAnswered++;if(isCorrect){invasionMoraleStreak++;invasionWaveCap++;}else invasionMoraleStreak=0;}
-            if(!isCorrect) PlatformManager.deductCoins(10);
+            if(!isCorrect) PlatformManager.deductCoins(5);
             if(isCorrect){
                 btn.classList.add('correct');
                 betweenWaveCorrect++;
@@ -1485,18 +1489,21 @@ function strengthenInvasionDefender(){
     pendingUnlockNotifications.push(`The castle gained ${chosen.name}.`);
 }
 
-function showInvasionArmyUpgrade(onDone=showInvasionDeployment){
+function showInvasionArmyUpgrade(onDone=beginLiveInvasionAssault){
     let available=INVASION_ARMY_UPGRADES.filter(upgrade=>!upgrade.troop||!invasionArmy.unlockedTroops.includes(upgrade.troop));
     let optionCount=3+(kingdomLevel('academy')>0&&Math.random()<0.05*kingdomLevel('academy')?1:0);
     let options=shuffle([...available]).slice(0,Math.min(optionCount,available.length));
     if(kingdomLevel('apprenticeships')>0){const boost=1+0.005*kingdomLevel('apprenticeships');const stat=['healthMult','damageMult','speedMult'][Math.floor(Math.random()*3)];invasionArmy[stat]*=boost;}
-    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${betweenWaveCorrect}/4 Correct — Evolve Your Army</h2>${kingdomLevel('watchtowers')>0&&lastInvasionDefence?`<p style="color:#ff9b5e;margin:6px 0">🔭 Castle defence gained: ${lastInvasionDefence}</p>`:''}<p style="color:#aaa;margin:8px 0 14px">Your answers prepared ${invasionPendingTroops.length} troops for assault ${wave+1}.</p>${options.map((upgrade,index)=>`<button class="card-btn" data-idx="${index}"><div style="font-size:18px">${upgrade.name}</div><div style="font-size:11px;margin-top:4px;color:#aaa">${upgrade.desc}</div></button>`).join('')}</div></div>`;
+    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box"><h2 class="title-font" style="background:none;border:none;box-shadow:none;">${betweenWaveCorrect}/4 Correct — Evolve Your Army</h2>${kingdomLevel('watchtowers')>0&&lastInvasionDefence?`<p style="color:#ff9b5e;margin:6px 0">🔭 Castle defence gained: ${lastInvasionDefence}</p>`:''}<p style="color:#aaa;margin:8px 0 14px">Assault ${wave+1} begins after this choice. Deploy troops live from the bottom bar while the battle continues.</p>${options.map((upgrade,index)=>`<button class="card-btn" data-idx="${index}"><div style="font-size:18px">${upgrade.name}</div><div style="font-size:11px;margin-top:4px;color:#aaa">${upgrade.desc}</div></button>`).join('')}</div></div>`;
     modalRoot.querySelectorAll('.card-btn').forEach(button=>button.onclick=()=>{const upgrade=options[Number(button.dataset.idx)];if(upgrade.troop)invasionArmy.unlockedTroops.push(upgrade.troop);else upgrade.apply();modalRoot.innerHTML='';onDone();});
 }
-function showInvasionDeployment(){
-    invasionSlotsRemaining=invasionWaveCap;state='invasion-deploy';document.body.classList.add('invasion-deploying');
-    modalRoot.innerHTML=`<div class="modal-overlay"><div class="modal-box" style="text-align:center"><h2 class="title-font" style="background:none;border:none;box-shadow:none">Deploy Assault ${wave+1}</h2><p style="margin:12px 0;color:#ccc">Use the troop bar along the bottom to fill all ${invasionWaveCap} positions. Mix any unlocked troop types.</p><p style="color:#ffcc44">Correct-answer morale: ${invasionMoraleStreak} · ×${invasionMoraleMultiplier().toFixed(2)} speed and damage</p><button class="choice-btn title-font" id="invasion-launch-btn" disabled style="text-align:center;margin-top:16px">Place ${invasionSlotsRemaining} more troops</button></div></div>`;
-    document.getElementById('invasion-launch-btn').onclick=()=>{if(invasionSlotsRemaining>0)return;document.body.classList.remove('invasion-deploying');modalRoot.innerHTML='';startWave();};renderInvasionTroopBar();
+function beginLiveInvasionAssault(){
+    invasionSlotsRemaining=invasionWaveCap;
+    invasionPendingTroops=[];
+    document.body.classList.remove('invasion-deploying');
+    modalRoot.innerHTML='';
+    startWave();
+    renderInvasionTroopBar();
 }
 
 // Enemies that are only efficiently damaged by one specific tower (everything
@@ -1633,7 +1640,7 @@ async function showQuestion(){
         for(let i=0;i<result.correct;i++)recordCorrectAnswer();
         if(invasionMode){invasionQuestionsAnswered+=4;invasionWaveCap+=result.correct;invasionSlotsRemaining+=result.correct;invasionMoraleStreak=result.correct===4?invasionMoraleStreak+4:0;renderInvasionTroopBar();}
         else{let libraryProc=kingdomLibraryLevel>0&&Math.random()<.05*kingdomLibraryLevel;let reward=ammoPerCorrect*(libraryProc?2:1)*(1+runPowerupBonuses.increasedammo);ammo=Math.min(ammo+Math.round(reward*result.correct),maxAmmo);castleHP=Math.max(0,castleHP-misses);if(misses>0&&!invasionMode)runCastleDamaged=true;}
-        if(misses)PlatformManager.deductCoins(10*misses);state='playing';updateHUD();return;
+        if(misses)PlatformManager.deductCoins(5*misses);state='playing';updateHUD();return;
     }
     let q=QuestionManager.getNextQuestion(equippedRelics.includes('relic_quickdraw'));
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
@@ -1647,7 +1654,7 @@ async function showQuestion(){
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if(invasionMode){invasionQuestionsAnswered++;if(isCorrect){invasionMoraleStreak++;invasionWaveCap++;invasionSlotsRemaining++;}else invasionMoraleStreak=0;renderInvasionTroopBar();}
-            if(!isCorrect) PlatformManager.deductCoins(10);
+            if(!isCorrect) PlatformManager.deductCoins(5);
             if(isCorrect){
                 btn.classList.add('correct');
                 recordCorrectAnswer();
@@ -1892,6 +1899,7 @@ function showStart(){
         }
     });
 }
+window.addEventListener('arcade-achievement-manager-ready',()=>{if(state==='start')showStart();});
 
 let gameOverCoinsAwarded = false, lastCoinsEarned = 0, lastRawCoins = 0, lastCoinAccuracy = 0, lastRunWasVoluntary = false;
 function showGameOver(voluntary){
@@ -2003,7 +2011,7 @@ function updateHUD(){
     let w = WEATHER_EFFECTS.find(x=>x.id===activeWeather);
     let m = MUTATOR_DEFS.find(x=>x.id===activeMutator);
     document.getElementById('hud-weather').textContent = m ? ('⚠️ '+m.name) : (w ? w.name : '');
-    if(invasionMode){document.getElementById('hud-weather').textContent=`🔥 Morale ${invasionMoraleStreak} · Army ×${invasionMoraleMultiplier().toFixed(2)}`;renderInvasionTroopBar();}
+    if(invasionMode){document.getElementById('hud-weather').textContent=`⏱ ${Math.max(0,Math.ceil(invasionWaveTimeRemainingMs/1000))}s · 🔥 Morale ${invasionMoraleStreak} · Army ×${invasionMoraleMultiplier().toFixed(2)}`;renderInvasionTroopBar();}
     // Gold income is wasted once you're capped — surface the option to bank
     // the current run reward into shared coins now instead of continuing to overflow it.
     let cashoutBtn = document.getElementById('cashout-btn');
@@ -4629,6 +4637,13 @@ function gameLoop(time){
 
     if(state==='playing'){
         waveFrameCount++;
+        if(invasionMode){
+            invasionWaveTimeRemainingMs=Math.max(0,invasionWaveTimeRemainingMs-dt);
+            if(invasionWaveTimeRemainingMs<=0){
+                state='between';invasionSlotsRemaining=0;invasionPendingTroops=[];spawnQueue=[];enemies=[];renderInvasionTroopBar();
+                setTimeout(startBetweenWave,0);
+            }
+        }
         spawnTimer++;
         let spawnParams = getSpawnParams();
         if(spawnQueue.length>0 && spawnTimer>spawnParams.interval){
@@ -4897,7 +4912,7 @@ function gameLoop(time){
         });
         projectiles=projectiles.filter(p=>p.life>0);
 
-        if(spawnQueue.length===0 && enemies.filter(e=>!e.dead).length===0 && enemies.length===0){
+        if(state==='playing'&&spawnQueue.length===0 && enemies.filter(e=>!e.dead).length===0 && enemies.length===0 && (!invasionMode||invasionSlotsRemaining<=0)){
             if(!invasionMode&&wave>=25&&!runCastleDamaged)window.AchievementManager?.notify?.('fortress_wave_25_untouched',{facts:{mastery_fortress_facts:1}});
             if(lastWaveWasBoss && kingdomHealAfterBossPct>0){
                 castleHP = Math.min(maxHP, castleHP + maxHP*kingdomHealAfterBossPct);

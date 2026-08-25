@@ -348,6 +348,7 @@
     byId('question-options').querySelectorAll('button').forEach(button => { button.disabled = true; if(button.dataset.correct==='true')button.classList.add('correct'); });
     if(!correct)selectedButton?.classList.add('incorrect');
     MultiplayerQuestionHelper.record(activeQuestion, correct);
+    PlatformManager.recordQuestionAnswered(GAME_ID, correct);
     if(!correct&&isSinglePlayer&&!secondThoughtUsed&&tttBoost('tic-tac-toe_second_thought')){secondThoughtUsed=true;setMessage('question-feedback','Second Thought saved your turn — the correct answer is highlighted.');activeQuestionNonce=null;setTimeout(manageTurnQuestion,2000);return;}
     setMessage('question-feedback', correct ? 'Correct — take your turn!' : 'Incorrect — your turn is skipped.');
     if(!correct)await new Promise(resolve=>setTimeout(resolve,2000));

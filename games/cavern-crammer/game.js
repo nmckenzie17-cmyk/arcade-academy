@@ -8,6 +8,22 @@ const GAME_CONFIG = { id: 'cavern-crammer', name: 'Cavern Crammer' };
 // Cavern Crammer's shrine quizzes are drag-a-term-to-its-definition rounds, so they use
 // QuestionManager's "matching" bank shape ({ name, cards:[{term, definition}] }).
 const QUESTION_BANK_TYPE = 'matching';
+const CAVERN_ESCAPE_UNLOCK_ID = 'cavern-crammer-endless-escape';
+let cavernMode = localStorage.getItem('cavern-crammer.mode') || 'explorer';
+function cavernEscapeUnlockState(){
+  const total=PlatformManager.getOverallStats?.().totalCorrect||0;
+  const otherGames=(PlatformManager.getAllGameStats?.()||[]).filter(g=>g.gameId!==GAME_CONFIG.id&&(g.correct||0)>=300).length;
+  const unlocked=window.AchievementManager?.hasTypeUnlock?.(CAVERN_ESCAPE_UNLOCK_ID)||(total>=1200&&otherGames>=3);
+  if(unlocked)window.AchievementManager?.grantTypeUnlock?.(CAVERN_ESCAPE_UNLOCK_ID,{name:'Cavern Escape',kind:'game-mode',gameId:GAME_CONFIG.id,detail:'A timed endless runner with a pursuing enemy pack.'});
+  return{unlocked,total,otherGames};
+}
+function renderCavernModeSelect(){
+  const state=cavernEscapeUnlockState();if(!state.unlocked&&cavernMode==='escape')cavernMode='explorer';
+  document.querySelectorAll('[data-cavern-mode]').forEach(btn=>{const locked=btn.dataset.cavernMode==='escape'&&!state.unlocked,selected=btn.dataset.cavernMode===cavernMode;btn.disabled=locked;btn.textContent=(locked?'🔒 ':selected?'✓ ':'')+(btn.dataset.cavernMode==='escape'?'CAVERN ESCAPE':'RUINS');btn.onclick=()=>{if(locked)return;cavernMode=btn.dataset.cavernMode;localStorage.setItem('cavern-crammer.mode',cavernMode);renderCavernModeSelect();};});
+  const p=document.getElementById('cavernModeProgress');if(p)p.textContent=state.unlocked?'Cavern Escape unlocked — outrun the horde before time expires.':`${Math.min(1200,state.total)}/1200 correct · ${Math.min(3,state.otherGames)}/3 other games at 300 correct`;
+}
+window.addEventListener('arcade-achievement-manager-ready',renderCavernModeSelect);
+window.addEventListener('arcade-user-role-changed',renderCavernModeSelect);
 
 /* ============================= STORAGE ============================= */
 // Only per-run-independent progression lives here (upgrades/skins/character/etc).
@@ -150,8 +166,10 @@ function computeGapScale(idx){
   if(session.dashOwned) power += 0.15;
   if(session.hoverOwned) power += 0.1;
   if(session.featherFall) power += 0.05;
-  const levelScale = 1 + Math.min(0.5, idx*0.015);
-  return power * levelScale * (session.adaptiveGapMult||1);
+  const rate = PlatformManager.getDifficultyRateMultiplier();
+  const levelScale = 1 + Math.min(0.5, idx*0.015*rate);
+  const adaptive = 1 + ((session.adaptiveGapMult||1)-1)*rate;
+  return power * levelScale * adaptive;
 }
 // Decaying speed score: ticks down while playing, converted to bonus coins at each
 // checkpoint/goal (then reset), rewarding reaching checkpoints faster.
@@ -165,6 +183,9 @@ let levelIndex = 0;
 let camX = 0, camY = 0;
 let particles = [];
 let toastTimer = 0;
+const ESCAPE_STAGE_SECONDS = 45;
+let escapeFramesLeft = ESCAPE_STAGE_SECONDS*60;
+let escapeChaseX = -140;
 
 const session = {
   hasKey:false, keyGivenThisRun:false,
@@ -585,7 +606,7 @@ function generateLevel(idx, zone){
   // hidden traps: arrow traps mounted at floor's edge, falling blocks suspended overhead
   // (traps arrive at level 4 of each zone, alongside enemies)
   const traps = [];
-  const trapMultEff = zone.trapMult * (save.hardMode?1.4:1) * session.adaptiveTrapMult;
+  const trapMultEff = zone.trapMult * (save.hardMode?1.4:1) * (1+(session.adaptiveTrapMult-1)*PlatformManager.getDifficultyRateMultiplier());
   if(trapsEnabled){
     layerSegs.forEach(segs=>{
       segs.forEach((s,i)=>{
@@ -635,7 +656,7 @@ function generateLevel(idx, zone){
 
   // enemies distributed across layers (arrive at level 4 of each zone) — mixed types for variety
   const enemies = [];
-  const enemyCount = enemiesEnabled ? Math.round((3 + idx + Math.floor(layerCount/2)) * (position===3?2:1) * (save.hardMode?1.6:1) * session.adaptiveEnemyMult) : 0;
+  const enemyCount = enemiesEnabled ? Math.round((3 + idx*PlatformManager.getDifficultyRateMultiplier() + Math.floor(layerCount/2)) * (position===3?2:1) * (save.hardMode?1.6:1) * (1+(session.adaptiveEnemyMult-1)*PlatformManager.getDifficultyRateMultiplier())) : 0;
   const candidates = platforms.filter(p=>p.type!=='wall' && p.w>50);
   function pickEnemyType(){
     if(zone.icy && Math.random()<0.22) return 'slider';
@@ -813,7 +834,8 @@ function flashDanger(){
 
 /* ============================= LEVEL START / RESPAWN ============================= */
 function startLevel(idx){
-  level = buildLevel(idx);
+  const buildIndex = cavernMode==='escape' ? Math.floor(idx/2)*5+(idx%2) : idx;
+  level = buildLevel(buildIndex);
   const zone = level.zone;
   if(level.isBoss){
     document.getElementById('levelLabel').textContent = zone.name.toUpperCase() + ' — BOSS';
@@ -828,6 +850,11 @@ function startLevel(idx){
   player.x = level.spawn.x; player.y = level.spawn.y; player.vx=0; player.vy=0;
   player.pounding=false; player.dashTimer=0; player.dashCooldown=0; player.hoverFuel=0; player.airDashUsed=0;
   checkpointSpawn = {x:level.spawn.x, y:level.spawn.y};
+  if(cavernMode==='escape'){
+    escapeFramesLeft=ESCAPE_STAGE_SECONDS*60;escapeChaseX=level.spawn.x-150;
+    document.getElementById('levelLabel').textContent='ESCAPE '+(idx+1)+' · '+ESCAPE_STAGE_SECONDS+'s';
+    showToast('RUN! The cavern horde is behind you!',1800);
+  }
   STATE = 'playing';
 }
 function respawnPlayer(){
@@ -974,7 +1001,7 @@ async function openQuizRound(mode, size){
   if(QuestionManager.getRunQuestionType()!=='matching'&&window.MixedQuestionRound){
     const result=await MixedQuestionRound.play();
     quizRound={mode,pairs:new Array(4).fill(null),filled:4,correctFirstTry:result.correct};
-    if(result.correct<4)PlatformManager.deductCoins((4-result.correct)*10);
+    if(result.correct<4)PlatformManager.deductCoins((4-result.correct)*5);
     finishRound();return;
   }
   activeDrag = null;
@@ -1081,7 +1108,7 @@ function endActiveDrag(clientX, clientY){
         session.stats.questionsTotal++;
         if(firstTry) session.stats.questionsCorrect++;
         PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, firstTry);
-        if(!firstTry) PlatformManager.deductCoins(10);
+        if(!firstTry) PlatformManager.deductCoins(5);
       }
       if(quizRound.filled >= quizRound.pairs.length){
         setTimeout(finishRound, 350);
@@ -1486,7 +1513,8 @@ function collideY(){
 }
 
 function updatePlayer(){
-  const dir = (input.right?1:0)-(input.left?1:0);
+  let dir = (input.right?1:0)-(input.left?1:0);
+  if(cavernMode==='escape')dir=1;
   if(dir!==0) player.facing = dir;
 
   // Triple-jump chain must be kept alive with quick jumps — if the window granted on
@@ -1522,7 +1550,8 @@ function updatePlayer(){
     input.poundPressed = false;
   }
 
-  const targetVx = dir*MOVE_SPEED*(1+0.1*(save.upgrades.speedTier||0))*session.curseSpeedMult*session.charSpeedMult;
+  const runnerSpeed=cavernMode==='escape'?1.65:1;
+  const targetVx = dir*MOVE_SPEED*runnerSpeed*(1+0.1*(save.upgrades.speedTier||0))*session.curseSpeedMult*session.charSpeedMult;
   const onIce = !session.curseIronBoots && player.onGround && player.standingPlatform && player.standingPlatform.icy;
   const onFrozen = !session.curseIronBoots && player.onGround && player.standingPlatform && player.standingPlatform.frozen;
   const a = onFrozen ? 0.012 : onIce ? 0.03 : (player.onGround?ACCEL:AIR_ACCEL);
@@ -1941,7 +1970,7 @@ function updateFlags(){
     session.speedScore = SPEED_SCORE_MAX;
     bankCarriedCoins();
     showToast((level.isBoss ? 'Guardian defeated — ruin cleared!' : 'Ruin cleared!') + ' +'+speedBonus+' speed bonus. Gold banked.', 1600);
-    quizFinishCallback = ()=>{ openShop(); };
+    quizFinishCallback = cavernMode==='escape' ? ()=>{levelIndex++;startLevel(levelIndex);} : ()=>{ openShop(); };
     openQuizRound('goal', 4);
   }
 }
@@ -2955,6 +2984,11 @@ function gameUpdate(){
   updateCoins();
   updateLava();
   updateFlags();
+  if(cavernMode==='escape'&&STATE==='playing'){
+    escapeFramesLeft=Math.max(0,escapeFramesLeft-1);
+    escapeChaseX+=Math.min(1.05,0.58+levelIndex*0.025);
+    if(player.x<=escapeChaseX+34||escapeFramesLeft<=0){showToast(escapeFramesLeft<=0?'TIME UP — the horde caught you!':'THE HORDE CAUGHT YOU!',1400);triggerRunOver();return;}
+  }
   updateParticles();
   session.speedScore = Math.max(SPEED_SCORE_MIN, session.speedScore - SPEED_SCORE_DECAY_PER_FRAME*(session.curseAdrenaline?0.5:1));
   camX = Math.max(0, Math.min(Math.max(0,level.width-VW), player.x - VW/2));
@@ -2971,10 +3005,18 @@ function gameRender(){
   drawFlags();
   drawCoins();
   drawEnemies();
+  drawEscapeHorde();
   drawBoss();
   drawParticles();
   drawPlayer();
   drawDarkness();
+}
+
+function drawEscapeHorde(){
+  if(cavernMode!=='escape')return;
+  const front=escapeChaseX-camX,t=performance.now()/120;
+  const fog=ctx.createLinearGradient(front-85,0,front+38,0);fog.addColorStop(0,'rgba(12,4,20,.96)');fog.addColorStop(1,'rgba(104,20,78,.15)');ctx.fillStyle=fog;ctx.fillRect(0,0,Math.max(0,front+38),VH);
+  for(let i=0;i<7;i++){const x=front-i*16,y=168+Math.sin(t+i)*5;ctx.fillStyle='#160817';ctx.fillRect(x-7,y-17,14,17);ctx.fillStyle='#ff315f';ctx.fillRect(x-4,y-12,3,3);ctx.fillRect(x+2,y-12,3,3);ctx.fillStyle='#2c1235';ctx.fillRect(x-9,y,18,5);}
 }
 
 function drawLava(){
@@ -3022,9 +3064,9 @@ function loop(ts){
   document.getElementById('coinVal').textContent = PlatformManager.getCoins();
   document.getElementById('carriedVal').textContent = session.carriedCoins>0 ? (' +'+session.carriedCoins) : '';
   const speedEl = document.getElementById('speedVal');
-  speedEl.textContent = Math.round(session.speedScore);
+  speedEl.textContent = cavernMode==='escape' ? Math.ceil(escapeFramesLeft/60)+'s' : Math.round(session.speedScore);
   const speedFrac = (session.speedScore-SPEED_SCORE_MIN)/(SPEED_SCORE_MAX-SPEED_SCORE_MIN);
-  document.getElementById('speedScore').style.color = speedFrac>0.5 ? '#7fd8a0' : speedFrac>0.2 ? '#f2b84b' : '#e0564f';
+  document.getElementById('speedScore').style.color = cavernMode==='escape' ? (escapeFramesLeft>900?'#7fd8a0':escapeFramesLeft>300?'#f2b84b':'#e0564f') : speedFrac>0.5 ? '#7fd8a0' : speedFrac>0.2 ? '#f2b84b' : '#e0564f';
   document.getElementById('poundBtn').classList.toggle('hidden', !session.groundPoundOwned);
   document.getElementById('warpBtn').classList.toggle('hidden', session.warpCharges<=0);
   document.getElementById('warpBtn').textContent = '🌀 WARP' + (session.warpCharges>0?' ×'+session.warpCharges:'');
@@ -3071,6 +3113,7 @@ async function loadCurrentQuestionBank(){
   }
 }
 loadCurrentQuestionBank();
+renderCavernModeSelect();
 
 startBtn.addEventListener('click', ()=>{
   if(startBtn.disabled || !QuestionManager.hasQuestions()) return;

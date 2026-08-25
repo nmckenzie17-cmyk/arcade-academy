@@ -2116,8 +2116,9 @@ function generateEnemy(fightNumber){
   const baseKey = isBoss ? arche.base : key;
   const gender = RNG() < 0.5 ? 'male' : 'female';
 
-  const scaleT = (fightNumber-1) * 0.045; // gradual scaling
-  const waveBonus = fightNumber-1; // flat +1 HP and +1 damage per wave already fought
+  const difficultyRate = window.PlatformManager?.getDifficultyRateMultiplier?.() || 1;
+  const scaleT = (fightNumber-1) * 0.045 * difficultyRate; // gradual scaling
+  const waveBonus = (fightNumber-1) * difficultyRate; // flat HP and damage per wave already fought
   const hp = Math.round((isBoss?90:55) * arche.hp * (1+scaleT)) + waveBonus;
   const dmgMult = arche.dmg * (1+scaleT*0.55);
   const spd = arche.spd * CFG.MOVE_SPEED * (1+Math.min(scaleT*0.15,0.3));
