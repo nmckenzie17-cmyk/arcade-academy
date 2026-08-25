@@ -371,28 +371,55 @@ function renderNextTypeUnlock(manager) {
     { id:"cavern-crammer-endless-escape", gameId:"cavern-crammer", name:"Cavern Escape mode", target:1200, perGame:300, game:"Cavern Crammer" },
     { id:"pool-practice-nine-ball", gameId:"pool-practice", name:"9-Ball Pool", target:1400, perGame:350, game:"Pool Practice" }
   ];
+  const requirementState = item => {
+    const eligible = games.filter(game => game.gameId !== item.gameId);
+    const qualifying = eligible.filter(game => (Number(game.correct) || 0) >= item.perGame).length;
+    return { qualifying, complete: totalCorrect >= item.target && qualifying >= 3 };
+  };
+  // A player may cross a threshold while outside the game that owns the unlock.
+  // Grant it here so the Hub immediately advances to the next rung of the ladder.
+  unlocks.forEach(item => {
+    if (!manager.hasTypeUnlock(item.id) && requirementState(item).complete) {
+      manager.grantTypeUnlock(item.id, {name:item.name,kind:'game-mode',gameId:item.gameId,detail:`Unlocked at ${item.target} lifetime correct answers.`});
+    }
+  });
   const next = unlocks.find(item => !manager.hasTypeUnlock(item.id));
   const title = document.querySelector("#next-type-unlock");
   const detail = document.querySelector("#next-type-unlock-detail");
   const bar = document.querySelector("#type-unlock-progress-bar");
-  if (!title || !detail || !bar) return;
+  const gamesBar = document.querySelector("#type-unlock-games-progress-bar");
+  const totalValue = document.querySelector("#type-unlock-total-value");
+  const gamesValue = document.querySelector("#type-unlock-games-value");
+  if (!title || !detail || !bar || !gamesBar || !totalValue || !gamesValue) return;
   if (!next) {
     title.textContent = "All character and game-type unlocks earned!";
     detail.textContent = `${totalCorrect.toLocaleString()} lifetime correct answers`;
     bar.style.width = "100%";
+    gamesBar.style.width = "100%";
+    totalValue.textContent = `${totalCorrect.toLocaleString()} total`;
+    gamesValue.textContent = "All requirements complete";
     return;
   }
   const eligibleGames = games.filter(game => game.gameId !== next.gameId);
   const qualifying = eligibleGames.filter(game => (Number(game.correct) || 0) >= next.perGame).length;
+  const bestThreeProgress = eligibleGames.map(game => Math.min(next.perGame,Number(game.correct)||0)).sort((a,b)=>b-a).slice(0,3);
+  while(bestThreeProgress.length<3)bestThreeProgress.push(0);
+  const otherGameCorrect = bestThreeProgress.reduce((sum,value)=>sum+value,0);
+  const otherGameTarget = next.perGame*3;
   const qualifierDeficits = eligibleGames.filter(game => (Number(game.correct) || 0) < next.perGame).map(game => next.perGame - (Number(game.correct) || 0)).sort((a,b) => a-b);
   while (qualifierDeficits.length < 3 - qualifying) qualifierDeficits.push(next.perGame);
   const correctForGameRequirement = qualifierDeficits.slice(0, Math.max(0, 3 - qualifying)).reduce((sum,value) => sum + value, 0);
   const remaining = Math.max(0, next.target - totalCorrect, correctForGameRequirement);
   title.textContent = `${remaining.toLocaleString()} correct question${remaining === 1 ? "" : "s"} until ${next.name}`;
-  detail.textContent = `${Math.min(totalCorrect,next.target).toLocaleString()} / ${next.target.toLocaleString()} lifetime correct · also requires ${Math.min(qualifying,3)} / 3 other games with ${next.perGame} correct (${next.game})`;
+  detail.textContent = `${Math.min(qualifying,3)} / 3 other games have reached ${next.perGame} correct · unlock applies to ${next.game}`;
+  totalValue.textContent = `${Math.min(totalCorrect,next.target).toLocaleString()} / ${next.target.toLocaleString()}`;
+  gamesValue.textContent = `${otherGameCorrect.toLocaleString()} / ${otherGameTarget.toLocaleString()}`;
   bar.style.width = `${Math.min(100, totalCorrect / next.target * 100)}%`;
+  gamesBar.style.width = `${Math.min(100,otherGameCorrect/otherGameTarget*100)}%`;
   bar.parentElement.setAttribute("aria-valuenow", Math.min(totalCorrect,next.target));
   bar.parentElement.setAttribute("aria-valuemax", next.target);
+  gamesBar.parentElement.setAttribute("aria-valuenow",otherGameCorrect);
+  gamesBar.parentElement.setAttribute("aria-valuemax",otherGameTarget);
 }
 window.addEventListener("arcade-progression-changed", () => {
   renderProgression();

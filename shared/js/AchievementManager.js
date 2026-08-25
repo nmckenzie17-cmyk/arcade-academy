@@ -4,8 +4,7 @@
   // TESTING SWITCH: change to true to preview every hub and per-game reward.
   // Debug ownership is local-only and is never synchronized to Firebase.
   const UNLOCK_ALL_REWARDS_FOR_TESTING = false;
-  // TESTING SWITCH: keep true during development so every alternate character,
-  // board and game mode is selectable. Change to false before publishing.
+  // Publishing safety switch. Keep false so every account uses normal progression.
   const UNLOCK_ALL_TYPE_UNLOCKS_FOR_TESTING = false;
 
   const STORAGE_KEY = 'arcadeAcademy.achievements.v1';
@@ -326,7 +325,7 @@
   // Character and game-mode unlocks are collectively called "type unlocks".
   // They share the achievement Firebase payload so they follow the player.
   function grantTypeUnlock(id,details={}){const key=typeUnlockKey(id);if(!TYPE_UNLOCK_CATALOGUE.includes(key)||state.typeUnlocks[key])return false;const record={id:key,name:details.name||id,kind:details.kind||'type',gameId:details.gameId||currentGameId(),detail:details.detail||'',unlockedAt:Date.now()};state.typeUnlocks[key]=record;state.pendingTypeUnlocks.push(record);save();return true;}
-  function hasTypeUnlock(id){const key=typeUnlockKey(id);return TYPE_UNLOCK_CATALOGUE.includes(key)&&(UNLOCK_ALL_TYPE_UNLOCKS_FOR_TESTING||global.PlatformManager?.isTeacher?.()||!!state.typeUnlocks[key]);}
+  function hasTypeUnlock(id){const key=typeUnlockKey(id);return TYPE_UNLOCK_CATALOGUE.includes(key)&&(UNLOCK_ALL_TYPE_UNLOCKS_FOR_TESTING||!!state.typeUnlocks[key]);}
   function getTypeUnlocks(filter={}){return Object.values(state.typeUnlocks).filter(item=>(!filter.gameId||item.gameId===filter.gameId)&&(!filter.kind||item.kind===filter.kind)).map(item=>({...item}));}
   function takePendingTypeUnlocks(){const pending=state.pendingTypeUnlocks.splice(0);if(pending.length)save();return pending;}
   function getRewards(filter={}){return REWARDS.filter(r=>(!filter.gameId||r.gameId===filter.gameId||(r.secretGlobal&&r.gameEffects?.includes(filter.gameId)))&&(!filter.type||r.type===filter.type)).map(r=>({...r,owned:isRewardOwned(r.id),equipped:r.secretGlobal?isRewardOwned(r.id):isRewardOwned(r.id)&&Object.values(state.equipped).includes(r.id)}));}

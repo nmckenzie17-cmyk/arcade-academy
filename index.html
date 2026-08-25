@@ -241,7 +241,10 @@
           <p class="next-level-reward" id="next-level-reward">Next level unlocks: 100 Coins</p>
           <div class="type-unlock-progress" id="type-unlock-progress">
             <p id="next-type-unlock">Loading next type unlock…</p>
-            <div class="level-track" role="progressbar" aria-labelledby="next-type-unlock"><span id="type-unlock-progress-bar"></span></div>
+            <div class="type-unlock-meter-label"><span>Total correct answers</span><strong id="type-unlock-total-value">0 / 0</strong></div>
+            <div class="level-track" role="progressbar" aria-label="Total correct-answer progress"><span id="type-unlock-progress-bar"></span></div>
+            <div class="type-unlock-meter-label"><span>Correct answers in other games</span><strong id="type-unlock-games-value">0 / 0</strong></div>
+            <div class="level-track type-unlock-games-track" role="progressbar" aria-label="Other-games question progress"><span id="type-unlock-games-progress-bar"></span></div>
             <small id="next-type-unlock-detail"></small>
           </div>
         </div>
@@ -395,11 +398,11 @@
   <script src="shared/js/GameSaveManager.js"></script>
   <script src="shared/js/AudioManager.js?v=20260820-audio-mixer-v1"></script>
   <script src="shared/js/PlatformManager.js?v=20260812-challenge-mode-v2"></script>
-  <script src="shared/js/AchievementManager.js?v=20260825-nine-ball-v3"></script>
+  <script src="shared/js/AchievementManager.js?v=20260825-no-teacher-bypass-v5"></script>
   <script src="shared/js/DailyMissionManager.js?v=20260816-daily-missions-v1"></script>
   <script src="shared/js/SuggestedGameManager.js?v=20260818-suggested-game-v1"></script>
   <script src="shared/js/MistakeRematchManager.js?v=20260817-mistake-rematch-v1"></script>
   <script src="shared/data/classes.js"></script>
-  <script type="module" src="app.js?v=20260825-nine-ball-v3"></script>
+  <script type="module" src="app.js?v=20260825-two-type-progress-bars-v4"></script>
 </body>
 </html>
