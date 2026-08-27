@@ -10,9 +10,9 @@
   const STORAGE_KEY = 'arcadeAcademy.achievements.v1';
   // XP is stored in tenths so the approved fractional level curve is exact.
   const TIERS = { bronze: 1000, silver: 10000, gold: 100000, platinum: 500000 };
-  const GAME_IDS = ['angler-answerer','cavern-crammer','dot-n-box-deducer','fortress-facts','jetpack-journey','note-knowledge','pinball-postulation','pixel-artillery','pool-practice','rocket-recall','shuriken-scholar','tic-tac-toe','wild-west-wordslinger','cube-curiosity','rumbux-revision','ko-klarity'];
-  const GAME_NAMES = ['Angler Answerer','Cavern Crammer','Dot-n-Box Deducer','Fortress Facts','Jetpack Journey','Note Knowledge','Pinball Postulation','Thinking Tanks','Pool Practice','Rocket Recall','Shuriken Scholar','Tic-Tac-Toe','Wild West Wordslinger','Cube Curiosity','Rumbux Revision','KO Klarity'];
-  const GAME_MASTERY_NAMES = ['Master Angler','Vault Seeker','Chain Reaction','Unbroken Kingdom','Time Flyer','Perfect Performance','Multiball Mind','Calculated Shot','Run the Table','Planetary Defender','Shadow Master','Grand Strategist','Quickest Mind','Neon Navigator','Street Scholar','Circuit Champion'];
+  const GAME_IDS = ['angler-answerer','cavern-crammer','dot-n-box-deducer','fortress-facts','jetpack-journey','note-knowledge','pinball-postulation','pixel-artillery','pool-practice','rocket-recall','shuriken-scholar','tic-tac-toe','wild-west-wordslinger','cube-curiosity','rumbux-revision','ko-klarity','drift-discovery','garden-guessing'];
+  const GAME_NAMES = ['Angler Answerer','Cavern Crammer','Dot-n-Box Deducer','Fortress Facts','Jetpack Journey','Note Knowledge','Pinball Postulation','Thinking Tanks','Pool Practice','Rocket Recall','Shuriken Scholar','Tic-Tac-Toe','Wild West Wordslinger','Cube Curiosity','Rumbux Revision','KO Klarity','Drift Discovery','Garden Guessing'];
+  const GAME_MASTERY_NAMES = ['Master Angler','Vault Seeker','Chain Reaction','Unbroken Kingdom','Time Flyer','Perfect Performance','Multiball Mind','Calculated Shot','Run the Table','Planetary Defender','Shadow Master','Grand Strategist','Quickest Mind','Neon Navigator','Street Scholar','Circuit Champion','Drift Master','Botanical Bastion'];
   const TYPE_UNLOCK_CATALOGUE = ['wild-west-bloody-bandit','fortress-facts-goblin-general','shuriken-scholar-samurai','rocket-recall-combat-carrier','pinball-postulation-theme-tables','cavern-crammer-endless-escape','pool-practice-nine-ball']; // Current character and alternate-mode unlocks.
   function typeUnlockKey(value){const raw=String(value||'').trim().toLowerCase();if(TYPE_UNLOCK_CATALOGUE.includes(raw))return raw;const hyphenated=raw.replace(/[_\s]+/g,'-');return TYPE_UNLOCK_CATALOGUE.includes(hyphenated)?hyphenated:raw;}
   const LEVEL_XP = level => (12 * level ** 3) - (150 * level ** 2) + (1000 * level);
@@ -50,14 +50,14 @@
     ...milestoneSet(['Quarter Hour','Warming Up','One Hour Hero','Arcade Apprentice','Arcade Regular','Dedicated Learner','Arcade Veteran','Fifty-Hour Scholar','Century Player'],'Playtime', [['bronze',15],['bronze',30],['bronze',60],['silver',120],['silver',300],['gold',600],['gold',1500],['platinum',3000],['platinum',6000]],'playMinutes','Play for'),
     ...milestoneSet(['Coin Collector I','Coin Collector II','Coin Collector III','Coin Collector IV','Coin Collector V','Coin Collector VI','Coin Collector VII'],'Economy', [['bronze',100],['bronze',500],['silver',1000],['silver',5000],['gold',10000],['gold',50000],['platinum',100000]],'coinsEarned','Earn'),
     ...milestoneSet(['Game Sampler','Triple Feature','Arcade Tourist'],'Exploration', [['bronze',2],['bronze',3],['silver',5]],'gamesPlayed','Play'),
-    achievement('Grand Tour','Exploration','gold','gamesPlayed',16,'Play every enabled game.'),
-    achievement('Solo Circuit','Exploration','silver','soloGamesPlayed',12,'Play every enabled single-player game.'),
+    achievement('Grand Tour','Exploration','gold','gamesPlayed',18,'Play every enabled game.'),
+    achievement('Solo Circuit','Exploration','silver','soloGamesPlayed',14,'Play every enabled single-player game.'),
     achievement('Party Circuit','Exploration','silver','multiplayerGamesPlayed',5,'Play every enabled multiplayer game.'),
     achievement('Versatile Scholar','Exploration','gold','gamesCorrect',5,'Answer correctly in five games.'),
     achievement('Score Safari','Exploration','gold','gamesScored',5,'Set a score in five games.'),
     ...milestoneSet(['Three-Day Player','Five-Day Player','Ten-Day Scholar','Dedicated Visitor','Hundred-Day Academy'],'Returning', [['bronze',3],['bronze',5],['silver',10],['gold',25],['platinum',100]],'daysPlayed','Play on'),
     ...milestoneSet(['Wardrobe Starter','Style Collector'],'Collection', [['bronze',5],['gold',25]],'cosmeticsOwned','Own'),
-    achievement('Academy Curator','Collection','platinum','gamesWithCosmetics',16,'Own a cosmetic for every enabled game.'),
+    achievement('Academy Curator','Collection','platinum','gamesWithCosmetics',18,'Own a cosmetic for every enabled game.'),
     ...milestoneSet(['Matchmaker I','Matchmaker II','Matchmaker III','Matchmaker IV','Matchmaker V'],'Multiplayer', [['bronze',5],['silver',10],['silver',25],['gold',50],['platinum',100]],'multiplayerMatches','Complete'),
     ...milestoneSet(["Winner's Circle I","Winner's Circle II","Winner's Circle III","Winner's Circle IV"],'Multiplayer', [['bronze',5],['silver',10],['gold',25],['platinum',50]],'multiplayerWins','Win'),
     ...['Friendly Rival','Low CPU Cleared','Medium CPU Cleared','High CPU Cleared','Comeback Kid','Smart Victory','Sharp Victory','Brilliant Victory','Perfect Victory','Rally and Win','Scholar vs Machine'].map((n,i)=>achievement(n,'Multiplayer',i>7?'platinum':i>4?'gold':i>1?'silver':'bronze',slug(n),1,`${n} challenge completed.`)),
@@ -68,7 +68,7 @@
     achievement('Upgrade Enthusiast','Upgrades','gold','upgradesPurchased',50,'Purchase 50 permanent upgrades.'),
     achievement('Completionist Engineer','Upgrades','platinum','upgradeCatalogueCompleted',1,'Complete one permanent-upgrade catalogue.'),
     ...GAME_NAMES.map((name,i)=>achievement(`${name}: ${GAME_MASTERY_NAMES[i]}`,'Game Mastery',[9,10,12,13,14,15].includes(i)?'platinum':'gold',`mastery_${GAME_IDS[i].replaceAll('-','_')}`,1,[
-      'Catch a boss fish in one valid run.','Unlock five chests in one run.','Create a chain of at least four boxes.','Finish wave 25 without taking any castle damage.','Travel through Dinosaur, Space, Dinosaur, and Space in that order.','Hit 64 notes consecutively inside the bonus bar.','Trigger a double shot.','Defeat an enemy.','Win after pocketing at least seven balls.','Unlock every ship.','Reach stage 25.','Win 20 games.','Win a quickdraw duel.','Reach 20 checkpoints in one Cube Curiosity run.','Build a 15-hit combo.','Build a 12-hit combo.'
+      'Catch a boss fish in one valid run.','Unlock five chests in one run.','Create a chain of at least four boxes.','Finish wave 25 without taking any castle damage.','Travel through Dinosaur, Space, Dinosaur, and Space in that order.','Hit 64 notes consecutively inside the bonus bar.','Trigger a double shot.','Defeat an enemy.','Win after pocketing at least seven balls.','Unlock every ship.','Reach stage 25.','Win 20 games.','Win a quickdraw duel.','Reach 20 checkpoints in one Cube Curiosity run.','Build a 15-hit combo.','Build a 12-hit combo.','Score 5,000 drift points in one race.','Survive 15 waves in one garden.'
     ][i])),
     ...['Game Rookie','Game Skilled','Game Expert','Game Master','Game Legend'].map((n,i)=>achievement(n,'Mastery',['bronze','silver','gold','platinum','platinum'][i],slug(n),1,`Earn ${n} status in a game.`)),
     ...milestoneSet(['Trophy Shelf I','Trophy Shelf II','Trophy Shelf III','Trophy Shelf IV'],'Meta', [['bronze',10],['silver',25],['gold',50],['platinum',100]],'achievements','Earn'),
@@ -81,6 +81,10 @@
     achievement('Street Scholar','Game Mastery','gold','rumbuxBestCombo',15,'Build a 15-hit combo in Rumbux Revision.',{id:'rumbux_revision_combo'}),
     achievement('Clear Thinker','Game Mastery','silver','ko_klarity_correct',20,'Answer 20 class questions correctly in KO Klarity.',{id:'ko_klarity_clear_thinker'}),
     achievement('Combo Clarity','Game Mastery','gold','koKlarityBestCombo',12,'Land a 12-hit combo in KO Klarity.',{id:'ko_klarity_combo_clarity'}),
+    achievement('Pit Scholar','Game Mastery','silver','drift_discovery_correct',20,'Answer 20 Drift Discovery questions correctly.',{id:'drift_discovery_pit_scholar'}),
+    achievement('Drift Master','Game Mastery','gold','drift_discovery_best_drift',5000,'Score 5,000 drift points in one Drift Discovery race.',{id:'drift_discovery_drift_master'}),
+    achievement('Green Thinker','Game Mastery','silver','garden_guessing_correct',20,'Answer 20 Garden Guessing questions correctly.',{id:'garden_guessing_green_thinker'}),
+    achievement('Botanical Bastion','Game Mastery','gold','garden_guessing_best_wave',15,'Survive 15 waves in one Garden Guessing run.',{id:'garden_guessing_bastion'}),
     achievement('Proof by Boxes','Game Mastery','gold','dot_box_smart_victory',1,'Win Dot-n-Box Deducer with at least 80% accuracy over five questions.',{id:'dot_n_box_smart_victory'}),
     ...[['secret_by_a_thread','By a Thread','Win or survive at exactly 1 HP.','secret_skeleton'],['secret_two_at_once','Two at Once','Defeat two enemies almost simultaneously.','secret_twin_shot'],['secret_wrong_way_right_place','Wrong Way, Right Place','Find a configured hidden area.','secret_map_border'],['secret_strange_synergy','Strange Synergy','Finish with an unusual upgrade combination.','secret_glitch_aura'],['secret_one_in_a_thousand','One in a Thousand','Encounter a rare event.','secret_lucky_badge'],['secret_hidden_challenger','Hidden Challenger','Discover a secret character or opponent.','secret_shadow_palette'],['secret_cabinet_tap','Cabinet Tap','Trigger the hidden cabinet animation.','secret_cabinet_pet']].map(([id,n,d,reward])=>achievement(n,'Secret','secret',id,1,d,{id,secret:true,rewardId:reward}))
   ];
@@ -121,9 +125,9 @@
     game_expert:['achievements',30,'Earn 30 other achievements.'],
     game_master:['achievements',60,'Earn 60 other achievements.'],
     game_legend:['achievements',100,'Earn 100 other achievements.'],
-    arcade_legend:['gamesPlayed',16,'Play every enabled game.'],
+    arcade_legend:['gamesPlayed',18,'Play every enabled game.'],
     secret_by_a_thread:['runsCompleted',25,'Complete 25 valid runs.'],
-    secret_wrong_way_right_place:['gamesPlayed',16,'Play every enabled game.'],
+    secret_wrong_way_right_place:['gamesPlayed',18,'Play every enabled game.'],
     secret_strange_synergy:['upgradesPurchased',25,'Purchase 25 permanent upgrades.'],
     secret_one_in_a_thousand:['enemiesDefeated',1000,'Defeat 1,000 enemies.'],
     secret_hidden_challenger:['cpuMatches',10,'Complete ten CPU matches.']
@@ -156,6 +160,8 @@
     'wild-west-wordslinger':['Fish Crosshair','Sheriff-star Crosshair','Musical Crosshair','Alien Outlaws','Cavern Prospector','Ghost Town Legend','Loaded Chamber']
     ,'rumbux-revision':['Neon Knuckles','Revision Trail','Midnight Streets','Impact Flash','Academy Jacket','Street Legend','Study Shield']
     ,'ko-klarity':['Prismatic Gloves','Focus Trail','Circuit Arena','Clarity Burst','Academy Champion','Perfect Form','Clear Guard']
+    ,'drift-discovery':['Academy Blue Racer','Neon Tyres','Comet Drift Smoke','Gold Nitro','Midnight Circuit','Champion Livery','Tuned Start']
+    ,'garden-guessing':['Academy Blooms','Firefly Shots','Moonlit Garden','Bloom Bursts','Academy Scarecrow','Garden Legend','Seedling Start']
   };
   const SLOT_OVERRIDES={
     'angler-answerer':['rod','line','bobber','background','catchEffect','character','boost'],
@@ -173,6 +179,8 @@
     'wild-west-wordslinger':['crosshair','crosshair','crosshair','enemySkin','crossover','theme','boost']
     ,'rumbux-revision':['skin','trail','world','hitEffect','crossover','theme','boost']
     ,'ko-klarity':['skin','trail','world','hitEffect','crossover','theme','boost']
+    ,'drift-discovery':['skin','wheels','trail','nitro','world','livery','boost']
+    ,'garden-guessing':['plants','projectiles','world','effect','crossover','theme','boost']
   };
   const rewardDetail=(gameId,name,slot,type)=>{if(type==='gameplay')return `${name} is automatically active in eligible single-player runs.`;const explicit={'Midnight Grand Piano':'Turns the lanes into a midnight grand-piano keyboard with black-and-gold trim.','Vampire Flyer':'Recolours the pilot, jetpack and exhaust with the vampire palette.','Alien Flyer':'Recolours the pilot, jetpack and exhaust with the alien palette.','Time-traveller Outfit':'Adds a clockwork explorer palette, animated clock face and temporal-ring exhaust.','Pixel-ring Boost':'Adds expanding neon rings to the jetpack exhaust while boosting.','Note Knowledge Flight':'Removes the flame and sends animated colour-changing music notes from the exhaust.','Temporal Ace':'Applies a coordinated bronze, cyan and gold pilot, jetpack and flame palette.','Neon Piano Tiles':'Changes falling notes into glowing neon piano tiles.','Note-touch Bursts':'Brightens a pressed note with a large white impact glow.','Concert Hall':'Replaces the starfield with a warm concert-stage backdrop.','Gem-spark Jump Trail':'Leaves cyan, violet and gold gem sparks behind airborne movement.','Wild West Hazards':'Turns cavern skies sunset-orange and changes spikes into cactus-green hazards.','Silver Cavern Coins':'Replaces every cavern coin with a silver coin.','Rocket Recall Relic':'Adds a tiny orbiting rocket companion beside the explorer.','Deep Crystal Explorer':'Adds a deep-blue crystal cavern backdrop with floating crystal silhouettes.','Obsidian Castle':'Desaturates and darkens the keep, every turret and every built tower.','Wild West Kingdom':'Replaces the battlefield sky with a desert-sunset palette.','Starburst Projectiles':'Adds a rotating luminous starburst around every projectile.','Moonlit Battlefield':'Replaces the battlefield sky with a deeper blue moonlit palette.','Shuriken Scholar Standard':'Flies a dark standard carrying a rotating silver shuriken from the keep.','Royal Aurora Keep':'Adds animated cyan, violet and rose aurora curtains behind the kingdom.','Prismatic Pinball':'Makes the ball cycle through the spectrum with a shifting coloured glow.','Neon Academy Table':'Adds a cyan neon grid across the pinball play surface.','Star Bumper Flashes':'Makes struck bumpers erupt into a bright rotating star.','Fireball Trail':'Leaves a fading red, orange and yellow flame trail behind moving balls.','Fortress Facts Table':'Adds castle battlements, stonework and gold trim to the table.','Cosmic Multiball':'Adds a starfield and turns balls into small ringed planets.'};return explicit[name]||({skin:'Changes the player or vehicle appearance.',trail:'Replaces the movement or projectile trail.',world:'Reskins the game world and its main play surface.',effect:'Changes impact and action effects.',boostEffect:'Changes the visual boost effect.',tiles:'Changes the game pieces or tiles.',hitEffect:'Changes successful-hit effects.',background:'Changes the game background.',crossover:'Applies a crossover visual set.',theme:'Applies a complete matching visual theme.'}[slot]||'Changes this game’s appearance.');};
   const GAME_REWARDS = Object.entries(gameRewardNames).flatMap(([gameId,names]) => names.map((name,i)=>{const type=i===6?'gameplay':'cosmetic',slot=SLOT_OVERRIDES[gameId]?.[i]||(i===6?'boost':['skin','trail','world','effect','crossover','theme'][i]);return {id:`${gameId}_${slug(name)}`,name,gameId,type,slot,detail:rewardDetail(gameId,name,slot,type)};}));
@@ -446,6 +454,8 @@ style.textContent=rules;document.head.appendChild(style);}
       'cavern-crammer':{root:'#homeShopModal .panel',panels:'#homeShopModal .panel',main:'#homeShopModal h2,#charGrid,#hardModeRow,#homeUpgradeGrid,#homeSkinGrid',buttonClass:'btn',panelClass:'shopGrid'}
       ,'cube-curiosity':{root:'#shopOverlay .panel',tabs:'#cubeShopTabs',panels:'#shopOverlay .panel',main:'#cubeStylePanel',panelSelector:'.shop-tab-content',buttonClass:'shop-tab-btn',panelClass:'shop-tab-content'}
       ,'pool-practice':{root:'#screen-shop .menu-wrap',panels:'#screen-shop .menu-wrap',main:'#shop-coin-balance,#shop-items',buttonClass:'arcade-btn secondary',panelClass:'arcade-panel'}
+      ,'drift-discovery':{root:'#screen-garage .garage-panel',tabs:'#screen-garage .tabs',panels:'#screen-garage .garage-panel',main:'#perfCatRow,#partList,#statCompare,#actionRow,.race-launch',buttonClass:'tab-btn',panelClass:'part-list'}
+      ,'garden-guessing':{root:'#shop-modal .modal-box',panels:'#shop-modal .modal-box',main:'#shop-coins,#shop-items,#shop-plants,#shop-modal h3',buttonClass:'btn btn-blue',panelClass:'shop-cosmetics-panel'}
     };
     if(gameId==='fortress-facts')return; // The dynamically-rendered Kingdom owns its native Cosmetics tab.
     const config=configs[gameId],root=config&&document.querySelector(config.root);

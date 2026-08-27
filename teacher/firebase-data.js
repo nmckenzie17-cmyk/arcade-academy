@@ -17,6 +17,8 @@ const gameFolders = [
   ,"dot-n-box-deducer"
   ,"rumbux-revision"
   ,"ko-klarity"
+  ,"drift-discovery"
+  ,"garden-guessing"
 ];
 
 let studentDocuments = null;

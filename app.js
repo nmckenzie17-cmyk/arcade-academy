@@ -15,6 +15,8 @@ const gameFolders = [
   "cube-curiosity",
   "rumbux-revision",
   "ko-klarity"
+  ,"drift-discovery"
+  ,"garden-guessing"
 ];
 
 // Temporarily disabled while the Spark-compatible leaderboard deployment is

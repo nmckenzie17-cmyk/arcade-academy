@@ -1,0 +1,35 @@
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html,body { width:100%;height:100%;font-family:var(--font-body); overflow: hidden; overscroll-behavior:none; }
+        canvas { display: block; }
+        .game-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .game-ui > * { pointer-events: auto; }
+        .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .modal-box { background: #1a2332; border: 2px solid #4ade80; border-radius: 12px; padding: 24px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .btn { padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: transform 0.1s; }
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: scale(0.95); }
+        .btn-green { background: #22c55e; color: #fff; }
+        .btn-blue { background: #3b82f6; color: #fff; }
+        .btn-yellow { background: #eab308; color: #000; }
+        .btn-red { background: #ef4444; color: #fff; }
+        .plant-slot { position:relative;overflow:hidden;width:92px;min-height:82px;padding:5px 4px;border:2px solid #4ade80;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;background:#1a2332;transition:all .2s; } .plant-icon,.plant-name,.plant-cost{position:relative;z-index:2}.plant-icon { width: 54px; height: 54px; image-rendering: pixelated; } .plant-name { color: #fff; font-size: 10px; line-height: 11px; text-align: center; white-space: normal; } .plant-cost { color: #facc15; font-size: 10px; font-weight: 600; line-height: 11px; }
+        .plant-slot:hover { background: #2a3a4a; }
+        .plant-slot.selected { border-color: #eab308; background: #2a3a4a; box-shadow: 0 0 8px #eab308; }
+        .plant-slot.locked { opacity: 0.4; cursor: not-allowed; }
+        .plant-slot.cooldown-active{opacity:.72}.plant-slot.cooldown-active::after{content:"";position:absolute;z-index:1;left:0;right:0;bottom:0;height:var(--cooldown-left,100%);background:rgba(8,15,28,.78);transition:height .1s linear}.plant-cooldown{display:none;position:absolute;z-index:3;inset:0;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800;text-shadow:0 2px 5px #000}.plant-slot.cooldown-active .plant-cooldown{display:flex}
+        .answer-btn { width: 100%; padding: 12px; margin: 6px 0; border-radius: 8px; border: 2px solid #4ade80; background: #0f1a2a; color: #fff; cursor: pointer; font-size: 15px; text-align: left; transition: all 0.2s; }
+        .answer-btn:hover { background: #1a3a2a; }
+        .answer-btn.correct { border-color: #22c55e; background: #14532d; }
+        .answer-btn.wrong { border-color: #ef4444; background: #450a0a; }
+        .reward-card { background: #0f1a2a; border: 2px solid #3b82f6; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .reward-card:hover { border-color: #eab308; transform: translateY(-4px); }
+        .hud-bar { position: absolute; top: 0; left: 0; right: 0; padding: 8px 16px; display: flex; gap: 16px; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); color: #fff; font-size: 13px; font-weight: 500; z-index: 10; }
+        .hud-item { display: flex; align-items: center; gap: 4px; }
+        .shop-upgrade { background: #0f1a2a; border: 2px solid #6366f1; border-radius: 10px; padding: 14px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }
+        #start-screen.arcade-home-screen{overflow-y:auto;padding:24px 14px;background:rgba(0,0,0,.18)!important}
+        #start-screen .garden-home{margin:auto;max-height:none;width:min(620px,100%);text-align:center;background:var(--gradient-panel);border-color:var(--accent-green,#4ade80)}
+        .garden-title{font-size:clamp(28px,6vw,48px);color:#4ade80;text-shadow:0 0 16px rgba(74,222,128,.55);margin-bottom:5px}
+        .garden-subtitle{color:#fde047;margin-bottom:18px}.garden-home-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}.garden-home-stats div{display:flex;flex-direction:column;gap:4px}.garden-home-stats span{font-size:12px;color:#86efac}.garden-home-stats strong{font-size:20px;color:var(--gold,#fde047)}
+        .garden-description-label{margin:18px 0 8px;color:#fff}.garden-rules{text-align:left;color:#d1fae5;font-size:14px;line-height:1.5}.garden-rules p{margin:5px 0}.garden-class-status{min-height:22px;margin:14px 0;color:#fde047}.garden-home .game-home-link{display:block;margin-top:15px}.garden-credit{margin-top:13px;color:#86efac}
+        #gardenStartBtn:disabled{opacity:.45;cursor:not-allowed}.shop-cosmetics-panel{max-height:46vh;overflow:auto}
+        @media(max-width:600px){.garden-home-stats{grid-template-columns:repeat(2,1fr)}.modal-box{padding:18px;width:94%}.hud-bar{gap:8px;flex-wrap:wrap}.plant-slot{width:72px}.plant-icon{width:42px;height:42px}#plant-bar{max-width:78vw;overflow-x:auto;padding-bottom:max(8px,env(safe-area-inset-bottom))}}

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Garden Guessing</title>
+  <link rel="stylesheet" href="../../shared/css/global.css">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+ </head>
+ <body data-template-id="__page-root" class="w-full" style="background:#0a1628;">
+  <div id="game-container" style="position:relative;width:100%;height:calc(100 * min(var(--vh,1vh),1vh));">
+   <canvas id="gameCanvas"></canvas>
+   <div class="game-ui">
+    <!-- HUD -->
+    <div class="hud-bar" id="hud" style="display:none;">
+     <div class="hud-item">
+      🌊 Wave: <span id="hud-wave">1</span>
+     </div>
+     <div class="hud-item">
+      ❤️ <span id="hud-health">10</span>
+     </div>
+     <div class="hud-item">
+      ☀️ <span id="hud-sun">50</span>
+     </div>
+     <div class="hud-item">
+      🪙 <span id="hud-coins">0</span>
+     </div>
+     <div class="hud-item">
+      ⭐ <span id="hud-score">0</span>
+     </div>
+    </div><!-- Plant Bar -->
+    <div id="plant-bar" style="display:none;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);gap:6px;padding:8px 12px;background:rgba(0,0,0,0.8);border-radius:12px;border:1px solid #4ade8060;"></div>
+    <button id="sell-btn" onclick="Game.toggleSellMode()" style="display:none;position:absolute;bottom:8px;right:12px;padding:10px 14px;background:rgba(0,0,0,0.8);color:#fff;border:1px solid #4ade8060;border-radius:12px;font-size:14px;cursor:pointer;">💰 Sell</button>
+    <button id="sun-question-btn" onclick="Game.openSunQuestion()" style="display:none;position:absolute;bottom:56px;right:12px;padding:10px 14px;background:rgba(250,204,21,0.95);color:#1a1a1a;border:1px solid #eab308;border-radius:12px;font-size:14px;cursor:pointer;font-weight:600;">☀️ Sun Question</button>
+    <button id="speed-btn" onclick="Game.toggleSpeed()" style="display:none;position:absolute;top:8px;right:12px;padding:8px 12px;background:rgba(0,0,0,0.8);color:#fff;border:1px solid #4ade8060;border-radius:12px;font-size:14px;cursor:pointer;z-index:20;">▶ 1x</button>
+    <button id="mute-btn" onclick="Game.toggleMute()" style="display:none;position:absolute;top:8px;right:80px;padding:8px 12px;background:rgba(0,0,0,0.8);color:#fff;border:1px solid #4ade8060;border-radius:12px;font-size:14px;cursor:pointer;z-index:20;">🔊</button>
+    <!-- Start Screen -->
+    <div id="start-screen" class="modal-overlay arcade-home-screen">
+     <div class="modal-box text-center arcade-home-content garden-home">
+      <h1 class="title-font garden-title">Garden Guessing</h1>
+      <p class="subtitle-font garden-subtitle">Grow your knowledge. Guard your garden.</p>
+      <div class="garden-home-stats"><div><span>Best Wave</span><strong id="home-best-wave">0</strong></div><div><span>High Score</span><strong id="home-high-score">0</strong></div><div><span>Correct</span><strong id="home-correct">0</strong></div><div><span>Total Coins</span><strong id="home-coins">0</strong></div></div>
+      <button class="btn btn-blue text-lg px-8 py-3" onclick="Game.showShop()">Shop</button>
+      <p class="section-label-font garden-description-label">Description:</p>
+      <div class="garden-rules"><p>🌱 Select a plant, then tap a garden tile to place it.</p><p>🐛 Stop bugs crossing the five lanes; sell and rebuild as threats change.</p><p>☀️ Spend sunlight carefully and answer class questions between waves for upgrades.</p><p>🌊 Use Lily Pads during floods. Every third wave becomes a night wave.</p></div>
+      <p id="garden-class-status" class="garden-class-status">Loading your class questions…</p>
+      <button id="gardenStartBtn" class="btn btn-green text-lg px-8 py-3" onclick="Game.startRun()" disabled>Start Run</button>
+      <a class="game-home-link" href="../../index.html">🏛️ Back to Arcade Academy</a>
+      <p class="section-label-font garden-credit">Created by Mr McKenzie</p>
+     </div>
+    </div><!-- Sun Question Modal -->
+    <div id="sun-question-modal" class="modal-overlay" style="display:none;">
+     <div class="modal-box">
+      <h2 class="text-yellow-400 font-bold text-lg mb-1">☀️ Sun Question</h2>
+      <p class="text-gray-400 text-sm mb-4">Correct: +25 sun &nbsp;·&nbsp; Wrong: -1 health</p>
+      <p id="sun-question-text" class="text-white text-base mb-4"></p>
+      <div id="sun-answers-container"></div>
+     </div>
+    </div><!-- Question Modal -->
+    <div id="question-modal" class="modal-overlay" style="display:none;">
+     <div class="modal-box">
+      <h2 class="text-green-400 font-bold text-lg mb-1">Wave Complete!</h2>
+      <p class="text-gray-400 text-sm mb-4">Answer questions to earn rewards</p>
+      <div id="question-progress" class="text-gray-500 text-xs mb-2"></div>
+      <p id="question-text" class="text-white text-base mb-4"></p>
+      <div id="answers-container"></div><button id="next-question-btn" class="btn btn-green mt-4" style="display:none;" onclick="Game.nextQuestion()">Next</button>
+     </div>
+    </div><!-- Reward Modal -->
+    <div id="reward-modal" class="modal-overlay" style="display:none;">
+     <div class="modal-box text-center">
+      <h2 class="text-yellow-400 font-bold text-lg mb-1">Choose Your Reward!</h2>
+      <p id="reward-subtitle" class="text-gray-400 text-sm mb-4"></p>
+      <div id="rewards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      <button id="reroll-btn" class="btn btn-blue mt-4" style="display:none;" onclick="Game.rerollReward()">🔄 Reroll</button>
+     </div>
+    </div><!-- Game Over -->
+    <div id="gameover-modal" class="modal-overlay" style="display:none;">
+     <div class="modal-box text-center">
+      <h2 class="text-red-400 font-bold text-2xl mb-2">Garden Overrun!</h2>
+      <p class="text-gray-300 mb-1">Waves Survived: <span id="go-waves" class="text-white font-bold"></span></p>
+      <p class="text-gray-300 mb-4">Coins Earned: <span id="go-coins" class="text-yellow-400 font-bold"></span></p><button class="btn btn-green text-lg px-8 py-3" onclick="Game.returnToMenu()">Return Home</button>
+     </div>
+    </div><!-- Shop -->
+    <div id="shop-modal" class="modal-overlay" style="display:none;">
+     <div class="modal-box">
+      <h2 class="text-indigo-400 font-bold text-lg mb-1">Permanent Shop</h2>
+      <p class="text-gray-400 text-sm mb-3">Coins: <span id="shop-coins" class="text-yellow-400 font-bold"></span></p>
+      <div id="shop-items"></div>
+      <h3 class="text-green-400 font-bold text-base mt-4 mb-1">Unlock Plants</h3>
+      <div id="shop-plants"></div>
+      <button class="btn btn-blue mt-4" onclick="Game.closeShop()">Back</button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script src="gameconfig.js"></script>
+  <script src="../../shared/js/PlatformManager.js?v=20260825-no-teacher-bypass-v5"></script>
+  <script src="../../shared/js/QuestionManager.js?v=20260818-typed-falling-v1"></script>
+  <script src="game.js"></script>
+ </body>
+</html>

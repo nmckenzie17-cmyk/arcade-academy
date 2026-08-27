@@ -39,6 +39,8 @@
       "ko_klarity_hs",
       "ironcircuit_hs"
     ]
+    ,"drift-discovery": ["driftRushSave_v1"]
+    ,"garden-guessing": ["gardenGuessingProgress_v1"]
   };
 
   function resetGame(gameId) {
