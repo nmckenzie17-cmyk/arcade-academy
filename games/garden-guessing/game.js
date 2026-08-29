@@ -1346,7 +1346,7 @@ const Game = {
         document.getElementById('next-question-btn').style.display = 'none';
         q.a.forEach((a, i) => {
             const btn = document.createElement('button');
-            btn.className = 'answer-btn';
+            btn.className = 'answer-btn choice-btn';
             btn.textContent = a;
             btn.onclick = () => this.answerQuestion(i);
             container.appendChild(btn);
@@ -1395,7 +1395,7 @@ const Game = {
         container.innerHTML = '';
         this.sunQ.a.forEach((a, i) => {
             const btn = document.createElement('button');
-            btn.className = 'answer-btn';
+            btn.className = 'answer-btn choice-btn';
             btn.textContent = a;
             btn.onclick = () => this.answerSunQuestion(i);
             container.appendChild(btn);

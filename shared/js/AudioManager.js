@@ -268,6 +268,9 @@
     const original = manager.heartbeat;
     function heartbeat(gameId, isActive) {
       setGameplayMusic(Boolean(isActive));
+      window.dispatchEvent(new CustomEvent('arcade-gameplay-active', {
+        detail: { gameId: gameId || currentGameId(), active: Boolean(isActive) }
+      }));
       return original.apply(this, arguments);
     }
     heartbeat.__controlsMusicTempo = true;
@@ -369,4 +372,15 @@
     event.preventDefault();
     navigateWithFade(destination.href);
   });
+
+  // Games opt into the shared procedural effects simply by loading AudioManager.
+  // Keeping this separate makes the effect set reusable without growing this
+  // music/volume module or requiring every older game to be rewritten.
+  if (currentGameId() && !window.ArcadeSFXManager) {
+    const script = document.createElement('script');
+    script.src = new URL('ArcadeSFXManager.js', document.currentScript?.src || location.href).href;
+    script.defer = true;
+    script.dataset.arcadeSfx = 'true';
+    document.head.appendChild(script);
+  }
 })();

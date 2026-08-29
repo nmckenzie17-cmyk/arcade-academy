@@ -2341,7 +2341,7 @@ const Game = (function(){
     opts.innerHTML = "";
     q.a.forEach((optText, idx)=>{
       const b = document.createElement("button");
-      b.className = "option-btn";
+      b.className = "option-btn choice-btn";
       b.textContent = optText;
       b.addEventListener("click", ()=> answerPitQuestion(idx, q, b));
       opts.appendChild(b);
@@ -2354,7 +2354,7 @@ const Game = (function(){
     buttons.forEach(b=>b.disabled=true);
     const correct = idx===q.c;
     buttons[q.c].classList.add("correct");
-    if(!correct) btnEl.classList.add("incorrect");
+    if(!correct) btnEl.classList.add("incorrect", "wrong");
     if(correct){
       race.correctAnswers++;
       race.player.health = HEALTH_MAX;
