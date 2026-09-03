@@ -2017,6 +2017,8 @@ function drawPlayerSprite(ctx,x,y,angle,weaponColor){
 // ------------------------------------------------------------------------------------------
 class Game{
   constructor(){
+    this.isTouchDevice=(navigator.maxTouchPoints||0)>0||'ontouchstart' in window;
+    document.documentElement.classList.toggle('touch-device',this.isTouchDevice);
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
     this.fogCanvas = document.createElement('canvas');
@@ -2091,15 +2093,17 @@ class Game{
     });
     this._bindTouchStick(document.getElementById('moveStick'),(x,y,active)=>{this.touchMove={x:active?x:0,y:active?y:0};});
     this._bindTouchStick(document.getElementById('aimStick'),(x,y,active)=>{if(active&&Math.hypot(x,y)>.12)this.touchAim={x,y,active:true,engaged:true};else this.touchAim.active=false;});
-    document.getElementById('touchReloadBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(this.running&&!this.paused){this.player.startReload();this.registerSound(this.player.x,this.player.y,'reload',260);}});
+    document.getElementById('touchReloadBtn').addEventListener('click',e=>{e.preventDefault();if(this.running&&!this.paused){this.player.startReload();this.registerSound(this.player.x,this.player.y,'reload',260);}});
     const releaseTouchControls=()=>{this.touchMove={x:0,y:0};this.touchAim.active=false;document.querySelectorAll('.touch-stick i').forEach(knob=>knob.style.transform='');};
     window.addEventListener('blur',releaseTouchControls);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseTouchControls();});
   }
 
   _resizeCanvas(){
-    const width=Math.max(320,Math.round(window.visualViewport?.width||window.innerWidth||960));
-    const height=Math.max(320,Math.round(window.visualViewport?.height||window.innerHeight||640));
+    const viewport=window.visualViewport;
+    const width=Math.max(1,Math.round(viewport?.width||document.documentElement.clientWidth||window.innerWidth||960));
+    const height=Math.max(1,Math.round(viewport?.height||document.documentElement.clientHeight||window.innerHeight||640));
+    document.documentElement.style.setProperty('--game-viewport-height',`${height}px`);
     this.canvas.width=width;this.canvas.height=height;
     this.fogCanvas.width=width;this.fogCanvas.height=height;
     if(!this.touchAim.active){this.mouse.x=width/2;this.mouse.y=height/2;}
@@ -2111,6 +2115,13 @@ class Game{
     const end=e=>{if(pointer!==e.pointerId)return;pointer=null;knob.style.transform='';onChange(0,0,false);};
     element.addEventListener('pointerdown',e=>{e.preventDefault();pointer=e.pointerId;element.setPointerCapture?.(pointer);move(e);});
     element.addEventListener('pointermove',move);element.addEventListener('pointerup',end);element.addEventListener('pointercancel',end);element.addEventListener('lostpointercapture',end);
+    if(!window.PointerEvent){
+      let touchId=null;
+      const touchMove=e=>{const touch=[...e.changedTouches].find(item=>item.identifier===touchId);if(!touch)return;e.preventDefault();const rect=element.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2,limit=rect.width*.3,dx=touch.clientX-cx,dy=touch.clientY-cy,length=Math.hypot(dx,dy)||1,scale=Math.min(1,limit/length),px=dx*scale,py=dy*scale;knob.style.transform=`translate(${px}px,${py}px)`;onChange(px/limit,py/limit,true);};
+      const touchEnd=e=>{if(![...e.changedTouches].some(item=>item.identifier===touchId))return;touchId=null;knob.style.transform='';onChange(0,0,false);};
+      element.addEventListener('touchstart',e=>{if(touchId!==null)return;touchId=e.changedTouches[0].identifier;touchMove(e);},{passive:false});
+      element.addEventListener('touchmove',touchMove,{passive:false});element.addEventListener('touchend',touchEnd,{passive:false});element.addEventListener('touchcancel',touchEnd,{passive:false});
+    }
   }
 
   startRun(){
