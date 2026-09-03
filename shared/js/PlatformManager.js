@@ -919,6 +919,9 @@
   function recordQuestionAnswered(gameId, wasCorrect) {
     rollDailyIfNeeded();
     checkAnswerTiming(gameId, wasCorrect);
+    // Keep question economy consistent across every game. Individual games
+    // should only report the result; this shared path owns the coin penalty.
+    if (!wasCorrect) deductCoins(5);
     data.questions.totalAnswered += 1;
     data.questions.dailyAnswered += 1;
     if (wasCorrect) {

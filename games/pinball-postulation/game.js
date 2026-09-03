@@ -569,7 +569,6 @@ function answerQuestion(selectedIndex) {
     feedback.textContent = 'Correct! +1 ball, +10 coins';
     feedback.style.color = '#00ff88';
   } else {
-    addCoins(-5);
     feedback.textContent = 'Not quite — -5 coins, try another question';
     feedback.style.color = '#ff3b3b';
   }

@@ -452,8 +452,6 @@ async function showCastQuestion(){
     const result=await MixedQuestionRound.play();
     const earned=Math.min(result.correct,CONFIG.maxBait-state.bait);
     if(earned)addBait(earned);
-    const missed=Math.max(0,4-result.correct);
-    if(missed)PlatformManager.deductCoins(5*missed);
     castReady=state.bait>0;RT.paused=false;refreshHUD();
     showBanner(earned?`${earned} bait earned · ${state.bait}/${CONFIG.maxBait}`:`No bait earned this round`,2200);
     hintText.textContent=castReady?`${state.bait} bait ready · hold to charge your cast`:'Answer another round to earn bait';
@@ -482,7 +480,7 @@ function answerCastQuestion(index,button){
     $("answerAnotherQuestionBtn").onclick=()=>showCastQuestion();
     $("goFishingBtn").onclick=()=>{$("modalQuestion").classList.remove("show");actions.hidden=true;RT.paused=false;mainActionBtn.textContent="CAST LINE";hintText.textContent=`${state.bait} bait ready · hold to charge your cast`;};
   }
-  else{PlatformManager.deductCoins(5);refreshHUD();$("questionFeedback").textContent="Incorrect — 5 coins lost. The correct answer is highlighted.";}
+  else{refreshHUD();$("questionFeedback").textContent="Incorrect — 5 coins lost. The correct answer is highlighted.";}
   if(!correct)setTimeout(()=>showCastQuestion(),2000);
 }
 function updateCharge(){

@@ -3745,7 +3745,6 @@
             // it again sooner. The weighting itself lives in QuestionManager.
             QuestionManager.recordAnswer(game.currentQuestionSource, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
-            if (!isCorrect) PlatformManager.deductCoins(5);
             
             if (isCorrect) {
                 game.ammo += getQuizAmmoPerCorrect();
@@ -4257,7 +4256,6 @@
         function answerBonusPowerupQuiz(isCorrect, selectedDiv) {
             const key = game.bonusQuizQueue.shift();
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
-            if (!isCorrect) PlatformManager.deductCoins(5);
             if (isCorrect) {
                 game.runPowerupDoubled[key] = true;
                 document.getElementById('quizResult').textContent = `✅ Correct! ${RUN_POWERUP_DEFS[key].name} is doubled for this run.`;
@@ -5578,7 +5576,6 @@
         function answerEmergencyAmmo(isCorrect, chosenDiv, optionsDiv, question, optionOrder) {
             Array.from(optionsDiv.children).forEach(child => { child.onclick = null; child.style.pointerEvents = 'none'; });
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
-            if (!isCorrect) PlatformManager.deductCoins(5);
 
             const resultEl = document.getElementById('emergencyAmmoResult');
             if (isCorrect) {

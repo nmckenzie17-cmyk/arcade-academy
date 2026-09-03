@@ -41,6 +41,7 @@
     ]
     ,"drift-discovery": ["driftRushSave_v1"]
     ,"garden-guessing": ["gardenGuessingProgress_v1"]
+    ,"shooter-studying": ["shooterStudyingProgress_v1", "shooterStudyingLifetimeKills"]
   };
 
   function resetGame(gameId) {

@@ -4960,7 +4960,6 @@
         const result=await MixedQuestionRound.play();
         quiz.correct=result.correct;quiz.questionCount=4;
         if(result.correct){progress.questionsCorrect=(progress.questionsCorrect||0)+result.correct;saveProgress();checkSamuraiUnlock();}
-        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(5*misses);
         showQuizResult();return;
       }
       document.getElementById('quizOverlay').classList.add('show');
@@ -4996,7 +4995,6 @@
         saveQuestionWeights();
       }
       PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
-      if (!correct) PlatformManager.deductCoins(5);
       if (correct) {
         btn.classList.add('right');
         quiz.correct++;
@@ -6358,7 +6356,6 @@
         saveQuestionWeights();
       }
       PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, correct);
-      if (!correct) PlatformManager.deductCoins(5);
       if (correct) {
         btn.classList.add('right');
         powerupQuizState.correct++;

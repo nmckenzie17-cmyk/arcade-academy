@@ -17,6 +17,7 @@ const gameFolders = [
   "ko-klarity"
   ,"drift-discovery"
   ,"garden-guessing"
+  ,"shooter-studying"
 ];
 
 // Temporarily disabled while the Spark-compatible leaderboard deployment is

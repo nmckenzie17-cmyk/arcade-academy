@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Shooter Studying</title>
+<link rel="stylesheet" href="../../shared/css/global.css?v=20260818-home-layout-v2">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="gameWrap">
+  <canvas id="gameCanvas" width="960" height="640"></canvas>
+
+  <div id="hud" style="display:none;">
+    <div id="hud-topleft" class="hud-box">
+      <div class="hud-row"><span class="hud-label">HEALTH</span><span id="hpText">100/100</span></div>
+      <div id="healthBarOuter"><div id="healthBarInner"></div></div>
+      <div class="hud-row" style="margin-top:8px;"><span class="weapon-title" id="weaponName">PISTOL</span><span id="ammoText">12/12</span></div>
+      <div id="ammoBarOuter"><div id="ammoBarInner"></div></div>
+    </div>
+    <div id="hud-topright" class="hud-box">
+      <div class="hud-row"><span class="hud-label">COINS</span><span id="coinsText" style="color:var(--gold);">0</span></div>
+      <div class="hud-row"><span class="hud-label">ENEMIES LEFT</span><span id="enemiesText">0</span></div>
+      <div class="hud-row"><span class="hud-label">SCORE</span><span id="scoreText">0</span></div>
+    </div>
+    <div id="hud-bottomleft" class="hud-box">
+      <div class="hud-row"><span class="hud-label">RELOAD</span><span id="reloadHint">R to reload</span></div>
+      <div class="hud-row" style="margin-top:4px;"><span class="hud-label">ZONE</span><span id="zoneText">SAFE</span></div>
+    </div>
+    <div id="hud-attachments" class="hud-box">
+      <div class="hud-label">ATTACHMENTS</div>
+      <div id="attachList" style="margin-top:4px;">none</div>
+    </div>
+    <div id="hud-objective" class="hud-box"><div class="hud-label">OBJECTIVE</div><div id="objectiveText">Eliminate all hostiles</div></div>
+    <div id="hud-deploy" class="hud-box">
+      <button id="deployPowerBtn" disabled>Q · NO POWERUP</button>
+      <button id="deployItemBtn" disabled>E · NO ITEM</button>
+    </div>
+    <canvas id="minimap" width="180" height="120" aria-label="Explored-area minimap"></canvas>
+  </div>
+
+  <div id="centerMsg"><h1 id="centerMsgTitle"></h1><p id="centerMsgSub"></p></div>
+
+  <!-- Start Screen -->
+  <div id="startScreen" class="overlay active arcade-home-screen">
+    <canvas id="homeBg" aria-hidden="true"></canvas>
+    <div class="panel arcade-home-content">
+      <h1 class="title-font">Shooter Studying</h1>
+      <p class="subtitle-font home-tagline">See further. Think faster. Survive.</p>
+      <div class="home-stats arcade-home-stats">
+        <div><span>Kills</span><strong id="homeKills">0</strong></div>
+        <div><span>High Score</span><strong id="homeHighScore">0</strong></div>
+        <div><span>Correct</span><strong id="homeCorrect">0</strong></div>
+        <div><span>Total Coins</span><strong id="homeCoins">0</strong></div>
+      </div>
+      <button class="bigBtn secondary" id="openArmouryFromStartBtn">ARMOURY</button>
+      <p class="section-label-font home-description-title">Description:</p>
+      <div class="home-description">
+        <p>🎯 Your weapon controls how much of the map you can see.</p>
+        <p>⌨️ Move with WASD or arrows, aim with the mouse, and press R to reload.</p>
+        <p>🔫 Fire is automatic. Defeat hostile squads before the zone closes.</p>
+        <p>📚 Collect supplies and answer class questions to earn ammo and attachments.</p>
+        <p>⚡ Earn deployable powers and supplies, then use Q or E—or the HUD buttons—to activate them.</p>
+        <p>🔊 Follow directional sound markers and your explored-area minimap; watch for alarms, electricity and explosive barrels.</p>
+      </div>
+      <p id="bankMessage" class="bank-message">Checking your selected class…</p>
+      <div class="hud-label" style="margin-top:18px; margin-bottom:6px;">GAME MODE</div>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button class="bigBtn modeBtn active" id="modeTeamingBtn" style="flex:1;">TEAMING</button>
+        <button class="bigBtn secondary modeBtn" id="modeFfaBtn" style="flex:1;">FREE FOR ALL</button>
+      </div>
+      <div class="extra-mode-grid">
+        <button class="bigBtn secondary modeBtn" id="modeCommanderBtn">COMMANDER HUNT</button>
+        <button class="bigBtn secondary modeBtn" id="modeIntelBtn">INTEL CAPTURE</button>
+        <button class="bigBtn secondary modeBtn" id="modeExtractionBtn">EXTRACTION</button>
+      </div>
+      <p id="modeDesc" style="color:var(--dim); font-size:13px; margin-top:8px;">Room encounters plus 3 squads of 4 - squads fight each other as well as you.</p>
+      <button class="bigBtn" id="startRunBtn" disabled>PRESS START</button>
+      <a class="game-home-link" href="../../index.html">🏛️ Back to Arcade Academy</a>
+      <p class="creator-credit">Created by Nate McKenzie</p>
+    </div>
+  </div>
+
+  <!-- Question overlay (ammo / upgrade) -->
+  <div id="questionOverlay" class="overlay">
+    <div class="panel">
+      <h2 id="questionHeading">Supply Cache</h2>
+      <div id="questionCounter">Question 1 of 4</div>
+      <div id="questionText"></div>
+      <div id="answerList"></div>
+    </div>
+  </div>
+
+  <!-- Game Over -->
+  <div id="gameOverScreen" class="overlay">
+    <div class="panel">
+      <h2>YOU DIED</h2>
+      <div class="stat-row"><span>Score</span><span id="goScore">0</span></div>
+      <div class="stat-row"><span>Enemies Killed</span><span id="goKills">0</span></div>
+      <div class="stat-row"><span>Coins Earned</span><span id="goCoins">0</span></div>
+      <div class="stat-row"><span>Questions Answered</span><span id="goQuestions">0</span></div>
+      <div class="stat-row"><span>Question Accuracy</span><span id="goAccuracy">0%</span></div>
+      <button class="bigBtn" id="playAgainFromDeathBtn">RETURN HOME</button>
+      <button class="bigBtn secondary" id="openArmouryBtn">GO TO ARMOURY</button>
+    </div>
+  </div>
+
+  <!-- Victory -->
+  <div id="victoryScreen" class="overlay">
+    <div class="panel">
+      <h2 style="color:var(--gold);">VICTORY</h2>
+      <p style="color:var(--dim); margin-top:-8px;">Every hostile on the map is down.</p>
+      <div class="stat-row"><span>Score</span><span id="vScore">0</span></div>
+      <div class="stat-row"><span>Enemies Killed</span><span id="vKills">0</span></div>
+      <div class="stat-row"><span>Coins Earned</span><span id="vCoins">0</span></div>
+      <div class="stat-row"><span>Questions Answered</span><span id="vQuestions">0</span></div>
+      <div class="stat-row"><span>Question Accuracy</span><span id="vAccuracy">0%</span></div>
+      <button class="bigBtn" id="playAgainFromVictoryBtn">RETURN HOME</button>
+      <button class="bigBtn secondary" id="openArmouryFromVictoryBtn">GO TO ARMOURY</button>
+    </div>
+  </div>
+
+  <!-- Armoury -->
+  <div id="armouryScreen" class="overlay">
+    <div class="panel">
+      <h2>ARMOURY</h2>
+      <div class="hud-row"><span>Coin Balance</span><span id="coinTotal">0</span></div>
+      <div class="shop-tabs armoury-tabs">
+        <button class="shop-tab-btn active-tab" data-armoury-tab="weapons">Weapons</button>
+        <button class="shop-tab-btn" data-armoury-tab="tombstones">Tombstones</button>
+      </div>
+      <div class="weaponGrid" id="weaponGrid"></div>
+      <div class="weaponGrid" id="tombstoneGrid" hidden></div>
+      <button class="bigBtn" id="closeArmouryBtn">RETURN HOME</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="../../shared/js/AudioManager.js?v=20260820-audio-mixer-v1"></script>
+<script src="gameconfig.js"></script>
+<script src="../../shared/js/PlatformManager.js?v=20260825-no-teacher-bypass-v5"></script>
+<script src="../../shared/js/QuestionManager.js?v=20260818-typed-falling-v1"></script>
+<script src="../../shared/js/MixedQuestionRound.js?v=20260819-category-hint-v2"></script>
+<script src="game.js"></script>
+</body>
+</html>

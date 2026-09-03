@@ -34,7 +34,6 @@
   const GAME_ID = window.GAME_CONFIG?.id || 'cube-curiosity';
   const QUESTION_TYPE = window.GAME_CONFIG?.questionType || 'multichoice';
   const CORRECT_REWARD = 10;
-  const INCORRECT_PENALTY = 5;
   const hasReward = id => (document.documentElement.dataset.arcadeCosmetics || '').split(' ').includes(id);
 
   const PPM = 16; // pixels-per-metre for distance display (visual scaling only)
@@ -1142,7 +1141,6 @@
         this.questionQueue=new Array(4).fill(null);
         if(!PlatformManager.isPracticeMode()){
           if(result.correct){PlatformManager.addCoins(CORRECT_REWARD*result.correct);window.AchievementManager?.notify?.('cube_curiosity_correct',{amount:result.correct});}
-          const misses=4-result.correct;if(misses)PlatformManager.deductCoins(INCORRECT_PENALTY*misses);
         }
         this._refreshMenuStats();this._finishQuestionPhase();return;
       }
@@ -1177,7 +1175,6 @@
         PlatformManager.recordQuestionAnswered(GAME_ID, correct);
         if(correct) window.AchievementManager?.notify?.('cube_curiosity_correct');
         if(correct) PlatformManager.addCoins(CORRECT_REWARD);
-        else PlatformManager.deductCoins(INCORRECT_PENALTY);
       }
       this._refreshMenuStats();
       if(correct){ this.questionCorrect++; buttons[selectedIndex].classList.add('correct'); }

@@ -519,7 +519,6 @@ function runPrerunQuiz(onComplete){
                 prerunQuizTimes.push(elapsed);
                 QuestionManager.recordAnswer(q, isCorrect);
                 PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
-                if(!isCorrect) PlatformManager.deductCoins(5);
                 if(isCorrect){ btn.classList.add('correct'); prerunQuizCorrect++; recordCorrectAnswer(); }
                 else { btn.classList.add('wrong'); modalRoot.querySelectorAll('.choice-btn').forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); }); }
                 modalRoot.querySelectorAll('.choice-btn').forEach(b=>b.onclick=null);
@@ -1442,7 +1441,6 @@ async function askBetweenQuestion(){
     if(window.MixedQuestionRound){
         const result=await MixedQuestionRound.play();betweenWaveQuestions=4;betweenWaveCorrect=result.correct;
         for(let i=0;i<result.correct;i++){totalBetweenWaveCorrect++;recordCorrectAnswer();if(runCorrectAnswersGiveGold)addGold(10+Math.floor(wave*.5));}
-        const misses=4-result.correct;if(misses)PlatformManager.deductCoins(5*misses);
         if(invasionMode){invasionQuestionsAnswered+=4;invasionWaveCap+=result.correct;invasionMoraleStreak=result.correct===4?invasionMoraleStreak+4:0;}
         invasionMode?showInvasionArmyUpgrade(beginLiveInvasionAssault):showCardSelect();return;
     }
@@ -1459,7 +1457,6 @@ async function askBetweenQuestion(){
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if(invasionMode){invasionQuestionsAnswered++;if(isCorrect){invasionMoraleStreak++;invasionWaveCap++;}else invasionMoraleStreak=0;}
-            if(!isCorrect) PlatformManager.deductCoins(5);
             if(isCorrect){
                 btn.classList.add('correct');
                 betweenWaveCorrect++;
@@ -1640,7 +1637,7 @@ async function showQuestion(){
         for(let i=0;i<result.correct;i++)recordCorrectAnswer();
         if(invasionMode){invasionQuestionsAnswered+=4;invasionWaveCap+=result.correct;invasionSlotsRemaining+=result.correct;invasionMoraleStreak=result.correct===4?invasionMoraleStreak+4:0;renderInvasionTroopBar();}
         else{let libraryProc=kingdomLibraryLevel>0&&Math.random()<.05*kingdomLibraryLevel;let reward=ammoPerCorrect*(libraryProc?2:1)*(1+runPowerupBonuses.increasedammo);ammo=Math.min(ammo+Math.round(reward*result.correct),maxAmmo);castleHP=Math.max(0,castleHP-misses);if(misses>0&&!invasionMode)runCastleDamaged=true;}
-        if(misses)PlatformManager.deductCoins(5*misses);state='playing';updateHUD();return;
+        state='playing';updateHUD();return;
     }
     let q=QuestionManager.getNextQuestion(equippedRelics.includes('relic_quickdraw'));
     let shuffled = q.a.map((a,i)=>({text:a,correct:i===q.c})).sort(()=>Math.random()-0.5);
@@ -1654,7 +1651,6 @@ async function showQuestion(){
             QuestionManager.recordAnswer(q, isCorrect);
             PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, isCorrect);
             if(invasionMode){invasionQuestionsAnswered++;if(isCorrect){invasionMoraleStreak++;invasionWaveCap++;invasionSlotsRemaining++;}else invasionMoraleStreak=0;renderInvasionTroopBar();}
-            if(!isCorrect) PlatformManager.deductCoins(5);
             if(isCorrect){
                 btn.classList.add('correct');
                 recordCorrectAnswer();

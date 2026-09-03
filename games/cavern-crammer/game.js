@@ -1001,7 +1001,6 @@ async function openQuizRound(mode, size){
   if(QuestionManager.getRunQuestionType()!=='matching'&&window.MixedQuestionRound){
     const result=await MixedQuestionRound.play();
     quizRound={mode,pairs:new Array(4).fill(null),filled:4,correctFirstTry:result.correct};
-    if(result.correct<4)PlatformManager.deductCoins((4-result.correct)*5);
     finishRound();return;
   }
   activeDrag = null;
@@ -1108,7 +1107,6 @@ function endActiveDrag(clientX, clientY){
         session.stats.questionsTotal++;
         if(firstTry) session.stats.questionsCorrect++;
         PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, firstTry);
-        if(!firstTry) PlatformManager.deductCoins(5);
       }
       if(quizRound.filled >= quizRound.pairs.length){
         setTimeout(finishRound, 350);

@@ -387,7 +387,6 @@
       updateHUD(); checkStageProgress();
       if (gameActive===false && !bossActive && !bossPreviewActive) { gameActive = true; spawnInterval = setInterval(spawnEnemy, getSpawnDelay()); }
     } else {
-      PlatformManager.deductCoins(5);
       showFloatingText(area.clientWidth/2-70, area.clientHeight/2, 'Too slow! It was "'+correctWord+'" / -5🪙', '#e74c3c', area);
       loseLife(1, area, area.clientWidth/2-40, area.clientHeight/2+30, 'Lost a quickdraw duel — outdrawn!');
       if (gameActive===false && !bossActive && !bossPreviewActive && lives>0) { gameActive = true; spawnInterval = setInterval(spawnEnemy, getSpawnDelay()); }
@@ -1261,7 +1260,6 @@
         } else {
           cell.classList.add('wrong'); preRunMistakes++; wrongCount++;
           PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
-          PlatformManager.deductCoins(5);
           if(wrongCount>=2){
             revealCorrectAnswers(grid, roundCorrect);
             setTimeout(()=>finishPowerupAssessmentRound(),1000);
@@ -1343,7 +1341,7 @@
       cell.addEventListener('click',()=>{
         if(cell.classList.contains('selected'))return;
         if(roundCorrect.includes(w)){cell.classList.add('selected');found++;if(found>=requiredCorrect){totalCorrectAnswers++;safeSave();PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,true);document.getElementById('start-question-overlay').classList.add('hidden');startEnemySpawning();}}
-        else{cell.classList.add('wrong');PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);PlatformManager.deductCoins(5);grid.querySelectorAll('.word-cell').forEach(c=>{if(roundCorrect.includes(c.textContent))c.classList.add('correct');});setTimeout(()=>showStartQuestion(),2000);}
+        else{cell.classList.add('wrong');PlatformManager.recordQuestionAnswered(GAME_CONFIG.id,false);grid.querySelectorAll('.word-cell').forEach(c=>{if(roundCorrect.includes(c.textContent))c.classList.add('correct');});setTimeout(()=>showStartQuestion(),2000);}
       });
       grid.appendChild(cell);
     });
@@ -2021,7 +2019,6 @@
         showFloatingText(x,y-16,'+1 Ammo','#00d4ff',area);
       } else {
         PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
-        PlatformManager.deductCoins(5);
         ammo = Math.max(0, ammo-1);
         showFloatingText(x,y-16,'Wrong!','#e74c3c',area);
         loseLife(1, area, x, y-16, 'Ran out of lives — you missed a word during the boss fight! Slow down and double-check each word before you shoot it.');
@@ -2131,7 +2128,6 @@
         else{
           cell.classList.add('wrong');wrongCount++;
           PlatformManager.recordQuestionAnswered(GAME_CONFIG.id, false);
-          PlatformManager.deductCoins(5);
           if(wrongCount>=2){
             clearInterval(si);
             revealCorrectAnswers(grid, roundCorrect);
