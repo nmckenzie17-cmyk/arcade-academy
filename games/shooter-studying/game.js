@@ -2026,6 +2026,8 @@ class Game{
 
     this.keys = {};
     this.mouse = { x: this.canvas.width/2, y: this.canvas.height/2 };
+    this.touchMove={x:0,y:0};
+    this.touchAim={x:1,y:0,active:false,engaged:false};
     this.paused = false;
     this.running = false;
 
@@ -2048,6 +2050,9 @@ class Game{
     };
 
     this._bindInput();
+    this._resizeCanvas();
+    window.addEventListener('resize',()=>this._resizeCanvas());
+    window.visualViewport?.addEventListener('resize',()=>this._resizeCanvas());
   }
 
   _loadProgress(){
@@ -2082,7 +2087,30 @@ class Game{
       const rect = this.canvas.getBoundingClientRect();
       this.mouse.x = (e.clientX-rect.left) * (this.canvas.width/rect.width);
       this.mouse.y = (e.clientY-rect.top) * (this.canvas.height/rect.height);
+      this.touchAim.engaged=false;
     });
+    this._bindTouchStick(document.getElementById('moveStick'),(x,y,active)=>{this.touchMove={x:active?x:0,y:active?y:0};});
+    this._bindTouchStick(document.getElementById('aimStick'),(x,y,active)=>{if(active&&Math.hypot(x,y)>.12)this.touchAim={x,y,active:true,engaged:true};else this.touchAim.active=false;});
+    document.getElementById('touchReloadBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(this.running&&!this.paused){this.player.startReload();this.registerSound(this.player.x,this.player.y,'reload',260);}});
+    const releaseTouchControls=()=>{this.touchMove={x:0,y:0};this.touchAim.active=false;document.querySelectorAll('.touch-stick i').forEach(knob=>knob.style.transform='');};
+    window.addEventListener('blur',releaseTouchControls);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseTouchControls();});
+  }
+
+  _resizeCanvas(){
+    const width=Math.max(320,Math.round(window.visualViewport?.width||window.innerWidth||960));
+    const height=Math.max(320,Math.round(window.visualViewport?.height||window.innerHeight||640));
+    this.canvas.width=width;this.canvas.height=height;
+    this.fogCanvas.width=width;this.fogCanvas.height=height;
+    if(!this.touchAim.active){this.mouse.x=width/2;this.mouse.y=height/2;}
+  }
+
+  _bindTouchStick(element,onChange){
+    if(!element)return;const knob=element.querySelector('i');let pointer=null;
+    const move=e=>{if(pointer!==e.pointerId)return;e.preventDefault();const rect=element.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2,limit=rect.width*.3,dx=e.clientX-cx,dy=e.clientY-cy,length=Math.hypot(dx,dy)||1,scale=Math.min(1,limit/length),px=dx*scale,py=dy*scale;knob.style.transform=`translate(${px}px,${py}px)`;onChange(px/limit,py/limit,true);};
+    const end=e=>{if(pointer!==e.pointerId)return;pointer=null;knob.style.transform='';onChange(0,0,false);};
+    element.addEventListener('pointerdown',e=>{e.preventDefault();pointer=e.pointerId;element.setPointerCapture?.(pointer);move(e);});
+    element.addEventListener('pointermove',move);element.addEventListener('pointerup',end);element.addEventListener('pointercancel',end);element.addEventListener('lostpointercapture',end);
   }
 
   startRun(){
@@ -2602,10 +2630,12 @@ class Game{
     if(this.keys['KeyS']||this.keys['ArrowDown']) my+=1;
     if(this.keys['KeyA']||this.keys['ArrowLeft']) mx-=1;
     if(this.keys['KeyD']||this.keys['ArrowRight']) mx+=1;
+    mx+=this.touchMove.x;my+=this.touchMove.y;
+    const moveLength=Math.hypot(mx,my);if(moveLength>1){mx/=moveLength;my/=moveLength;}
     p.moveDir = {x:mx,y:my};
 
-    const worldMouse = this._screenToWorld(this.mouse.x, this.mouse.y);
-    p.aimAngle = Math.atan2(worldMouse.y-p.y, worldMouse.x-p.x);
+    if(this.touchAim.engaged)p.aimAngle=Math.atan2(this.touchAim.y,this.touchAim.x);
+    else {const worldMouse = this._screenToWorld(this.mouse.x, this.mouse.y);p.aimAngle = Math.atan2(worldMouse.y-p.y, worldMouse.x-p.x);}
 
     p.update(dt, this.map.walls);
 

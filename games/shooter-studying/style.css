@@ -12,10 +12,10 @@
     margin:0; padding:0; width:100%; height:100%;
     background:#04060a; color:var(--text);
     font-family:var(--font-body, 'Segoe UI', sans-serif);
-    overflow:hidden; user-select:none;
+    overflow:hidden; user-select:none; overscroll-behavior:none; touch-action:manipulation;
   }
-  #gameWrap{ position:relative; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; }
-  #gameCanvas{ background:#000; display:block; width:min(100vw,960px); height:min(100vh,640px); object-fit:contain; image-rendering:pixelated; cursor:crosshair; box-shadow:0 0 60px rgba(0,0,0,0.9) inset; }
+  #gameWrap{ position:relative; width:100dvw; height:100dvh; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  #gameCanvas{ background:#000; display:block; width:100%; height:100%; image-rendering:pixelated; cursor:crosshair; box-shadow:0 0 60px rgba(0,0,0,0.9) inset; touch-action:none; }
 
   #hud{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; font-size:14px; }
   .hud-box{
@@ -31,6 +31,13 @@
   #hud-deploy button{pointer-events:auto;padding:7px 10px;color:#fff;background:#10263a;border:1px solid var(--accent);border-radius:5px;font:700 11px var(--font-body);cursor:pointer;}
   #hud-deploy button:disabled{opacity:.4;cursor:not-allowed;}
   #minimap{position:absolute;right:10px;top:112px;width:180px;height:120px;background:rgba(2,5,9,.86);border:1px solid var(--panel-border);border-radius:6px;pointer-events:none;}
+  #touchControls{display:none;position:absolute;z-index:45;inset:0;pointer-events:none;}
+  .touch-stick{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));width:112px;height:112px;border:2px solid rgba(143,211,255,.65);border-radius:50%;background:rgba(7,18,29,.45);pointer-events:auto;touch-action:none;}
+  .touch-stick span{position:absolute;inset:0;display:grid;place-items:center;color:rgba(217,236,245,.6);font:800 11px var(--font-body);}
+  .touch-stick i{position:absolute;width:46px;height:46px;left:31px;top:31px;border-radius:50%;background:rgba(90,209,255,.7);border:2px solid #d9ecf5;box-shadow:0 0 12px rgba(90,209,255,.55);}
+  #moveStick{left:max(18px,env(safe-area-inset-left));}
+  #aimStick{right:max(18px,env(safe-area-inset-right));}
+  #touchReloadBtn{position:absolute;right:max(52px,calc(env(safe-area-inset-right) + 34px));bottom:max(142px,calc(env(safe-area-inset-bottom) + 142px));min-width:76px;min-height:48px;border:2px solid var(--gold);border-radius:24px;background:rgba(25,35,46,.88);color:#fff;font:800 11px var(--font-body);pointer-events:auto;touch-action:manipulation;}
   .hud-row{ display:flex; justify-content:space-between; gap:14px; margin:2px 0; }
   .hud-label{ color:var(--dim); }
   #healthBarOuter{ width:200px; height:14px; background:#1a1010; border:1px solid #4a1f1f; border-radius:4px; overflow:hidden; margin-top:4px;}
@@ -111,6 +118,7 @@
   #startScreen h1{ font-size:40px; color:var(--accent); letter-spacing:4px; margin:0 0 6px; text-shadow:0 0 24px rgba(90,209,255,.4);}
   #startScreen p{ color:var(--dim); line-height:1.5; }
   #startScreen{overflow-y:auto;justify-content:flex-start;padding:clamp(18px,5vh,48px) 0;isolation:isolate;}
+  .overlay{touch-action:pan-y;}
   #startScreen .panel{position:relative;z-index:1;margin:auto;background:var(--gradient-panel, var(--panel-bg));border:var(--border-width-panel,2px) solid var(--border-purple,var(--panel-border));border-radius:var(--radius-panel,12px);}
   #homeBg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.42;}
   .home-tagline{margin:0 0 18px!important;text-align:center;}
@@ -133,6 +141,17 @@
     .weaponGrid{grid-template-columns:1fr;}
     .overlay{overflow-y:auto;padding:16px 0;}
     .extra-mode-grid{grid-template-columns:1fr;}
-    #minimap{width:120px;height:80px;top:102px;}
-    #hud-deploy{bottom:58px;}
+    #minimap{width:120px;height:80px;top:145px;}
+    #hud-deploy{bottom:auto;top:235px;left:8px;right:8px;transform:none;justify-content:center;padding:5px;}
+    #hud-deploy button{min-height:44px;font-size:10px;}
+    #hud-objective{top:86px;min-width:0;max-width:55%;font-size:11px;}
+    #hud-topleft{min-width:170px;max-width:58%;font-size:11px;}
+    #healthBarOuter,#ammoBarOuter{width:145px;}
+    #hud-topright{font-size:11px;}
+    #hud-bottomleft,#hud-attachments{display:none;}
+  }
+  @media(hover:none) and (pointer:coarse){#touchControls{display:block;}#gameCanvas{cursor:default;}}
+  @media(hover:none) and (pointer:coarse) and (orientation:landscape){
+    .touch-stick{width:96px;height:96px}.touch-stick i{width:40px;height:40px;left:26px;top:26px}#touchReloadBtn{bottom:max(116px,calc(env(safe-area-inset-bottom) + 116px));}
+    #minimap{top:84px}.hud-box{padding:5px 8px}#hud-objective{top:8px}#hud-deploy{top:auto;bottom:max(8px,env(safe-area-inset-bottom));}
   }

@@ -37,6 +37,11 @@
       <button id="deployItemBtn" disabled>E · NO ITEM</button>
     </div>
     <canvas id="minimap" width="180" height="120" aria-label="Explored-area minimap"></canvas>
+    <div id="touchControls" aria-label="Touch game controls">
+      <div class="touch-stick" id="moveStick"><span>MOVE</span><i></i></div>
+      <button id="touchReloadBtn">RELOAD</button>
+      <div class="touch-stick" id="aimStick"><span>AIM</span><i></i></div>
+    </div>
   </div>
 
   <div id="centerMsg"><h1 id="centerMsgTitle"></h1><p id="centerMsgSub"></p></div>
@@ -57,7 +62,7 @@
       <p class="section-label-font home-description-title">Description:</p>
       <div class="home-description">
         <p>🎯 Your weapon controls how much of the map you can see.</p>
-        <p>⌨️ Move with WASD or arrows, aim with the mouse, and press R to reload.</p>
+        <p>⌨️ Move with WASD/arrows or the left stick. Aim with the mouse or right stick; press R or Reload.</p>
         <p>🔫 Fire is automatic. Defeat hostile squads before the zone closes.</p>
         <p>📚 Collect supplies and answer class questions to earn ammo and attachments.</p>
         <p>⚡ Earn deployable powers and supplies, then use Q or E—or the HUD buttons—to activate them.</p>
