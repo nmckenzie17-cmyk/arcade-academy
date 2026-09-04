@@ -12,57 +12,57 @@
 const WEAPON_CONFIG = {
   pistol: {
     id:'pistol', name:'Pistol', unlockCost:0, color:'#8fd3ff',
-    damage:13, range:170, fireRate:2.4, coneWidth:24, magazineSize:12,
-    projectileSpeed:820, spread:2, pellets:1, movementModifier:1, reloadTime:1.0,
-    visionRange:190, visionAngle:72, peripheralVisionRange:35, visionFalloff:60,
+    damage:13, range:170, fireRate:2.4, coneWidth:24, magazineSize:12, aimDelayMs:140,
+    projectileSpeed:820, spread:2, pellets:1, movementModifier:1, reloadTime:1.5,
+    visionRange:230, visionAngle:80, visionFalloff:60, cameraZoom:1.05,
     detectRadius:260, // how far gunfire is heard by enemies
-    compatibleUpgrades:['extendedMag','silencer','improvedBarrel'],
+    compatibleUpgrades:['extendedMag','silencer','improvedBarrel','stealthBoots'],
     desc:'Short range, short sight. Safe in a pinch, but you\'re fighting half-blind.'
   },
   smg: {
     id:'smg', name:'SMG', unlockCost:35, color:'#8fffb0',
-    damage:7, range:250, fireRate:10, coneWidth:44, magazineSize:32,
-    projectileSpeed:900, spread:6, pellets:1, movementModifier:1.05, reloadTime:1.6,
-    visionRange:300, visionAngle:100, peripheralVisionRange:110, visionFalloff:70,
+    damage:6, range:235, fireRate:9.5, coneWidth:48, magazineSize:34, aimDelayMs:180,
+    projectileSpeed:900, spread:6.5, pellets:1, movementModifier:1.08, reloadTime:2.25,
+    visionRange:340, visionAngle:115, visionFalloff:70, cameraZoom:1.1,
     detectRadius:340,
-    compatibleUpgrades:['extendedMag','stock','silencer'],
-    desc:'Wide awareness up close, weak scouting range. Hoses ammo fast.'
+    compatibleUpgrades:['extendedMag','stock','silencer','stealthBoots','ammoBelt'],
+    desc:'Fast and mobile with wide close-range awareness, but loses accuracy and reach.'
   },
   shotgun: {
     id:'shotgun', name:'Shotgun', unlockCost:55, color:'#ffb15c',
-    damage:8, range:170, fireRate:1.1, coneWidth:36, magazineSize:6,
-    projectileSpeed:760, spread:16, pellets:7, movementModifier:0.95, reloadTime:2.0,
-    visionRange:150, visionAngle:150, peripheralVisionRange:330, visionFalloff:40,
+    damage:9, range:190, fireRate:1.05, coneWidth:42, magazineSize:6, aimDelayMs:80,
+    projectileSpeed:760, spread:14, pellets:6, movementModifier:0.94, reloadTime:3.15,
+    visionRange:210, visionAngle:359, visionFalloff:40, cameraZoom:1.28,
     detectRadius:420,
-    compatibleUpgrades:['choke','improvedBarrel','stock'],
-    desc:'Huge angle, tiny distance. Sees almost everything nearby, nothing far.'
+    compatibleUpgrades:['choke','improvedBarrel','stock','stealthBoots'],
+    desc:'Devastating close burst and broad awareness, balanced by short reach and a slow reload.'
   },
   assaultRifle: {
     id:'assaultRifle', name:'Assault Rifle', unlockCost:110, color:'#ffd15c',
-    damage:11, range:460, fireRate:6.5, coneWidth:20, magazineSize:28,
-    projectileSpeed:1100, spread:3, pellets:1, movementModifier:1, reloadTime:1.9,
-    visionRange:420, visionAngle:55, peripheralVisionRange:60, visionFalloff:80,
+    damage:12, range:450, fireRate:5, coneWidth:24, magazineSize:30, aimDelayMs:320,
+    projectileSpeed:1100, spread:3.2, pellets:1, movementModifier:1, reloadTime:2.7,
+    visionRange:520, visionAngle:65, visionFalloff:80, cameraZoom:1,
     detectRadius:400,
-    compatibleUpgrades:['scope','extendedMag','stock'],
-    desc:'The versatile middle ground between Pistol and Sniper.'
+    compatibleUpgrades:['scope','extendedMag','stock','goggles','ammoBelt'],
+    desc:'Reliable damage, range and handling with no extreme strength or weakness.'
   },
   lmg: {
     id:'lmg', name:'LMG', unlockCost:200, color:'#ff8f8f',
-    damage:9, range:420, fireRate:7.5, coneWidth:32, magazineSize:70,
-    projectileSpeed:1000, spread:5, pellets:1, movementModifier:0.78, reloadTime:2.8,
-    visionRange:380, visionAngle:80, peripheralVisionRange:50, visionFalloff:70,
+    damage:8, range:400, fireRate:7.25, coneWidth:34, magazineSize:64, aimDelayMs:280,
+    projectileSpeed:1000, spread:5.2, pellets:1, movementModifier:0.76, reloadTime:4.5,
+    visionRange:460, visionAngle:90, visionFalloff:70, cameraZoom:0.95,
     detectRadius:460,
-    compatibleUpgrades:['extendedMag','stock','improvedBarrel'],
-    desc:'Massive magazine, slows you down. Vision narrows further while firing.'
+    compatibleUpgrades:['extendedMag','stock','improvedBarrel','goggles','ammoBelt'],
+    desc:'Best sustained fire and magazine endurance, paid for with heavy movement and reload penalties.'
   },
   sniper: {
     id:'sniper', name:'Sniper Rifle', unlockCost:240, color:'#c58fff',
-    damage:90, range:920, fireRate:0.8, coneWidth:5, magazineSize:4,
-    projectileSpeed:1800, spread:0.3, pellets:1, movementModifier:0.9, reloadTime:2.4,
-    visionRange:1000, visionAngle:9, peripheralVisionRange:9, visionFalloff:150,
+    damage:80, range:900, fireRate:0.4, coneWidth:5, magazineSize:4, aimDelayMs:850,
+    projectileSpeed:1800, spread:0.3, pellets:1, movementModifier:0.9, reloadTime:3.6,
+    visionRange:1250, visionAngle:12, visionFalloff:150, cameraZoom:0.78,
     detectRadius:520,
-    compatibleUpgrades:['scope','silencer','improvedBarrel'],
-    desc:'Enormous distance, razor-thin angle. Blind to anything beside you.'
+    compatibleUpgrades:['scope','silencer','improvedBarrel','goggles'],
+    desc:'Enormous distance, razor-thin angle and a map-wide report. Slow, powerful and impossible to fire unnoticed.'
   }
 };
 const WEAPON_ORDER = ['pistol','smg','shotgun','assaultRifle','lmg','sniper'];
@@ -71,18 +71,24 @@ const WEAPON_ORDER = ['pistol','smg','shotgun','assaultRifle','lmg','sniper'];
 // 2. CONFIG - ATTACHMENTS/UPGRADES
 // ------------------------------------------------------------------------------------------
 const UPGRADE_CONFIG = {
-  scope:          { id:'scope', name:'Scope', duration:45,
-                     apply:(s)=>({ ...s, range:s.range*1.3, visionRange:s.visionRange*1.25, visionAngle:s.visionAngle*0.9 }) },
-  extendedMag:    { id:'extendedMag', name:'Extended Magazine', duration:50,
+  scope:          { id:'scope', name:'Scope',
+                     apply:(s)=>({ ...s, range:s.range*1.3 }) },
+  extendedMag:    { id:'extendedMag', name:'Extended Magazine',
                      apply:(s)=>({ ...s, magazineSize:Math.round(s.magazineSize*1.5) }) },
-  stock:          { id:'stock', name:'Stock', duration:45,
-                     apply:(s)=>({ ...s, coneWidth:s.coneWidth*0.7, spread:s.spread*0.6 }) },
-  silencer:       { id:'silencer', name:'Silencer', duration:45,
-                     apply:(s)=>({ ...s, detectRadius:s.detectRadius*0.35 }) },
-  improvedBarrel: { id:'improvedBarrel', name:'Improved Barrel', duration:40,
-                     apply:(s)=>({ ...s, damage:s.damage*1.3, projectileSpeed:s.projectileSpeed*1.15 }) },
-  choke:          { id:'choke', name:'Choke', duration:40,
-                     apply:(s)=>({ ...s, spread:s.spread*0.5, range:s.range*1.2, coneWidth:s.coneWidth*0.75 }) }
+  stock:          { id:'stock', name:'Stock',
+                     apply:(s)=>({ ...s, coneWidth:s.coneWidth*0.7 }) },
+  silencer:       { id:'silencer', name:'Silencer',
+                     apply:(s)=>({ ...s, detectRadius:s.detectRadius*0.75 }) },
+  improvedBarrel: { id:'improvedBarrel', name:'Improved Barrel',
+                     apply:(s)=>({ ...s, range:s.range*1.3 }) },
+  choke:          { id:'choke', name:'Choke',
+                     apply:(s)=>({ ...s, spread:s.spread*0.5 }) },
+  goggles:        { id:'goggles', name:'Goggles',
+                     apply:(s)=>({ ...s, visionRange:s.visionRange*1.1, cameraZoom:s.cameraZoom/1.1 }) },
+  stealthBoots:   { id:'stealthBoots', name:'Stealth Boots',
+                     apply:(s)=>({ ...s, footprintDecayMultiplier:0.5 }) },
+  ammoBelt:       { id:'ammoBelt', name:'Ammo Belt',
+                     apply:(s)=>({ ...s, reloadTime:s.reloadTime*0.9 }) }
 };
 
 const TOMBSTONE_CONFIG = [
@@ -137,13 +143,31 @@ const ENEMY_CONFIG = {
   scout:      { id:'scout', name:'Scout', hp:16, speed:140, damage:5, fireRate:1.6, range:160,
                 visionRange:340, visionAngle:130, hearingRange:340, color:'#d6e85c', xp:1 }
 };
+const ENEMY_VARIANTS = [
+  {id:'pistol_peeker',base:'grunt',name:'Pistol Peeker',weaponFamily:'pistol',sprite:'grunt',profile:'cover_peek',rangeFactor:.72,color:'#ff9d8f'},
+  {id:'pistol_scavenger',base:'grunt',name:'Pistol Scavenger',weaponFamily:'pistol',sprite:'scout',profile:'loot_hunter',rangeFactor:.62,speed:82,color:'#e8a66d'},
+  {id:'smg_chaser',base:'flanker',name:'SMG Chaser',weaponFamily:'smg',sprite:'flanker',profile:'sound_chaser',rangeFactor:.48,fireRate:4.8,range:230,color:'#5cffe0'},
+  {id:'smg_packrunner',base:'flanker',name:'SMG Packrunner',weaponFamily:'smg',sprite:'scout',profile:'pack_runner',rangeFactor:.58,speed:132,color:'#72ff9a'},
+  {id:'shotgun_ambusher',base:'shotgunner',name:'Doorway Ambusher',weaponFamily:'shotgun',sprite:'shotgunner',profile:'door_ambush',rangeFactor:.42,color:'#ffad5c'},
+  {id:'shotgun_breacher',base:'shotgunner',name:'Shotgun Breacher',weaponFamily:'shotgun',sprite:'brawler',profile:'breacher',rangeFactor:.28,speed:98,color:'#ff7b4f'},
+  {id:'rifle_coverman',base:'rifleman',name:'Rifle Coverman',weaponFamily:'assaultRifle',sprite:'rifleman',profile:'cover_fire',rangeFactor:.78,color:'#e9d35c'},
+  {id:'rifle_support',base:'rifleman',name:'Rifle Support',weaponFamily:'assaultRifle',sprite:'guard',profile:'squad_support',rangeFactor:.88,hp:38,color:'#b8c85c'},
+  {id:'lmg_anchor',base:'heavy',name:'LMG Anchor',weaponFamily:'lmg',sprite:'heavy',profile:'objective_anchor',rangeFactor:.82,speed:38,color:'#ff5454'},
+  {id:'lmg_suppressor',base:'heavy',name:'LMG Suppressor',weaponFamily:'lmg',sprite:'heavy',profile:'sound_suppressor',rangeFactor:.95,hp:72,speed:52,color:'#dc5068'},
+  {id:'sniper_boundary',base:'sniper',name:'Boundary Stalker',weaponFamily:'sniper',sprite:'sniper',profile:'boundary_stalker',rangeFactor:.92,stationary:false,color:'#c58fff'},
+  {id:'sniper_sightline',base:'sniper',name:'Corridor Watcher',weaponFamily:'sniper',sprite:'marksman',profile:'sightline_seeker',rangeFactor:.98,stationary:false,color:'#9d8fff'}
+];
+ENEMY_VARIANTS.forEach(variant=>{
+  const base=ENEMY_CONFIG[variant.base];
+  ENEMY_CONFIG[variant.id]={...base,...variant,id:variant.id,name:variant.name};
+});
 // Bullet/gunfire alert radius bump - hearingRange drives both how far an enemy notices
 // someone else's gunfire (see the heardPos detection in Enemy.update) and, via
 // gunfireVisRadius below, how large the visual "bang" ping is when THIS enemy fires. Bumping
 // it here makes gunfire alerts carry further in both directions at once, and means rival
 // squads are more likely to actually notice each other fighting and converge.
 Object.values(ENEMY_CONFIG).forEach(cfg=>{ cfg.hearingRange = Math.round(cfg.hearingRange*1.45); });
-const NORMAL_ARCHETYPES = ['grunt','rusher','shotgunner','rifleman','sniper','heavy','flanker','guard','brawler','marksman','scout'];
+const NORMAL_ARCHETYPES = [...ENEMY_VARIANTS.map(item=>item.id),'rusher','guard','brawler','marksman','scout'];
 
 // ------------------------------------------------------------------------------------------
 // 3b. CONFIG - SQUAD GROUP BEHAVIOURS
@@ -174,6 +198,14 @@ const FOOTPRINT_MAX_AGE = 26000; // ms a footprint stays visible in explored fog
 class ShooterQuestionFlow{
   constructor(game){ this.game = game; this.active = false; }
 
+  async playSingleQuestion(){
+    const policy=window.MixedQuestionRound.POLICY;
+    const original={...policy};
+    Object.assign(policy,{multichoiceCount:1,matchingPairs:1,categoryChoices:1,categoryGridSize:4,typeAnswerCount:1,fallingWordsCount:1,rewardUnits:1});
+    try{return await window.MixedQuestionRound.play();}
+    finally{Object.assign(policy,original);}
+  }
+
   // Called when the player walks over an ammo pickup. Pauses the game, asks 4 questions,
   // then awards ammo scaled to the current weapon's magazine size.
   async startAmmoQuestionPhase(onComplete){
@@ -196,8 +228,8 @@ class ShooterQuestionFlow{
     this.active = true;
     this.game.paused = true;
     window.PlatformManager?.heartbeat?.(GAME_CONFIG.id, false);
-    const result = await window.MixedQuestionRound.play();
-    const correct = (result.correct || 0) === (result.total || 4);
+    const result = await this.playSingleQuestion();
+    const correct = (result.correct || 0) >= 1;
     this.game.stats.questionsAnswered += result.total || 0;
     this.game.stats.questionsCorrect += result.correct || 0;
     if(result.correct) window.AchievementManager?.notify?.('shooter_studying_correct', {amount:result.correct});
@@ -331,34 +363,34 @@ const ROOM_TYPES = ['combat','combat','combat','ammo','weapon','upgrade','elite'
 const MAP_THEMES = [
   { id:'industrial',  name:'Industrial Facility', floorBg:'#0a0d10', gridColor:'rgba(120,150,170,0.08)',
     wallFill:'#4a6580', wallHi:'rgba(255,255,255,0.16)', wallShadow:'rgba(0,0,0,0.4)', wallOutline:'#9fc3e0',
-    roomMult:1.0, corridorMult:1.0, templates:[tPillars,tCross,tCrates,tCornerCover] },
+    roomMult:1.0, corridorMult:1.0, roomCount:[15,18], templates:[tPillars,tCross,tCrates,tCornerCover] },
   { id:'desert',       name:'Desert Outpost', floorBg:'#1a1408', gridColor:'rgba(210,175,110,0.08)',
     wallFill:'#8a6a3e', wallHi:'rgba(255,240,200,0.2)', wallShadow:'rgba(30,15,0,0.45)', wallOutline:'#e0c68f',
-    roomMult:1.15, corridorMult:1.25, templates:[tOpenHall,tScatter,tEmpty,tDiagonalCover] },
+    roomMult:1.15, corridorMult:1.25, roomCount:[13,16], templates:[tOpenHall,tScatter,tEmpty,tDiagonalCover] },
   { id:'arctic',       name:'Arctic Base', floorBg:'#0a1319', gridColor:'rgba(150,205,225,0.1)',
     wallFill:'#5f7f92', wallHi:'rgba(255,255,255,0.32)', wallShadow:'rgba(0,15,25,0.4)', wallOutline:'#cdeaf5',
-    roomMult:0.9, corridorMult:0.85, templates:[tNarrowMaze,tOpenHall,tZigzag,tCornerCover] },
+    roomMult:0.9, corridorMult:0.85, roomCount:[17,20], templates:[tNarrowMaze,tOpenHall,tZigzag,tCornerCover] },
   { id:'jungle',       name:'Jungle Ruins', floorBg:'#0d140a', gridColor:'rgba(110,165,80,0.09)',
     wallFill:'#3f5c2e', wallHi:'rgba(200,255,160,0.22)', wallShadow:'rgba(0,10,0,0.45)', wallOutline:'#9fd67a',
-    roomMult:1.05, corridorMult:1.3, templates:[tScatter,tCrates,tRing,tDiagonalCover] },
+    roomMult:1.05, corridorMult:1.3, roomCount:[14,17], templates:[tScatter,tCrates,tRing,tDiagonalCover] },
   { id:'neon',         name:'Neon City', floorBg:'#0c0616', gridColor:'rgba(190,90,255,0.11)',
     wallFill:'#3a2158', wallHi:'rgba(230,150,255,0.3)', wallShadow:'rgba(0,0,10,0.5)', wallOutline:'#c58fff',
-    roomMult:0.95, corridorMult:0.95, templates:[tNarrowMaze,tZigzag,tCross,tRing] },
+    roomMult:0.95, corridorMult:0.95, roomCount:[18,22], templates:[tNarrowMaze,tZigzag,tCross,tRing] },
   { id:'bunker',       name:'Underground Bunker', floorBg:'#0e0c0a', gridColor:'rgba(150,130,100,0.06)',
     wallFill:'#5a4a3a', wallHi:'rgba(220,200,170,0.14)', wallShadow:'rgba(0,0,0,0.5)', wallOutline:'#b5a082',
-    roomMult:0.8, corridorMult:0.7, templates:[tNarrowMaze,tCornerCover,tCross,tPillars] },
+    roomMult:0.8, corridorMult:0.7, roomCount:[19,23], templates:[tNarrowMaze,tCornerCover,tCross,tPillars] },
   { id:'volcanic',     name:'Volcanic Complex', floorBg:'#140505', gridColor:'rgba(255,110,60,0.08)',
     wallFill:'#5c2a1e', wallHi:'rgba(255,150,90,0.28)', wallShadow:'rgba(0,0,0,0.5)', wallOutline:'#ff8f5c',
-    roomMult:1.0, corridorMult:0.9, templates:[tDiagonalCover,tScatter,tRing,tOpenHall] },
+    roomMult:1.0, corridorMult:0.9, roomCount:[15,19], templates:[tDiagonalCover,tScatter,tRing,tOpenHall] },
   { id:'station',      name:'Space Station', floorBg:'#070b12', gridColor:'rgba(150,190,230,0.1)',
     wallFill:'#3a4a5e', wallHi:'rgba(255,255,255,0.34)', wallShadow:'rgba(0,5,15,0.45)', wallOutline:'#a9d8ff',
-    roomMult:1.1, corridorMult:1.05, templates:[tPillars,tCross,tCornerCover,tRing] },
+    roomMult:1.1, corridorMult:1.05, roomCount:[14,18], templates:[tPillars,tCross,tCornerCover,tRing] },
   { id:'swamp',        name:'Swamp Facility', floorBg:'#0c110a', gridColor:'rgba(130,150,90,0.07)',
     wallFill:'#3e4a2e', wallHi:'rgba(180,200,120,0.16)', wallShadow:'rgba(0,10,0,0.5)', wallOutline:'#a8bd7a',
-    roomMult:1.2, corridorMult:1.35, templates:[tScatter,tCrates,tZigzag,tDiagonalCover] },
+    roomMult:1.2, corridorMult:1.35, roomCount:[13,17], templates:[tScatter,tCrates,tZigzag,tDiagonalCover] },
   { id:'fortress',     name:'Crimson Fortress', floorBg:'#120608', gridColor:'rgba(200,60,70,0.08)',
     wallFill:'#5c1e28', wallHi:'rgba(255,120,130,0.22)', wallShadow:'rgba(0,0,0,0.5)', wallOutline:'#ff6b7a',
-    roomMult:0.95, corridorMult:0.75, templates:[tRing,tCornerCover,tCross,tPillars] }
+    roomMult:0.95, corridorMult:0.75, roomCount:[17,21], templates:[tRing,tCornerCover,tCross,tPillars] }
 ];
 function pickMapTheme(){ return MAP_THEMES[Math.floor(Math.random()*MAP_THEMES.length)]; }
 
@@ -385,7 +417,9 @@ class MapManager{
 
   _generate(){
     // random walk to place N rooms on a grid, guarantees connectivity
-    const n = 7 + Math.min(this.floorNumber, 5); // more rooms on deeper floors
+    const range=this.theme.roomCount||[12,15];
+    const requested=range[0]+Math.floor(Math.random()*(range[1]-range[0]+1));
+    const n=Math.max(3,Math.min(this.gridSize*this.gridSize,requested));
     const visited = new Set();
     const start = {gx: Math.floor(this.gridSize/2), gy: Math.floor(this.gridSize/2)};
     let cur = start;
@@ -782,12 +816,12 @@ class Bullet{
 }
 
 class Player{
-  constructor(x,y,ownedWeapons){
+  constructor(x,y,ownedWeapons,startingWeapon='pistol'){
     this.x=x; this.y=y; this.radius=14; this.speed=190;
     this.maxHp=100; this.hp=100;
     this.ownedWeapons = ownedWeapons;
-    this.weaponId = 'pistol';
-    this.baseStats = {...WEAPON_CONFIG.pistol};
+    this.weaponId = ownedWeapons.has(startingWeapon)&&WEAPON_CONFIG[startingWeapon] ? startingWeapon : 'pistol';
+    this.baseStats = {...WEAPON_CONFIG[this.weaponId]};
     this.weaponStats = {...this.baseStats};
     // ammo is two separate pools, like most shooters: magazineAmmo is what's actually loaded
     // and firing from right now (0..magazineSize); reserveAmmo is spare rounds carried but not
@@ -796,9 +830,11 @@ class Player{
     this.reserveAmmo = 0;
     this.aimAngle = 0;
     this.fireTimer = 0;
+    this.acquireTarget = null;
+    this.acquireTimer = 0;
     this.reloading = false;
     this.reloadTimer = 0;
-    this.activeUpgrades = []; // {id,name,timeLeft,duration}
+    this.activeUpgrades = []; // run-long attachments; compatible ones apply to current weapon
     this.localAwarenessRadius = 55;
     this.moveDir = {x:0,y:0};
     this.isMoving = false;
@@ -814,23 +850,24 @@ class Player{
   equipWeapon(id){
     this.weaponId = id;
     this.baseStats = {...WEAPON_CONFIG[id]};
-    this.activeUpgrades = [];
     this._recalcStats();
     // switching weapons starts you with a fresh full magazine and an empty reserve - you have
     // to go find ammo for the new gun, same as before, just expressed correctly now.
     this.magazineAmmo = this.weaponStats.magazineSize;
     this.reserveAmmo = 0;
     this.reloading = false;
+    this.acquireTarget = null;
+    this.acquireTimer = 0;
   }
   applyUpgrade(upgrade){
-    // remove existing same-id then add fresh
-    this.activeUpgrades = this.activeUpgrades.filter(u=>u.id!==upgrade.id);
-    this.activeUpgrades.push({ id:upgrade.id, name:upgrade.name, timeLeft:upgrade.duration, duration:upgrade.duration });
+    // Attachments last for the full run. Re-collecting one is harmless rather than stacking it.
+    if(!this.activeUpgrades.some(u=>u.id===upgrade.id))this.activeUpgrades.push({id:upgrade.id,name:upgrade.name});
     this._recalcStats();
   }
   _recalcStats(){
     let stats = {...this.baseStats};
     for(const u of this.activeUpgrades){
+      if(!WEAPON_CONFIG[this.weaponId].compatibleUpgrades.includes(u.id))continue;
       stats = UPGRADE_CONFIG[u.id].apply(stats);
     }
     this.weaponStats = stats;
@@ -839,15 +876,6 @@ class Player{
     this.shieldTime=Math.max(0,this.shieldTime-dt);
     this.scanTime=Math.max(0,this.scanTime-dt);
     this.smokeTime=Math.max(0,this.smokeTime-dt);
-    // upgrade timers
-    let changed = false;
-    this.activeUpgrades = this.activeUpgrades.filter(u=>{
-      u.timeLeft -= dt;
-      if(u.timeLeft<=0){ changed = true; return false; }
-      return true;
-    });
-    if(changed) this._recalcStats();
-
     // movement
     let mx=this.moveDir.x, my=this.moveDir.y;
     const len = Math.hypot(mx,my);
@@ -984,6 +1012,54 @@ class Enemy{
     if(angleDiff(ang, this.aimAngle) > (this.cfg.visionAngle*Math.PI/180)/2) return false;
     return hasLineOfSight(walls, this.x, this.y, px, py);
   }
+  _chooseTacticalPatrolTarget(game){
+    const profile=this.cfg.profile;
+    if(!profile)return null;
+    const rooms=game.map.rooms;
+    const safeCenter=room=>{const c=game.map.center(room);return game._findSafeSpot(room,c.x,c.y);};
+    if(profile==='loot_hunter'){
+      const pickup=game.pickups.filter(p=>!p.collected).sort((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)-Math.hypot(b.x-this.x,b.y-this.y))[0];
+      if(pickup)return{x:pickup.x,y:pickup.y};
+    }
+    if(profile==='sound_chaser'||profile==='sound_suppressor'){
+      const sound=[...game.soundEvents].reverse().find(s=>Math.hypot(s.x-this.x,s.y-this.y)<this.hearingRange*1.8);
+      if(sound)return{x:sound.x,y:sound.y};
+    }
+    if(profile==='pack_runner'&&this.squad){
+      const lead=this.squad.members.find(member=>member!==this&&!member.dead&&['attack','suspicious','search'].includes(member.state));
+      if(lead)return{x:lead.x,y:lead.y};
+      return{x:this.squad.rallyPoint.x,y:this.squad.rallyPoint.y};
+    }
+    if(profile==='squad_support'){
+      const ally=game.enemies.filter(e=>e!==this&&!e.dead).sort((a,b)=>(a.hp/a.maxHp)-(b.hp/b.maxHp))[0];
+      if(ally&&ally.hp<ally.maxHp*.75)return{x:ally.x,y:ally.y};
+    }
+    if(profile==='objective_anchor'){
+      const objective=game.objectives.find(o=>!o.captured&&(o.active!==false));
+      if(objective)return{x:objective.x,y:objective.y};
+      const chest=game.chests.find(c=>!c.opened);if(chest)return{x:chest.x,y:chest.y};
+    }
+    if(profile==='boundary_stalker'&&game.zone){
+      const candidates=rooms.map(room=>({room,point:safeCenter(room)})).filter(item=>{
+        const d=Math.hypot(item.point.x-game.zone.x,item.point.y-game.zone.y);return d<game.zone.radius*.92;
+      });
+      candidates.sort((a,b)=>Math.hypot(b.point.x-game.zone.x,b.point.y-game.zone.y)-Math.hypot(a.point.x-game.zone.x,a.point.y-game.zone.y));
+      return candidates[Math.floor(Math.random()*Math.min(4,candidates.length))]?.point||null;
+    }
+    if(profile==='sightline_seeker'){
+      const candidates=[];
+      for(const room of rooms){const point=safeCenter(room);let score=0,localBest=-1,localAngle=0;for(let i=0;i<12;i++){const angle=i/12*Math.PI*2,distance=castRay(game.map.walls,point.x,point.y,angle,this.cfg.visionRange);score+=distance;if(distance>localBest){localBest=distance;localAngle=angle;}}candidates.push({point,score,angle:localAngle});}
+      candidates.sort((a,b)=>b.score-a.score);const chosen=candidates[Math.floor(Math.random()*Math.min(3,candidates.length))];
+      this.tacticalLookAngle=chosen?.angle??this.aimAngle;
+      return chosen?.point||null;
+    }
+    if(profile==='cover_peek'||profile==='cover_fire'||profile==='door_ambush'){
+      const room=rooms.reduce((best,r)=>Math.hypot(game.map.center(r).x-this.x,game.map.center(r).y-this.y)<Math.hypot(game.map.center(best).x-this.x,game.map.center(best).y-this.y)?r:best,rooms[0]);
+      if(room){const margin=profile==='door_ambush'?18:35,candidates=[{x:room.x+margin,y:room.y+room.h/2},{x:room.x+room.w-margin,y:room.y+room.h/2},{x:room.x+room.w/2,y:room.y+margin},{x:room.x+room.w/2,y:room.y+room.h-margin}];return candidates[Math.floor(Math.random()*candidates.length)];}
+    }
+    if(profile==='breacher')return this.lastKnownPlayerPos?{...this.lastKnownPlayerPos}:{x:game.player.x,y:game.player.y};
+    return null;
+  }
   update(dt, game){
     const startX = this.x, startY = this.y;
     const player = game.player;
@@ -1006,11 +1082,12 @@ class Enemy{
     // sound detection: react to the nearest sufficiently-recent gunshot within hearing range,
     // regardless of who fired it - the player, a rival squad, or one of this enemy's own
     // squadmates engaging someone elsewhere. Priority 2 of 4 (see the cascade below).
-    let heardPos = null, heardDist = this.hearingRange;
+    let heardPos = null, heardDist = Infinity;
     for(const ge of game.gunfireEvents){
       if(performance.now()-ge.t > 3000) continue;
       const d = Math.hypot(ge.x-this.x, ge.y-this.y);
-      if(d < heardDist){ heardDist = d; heardPos = ge; }
+      const audibleRange = ge.mapWide ? Infinity : this.hearingRange;
+      if(d < audibleRange && d < heardDist){ heardDist = d; heardPos = ge; }
     }
 
     // footprint detection: an enemy only picks up a trail it can actually SEE - real line of
@@ -1066,7 +1143,7 @@ class Enemy{
         this.lastKnownPlayerPos = {x:footprintPos.x, y:footprintPos.y};
         this.searchTimer = Math.max(this.searchTimer, 5);
         // Alert nearby squadmates so groups investigate noises together instead of one at a time.
-        if(this.squad)this.squad.members.forEach(m=>{if(m!==this&&!m.dead&&Math.hypot(m.x-this.x,m.y-this.y)<260){m.lastKnownPlayerPos={x:heardPos.x,y:heardPos.y};m.searchTimer=Math.max(m.searchTimer,4);if(m.state==='patrol')m.state='suspicious';}});
+        if(this.squad)this.squad.members.forEach(m=>{if(m!==this&&!m.dead&&Math.hypot(m.x-this.x,m.y-this.y)<260){m.lastKnownPlayerPos={x:footprintPos.x,y:footprintPos.y};m.searchTimer=Math.max(m.searchTimer,4);if(m.state==='patrol')m.state='suspicious';}});
       } else if(heardPos && (this.state==='patrol' || this.state==='suspicious' || this.state==='search')){
         // investigate the gunshot's location, whoever fired it
         this.state = 'suspicious';
@@ -1081,22 +1158,20 @@ class Enemy{
     }
 
     // movement/behaviour per state
-    // Zone survival always wins over patrol/suspicious/search/holding position - even a
-    // normally-stationary Sniper will reposition rather than stand still and die to the
-    // shrinking zone. This was the main cause of rounds ending prematurely to "zone death":
-    // an enemy deep in a suspicious/search loop (or a Sniper that never moves at all outside
-    // combat) could end up outside the ring with nothing ever pulling it back in. Only an
-    // active engagement (attack/attackRival) is allowed to override this - finishing a fight
-    // still matters more than the zone for that one tick.
+    // Zone survival is a hard priority for every archetype and every combat state. Enemies
+    // begin rotating inward before the boundary reaches them, giving slower/heavier units
+    // enough time to clear walls and preventing active fights, hold-ground squads or sniper
+    // positioning from pinning anyone outside the next circle.
     const zoneDist = game.zone ? Math.hypot(this.x-game.zone.x, this.y-game.zone.y) : 0;
-    const mustFleeZone = game.zone && zoneDist > game.zone.radius + 30 && this.state!=='attack' && this.state!=='attackRival';
+    const innerZoneTarget = game.zone ? Math.max(game.zone.minRadius*0.65, game.zone.radius*0.82) : 0;
+    const mustFleeZone = game.zone && zoneDist > innerZoneTarget;
 
     if(mustFleeZone){
       const zoneAng = Math.atan2(game.zone.y-this.y, game.zone.x-this.x);
       this.aimAngle = zoneAng;
-      this._moveTry(walls, zoneAng, this.speed*dt);
-    } else if(this.archetype==='sniper' && game.zone && this.state!=='attack' && this.state!=='attackRival'
-              && (game.zone.radius - zoneDist) < game.zone.radius*0.18){
+      // A small urgency boost lets the slowest units keep pace with the closing boundary.
+      this._moveTry(walls, zoneAng, this.speed*1.18*dt);
+    } else if(this.cfg.profile==='boundary_stalker' && game.zone && this.state!=='attack' && this.state!=='attackRival'){
       // Snipers stalk the edge of the ring rather than sitting dead-centre or wandering like
       // everyone else - a sniper's whole value is a long, exposed sightline, and the ring's
       // boundary is exactly that. Once it's within ~18% of the current radius from the edge
@@ -1107,9 +1182,7 @@ class Enemy{
         || Math.hypot(this.x-this._sniperEdgeTarget.x, this.y-this._sniperEdgeTarget.y) < 24
         || performance.now()-(this._sniperEdgeTargetTime||0) > 4000;
       if(needNewTarget){
-        const ang = Math.random()*Math.PI*2;
-        const r = game.zone.radius*0.8;
-        this._sniperEdgeTarget = { x: game.zone.x+Math.cos(ang)*r, y: game.zone.y+Math.sin(ang)*r };
+        this._sniperEdgeTarget = this._chooseTacticalPatrolTarget(game) || {x:game.zone.x,y:game.zone.y};
         this._sniperEdgeTargetTime = performance.now();
       }
       const moveAng = Math.atan2(this._sniperEdgeTarget.y-this.y, this._sniperEdgeTarget.x-this.x);
@@ -1125,7 +1198,7 @@ class Enemy{
       // way to their normal engagement range. The non-averse baseline is also scaled by the
       // hidden adaptive difficulty multiplier - a higher multiplier means a smaller desired
       // range, i.e. a more aggressive enemy that presses closer.
-      const desiredRange = this.cfg.range * (damageAverse ? 0.95 : 0.75/this.adaptiveMult);
+      const desiredRange = this.cfg.range * (damageAverse ? 0.95 : (this.cfg.rangeFactor||0.75)/this.adaptiveMult);
       let moveAng = null;
       if(!this.cfg.stationary){
         if(rdist>desiredRange) moveAng = this.aimAngle;
@@ -1170,8 +1243,11 @@ class Enemy{
       const behavior = this.squad ? this.squad.behavior : null;
       const zoneCenter = game.zone ? {x:game.zone.x, y:game.zone.y} : null;
       const d = Math.hypot(this.patrolTarget.x-this.x, this.patrolTarget.y-this.y);
-      if(d<8){
-        if(behavior){
+      this.tacticalTargetTimer=(this.tacticalTargetTimer||0)-dt;
+      if(d<8||this.tacticalTargetTimer<=0){
+        const tactical=this._chooseTacticalPatrolTarget(game);
+        if(tactical){this.patrolTarget=tactical;this.tacticalTargetTimer=3+Math.random()*4;if(this.cfg.profile==='sightline_seeker'&&d<16)this.aimAngle=this.tacticalLookAngle;}
+        else if(behavior){
           // squad members roam around their shared rally point rather than their own spawn
           const home = this.squad.rallyPoint;
           const r = behavior.roamRadius;
@@ -1218,9 +1294,9 @@ class Enemy{
       }
       // same aggression scaling as the rival-combat branch above - a higher hidden difficulty
       // multiplier means a smaller desired range, so the enemy presses closer to the player.
-      const desiredRange = this.cfg.range * (damageAverse ? 0.95 : 0.75/this.adaptiveMult);
+      const desiredRange = this.cfg.range * (damageAverse ? 0.95 : (this.cfg.rangeFactor||0.75)/this.adaptiveMult);
       let moveAng = this.aimAngle;
-      if(this.cfg.flanks){
+      if(this.cfg.flanks||['sound_chaser','pack_runner','breacher'].includes(this.cfg.profile)){
         moveAng = this.aimAngle + Math.PI/2 * (Math.sin(performance.now()/900)>0?1:-1);
       } else if(distToPlayer > desiredRange){
         // approach
@@ -1245,7 +1321,7 @@ class Enemy{
       // range-holding movement, so they end up fighting from doorways and corners more often
       // than the middle of a room. A lightweight "seek nearby cover" approximation rather than
       // true pathfinding to a specific corner, but it reliably pulls them toward walls.
-      if(this.archetype==='rifleman'){
+      if(this.archetype==='rifleman'||['cover_peek','cover_fire'].includes(this.cfg.profile)){
         let nearestPt = null, nearestDist = Infinity;
         for(const w of walls){
           const nx = Math.max(w.x, Math.min(this.x, w.x+w.w));
@@ -1385,15 +1461,16 @@ class Pickup{
     this.type = type; // 'ammo' | 'weapon' | 'upgrade'
     this.x=x; this.y=y; this.extra = extra || null;
     this.collected = false;
+    this.discovered = false;
     this.bob = Math.random()*Math.PI*2;
   }
 }
 
 // ------------------------------------------------------------------------------------------
-// 8b2. CHESTS - take time to open (channel-based, not a quiz) and drop ammo plus an upgrade.
-//     Anyone can open one: the player (which disables their weapon for the duration - see
-//     Player.openingChest / _handleAutoFire) or an idle ('patrol' state) enemy, who gets a
-//     temporary combat buff out of it instead of ammo, since enemies don't carry magazines.
+// 8b2. CHESTS - take time to open (channel-based, not a quiz), then place ammo and an
+//     attachment on the floor for the normal pickup/question flow. Anyone can open one: the
+//     player (which disables their weapon for the duration - see Player.openingChest /
+//     _handleAutoFire) or an idle ('patrol' state) enemy.
 //     Only one opener makes progress at a time; walking away lets the progress decay back down
 //     rather than resetting outright, so a brief interruption isn't fully wasted.
 // ------------------------------------------------------------------------------------------
@@ -1401,6 +1478,7 @@ class Chest{
   constructor(x,y){
     this.x=x; this.y=y;
     this.opened = false;
+    this.discovered = false;
     this.progress = 0;
     this.requiredTime = 3.5;
     this.openerType = null; // 'player' | 'enemy' | null
@@ -1532,6 +1610,88 @@ TOMBSTONE_CONFIG.forEach(item=>{GRAVESTONE_STYLES[item.id]=(ctx,x,y)=>drawCustom
 function drawGravestone(ctx,x,y,style){
   const fn = GRAVESTONE_STYLES[style] || GRAVESTONE_STYLES.default;
   fn(ctx,x,y);
+}
+
+const THEME_DECOR = {
+  industrial:{floor:'#101820', inset:'#162431', accent:'#e4ad45', line:'#55778f', motif:'panel'},
+  desert:    {floor:'#241b0d', inset:'#302514', accent:'#e0ae5b', line:'#80663c', motif:'sand'},
+  arctic:    {floor:'#10212a', inset:'#16313e', accent:'#9de8ff', line:'#568fa5', motif:'ice'},
+  jungle:    {floor:'#14200f', inset:'#1d2d15', accent:'#7fbd55', line:'#496738', motif:'ruin'},
+  neon:      {floor:'#130b21', inset:'#1c1030', accent:'#d05cff', line:'#563777', motif:'circuit'},
+  bunker:    {floor:'#191611', inset:'#211d17', accent:'#d0a85d', line:'#574c3a', motif:'concrete'},
+  volcanic:  {floor:'#210b08', inset:'#2b0e09', accent:'#ff6438', line:'#6d2b20', motif:'lava'},
+  station:   {floor:'#0d1722', inset:'#122334', accent:'#65c9ff', line:'#41637d', motif:'deck'},
+  swamp:     {floor:'#141a0f', inset:'#1c2415', accent:'#9caf52', line:'#4e5c36', motif:'bog'},
+  fortress:  {floor:'#200b0e', inset:'#290e13', accent:'#e65462', line:'#692a33', motif:'stone'}
+};
+const ROOM_ACCENTS = {safe:'#55e58a',combat:'#ff6577',ammo:'#ffd15c',weapon:'#66c8ff',upgrade:'#c58fff',elite:'#ff914d',boss:'#ff4055'};
+
+function seededUnit(a,b,salt=0){
+  const n=Math.sin(a*12.9898+b*78.233+salt*37.719)*43758.5453;
+  return n-Math.floor(n);
+}
+function drawCorridorFloors(ctx,map,theme){
+  const d=THEME_DECOR[theme.id]||THEME_DECOR.industrial;
+  ctx.save();
+  for(const room of map.rooms){
+    for(const other of map.rooms){
+      if(other.gx===room.gx+1 && other.gy===room.gy){
+        const x=room.x+room.w, w=other.x-x, h=map.corridorW*.72, y=room.y+room.h/2-h/2;
+        ctx.fillStyle=d.inset; ctx.fillRect(x,y,w,h);
+        ctx.strokeStyle=d.line; ctx.setLineDash([12,9]); ctx.beginPath(); ctx.moveTo(x,y+h/2); ctx.lineTo(x+w,y+h/2); ctx.stroke();
+      }
+      if(other.gy===room.gy+1 && other.gx===room.gx){
+        const y=room.y+room.h, h=other.y-y, w=map.corridorW*.72, x=room.x+room.w/2-w/2;
+        ctx.fillStyle=d.inset; ctx.fillRect(x,y,w,h);
+        ctx.strokeStyle=d.line; ctx.setLineDash([12,9]); ctx.beginPath(); ctx.moveTo(x+w/2,y); ctx.lineTo(x+w/2,y+h); ctx.stroke();
+      }
+    }
+  }
+  ctx.setLineDash([]); ctx.restore();
+}
+function drawRoomFloor(ctx,room,theme){
+  const d=THEME_DECOR[theme.id]||THEME_DECOR.industrial;
+  const pad=9, x=room.x+pad, y=room.y+pad, w=room.w-pad*2, h=room.h-pad*2;
+  ctx.save();
+  ctx.fillStyle=d.floor; ctx.fillRect(room.x,room.y,room.w,room.h);
+  ctx.fillStyle=d.inset; ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle=d.line; ctx.lineWidth=2; ctx.strokeRect(x+.5,y+.5,w-1,h-1);
+  ctx.globalAlpha=.45; ctx.lineWidth=1;
+  if(d.motif==='panel'||d.motif==='deck'||d.motif==='concrete'){
+    const step=d.motif==='deck'?56:48;
+    for(let px=x;px<x+w;px+=step){ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(px,y+h);ctx.stroke();}
+    for(let py=y;py<y+h;py+=step){ctx.beginPath();ctx.moveTo(x,py);ctx.lineTo(x+w,py);ctx.stroke();}
+    if(d.motif==='deck'){ctx.fillStyle=d.accent;for(let px=x+14;px<x+w;px+=step){ctx.fillRect(px,y+5,3,3);ctx.fillRect(px,y+h-8,3,3);}}
+  }else if(d.motif==='stone'||d.motif==='ruin'){
+    for(let py=y;py<y+h;py+=32){const off=((py-y)/32)%2?22:0;for(let px=x-off;px<x+w;px+=44){ctx.strokeRect(px,py,42,30);}}
+  }else if(d.motif==='circuit'){
+    for(let py=y+22;py<y+h;py+=44){ctx.beginPath();ctx.moveTo(x,py);ctx.lineTo(x+w*.35,py);ctx.lineTo(x+w*.42,py+12);ctx.lineTo(x+w,py+12);ctx.stroke();}
+  }else if(d.motif==='sand'||d.motif==='bog'){
+    for(let py=y+18;py<y+h;py+=38){ctx.beginPath();for(let px=x;px<=x+w;px+=18)ctx.lineTo(px,py+Math.sin(px*.045+py)*4);ctx.stroke();}
+  }else if(d.motif==='ice'){
+    for(let px=x+25;px<x+w;px+=55){ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(px-12,y+h*.42);ctx.lineTo(px+9,y+h);ctx.stroke();}
+  }else if(d.motif==='lava'){
+    ctx.strokeStyle=d.accent;for(let i=0;i<5;i++){let px=x+seededUnit(room.gx,room.gy,i)*w;ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(px-8,y+h*.35);ctx.lineTo(px+7,y+h*.68);ctx.lineTo(px-3,y+h);ctx.stroke();}
+  }
+  ctx.globalAlpha=.9;
+  const accent=ROOM_ACCENTS[room.type]||d.accent;
+  ctx.strokeStyle=accent; ctx.lineWidth=3;
+  const corner=18;
+  [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]].forEach(([cx,cy,sx,sy])=>{ctx.beginPath();ctx.moveTo(cx+sx*corner,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy+sy*corner);ctx.stroke();});
+  ctx.globalAlpha=.34;ctx.fillStyle=accent;ctx.beginPath();ctx.arc(room.x+room.w/2,room.y+room.h/2,25,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=.72;ctx.fillStyle=accent;ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(String(room.type||'ROOM').toUpperCase(),room.x+room.w/2,room.y+22);
+  ctx.restore();
+}
+function drawWallSurface(ctx,w,theme){
+  const d=THEME_DECOR[theme.id]||THEME_DECOR.industrial;
+  ctx.save();ctx.globalAlpha*=.45;ctx.strokeStyle=d.accent;ctx.fillStyle=d.accent;ctx.lineWidth=1;
+  const horizontal=w.w>=w.h, len=horizontal?w.w:w.h;
+  for(let p=18;p<len-8;p+=36){
+    const x=horizontal?w.x+p:w.x+w.w/2, y=horizontal?w.y+w.h/2:w.y+p;
+    ctx.beginPath();ctx.arc(x,y,1.7,0,Math.PI*2);ctx.fill();
+  }
+  if(len>70){ctx.setLineDash([18,7]);ctx.beginPath();if(horizontal){ctx.moveTo(w.x+8,w.y+w.h/2);ctx.lineTo(w.x+w.w-8,w.y+w.h/2);}else{ctx.moveTo(w.x+w.w/2,w.y+8);ctx.lineTo(w.x+w.w/2,w.y+w.h-8);}ctx.stroke();}
+  ctx.restore();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1713,13 +1873,26 @@ function drawChokeIcon(ctx,x,y){
   ctx.fill();
   ctx.restore();
 }
+function drawGogglesIcon(ctx,x,y){
+  ctx.save();ctx.translate(x,y);ctx.strokeStyle='#fff';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(-5,0,4,0,Math.PI*2);ctx.arc(5,0,4,0,Math.PI*2);ctx.moveTo(-1,0);ctx.lineTo(1,0);ctx.stroke();ctx.restore();
+}
+function drawBootsIcon(ctx,x,y){
+  ctx.save();ctx.translate(x,y);ctx.fillStyle='#fff';ctx.fillRect(-7,-7,5,10);ctx.fillRect(2,-5,5,10);ctx.fillRect(-7,3,8,4);ctx.fillRect(2,5,8,4);ctx.restore();
+}
+function drawAmmoBeltIcon(ctx,x,y){
+  ctx.save();ctx.translate(x,y);ctx.rotate(-.25);ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-9,-5);ctx.lineTo(9,5);ctx.stroke();ctx.lineWidth=1;for(let i=-6;i<=6;i+=4){ctx.strokeRect(i,-3,3,7);}ctx.restore();
+}
 const UPGRADE_ICONS = {
   scope: drawScopeIcon,
   extendedMag: drawMagIcon,
   stock: drawStockIcon,
   silencer: drawSilencerIcon,
   improvedBarrel: drawBarrelIcon,
-  choke: drawChokeIcon
+  choke: drawChokeIcon,
+  goggles: drawGogglesIcon,
+  stealthBoots: drawBootsIcon,
+  ammoBelt: drawAmmoBeltIcon
 };
 
 // ------------------------------------------------------------------------------------------
@@ -2063,9 +2236,10 @@ class Game{
       return {
         unlockedWeapons:new Set(saved?.unlockedWeapons?.length ? saved.unlockedWeapons : ['pistol']),
         ownedTombstones:new Set(['default',...(saved?.ownedTombstones || [])]),
-        gravestoneStyle:GRAVESTONE_STYLES[saved?.gravestoneStyle] ? saved.gravestoneStyle : 'default'
+        gravestoneStyle:GRAVESTONE_STYLES[saved?.gravestoneStyle] ? saved.gravestoneStyle : 'default',
+        startingWeapon:WEAPON_CONFIG[saved?.startingWeapon]&&(saved?.unlockedWeapons||['pistol']).includes(saved.startingWeapon)?saved.startingWeapon:'pistol'
       };
-    }catch(_){ return { unlockedWeapons:new Set(['pistol']), ownedTombstones:new Set(['default']), gravestoneStyle:'default' }; }
+    }catch(_){ return { unlockedWeapons:new Set(['pistol']), ownedTombstones:new Set(['default']), gravestoneStyle:'default', startingWeapon:'pistol' }; }
   }
 
   saveProgress(){
@@ -2073,7 +2247,8 @@ class Game{
     localStorage.setItem(GAME_CONFIG.saveKey, JSON.stringify({
       unlockedWeapons:[...this.progress.unlockedWeapons],
       ownedTombstones:[...this.progress.ownedTombstones],
-      gravestoneStyle:this.progress.gravestoneStyle
+      gravestoneStyle:this.progress.gravestoneStyle,
+      startingWeapon:this.progress.startingWeapon
     }));
   }
 
@@ -2125,6 +2300,7 @@ class Game{
   }
 
   startRun(){
+    document.body.classList.add('game-running');
     document.getElementById('startScreen').classList.remove('active');
     document.getElementById('gameOverScreen').classList.remove('active');
     document.getElementById('victoryScreen').classList.remove('active');
@@ -2148,7 +2324,7 @@ class Game{
     this.objectives = [];
     this.extractionUnlocked = false;
     this.lastGunshot = null;
-    this.player = new Player(0,0, this.progress.unlockedWeapons);
+    this.player = new Player(0,0, this.progress.unlockedWeapons, this.progress.startingWeapon);
     this._loadArena();
     this.running = true;
     this.paused = false;
@@ -2193,7 +2369,7 @@ class Game{
     // dressing, so the only thing it needs to avoid is visually overlapping a wall.
     const clutterSet = CLUTTER_STYLES[this.mapTheme.id] || CLUTTER_STYLES.industrial;
     this.map.rooms.forEach(room=>{
-      const count = 3 + Math.floor(Math.random()*4); // 3-6 pieces per room
+      const count = 6 + Math.floor(Math.random()*5); // 6-10 pieces per room
       for(let i=0;i<count;i++){
         const cx = room.x + 20 + Math.random()*(room.w-40);
         const cy = room.y + 20 + Math.random()*(room.h-40);
@@ -2305,7 +2481,10 @@ class Game{
     this.enemiesRemaining = this.enemies.length;
     this._initialEnemyCount = this.enemies.length;
 
-    this._initZone();
+    // Objective modes already force movement through terminals, a commander or extraction;
+    // the shrinking ring belongs only to the two survival modes.
+    this.zone = null;
+    if(['teaming','ffa'].includes(this.gameMode)) this._initZone();
     this._flashMessage(this.mapTheme.name.toUpperCase(), MODE_DESCRIPTIONS[this.gameMode] || 'Stay alert');
   }
 
@@ -2524,16 +2703,16 @@ class Game{
   // gunfire-attraction system, and the on-screen sound-location ping rendered in _render().
   // visRadius is how far away that ping can be seen/heard - shrunk by the Silencer upgrade or
   // a silenced enemy archetype.
-  registerGunshot(x,y,visRadius,source='gunfire'){
+  registerGunshot(x,y,visRadius,source='gunfire',mapWide=false){
     const t = performance.now();
     this.lastGunshot = { x,y, recent:true, t };
-    this.gunfireEvents.push({ x,y,t, visRadius: visRadius||400, source });
+    this.gunfireEvents.push({ x,y,t, visRadius: visRadius||400, source, mapWide });
     this.registerSound(x,y,source,visRadius||400);
     if(this.gunfireEvents.length>30) this.gunfireEvents.shift();
   }
 
-  registerSound(x,y,type,radius){
-    this.soundEvents.push({x,y,type,radius,t:performance.now()});
+  registerSound(x,y,type,radius,owner=null){
+    this.soundEvents.push({x,y,type,radius,owner,t:performance.now()});
     if(this.soundEvents.length>24)this.soundEvents.shift();
   }
 
@@ -2573,6 +2752,7 @@ class Game{
 
   _onPlayerDeath(){
     this.running = false;
+    document.body.classList.remove('game-running');
     // hidden adaptive difficulty: a loss nudges the multiplier back down (bigger step than a
     // win's step up, so the walk equilibrates around a 65% win rate - see the constructor)
     const ad = this.adaptiveDifficulty;
@@ -2596,6 +2776,7 @@ class Game{
   // There's no next floor to move on to; this ends the run outright.
   _onVictory(){
     this.running = false;
+    document.body.classList.remove('game-running');
     // hidden adaptive difficulty: a win nudges the multiplier up a little
     const ad = this.adaptiveDifficulty;
     ad.mult = Math.min(ad.max, ad.mult + ad.winStep);
@@ -2658,10 +2839,11 @@ class Game{
     this._playerFootprintTimer = (this._playerFootprintTimer==null ? 0 : this._playerFootprintTimer) - dt;
     if(this._playerFootprintTimer<=0){
       if(p.isMoving){
-        const hasSilencer = p.activeUpgrades.some(u=>u.id==='silencer');
-        const maxAge = hasSilencer ? FOOTPRINT_MAX_AGE*0.3 : FOOTPRINT_MAX_AGE;
+        const maxAge = FOOTPRINT_MAX_AGE*(p.weaponStats.footprintDecayMultiplier||1);
         this.footprints.push({ x:p.x, y:p.y, born:performance.now(), owner:'player', maxAge });
-        this.registerSound(p.x,p.y,'footsteps',125);
+        // Enemies can still investigate this sound, but the player should never receive a
+        // directional warning generated by their own movement.
+        this.registerSound(p.x,p.y,'footsteps',125,'player');
       }
       this._playerFootprintTimer = 0.32;
     }
@@ -2760,8 +2942,10 @@ class Game{
 
   _handleAutoFire(dt){
     const p = this.player;
-    // weapons are unavailable while channel-opening a chest, same as reloading
-    if(p.reloading || p.magazineAmmo<=0 || p.fireTimer>0 || p.openingChest) return;
+    // Reloading, an empty magazine and opening a chest all break aim acquisition. The normal
+    // fire-rate cooldown does not: once a target has been acquired, automatic follow-up fire
+    // remains responsive while that same target stays in the cone.
+    if(p.reloading || p.magazineAmmo<=0 || p.openingChest){p.acquireTarget=null;p.acquireTimer=0;return;}
     // firing cone tightens 30% when standing still, and accuracy is derived directly from
     // however wide that live cone currently is - see Player.getLiveConeWidth/getEffectiveSpread.
     const liveCone = p.getLiveConeWidth();
@@ -2769,7 +2953,8 @@ class Game{
     // matching what _updateFog just made visible.
     const fx = p.x + p.peekOffset.x, fy = p.y + p.peekOffset.y;
     // find nearest visible enemy within cone + range + LOS
-    let target = null, bestDist = Infinity;
+    let nearestTarget = null, bestDist = Infinity;
+    let retainedTarget = null;
     for(const e of this.enemies){
       if(e.dead) continue;
       const dist = Math.hypot(e.x-fx, e.y-fy);
@@ -2778,19 +2963,32 @@ class Game{
       if(angleDiff(ang, p.aimAngle) > (liveCone*Math.PI/180)/2) continue;
       if(!hasLineOfSight(this.map.walls, fx,fy,e.x,e.y)) continue;
       if(!this._isPointCurrentlyVisible(e.x,e.y)) continue;
-      if(dist < bestDist){ bestDist = dist; target = e; }
+      if(e===p.acquireTarget)retainedTarget=e;
+      if(dist < bestDist){ bestDist = dist; nearestTarget = e; }
     }
-    if(!target) return;
+    const target=retainedTarget||nearestTarget;
+    if(!target){p.acquireTarget=null;p.acquireTimer=0;return;}
+
+    if(p.acquireTarget!==target){p.acquireTarget=target;p.acquireTimer=0;}
+    p.acquireTimer+=dt;
+    // Standing still simulates a deliberate shouldered/scoped aim and cuts acquisition time
+    // by 45%. Moving uses the weapon's full hip-fire delay, capped at the sniper's 850 ms.
+    const baseDelay=Math.min(850,p.weaponStats.aimDelayMs||0)/1000;
+    const requiredDelay=baseDelay*(p.isMoving?1:0.55);
+    if(p.acquireTimer<requiredDelay||p.fireTimer>0)return;
+
     const pellets = p.weaponStats.pellets || 1;
     const effectiveSpread = p.getEffectiveSpread();
+    const mapWideSniper = p.weaponId==='sniper'&&!p.activeUpgrades.some(u=>u.id==='silencer');
+    const shotRadius = mapWideSniper ? Math.hypot(this.map.worldW,this.map.worldH)*1.25 : p.weaponStats.detectRadius;
     for(let i=0;i<pellets;i++){
       const spreadRad = (effectiveSpread*Math.PI/180) * (Math.random()*2-1);
       const ang = Math.atan2(target.y-fy, target.x-fx) + spreadRad;
-      this.playerBullets.push(new Bullet(fx,fy, ang, p.weaponStats.projectileSpeed, p.weaponStats.damage, 'player', p.weaponStats.range, p.weaponStats.color, 'player', p.weaponStats.detectRadius));
+      this.playerBullets.push(new Bullet(fx,fy, ang, p.weaponStats.projectileSpeed, p.weaponStats.damage, 'player', p.weaponStats.range, p.weaponStats.color, 'player', shotRadius));
     }
     p.magazineAmmo -= 1;
     p.fireTimer = 1/p.weaponStats.fireRate;
-    this.registerGunshot(fx,fy, p.weaponStats.detectRadius);
+    this.registerGunshot(fx,fy,shotRadius,mapWideSniper?'sniper':'gunfire',mapWideSniper);
     if(p.magazineAmmo<=0) p.startReload();
   }
 
@@ -2850,21 +3048,16 @@ class Game{
     // corner without walking into the open.
     const vx = p.x + p.peekOffset.x, vy = p.y + p.peekOffset.y;
     const mainPoly = buildVisionPolygon(this.map.walls, vx, vy, p.aimAngle, p.weaponStats.visionAngle, p.weaponStats.visionRange, rayCount);
-    const peripheralPoly = p.weaponStats.peripheralVisionRange > p.weaponStats.visionAngle
-      ? buildVisionPolygon(this.map.walls, vx, vy, p.aimAngle, Math.min(359, p.weaponStats.peripheralVisionRange), Math.max(60,p.weaponStats.visionRange*0.35), 40)
-      : null;
     const localPoly = buildLocalAwarenessPolygon(this.map.walls, p.x, p.y, p.localAwarenessRadius, 16);
-    this._currentPolys = { mainPoly, peripheralPoly, localPoly };
+    this._currentPolys = { mainPoly, localPoly };
     const bounds = { minx:p.x-1000, miny:p.y-1000, maxx:p.x+1000, maxy:p.y+1000 };
     this.fog.markExplored(mainPoly, bounds.minx,bounds.miny,bounds.maxx,bounds.maxy);
-    if(peripheralPoly) this.fog.markExplored(peripheralPoly, bounds.minx,bounds.miny,bounds.maxx,bounds.maxy);
     this.fog.markExplored(localPoly, bounds.minx,bounds.miny,bounds.maxx,bounds.maxy);
   }
 
   _isPointCurrentlyVisible(x,y){
-    const { mainPoly, peripheralPoly, localPoly } = this._currentPolys || {};
+    const { mainPoly, localPoly } = this._currentPolys || {};
     if(mainPoly && pointInPolygon(x,y,mainPoly)) return true;
-    if(peripheralPoly && pointInPolygon(x,y,peripheralPoly)) return true;
     if(localPoly && pointInPolygon(x,y,localPoly)) return true;
     return false;
   }
@@ -2979,17 +3172,14 @@ class Game{
 
       if(chest.progress >= chest.requiredTime){
         chest.opened = true;
-        if(chest.openerType==='player'){
-          p.openingChest = null;
-          const amount = Math.round(p.weaponStats.magazineSize*1.5);
-          p.reserveAmmo = Math.min(p.reserveAmmo + amount, p.weaponStats.magazineSize*6);
-          const compatIds = WEAPON_CONFIG[p.weaponId].compatibleUpgrades;
-          const uid = compatIds[Math.floor(Math.random()*compatIds.length)];
-          this.player.applyUpgrade(UPGRADE_CONFIG[uid]);
-          this._flashMessage('CHEST OPENED', `+${amount} ammo, ${UPGRADE_CONFIG[uid].name} installed`);
-        } else if(chest.openerType==='enemy' && chest.openerRef && !chest.openerRef.dead){
-          chest.openerRef.buff = { timeLeft:25, duration:25 };
-        }
+        if(chest.openerType==='player')p.openingChest = null;
+        const compatIds = WEAPON_CONFIG[p.weaponId].compatibleUpgrades;
+        const uid = compatIds[Math.floor(Math.random()*compatIds.length)];
+        // Opening only reveals the contents. Both rewards now enter the regular pickup flow:
+        // ammo uses its normal quiz and the attachment uses its normal single question.
+        this.pickups.push(new Pickup('ammo',chest.x-24,chest.y+13));
+        this.pickups.push(new Pickup('upgrade',chest.x+24,chest.y-13,uid));
+        if(chest.openerType==='player')this._flashMessage('CHEST OPENED',`${UPGRADE_CONFIG[uid].name} and ammo dropped nearby`);
       }
     }
   }
@@ -3005,9 +3195,10 @@ class Game{
 
   _screenToWorld(sx,sy){
     const p = this.player;
-    const camX = p.x - this.canvas.width/2;
-    const camY = p.y - this.canvas.height/2;
-    return { x: sx+camX, y: sy+camY };
+    const zoom=p?.weaponStats?.cameraZoom||1;
+    const camX = p.x - this.canvas.width/(2*zoom);
+    const camY = p.y - this.canvas.height/(2*zoom);
+    return { x: sx/zoom+camX, y: sy/zoom+camY };
   }
 
   _updateHud(){
@@ -3024,13 +3215,14 @@ class Game{
     document.getElementById('scoreText').textContent = Math.round(this.stats.score);
     document.getElementById('reloadHint').textContent = p.openingChest ? 'Weapon unavailable' : 'R to reload';
     const zoneText = document.getElementById('zoneText');
+    document.getElementById('zoneHudRow').hidden = !this.zone;
     if(this.zone){
       zoneText.textContent = this.zone.playerWasOutside ? 'DANGER -' + this.zone.damagePerSecond + '/s' : 'SAFE';
       zoneText.style.color = this.zone.playerWasOutside ? '#ff5c5c' : '#5cff8f';
     }
     const attachList = document.getElementById('attachList');
     if(p.activeUpgrades.length===0) attachList.textContent = 'none';
-    else attachList.innerHTML = p.activeUpgrades.map(u=>`<div class="attach-chip">${u.name} — ${Math.ceil(u.timeLeft)}s</div>`).join('');
+    else attachList.innerHTML = p.activeUpgrades.map(u=>`<div class="attach-chip">${u.name}${WEAPON_CONFIG[p.weaponId].compatibleUpgrades.includes(u.id)?'':' — stored'}</div>`).join('');
     this._updateDeployButtons();
     const objective=document.getElementById('objectiveText');
     if(this.gameMode==='commander')objective.textContent=this.enemies.some(e=>e.isCommander&&!e.dead)?'Eliminate the Elite Commander':'Commander eliminated';
@@ -3043,14 +3235,27 @@ class Game{
   _render(){
     const ctx = this.ctx;
     const p = this.player;
-    const camX = p.x - this.canvas.width/2;
-    const camY = p.y - this.canvas.height/2;
+    const zoom=p.weaponStats.cameraZoom||1;
+    const viewW=this.canvas.width/zoom, viewH=this.canvas.height/zoom;
+    const camX = p.x - viewW/2;
+    const camY = p.y - viewH/2;
     const theme = this.mapTheme || MAP_THEMES[0];
 
     ctx.fillStyle = theme.floorBg;
     ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
     ctx.save();
+    ctx.scale(zoom,zoom);
     ctx.translate(-camX,-camY);
+
+    // Give the generated layout a strong visual hierarchy: connected corridors read as
+    // deliberate routes, while each room has an inset floor, themed surface pattern and a
+    // small colour-coded purpose marker. This layer is decorative only and never affects
+    // walls, navigation, enemy sight or touch controls.
+    drawCorridorFloors(ctx,this.map,theme);
+    for(const room of this.map.rooms){
+      if(room.x+room.w<camX-20||room.x>camX+this.canvas.width+20||room.y+room.h<camY-20||room.y>camY+this.canvas.height+20) continue;
+      drawRoomFloor(ctx,room,theme);
+    }
 
     // floor grid
     ctx.strokeStyle = theme.gridColor;
@@ -3099,6 +3304,7 @@ class Game{
       ctx.strokeStyle = theme.wallOutline;
       ctx.lineWidth = 1.5;
       ctx.strokeRect(w.x+0.75,w.y+0.75,w.w-1.5,w.h-1.5);
+      drawWallSurface(ctx,w,theme);
       ctx.lineWidth = 1;
       ctx.restore();
     }
@@ -3130,10 +3336,12 @@ class Game{
       ctx.restore();
     }
 
-    // pickups - always visible; fog only ever hides enemies. Each type gets a small
-    // procedural sprite drawn on a soft glow pad in its category colour (weapon pickups use
-    // that specific weapon's own colour so you can tell what's on the floor at a glance).
+    // Stationary interactables begin hidden. The first time the current weapon light reaches
+    // one it becomes permanently discovered; afterward it remains drawn and the lighting
+    // overlay naturally darkens it whenever it falls outside the live field of view.
     for(const pk of this.pickups){
+      if(this._isPointCurrentlyVisible(pk.x,pk.y)) pk.discovered=true;
+      if(!pk.discovered) continue;
       pk.bob += 0.05;
       const bobY = Math.sin(pk.bob)*4;
       const cx = pk.x, cy = pk.y+bobY;
@@ -3165,17 +3373,19 @@ class Game{
       ctx.restore();
     }
 
-    for(const h of this.hazards){if(!h.active)continue;ctx.save();ctx.translate(h.x,h.y);
+    for(const h of this.hazards){if(!h.active)continue;if(this._isPointCurrentlyVisible(h.x,h.y))h.discovered=true;if(!h.discovered)continue;ctx.save();ctx.translate(h.x,h.y);
       if(h.type==='barrel'){ctx.fillStyle='#a52b2b';ctx.strokeStyle='#ffb15c';ctx.fillRect(-9,-13,18,26);ctx.strokeRect(-9,-13,18,26);ctx.fillStyle='#ffe27a';ctx.fillRect(-9,-3,18,5);}
       else if(h.type==='alarm'){ctx.strokeStyle=h.cooldown>0?'#ff4242':'#ffcf5c';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,16,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#ff4242';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();}
       else {ctx.strokeStyle='#65c7ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(-9,1);ctx.lineTo(-3,-7);ctx.lineTo(1,5);ctx.lineTo(8,-5);ctx.stroke();}
       ctx.restore();}
 
-    for(const o of this.objectives){if(o.type==='extract'&&!o.active)continue;ctx.save();ctx.translate(o.x,o.y);ctx.strokeStyle=o.captured?'#55e58a':o.type==='extract'?'#5ad1ff':'#ffd15c';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,24+Math.sin(performance.now()/180)*2,0,Math.PI*2);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText(o.type==='extract'?'EXIT':'INTEL',0,4);ctx.restore();}
+    for(const o of this.objectives){if(o.type==='extract'&&!o.active)continue;if(this._isPointCurrentlyVisible(o.x,o.y))o.discovered=true;if(!o.discovered)continue;ctx.save();ctx.translate(o.x,o.y);ctx.strokeStyle=o.captured?'#55e58a':o.type==='extract'?'#5ad1ff':'#ffd15c';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,24+Math.sin(performance.now()/180)*2,0,Math.PI*2);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText(o.type==='extract'?'EXIT':'INTEL',0,4);ctx.restore();}
 
     // chests - a plain box icon, with a filling progress ring while someone (player or an
     // idle enemy) is channel-opening it, and a dimmed look once emptied.
     for(const chest of this.chests){
+      if(this._isPointCurrentlyVisible(chest.x,chest.y))chest.discovered=true;
+      if(!chest.discovered)continue;
       drawChestIcon(ctx, chest.x, chest.y, chest.opened);
       if(!chest.opened && chest.progress>0){
         const t = chest.progress/chest.requiredTime;
@@ -3188,19 +3398,19 @@ class Game{
       }
     }
 
-    // footprints - fading breadcrumbs left by anyone (enemies and the player alike), only
-    // shown in fog the player has already explored (so they hint at nearby activity without
-    // revealing the unknown). Player-left prints are tinted faintly blue so they read as
-    // distinct from enemy trails at a glance.
+    // Enemy footprints are fading breadcrumbs shown only in explored areas. Player prints
+    // remain in the simulation for enemy tracking but are deliberately not shown back to the
+    // player, preventing their own trail from reading like an incoming threat.
     const nowTs = performance.now();
     for(const fp of this.footprints){
+      if(fp.owner==='player') continue;
       if(!this.fog.isExplored(fp.x, fp.y)) continue;
       const age = nowTs - fp.born;
       const maxAge = fp.maxAge!=null ? fp.maxAge : FOOTPRINT_MAX_AGE;
       const alpha = Math.max(0, 1 - age/maxAge) * 0.55;
       if(alpha<=0) continue;
       ctx.beginPath();
-      ctx.fillStyle = fp.owner==='player' ? `rgba(140,190,255,${alpha.toFixed(3)})` : `rgba(190,210,230,${alpha.toFixed(3)})`;
+      ctx.fillStyle = `rgba(190,210,230,${alpha.toFixed(3)})`;
       ctx.arc(fp.x, fp.y, 2.5, 0, Math.PI*2);
       ctx.fill();
     }
@@ -3238,7 +3448,7 @@ class Game{
     for(const e of this.enemies){
       if(e.dead) continue;
       if(!this._isPointCurrentlyVisible(e.x,e.y)&&!(p.scanTime>0&&Math.hypot(e.x-p.x,e.y-p.y)<520)) continue;
-      const spriteFn = ENEMY_SPRITES[e.archetype];
+      const spriteFn = ENEMY_SPRITES[e.cfg.sprite||e.archetype];
       if(spriteFn) spriteFn(ctx, e.x, e.y, e.aimAngle, e.cfg.color);
       else { ctx.beginPath(); ctx.fillStyle=e.cfg.color; ctx.arc(e.x,e.y,e.radius,0,Math.PI*2); ctx.fill(); }
       if(e.isElite){
@@ -3298,6 +3508,14 @@ class Game{
 
     // player body stays at its true (collision) position, drawn as the player's own sprite
     drawPlayerSprite(ctx, p.x, p.y, p.aimAngle, p.weaponStats.color);
+    if(p.reloading){
+      const progress=1-Math.max(0,p.reloadTimer)/Math.max(0.01,p.weaponStats.reloadTime);
+      ctx.save();
+      ctx.lineWidth=4;ctx.lineCap='round';
+      ctx.strokeStyle='rgba(5,10,16,.88)';ctx.beginPath();ctx.arc(p.x,p.y,25,0,Math.PI*2);ctx.stroke();
+      ctx.strokeStyle='#ffd15c';ctx.beginPath();ctx.arc(p.x,p.y,25,-Math.PI/2,-Math.PI/2+Math.PI*2*progress);ctx.stroke();
+      ctx.restore();
+    }
     if(p.shieldTime>0){ctx.strokeStyle='rgba(90,209,255,.85)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(p.x,p.y,27,0,Math.PI*2);ctx.stroke();}
     if(p.smokeTime>0){ctx.fillStyle='rgba(115,125,145,.42)';ctx.beginPath();ctx.arc(p.x,p.y,125,0,Math.PI*2);ctx.fill();}
     // a small peek marker (gun/eye leaning past the corner) shows the offset vision and
@@ -3317,26 +3535,24 @@ class Game{
     }
 
     ctx.restore();
+    this._renderFog(camX,camY,zoom);
     this._renderSoundIndicators();
     this._renderMinimap();
 
-    // NOTE: the darkness overlay is intentionally not drawn - the map, walls and pickups are
-    // always fully visible. Fog of war is still computed every frame (see _updateFog /
-    // _isPointCurrentlyVisible) and continues to gate enemy rendering and player auto-fire
-    // targeting below, so weapon-driven visibility remains a real combat mechanic even
-    // though it's no longer painted over the environment.
+    // Darkness is painted after the world so the same weapon-shaped visibility polygons that
+    // gate enemies and auto-fire are also immediately legible to the player.
   }
 
   _renderSoundIndicators(){
     const ctx=this.ctx,p=this.player,now=performance.now(),cx=this.canvas.width/2,cy=this.canvas.height/2;
-    for(const sound of this.soundEvents){const age=now-sound.t,dist=Math.hypot(sound.x-p.x,sound.y-p.y);if(age>2200||dist>sound.radius||dist<90)continue;const angle=Math.atan2(sound.y-p.y,sound.x-p.x),r=Math.min(cx,cy)-34,x=cx+Math.cos(angle)*r,y=cy+Math.sin(angle)*r;ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha=(1-age/2200)*Math.max(.3,1-dist/sound.radius);ctx.fillStyle=sound.type==='footsteps'?'#b7d4e8':sound.type==='reload'?'#7aff8f':'#ffe27a';ctx.beginPath();ctx.moveTo(11,0);ctx.lineTo(-7,-7);ctx.lineTo(-7,7);ctx.closePath();ctx.fill();ctx.restore();}
+    for(const sound of this.soundEvents){if(sound.owner==='player')continue;const age=now-sound.t,dist=Math.hypot(sound.x-p.x,sound.y-p.y);if(age>2200||dist>sound.radius||dist<90)continue;const angle=Math.atan2(sound.y-p.y,sound.x-p.x),r=Math.min(cx,cy)-34,x=cx+Math.cos(angle)*r,y=cy+Math.sin(angle)*r;ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha=(1-age/2200)*Math.max(.3,1-dist/sound.radius);ctx.fillStyle=sound.type==='footsteps'?'#b7d4e8':sound.type==='reload'?'#7aff8f':'#ffe27a';ctx.beginPath();ctx.moveTo(11,0);ctx.lineTo(-7,-7);ctx.lineTo(-7,7);ctx.closePath();ctx.fill();ctx.restore();}
   }
 
   _renderMinimap(){
     const canvas=document.getElementById('minimap'),m=canvas.getContext('2d'),sx=canvas.width/this.map.worldW,sy=canvas.height/this.map.worldH;m.clearRect(0,0,canvas.width,canvas.height);m.fillStyle='#05090e';m.fillRect(0,0,canvas.width,canvas.height);
     this.map.rooms.forEach(room=>{const c=this.map.center(room);if(!this.fog.isExplored(c.x,c.y))return;m.fillStyle='#263747';m.fillRect(room.x*sx,room.y*sy,room.w*sx,room.h*sy);});
-    this.objectives.forEach(o=>{if(!o.active&&o.type==='extract')return;if(!this.fog.isExplored(o.x,o.y)&&this.player.scanTime<=0)return;m.fillStyle=o.captured?'#55e58a':o.type==='extract'?'#5ad1ff':'#ffd15c';m.fillRect(o.x*sx-2,o.y*sy-2,4,4);});
-    const now=performance.now();this.soundEvents.forEach(s=>{if(now-s.t>2200)return;m.strokeStyle='#ffe27a';m.beginPath();m.arc(s.x*sx,s.y*sy,3,0,Math.PI*2);m.stroke();});
+    this.objectives.forEach(o=>{if(!o.active&&o.type==='extract')return;if(!o.discovered&&this.player.scanTime<=0)return;m.fillStyle=o.captured?'#55e58a':o.type==='extract'?'#5ad1ff':'#ffd15c';m.fillRect(o.x*sx-2,o.y*sy-2,4,4);});
+    const now=performance.now();this.soundEvents.forEach(s=>{if(s.owner==='player'||now-s.t>2200)return;m.strokeStyle='#ffe27a';m.beginPath();m.arc(s.x*sx,s.y*sy,3,0,Math.PI*2);m.stroke();});
     if(this.player.scanTime>0)this.enemies.forEach(e=>{if(!e.dead&&Math.hypot(e.x-this.player.x,e.y-this.player.y)<520){m.fillStyle=e.isCommander?'#ffd15c':'#ff5c5c';m.fillRect(e.x*sx-1,e.y*sy-1,3,3);}});
     m.fillStyle='#5ad1ff';m.beginPath();m.arc(this.player.x*sx,this.player.y*sy,3,0,Math.PI*2);m.fill();
   }
@@ -3346,28 +3562,18 @@ class Game{
     return this._isPointCurrentlyVisible(x,y);
   }
 
-  _renderFog(camX,camY){
+  _renderFog(camX,camY,zoom=1){
     const fctx = this.fogCtx;
     const w = this.canvas.width, h = this.canvas.height;
     fctx.clearRect(0,0,w,h);
 
-    // 1. previously-explored base: sample fog grid within camera view, draw dark-but-visible tiles
-    fctx.fillStyle = 'rgba(4,6,10,1)';
+    // The whole map remains visible, like an unlit room: geometry and floor decoration can
+    // still be made out, but colours and details are heavily subdued until illuminated.
+    fctx.fillStyle = 'rgba(2,5,10,0.68)';
     fctx.fillRect(0,0,w,h);
-    const tile = this.fog.tile;
-    const c0 = Math.floor(camX/tile), c1 = Math.ceil((camX+w)/tile);
-    const r0 = Math.floor(camY/tile), r1 = Math.ceil((camY+h)/tile);
-    fctx.fillStyle = 'rgba(20,28,38,0.82)';
-    for(let ry=r0; ry<=r1; ry++){
-      for(let cx=c0; cx<=c1; cx++){
-        if(cx<0||ry<0||cx>=this.fog.cols||ry>=this.fog.rows) continue;
-        if(this.fog.explored[this.fog.idx(cx,ry)]===1){
-          fctx.fillRect(cx*tile-camX, ry*tile-camY, tile+1, tile+1);
-        }
-      }
-    }
 
-    // 2. cut out fully-visible current polygons (main cone + peripheral + local)
+    // Cut the current weapon-shaped light out of the dim layer. Previously explored areas do
+    // not stay bright: only where the player is looking right now receives full illumination.
     fctx.save();
     fctx.globalCompositeOperation = 'destination-out';
     const drawPoly = (poly, alpha)=>{
@@ -3375,7 +3581,7 @@ class Game{
       fctx.globalAlpha = alpha;
       fctx.beginPath();
       poly.forEach((pt,i)=>{
-        const sx = pt.x-camX, sy = pt.y-camY;
+        const sx = (pt.x-camX)*zoom, sy = (pt.y-camY)*zoom;
         if(i===0) fctx.moveTo(sx,sy); else fctx.lineTo(sx,sy);
       });
       fctx.closePath();
@@ -3383,8 +3589,19 @@ class Game{
     };
     const polys = this._currentPolys || {};
     drawPoly(polys.mainPoly, 1);
-    drawPoly(polys.peripheralPoly, 0.55);
     drawPoly(polys.localPoly, 1);
+    fctx.restore();
+
+    // A restrained cool lift makes illuminated areas read as genuinely bright rather than
+    // merely "not dark", while keeping sprites and HUD colours intact.
+    fctx.save();
+    fctx.globalCompositeOperation='screen';
+    const brighten=(poly,alpha)=>{
+      if(!poly)return;fctx.globalAlpha=alpha;fctx.fillStyle='#d9f1ff';fctx.beginPath();
+      poly.forEach((pt,i)=>{const sx=(pt.x-camX)*zoom,sy=(pt.y-camY)*zoom;if(i===0)fctx.moveTo(sx,sy);else fctx.lineTo(sx,sy);});
+      fctx.closePath();fctx.fill();
+    };
+    brighten(polys.mainPoly,.13);brighten(polys.localPoly,.15);
     fctx.restore();
 
     this.ctx.drawImage(this.fogCanvas,0,0);
@@ -3401,20 +3618,24 @@ function renderArmoury(game){
   WEAPON_ORDER.forEach(id=>{
     const w = WEAPON_CONFIG[id];
     const owned = game.progress.unlockedWeapons.has(id);
+    const equipped = game.progress.startingWeapon===id;
     const card = document.createElement('div');
     card.className = 'weaponCard';
     card.innerHTML = `
       <h3>${w.name}</h3>
       <div class="desc">${w.desc}</div>
       <div class="desc">DMG ${w.damage} · RANGE ${w.range} · MAG ${w.magazineSize} · CONE ${w.coneWidth}°</div>
-      <button class="unlockBtn ${owned?'owned':''}" ${owned? 'disabled':''}>${owned? 'OWNED' : (w.unlockCost===0?'FREE':`Unlock — ${w.unlockCost}`)}</button>
+      <button class="unlockBtn ${equipped?'equipped':owned?'owned':''}" ${equipped?'disabled':''}>${equipped?'STARTING WEAPON':owned?'EQUIP FOR NEXT RUN':(w.unlockCost===0?'FREE':`Unlock — ${w.unlockCost}`)}</button>
     `;
     const btn = card.querySelector('.unlockBtn');
-    if(!owned){
+    if(owned&&!equipped){
+      btn.onclick=()=>{game.progress.startingWeapon=id;game.saveProgress();renderArmoury(game);};
+    }else if(!owned){
       btn.disabled = PlatformManager.getCoins() < w.unlockCost;
       btn.onclick = ()=>{
         if(PlatformManager.spendCoins(w.unlockCost)){
           game.progress.unlockedWeapons.add(id);
+          game.progress.startingWeapon=id;
           game.saveProgress();
           window.AchievementManager?.notify?.('upgrade_purchased');
           renderArmoury(game);
@@ -3458,9 +3679,9 @@ const game = new Game();
 const MODE_DESCRIPTIONS = {
   teaming: 'Room encounters plus 3 squads of 4 - squads fight each other as well as you.',
   ffa: '10 solo agents, everyone their own team. Pure last-one-standing - no room encounters, just loot rooms and the fight.',
-  commander:'Hunt a heavily armoured commander who buffs and directs nearby soldiers.',
-  intel:'Capture three intelligence terminals while hostile squads contest the arena.',
-  extraction:'Secure a hidden intelligence cache, then survive at the extraction zone.'
+  commander:'Hunt a heavily armoured commander who buffs and directs nearby soldiers. No shrinking zone.',
+  intel:'Capture three intelligence terminals while hostile squads contest the arena. No shrinking zone.',
+  extraction:'Secure a hidden intelligence cache, then survive at the extraction zone. No shrinking zone.'
 };
 function setGameMode(mode){
   game.gameMode = mode;
@@ -3520,6 +3741,7 @@ function refreshHome(){
 }
 
 function showHome(){
+  document.body.classList.remove('game-running');
   refreshHome();
   document.getElementById('startScreen').classList.add('active');
 }
