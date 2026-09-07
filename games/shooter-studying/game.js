@@ -981,6 +981,7 @@ class Enemy{
     // pressing straight in - without giving up on attacking altogether.
     this.recentlyHitTimer = 0;
     this.strafeSeed = Math.random()*1000; // per-enemy phase offset so squads don't all juke in sync
+    this.objectiveSlot = Math.floor(Math.random()*997); // stable assignment across objective refreshes
     // combat buff from opening a chest or picking up a ground upgrade - enemies don't carry a
     // magazine, so instead of ammo they get a flat damage/fire-rate/range boost for a while.
     this.buff = null; // {timeLeft, duration}
@@ -1012,9 +1013,45 @@ class Enemy{
     if(angleDiff(ang, this.aimAngle) > (this.cfg.visionAngle*Math.PI/180)/2) return false;
     return hasLineOfSight(walls, this.x, this.y, px, py);
   }
+  _chooseModeObjectiveTarget(game){
+    let anchors=[];
+    if(game.gameMode==='commander'){
+      const commander=game.enemies.find(e=>e.isCommander&&!e.dead);
+      if(commander&&commander!==this)anchors=[commander];
+    }else if(game.gameMode==='intel'||game.gameMode==='extraction'){
+      anchors=game.objectives.filter(o=>o.type==='extract'?o.active:!o.captured);
+    }else if((game.gameMode==='teaming'||game.gameMode==='ffa')&&game.zone){
+      anchors=[{x:game.zone.x,y:game.zone.y,type:'zone'}];
+    }
+    if(!anchors.length)return null;
+
+    // Squads divide naturally between multiple terminals; solo/room enemies receive a stable
+    // assignment so they do not change destination every time their patrol target refreshes.
+    const assignment=this.squadId!=null?this.squadId:this.objectiveSlot;
+    const anchor=anchors[assignment%anchors.length];
+    const rooms=game.map.rooms;
+    const room=rooms.find(r=>anchor.x>=r.x&&anchor.x<=r.x+r.w&&anchor.y>=r.y&&anchor.y<=r.y+r.h)
+      || rooms.reduce((best,r)=>Math.hypot(game.map.center(r).x-anchor.x,game.map.center(r).y-anchor.y)<Math.hypot(game.map.center(best).x-anchor.x,game.map.center(best).y-anchor.y)?r:best,rooms[0]);
+    if(!room)return{x:anchor.x,y:anchor.y};
+
+    const isOverwatch=this.cfg.weaponFamily==='sniper'||this.archetype==='marksman'||this.archetype==='sniper';
+    const isClose=this.cfg.melee||this.cfg.weaponFamily==='shotgun';
+    const standOff=isOverwatch?Math.min(room.w,room.h)*.38:isClose?42:105;
+    const baseAngle=(assignment%8)/8*Math.PI*2;
+    const candidates=[];
+    for(let i=0;i<8;i++){
+      const angle=baseAngle+i/8*Math.PI*2;
+      const point=game._findSafeSpot(room,anchor.x+Math.cos(angle)*standOff,anchor.y+Math.sin(angle)*standOff);
+      const sight=hasLineOfSight(game.map.walls,point.x,point.y,anchor.x,anchor.y);
+      candidates.push({point,sight,distance:Math.hypot(point.x-anchor.x,point.y-anchor.y)});
+    }
+    candidates.sort((a,b)=>(Number(b.sight)-Number(a.sight))+(isOverwatch?(b.distance-a.distance)*.01:0));
+    const chosen=candidates[0]?.point||{x:anchor.x,y:anchor.y};
+    if(isOverwatch)this.tacticalLookAngle=Math.atan2(anchor.y-chosen.y,anchor.x-chosen.x);
+    return chosen;
+  }
   _chooseTacticalPatrolTarget(game){
     const profile=this.cfg.profile;
-    if(!profile)return null;
     const rooms=game.map.rooms;
     const safeCenter=room=>{const c=game.map.center(room);return game._findSafeSpot(room,c.x,c.y);};
     if(profile==='loot_hunter'){
@@ -1034,6 +1071,9 @@ class Enemy{
       const ally=game.enemies.filter(e=>e!==this&&!e.dead).sort((a,b)=>(a.hp/a.maxHp)-(b.hp/b.maxHp))[0];
       if(ally&&ally.hp<ally.maxHp*.75)return{x:ally.x,y:ally.y};
     }
+    const modeTarget=this._chooseModeObjectiveTarget(game);
+    if(modeTarget)return modeTarget;
+    if(!profile)return null;
     if(profile==='objective_anchor'){
       const objective=game.objectives.find(o=>!o.captured&&(o.active!==false));
       if(objective)return{x:objective.x,y:objective.y};
@@ -1188,8 +1228,9 @@ class Enemy{
       const moveAng = Math.atan2(this._sniperEdgeTarget.y-this.y, this._sniperEdgeTarget.x-this.x);
       this.aimAngle = moveAng;
       this._moveTry(walls, moveAng, this.speed*dt);
-    } else if(this.cfg.stationary && this.state!=='attackRival'){
-      // snipers hold position, just rotate toward target
+    } else if(this.cfg.stationary && this.state==='attack'){
+      // Stationary marksmen hold only while actively lining up a shot. They still patrol,
+      // investigate sounds and relocate between engagements.
     } else if(this.state==='attackRival' && this.rivalRef && !this.rivalRef.dead){
       const rival = this.rivalRef;
       const rdist = Math.hypot(rival.x-this.x, rival.y-this.y);
@@ -1204,6 +1245,10 @@ class Enemy{
         if(rdist>desiredRange) moveAng = this.aimAngle;
         else if(rdist<desiredRange*0.5 && !this.cfg.melee) moveAng = this.aimAngle+Math.PI;
         if(moveAng!==null) this._moveTry(walls, moveAng, this.speed*dt);
+        else if(!this.cfg.melee && !this.cfg.stationary){
+          const strafeDir=Math.sin(performance.now()/700+this.strafeSeed)>0?1:-1;
+          this._moveTry(walls,this.aimAngle+Math.PI/2*strafeDir,this.speed*0.22*dt);
+        }
         // juke sideways while hurt/recently hit so they're a harder target to keep hitting -
         // still tracking and firing, just not standing still to take it.
         if(damageAverse && !this.cfg.melee && !this.cfg.stationary){
@@ -1246,7 +1291,7 @@ class Enemy{
       this.tacticalTargetTimer=(this.tacticalTargetTimer||0)-dt;
       if(d<8||this.tacticalTargetTimer<=0){
         const tactical=this._chooseTacticalPatrolTarget(game);
-        if(tactical){this.patrolTarget=tactical;this.tacticalTargetTimer=3+Math.random()*4;if(this.cfg.profile==='sightline_seeker'&&d<16)this.aimAngle=this.tacticalLookAngle;}
+        if(tactical){this.patrolTarget=tactical;this.tacticalTargetTimer=1.5+Math.random()*3;if(d<16&&this.tacticalLookAngle!=null)this.aimAngle=this.tacticalLookAngle;}
         else if(behavior){
           // squad members roam around their shared rally point rather than their own spawn
           const home = this.squad.rallyPoint;
@@ -1261,7 +1306,7 @@ class Enemy{
         }
       } else {
         const ang = Math.atan2(this.patrolTarget.y-this.y, this.patrolTarget.x-this.x);
-        const behaviorSpeed = behavior && behavior.ambush ? 0.12 : 0.4;
+        const behaviorSpeed = behavior && behavior.ambush ? 0.28 : 0.62;
         this._moveTry(walls, ang, this.speed*behaviorSpeed*dt);
         this.aimAngle = ang;
       }
@@ -1310,6 +1355,10 @@ class Enemy{
         if(distFromHome > behavior.roamRadius*1.4) moveAng = Math.atan2(this.squad.homePos.y-this.y, this.squad.homePos.x-this.x);
       }
       if(moveAng !== null) this._moveTry(walls, moveAng, this.speed*dt);
+      else if(!this.cfg.melee && !this.cfg.stationary){
+        const strafeDir=Math.sin(performance.now()/700+this.strafeSeed)>0?1:-1;
+        this._moveTry(walls,this.aimAngle+Math.PI/2*strafeDir,this.speed*0.22*dt);
+      }
       // damage-averse: juke sideways instead of standing still and eating fire, without
       // abandoning the fight - still aiming and shooting through the dodge.
       if(damageAverse && !this.cfg.melee && !this.cfg.stationary){
@@ -1679,7 +1728,6 @@ function drawRoomFloor(ctx,room,theme){
   const corner=18;
   [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]].forEach(([cx,cy,sx,sy])=>{ctx.beginPath();ctx.moveTo(cx+sx*corner,cy);ctx.lineTo(cx,cy);ctx.lineTo(cx,cy+sy*corner);ctx.stroke();});
   ctx.globalAlpha=.34;ctx.fillStyle=accent;ctx.beginPath();ctx.arc(room.x+room.w/2,room.y+room.h/2,25,0,Math.PI*2);ctx.fill();
-  ctx.globalAlpha=.72;ctx.fillStyle=accent;ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText(String(room.type||'ROOM').toUpperCase(),room.x+room.w/2,room.y+22);
   ctx.restore();
 }
 function drawWallSurface(ctx,w,theme){
@@ -3718,6 +3766,10 @@ document.getElementById('openArmouryFromVictoryBtn').onclick = ()=>{
   document.getElementById('victoryScreen').classList.remove('active');
   renderArmoury(game);
   document.getElementById('armouryScreen').classList.add('active');
+};
+document.getElementById('retryFromDeathBtn').onclick = ()=>{
+  document.getElementById('gameOverScreen').classList.remove('active');
+  game.startRun();
 };
 document.getElementById('playAgainFromDeathBtn').onclick = ()=>{
   document.getElementById('gameOverScreen').classList.remove('active');
