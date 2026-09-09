@@ -2285,9 +2285,10 @@ class Game{
         unlockedWeapons:new Set(saved?.unlockedWeapons?.length ? saved.unlockedWeapons : ['pistol']),
         ownedTombstones:new Set(['default',...(saved?.ownedTombstones || [])]),
         gravestoneStyle:GRAVESTONE_STYLES[saved?.gravestoneStyle] ? saved.gravestoneStyle : 'default',
-        startingWeapon:WEAPON_CONFIG[saved?.startingWeapon]&&(saved?.unlockedWeapons||['pistol']).includes(saved.startingWeapon)?saved.startingWeapon:'pistol'
+        startingWeapon:WEAPON_CONFIG[saved?.startingWeapon]&&(saved?.unlockedWeapons||['pistol']).includes(saved.startingWeapon)?saved.startingWeapon:'pistol',
+        aimSensitivity:saved?.aimSensitivity==='low'?'low':'normal'
       };
-    }catch(_){ return { unlockedWeapons:new Set(['pistol']), ownedTombstones:new Set(['default']), gravestoneStyle:'default', startingWeapon:'pistol' }; }
+    }catch(_){ return { unlockedWeapons:new Set(['pistol']), ownedTombstones:new Set(['default']), gravestoneStyle:'default', startingWeapon:'pistol', aimSensitivity:'normal' }; }
   }
 
   saveProgress(){
@@ -2296,7 +2297,8 @@ class Game{
       unlockedWeapons:[...this.progress.unlockedWeapons],
       ownedTombstones:[...this.progress.ownedTombstones],
       gravestoneStyle:this.progress.gravestoneStyle,
-      startingWeapon:this.progress.startingWeapon
+      startingWeapon:this.progress.startingWeapon,
+      aimSensitivity:this.progress.aimSensitivity
     }));
   }
 
@@ -2874,8 +2876,17 @@ class Game{
     const moveLength=Math.hypot(mx,my);if(moveLength>1){mx/=moveLength;my/=moveLength;}
     p.moveDir = {x:mx,y:my};
 
-    if(this.touchAim.engaged)p.aimAngle=Math.atan2(this.touchAim.y,this.touchAim.x);
-    else {const worldMouse = this._screenToWorld(this.mouse.x, this.mouse.y);p.aimAngle = Math.atan2(worldMouse.y-p.y, worldMouse.x-p.x);}
+    let targetAimAngle;
+    if(this.touchAim.engaged) targetAimAngle=Math.atan2(this.touchAim.y,this.touchAim.x);
+    else {const worldMouse = this._screenToWorld(this.mouse.x, this.mouse.y);targetAimAngle=Math.atan2(worldMouse.y-p.y, worldMouse.x-p.x);}
+    if(this.progress.aimSensitivity==='low'){
+      // Mouse aim is absolute in this top-down game, so a lower sensitivity is expressed as
+      // a deliberately slower turn toward the pointer/touch-stick direction.
+      let delta=targetAimAngle-p.aimAngle;
+      while(delta>Math.PI) delta-=Math.PI*2;
+      while(delta<-Math.PI) delta+=Math.PI*2;
+      p.aimAngle+=Math.sign(delta)*Math.min(Math.abs(delta),4.5*dt);
+    }else p.aimAngle=targetAimAngle;
 
     p.update(dt, this.map.walls);
 
@@ -3693,6 +3704,7 @@ function renderArmoury(game){
     grid.appendChild(card);
   });
   renderTombstones(game);
+  renderSettings(game);
 }
 
 function renderTombstones(game){
@@ -3716,6 +3728,24 @@ function renderTombstones(game){
     };
     card.append(preview,details);grid.appendChild(card);
     drawGravestone(preview.getContext('2d'),27,31,item.id);
+  });
+}
+
+function renderSettings(game){
+  const panel=document.getElementById('settingsPanel');
+  panel.innerHTML=`
+    <div class="weaponCard settingsCard">
+      <h3>Aim sensitivity</h3>
+      <p>Choose Low for a slower, steadier turn toward your mouse or aim stick. This can make fine aiming easier.</p>
+      <div class="settingChoices">
+        <button class="settingChoice ${game.progress.aimSensitivity==='low'?'active':''}" data-sensitivity="low">LOW</button>
+        <button class="settingChoice ${game.progress.aimSensitivity==='normal'?'active':''}" data-sensitivity="normal">NORMAL</button>
+      </div>
+    </div>`;
+  panel.querySelectorAll('[data-sensitivity]').forEach(button=>button.onclick=()=>{
+    game.progress.aimSensitivity=button.dataset.sensitivity;
+    game.saveProgress();
+    renderSettings(game);
   });
 }
 
@@ -3749,6 +3779,7 @@ document.querySelectorAll('[data-armoury-tab]').forEach(button=>button.onclick=(
   document.querySelectorAll('[data-armoury-tab]').forEach(item=>item.classList.toggle('active-tab',item===button));
   document.getElementById('weaponGrid').hidden=tab!=='weapons';
   document.getElementById('tombstoneGrid').hidden=tab!=='tombstones';
+  document.getElementById('settingsPanel').hidden=tab!=='settings';
 });
 
 document.getElementById('startRunBtn').onclick = ()=> game.startRun();

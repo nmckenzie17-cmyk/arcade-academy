@@ -72,12 +72,27 @@
       }
     };
     const SAVE_KEY = 'ninjaShurikenGameProgress';
-    // Only total coins and per-weapon kill counts persist across a refresh.
-    // Levels/paths always reset fresh so a student can freely try a different pathway.
+    const WEAPON_SAVE_FIELDS = ['unlocked', 'kills', 'level', 'path', 'levelA', 'levelB', 'repeatBuys', 'subPath', 'levelC', 'levelD', 'subRepeatBuys'];
+    function weaponSaveData(weapon) {
+      return Object.fromEntries(WEAPON_SAVE_FIELDS.map(field => [field, weapon[field]]));
+    }
+    function applySavedWeaponData(weapon, savedWeapon) {
+      if (!savedWeapon || typeof savedWeapon !== 'object') return;
+      for (const field of WEAPON_SAVE_FIELDS) {
+        const value = savedWeapon[field];
+        if (typeof weapon[field] === 'boolean' && typeof value === 'boolean') weapon[field] = value;
+        if (typeof weapon[field] === 'number' && Number.isFinite(value) && value >= 0) weapon[field] = value;
+        if ((field === 'path' || field === 'subPath') && (value === null || typeof value === 'string')) weapon[field] = value;
+      }
+    }
+    // Weapon upgrades are permanent. Older saves only have weapon kill counts;
+    // loading them still works and leaves any missing upgrade fields at defaults.
     function saveProgress() {
       try {
         const weaponKills = {};
         for (const key of ALL_WEAPON_KEYS) weaponKills[key] = progress.weapons[key].kills;
+        const weapons = {};
+        for (const key of ALL_WEAPON_KEYS) weapons[key] = weaponSaveData(progress.weapons[key]);
         const slim = {
           questionsCorrect: progress.questionsCorrect,
           bestLevel: progress.bestLevel,
@@ -88,7 +103,8 @@
           selectedStage: progress.selectedStage,
           stageBestLevels: progress.stageBestLevels,
           boneWeaponSkins: progress.boneWeaponSkins,
-          weaponKills
+          weaponKills,
+          weapons
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(slim));
       } catch (e) {
@@ -109,6 +125,9 @@
         if (typeof saved.selectedStage === 'string' && progress.ownedStages.includes(saved.selectedStage)) progress.selectedStage = saved.selectedStage;
         if (saved.stageBestLevels && typeof saved.stageBestLevels === 'object') progress.stageBestLevels = saved.stageBestLevels;
         if (saved.boneWeaponSkins && typeof saved.boneWeaponSkins === 'object') progress.boneWeaponSkins = saved.boneWeaponSkins;
+        if (saved.weapons && typeof saved.weapons === 'object') {
+          for (const key of ALL_WEAPON_KEYS) applySavedWeaponData(progress.weapons[key], saved.weapons[key]);
+        }
         if (saved.weaponKills) {
           for (const key of ALL_WEAPON_KEYS) {
             const k = saved.weaponKills[key];
@@ -374,6 +393,23 @@
     let activeBossId = null;
     let ninjaUpgradesPurchased = 0;
     let samuraiUpgradesPurchased = 0;
+    function weaponUpgradeCount(w) {
+      if (!w.path) return w.levelA + w.levelB;
+      const otherPathLevels = w.path === 'A' ? w.levelB : w.levelA;
+      if (!w.subPath) return w.level + w.levelC + w.levelD + otherPathLevels;
+      const otherSubPathLevels = w.subPath === 'C' ? w.levelD : w.levelC;
+      return w.level + otherPathLevels + otherSubPathLevels;
+    }
+    function refreshUpgradePurchaseCounts() {
+      ninjaUpgradesPurchased = 0;
+      samuraiUpgradesPurchased = 0;
+      for (const key of ALL_WEAPON_KEYS) {
+        const count = weaponUpgradeCount(progress.weapons[key]);
+        if (SAMURAI_WEAPON_KEYS.includes(key)) samuraiUpgradesPurchased += count;
+        else ninjaUpgradesPurchased += count;
+      }
+    }
+    refreshUpgradePurchaseCounts();
     function currentCharUpgrades() { return player.character === 'samurai' ? samuraiUpgradesPurchased : ninjaUpgradesPurchased; }
 
     // Camera shake state
@@ -5818,6 +5854,19 @@
         return;
       }
 
+      if (weaponUpgradeCount(w) > 0) {
+        const sellDiv = document.createElement('div');
+        sellDiv.className = 'shop-item';
+        sellDiv.style.cssText = 'border-color:#e94560;';
+        sellDiv.innerHTML = `
+          <div class="shop-header"><div class="shop-name">Sell upgrade pathways</div><div class="shop-cost">0 🪙</div></div>
+          <div class="shop-desc">Remove every purchased pathway upgrade for this weapon so you can build it differently. Weapon mastery kills and unlock status stay. No coin is refunded.</div>
+          <button class="shop-btn" id="sell_${key}_path" style="background:#7f1d2d;">Sell Pathways — No Refund</button>
+        `;
+        container.appendChild(sellDiv);
+        document.getElementById(`sell_${key}_path`).onclick = () => sellWeaponPathways(key);
+      }
+
       if (!w.path) {
         const noteDiv = document.createElement('div');
         noteDiv.className = 'shop-item';
@@ -6070,6 +6119,33 @@
       const w = progress.weapons[key];
       if (path === 'A') w.levelA++; else w.levelB++;
       if (SAMURAI_WEAPON_KEYS.includes(key)) samuraiUpgradesPurchased++; else ninjaUpgradesPurchased++;
+      saveProgress();
+      renderShop();
+      updateUI();
+    }
+
+    function sellWeaponPathways(key) {
+      const w = progress.weapons[key];
+      if (!w || weaponUpgradeCount(w) === 0) return;
+      const weaponName = WEAPON_NAMES[key] || key;
+      if (!window.confirm(`Sell all ${weaponName} pathway upgrades for 0 coins? This cannot be refunded.`)) return;
+
+      const kills = w.kills;
+      const unlocked = w.unlocked;
+      Object.assign(w, {
+        unlocked,
+        kills,
+        level: 0,
+        path: null,
+        levelA: 0,
+        levelB: 0,
+        repeatBuys: 0,
+        subPath: null,
+        levelC: 0,
+        levelD: 0,
+        subRepeatBuys: 0
+      });
+      refreshUpgradePurchaseCounts();
       saveProgress();
       renderShop();
       updateUI();

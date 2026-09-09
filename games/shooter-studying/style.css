@@ -100,6 +100,13 @@
   #coinTotal{ color:var(--gold); font-weight:bold; }
   .weaponGrid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; max-height:340px; overflow-y:auto; }
   .weaponGrid[hidden]{display:none;}
+  #settingsPanel[hidden]{display:none;}
+  .settingsCard{margin:16px 0;}
+  .settingsCard h3{margin:0 0 4px;color:var(--accent);font-size:16px;}
+  .settingsCard p{color:var(--dim);font-size:13px;line-height:1.45;margin:0 0 12px;}
+  .settingChoices{display:flex;gap:8px;}
+  .settingChoice{flex:1;background:#0e1620;color:var(--dim);border:1px solid var(--panel-border);border-radius:6px;padding:9px;cursor:pointer;}
+  .settingChoice.active{background:#153a1c;border-color:#4caf50;color:#fff;}
   .armoury-tabs{display:flex;gap:8px;margin-top:14px;}
   .armoury-tabs .shop-tab-btn{flex:1;cursor:pointer;}
   .weaponCard{
