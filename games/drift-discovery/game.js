@@ -1927,6 +1927,9 @@ const Game = (function(){
     garageCtx = garageCanvas.getContext("2d");
     resizeRaceCanvas();
     window.addEventListener("resize", resizeRaceCanvas);
+    window.addEventListener("orientationchange", resizeRaceCanvas);
+    window.visualViewport?.addEventListener("resize", resizeRaceCanvas);
+    window.visualViewport?.addEventListener("scroll", resizeRaceCanvas);
     InputManager.bindTouchControls(el("touchControls"));
     document.addEventListener("visibilitychange",()=>{if(document.hidden)InputManager.clearTouch();});
 
@@ -1977,8 +1980,12 @@ const Game = (function(){
   }
 
   function resizeRaceCanvas(){
-    raceCanvas.width = window.innerWidth;
-    raceCanvas.height = window.innerHeight;
+    const viewport = window.visualViewport;
+    const width = Math.max(1, Math.round(viewport?.width || document.documentElement.clientWidth || window.innerWidth));
+    const height = Math.max(1, Math.round(viewport?.height || document.documentElement.clientHeight || window.innerHeight));
+    document.documentElement.style.setProperty("--game-viewport-height", `${height}px`);
+    raceCanvas.width = width;
+    raceCanvas.height = height;
   }
 
   function showScreen(s){
@@ -1989,7 +1996,7 @@ const Game = (function(){
       updateHomeStats();
     }
     if(s==="GARAGE"){ el("screen-garage").classList.add("active"); renderGaragePanel(); renderGaragePreview(); updateCurrencyDisplays(); }
-    if(s==="RACE") el("screen-race").classList.add("active");
+    if(s==="RACE"){ el("screen-race").classList.add("active"); resizeRaceCanvas(); }
     state = s;
   }
 

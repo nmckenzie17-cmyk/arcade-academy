@@ -85,6 +85,8 @@ html, body {
   color: var(--accent-blue);
   font-family: var(--font-body);
   overflow: hidden;
+  /* Keep game controls responsive without allowing double-tap zoom. */
+  touch-action: manipulation;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
 }

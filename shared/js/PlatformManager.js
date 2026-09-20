@@ -69,6 +69,20 @@
   let practiceTimerId = null;
   const PLATFORM_SCRIPT_URL = typeof document !== 'undefined' ? document.currentScript?.src : null;
 
+  // The viewport tag and touch-action cover modern browsers. This fallback
+  // also blocks Safari's legacy double-tap and pinch gestures on game pages.
+  function installGameZoomLock() {
+    if (typeof document === 'undefined' || !/\/games\//.test(location.pathname)) return;
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', event => {
+      const now = Date.now();
+      if (now - lastTouchEnd < 300) event.preventDefault();
+      lastTouchEnd = now;
+    }, { capture: true, passive: false });
+    document.addEventListener('gesturestart', event => event.preventDefault(), { passive: false });
+  }
+  installGameZoomLock();
+
   function achievementEvent(name, payload) {
     if (practiceMode) return;
     if (global.AchievementManager) global.AchievementManager.notify(name, payload);

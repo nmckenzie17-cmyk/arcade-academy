@@ -67,8 +67,11 @@ let cw, ch, cellW, cellH, gridOffsetX, gridOffsetY;
 
 function resize() {
     const container = document.getElementById('game-container');
-    cw = container.clientWidth;
-    ch = container.clientHeight;
+    const viewport = window.visualViewport;
+    const viewportHeight = Math.max(1, Math.round(viewport?.height || window.innerHeight));
+    document.documentElement.style.setProperty('--game-viewport-height', `${viewportHeight}px`);
+    cw = Math.max(1, Math.round(container.clientWidth));
+    ch = Math.max(1, Math.round(container.clientHeight));
     canvas.width = cw;
     canvas.height = ch;
     gridOffsetX = 60;
@@ -78,6 +81,10 @@ function resize() {
 }
 resize();
 window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', resize);
+window.visualViewport?.addEventListener('resize', resize);
+window.visualViewport?.addEventListener('scroll', resize);
+if (window.ResizeObserver) new ResizeObserver(resize).observe(document.getElementById('game-container'));
 
 // Persistence
 const SAVE_KEY='gardenGuessingProgress_v1';
