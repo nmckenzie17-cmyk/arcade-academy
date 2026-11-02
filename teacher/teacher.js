@@ -37,6 +37,7 @@
     sessionTimerId: null,
     dashboardInitialized: false,
     authCheckId: 0,
+    feedback: [],
   };
 
   // ---------------------------------------------------------------
@@ -83,6 +84,12 @@
     els.statAccuracyToday = document.getElementById("stat-accuracy-today");
     els.statTotalQuestions = document.getElementById("stat-total-questions");
     els.statTotalPlaytime = document.getElementById("stat-total-playtime");
+    els.feedbackOpen = document.getElementById("feedback-open-button");
+    els.feedbackUnread = document.getElementById("feedback-unread-count");
+    els.feedbackOverlay = document.getElementById("feedback-overlay");
+    els.feedbackClose = document.getElementById("feedback-close");
+    els.feedbackList = document.getElementById("feedback-list");
+    els.feedbackStatus = document.getElementById("feedback-status");
     els.statTotalLabel = document.getElementById("stat-total-label");
     els.statisticsHeading = document.getElementById("statistics-heading");
     els.statisticsScope = document.getElementById("statistics-scope");
@@ -243,6 +250,8 @@
   }
 
   function bindStaticEvents() {
+    els.feedbackOpen.addEventListener("click", openFeedback);
+    els.feedbackClose.addEventListener("click", () => { els.feedbackOverlay.hidden = true; });
     els.classFilter.addEventListener("change", async (e) => {
       state.classCode = e.target.value;
       try { localStorage.setItem(SELECTED_CLASS_STORAGE_KEY, state.classCode); } catch (_) {}
@@ -552,6 +561,8 @@
     els.tableStatus.hidden = false;
     try {
       state.overview = await window.TeacherDataProvider.getClassOverview(state.classCode);
+      try { state.feedback = await window.TeacherDataProvider.getFeedback(); }
+      catch (feedbackError) { console.warn("Unable to load feedback count:", feedbackError); }
       renderTable();
       renderHeaderStats();
     } catch (err) {
@@ -606,10 +617,44 @@
     els.statAccuracyToday.textContent = accuracyToday === null ? "—" : `${accuracyToday}%`;
     els.statTotalQuestions.textContent = totalQuestions.toLocaleString();
     els.statTotalPlaytime.textContent = formatMinutes(totalPlaytime);
+    els.feedbackUnread.textContent = `${state.feedback.filter(item => !item.read).length} new`;
     els.statTotalLabel.textContent = allClasses ? "Total students" : "Students in class";
     els.statisticsHeading.textContent = allClasses ? "Overall statistics" : "Class statistics";
     els.statisticsScope.textContent = scopeLabel;
     els.overviewHeading.textContent = allClasses ? "All students" : `Class overview — ${state.classCode}`;
+  }
+
+  async function openFeedback() {
+    els.feedbackOverlay.hidden = false;
+    els.feedbackStatus.textContent = "Loading feedback…";
+    els.feedbackList.innerHTML = "";
+    try {
+      state.feedback = await window.TeacherDataProvider.getFeedback();
+      renderHeaderStats();
+      els.feedbackStatus.textContent = state.feedback.length ? "" : "No feedback yet.";
+      renderFeedbackList();
+    } catch (error) {
+      console.error("Unable to load feedback", error);
+      els.feedbackStatus.textContent = "Unable to load feedback. Check Firestore rules and teacher access.";
+    }
+  }
+
+  function renderFeedbackList() {
+    els.feedbackList.innerHTML = state.feedback.map(item => `<article style="padding:14px;margin:10px 0;border:1px solid #53658a;border-radius:10px;background:#101b3c">
+      <header style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><strong>${escapeHtml(item.studentName || "Student")} · ${escapeHtml(item.gameName || "General")}</strong><span>${item.read ? "Read" : "Unread"} · ${new Date(Number(item.createdAt) || Date.now()).toLocaleString()}</span></header>
+      <p style="white-space:pre-wrap">${escapeHtml(item.message || "")}</p><small>${escapeHtml(item.className || "Unassigned")}</small>
+      <button class="reset-button" type="button" data-feedback-id="${escapeHtml(item.id)}" data-student-id="${escapeHtml(item.studentId)}" data-read="${item.read ? "true" : "false"}">${item.read ? "Mark unread" : "Mark read"}</button>
+    </article>`).join("");
+    els.feedbackList.querySelectorAll("[data-feedback-id]").forEach(button => button.addEventListener("click", async () => {
+      button.disabled = true;
+      const read = button.dataset.read !== "true";
+      try {
+        await window.TeacherDataProvider.markFeedbackRead(button.dataset.studentId, button.dataset.feedbackId, read);
+        const item = state.feedback.find(entry => entry.id === button.dataset.feedbackId);
+        if (item) item.read = read;
+        renderHeaderStats(); renderFeedbackList();
+      } catch (error) { button.disabled = false; els.feedbackStatus.textContent = "Could not update feedback status."; }
+    }));
   }
 
   function getFilteredSortedRows() {

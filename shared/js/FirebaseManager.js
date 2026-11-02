@@ -102,6 +102,54 @@ export async function getUserProfile(uid) {
   }
 }
 
+export async function submitStudentFeedback({ message, gameId = null, gameName = null }) {
+  const user = auth.currentUser;
+  const text = String(message || "").trim();
+  if (!user || text.length < 3 || text.length > 2000) return false;
+  try {
+    const profile = await getUserProfile(user.uid);
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    await setDoc(doc(db, "users", user.uid, "feedback", id), {
+      message: text,
+      gameId: gameId || null,
+      gameName: gameName || (gameId ? String(gameId).replace(/[-_]/g, " ") : "General"),
+      studentName: profile?.displayName || "Student",
+      className: profile?.className || "Unassigned",
+      createdAt: Date.now(),
+      read: false
+    });
+    return true;
+  } catch (error) {
+    console.error("Unable to submit feedback:", error);
+    return false;
+  }
+}
+
+export async function getAllStudentFeedback() {
+  const teacherUid = auth.currentUser?.uid;
+  if (!teacherUid || (await getUserProfile(teacherUid))?.role !== "teacher") throw new Error("Teacher access required");
+  const students = await getAllStudents();
+  const snapshots = await Promise.all((students || []).filter(item => item.role !== "teacher").map(async student => ({
+    student,
+    snapshot: await getDocs(collection(db, "users", student.uid, "feedback"))
+  })));
+  const feedback = snapshots.flatMap(({ student, snapshot }) => snapshot.docs.map(item => ({
+    id: item.id,
+    studentId: student.uid,
+    studentName: student.displayName || "Student",
+    className: student.className || "Unassigned",
+    ...item.data()
+  })));
+  return feedback.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+}
+
+export async function markStudentFeedbackRead(studentId, feedbackId, read = true) {
+  const teacherUid = auth.currentUser?.uid;
+  if (!teacherUid || (await getUserProfile(teacherUid))?.role !== "teacher") throw new Error("Teacher access required");
+  await updateDoc(doc(db, "users", studentId, "feedback", feedbackId), { read: !!read, reviewedAt: Date.now(), reviewedBy: teacherUid });
+  return true;
+}
+
 export async function createUserProfile(uid, profile) {
   try {
     const profileRef = doc(db, "users", uid);
@@ -1078,6 +1126,9 @@ window.FirebaseManager = {
   signOut,
   watchAuthState,
   getUserProfile,
+  submitStudentFeedback,
+  getAllStudentFeedback,
+  markStudentFeedbackRead,
   createUserProfile,
   updateUserProfile,
   updateStudentProfile,

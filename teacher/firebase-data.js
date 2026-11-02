@@ -359,6 +359,14 @@ window.TeacherDataProvider = {
       .map((student) => mapStudent(student, catalog));
   },
 
+  async getFeedback() {
+    return window.FirebaseManager.getAllStudentFeedback();
+  },
+
+  async markFeedbackRead(studentId, feedbackId, read) {
+    return window.FirebaseManager.markStudentFeedbackRead(studentId, feedbackId, read);
+  },
+
   async getStudentDetail(studentId, selectedBankCode = null) {
     const [students, catalog] = await Promise.all([
       loadStudents(),

@@ -21,6 +21,19 @@ service cloud.firestore {
             || (resource.data.get('leaderboardId', '') == ''
               && request.resource.data.get('leaderboardId', '').matches('^[a-f0-9]{32}$')))));
       allow delete: if isTeacher() && resource.data.get('role', 'student') != 'teacher';
+
+      match /feedback/{feedbackId} {
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['message', 'gameId', 'gameName', 'studentName', 'className', 'createdAt', 'read'])
+          && request.resource.data.message is string
+          && request.resource.data.message.size() >= 3
+          && request.resource.data.message.size() <= 2000
+          && request.resource.data.read == false;
+        allow read: if signedIn() && (request.auth.uid == uid || isTeacher());
+        allow update: if isTeacher()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'reviewedAt', 'reviewedBy']);
+        allow delete: if isTeacher();
+      }
     }
 
     match /classSettings/{className} {

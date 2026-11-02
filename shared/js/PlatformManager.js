@@ -1415,6 +1415,13 @@
     else installPracticeButton();
   }
 
+  if (typeof document !== 'undefined' && PLATFORM_SCRIPT_URL && /\/games\//.test(location.pathname)) {
+    const feedbackScript = document.createElement('script');
+    feedbackScript.src = new URL('FeedbackUI.js?v=20261103-feedback-v1', PLATFORM_SCRIPT_URL).href;
+    feedbackScript.onload = () => global.FeedbackUI?.attachGameButton?.();
+    document.head.appendChild(feedbackScript);
+  }
+
   // Game pages include PlatformManager but do not need Firebase-specific
   // code. Load the adjacent manager and restore the signed-in user there.
   if (typeof document !== 'undefined' && document.currentScript && typeof global.FirebaseManager === 'undefined') {

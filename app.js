@@ -336,6 +336,9 @@ function renderProgression() {
   document.querySelector("#player-level-title").textContent = `Level ${summary.level}`;
   document.querySelector("#level-badge").textContent = summary.level;
   document.querySelector("#level-xp-text").textContent = `${summary.xpIntoLevel.toFixed(1)} / ${summary.xpForNext.toFixed(1)} XP · ${summary.lifetimeXp.toFixed(0)} lifetime XP`;
+  document.querySelector("#hub-level-compact-title").textContent = `Level ${summary.level}`;
+  document.querySelector("#hub-level-compact-badge").textContent = summary.level;
+  document.querySelector("#hub-level-compact-xp").textContent = `${summary.xpIntoLevel.toFixed(0)} / ${summary.xpForNext.toFixed(0)} XP`;
   document.querySelector("#next-level-reward").textContent = `Level ${summary.nextLevel} unlocks: ${summary.nextReward.name}${summary.nextReward.gameId ? ` for ${loadedGames.find(game => game.id === summary.nextReward.gameId)?.title || summary.nextReward.gameId.replaceAll("-", " ")}` : ""}`;
   document.querySelector("#level-progress").style.width = `${Math.min(100, summary.xpIntoLevel / summary.xpForNext * 100)}%`;
   document.querySelector("#level-progress").parentElement.setAttribute("aria-valuenow", summary.xpIntoLevel);
@@ -440,6 +443,27 @@ document.querySelectorAll("[data-open-hub-view]").forEach(button => button.addEv
 document.querySelectorAll("[data-close-hub-view]").forEach(button => button.addEventListener("click", () => setHubView()));
 document.addEventListener("keydown", event => { if (event.key === "Escape" && document.body.classList.contains("hub-view-active")) setHubView(); });
 if (new URLSearchParams(location.search).get("view") === "hub-upgrades") setHubView("hub-upgrades");
+
+function closeHubDialog(overlay) {
+  if (!overlay) return;
+  overlay.hidden = true;
+  overlay.dataset.opener === "daily" ? document.querySelector("#daily-missions-button")?.focus() : document.querySelector("#hub-level-button")?.focus();
+}
+function openHubDialog(overlay, opener) {
+  if (!overlay) return;
+  overlay.dataset.opener = opener;
+  overlay.hidden = false;
+  overlay.querySelector("[data-close-hub-dialog]")?.focus();
+}
+document.querySelector("#hub-level-button")?.addEventListener("click", () => openHubDialog(document.querySelector("#level-details-overlay"), "level"));
+document.querySelector("#daily-missions-button")?.addEventListener("click", () => openHubDialog(document.querySelector("#daily-missions-overlay"), "daily"));
+document.querySelectorAll("[data-close-hub-dialog]").forEach(button => button.addEventListener("click", () => closeHubDialog(button.closest(".hub-detail-overlay"))));
+document.querySelectorAll(".hub-detail-overlay").forEach(overlay => overlay.addEventListener("click", event => { if (event.target === overlay) closeHubDialog(overlay); }));
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape") return;
+  const overlay = [...document.querySelectorAll(".hub-detail-overlay")].find(item => !item.hidden);
+  if (overlay) closeHubDialog(overlay);
+});
 
 
 function applyProfileToHub(profile) {

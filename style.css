@@ -23,7 +23,22 @@ body {
 }
 
 .site-shell { overflow: hidden; }
+.player-bar { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
 .player-bar-actions { display: flex; align-items: center; gap: .65rem; }
+.hub-level-button { display:flex;align-items:center;gap:.6rem;padding:.35rem .75rem;color:#fff;text-align:left;background:rgba(255,209,92,.1);border:1px solid var(--gold);border-radius:12px;cursor:pointer; }
+.hub-level-button:hover,.hub-level-button:focus-visible { box-shadow:var(--glow-gold); }
+.hub-level-badge { display:grid;place-items:center;width:2rem;height:2rem;color:#160d25;background:var(--gold);border-radius:50%;font-family:var(--font-title);font-size:.8rem; }
+.hub-level-summary { display:grid;gap:.1rem; }.hub-level-summary strong{font-size:.78rem}.hub-level-summary small{color:#d9d0ee;font-size:.68rem}
+.hub-detail-overlay { position:fixed;z-index:13000;inset:0;display:grid;place-items:center;padding:1rem;background:rgba(3,5,18,.88); }
+.hub-detail-overlay[hidden] { display:none; }
+.hub-detail-window { position:relative;width:min(1000px,100%);max-height:min(88vh,900px);overflow:auto;padding:clamp(1rem,3vw,2rem);background:linear-gradient(145deg,#090615,#171028 55%,#251248);border:2px solid var(--accent-blue);border-radius:var(--radius-panel);box-shadow:0 0 40px rgba(0,212,255,.25); }
+.hub-detail-close { position:sticky;top:0;float:right;z-index:1;margin:-.45rem -.4rem 0 .5rem;padding:0 .45rem;color:#fff;background:#211339;border:1px solid var(--border-purple);border-radius:8px;font-size:1.8rem;line-height:1.2;cursor:pointer; }
+.hub-detail-title { margin:0 0 .5rem;color:var(--gold);font-family:var(--font-title); }
+.hub-detail-window .level-section,.hub-detail-window .daily-mission-section,.hub-detail-window .suggested-game-section { max-width:none;padding:0; }
+.hub-detail-window .suggested-game-section { padding-top:1.5rem; }
+.hub-detail-window .daily-mission-grid { padding-bottom:.25rem; }
+.player-bar-name { margin:0; }
+@media(max-width:760px){.player-bar{justify-content:center}.player-bar-name{flex:1}.hub-level-button{order:2}.player-bar-actions{justify-content:center;flex-wrap:wrap;width:100%;order:3}.player-bar-actions .class-btn{width:auto;font-size:.75rem}.hero{padding-top:3rem}}
 .sound-settings-overlay { position: fixed; z-index: 13000; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgba(3,5,18,.9); }
 .sound-settings-overlay[hidden] { display: none; }
 .sound-settings-panel { position: relative; width: min(640px,100%); padding: clamp(1.3rem,4vw,2rem); color: #fff; background: var(--gradient-panel); border: 3px solid var(--accent-blue); border-radius: var(--radius-panel); box-shadow: 0 0 40px rgba(0,212,255,.3); }
