@@ -1,0 +1,148 @@
+{
+  "name": "Year 11 Mechanics — Quick-Fire Questions — Type the Answer",
+  "questions": [
+    {
+      "q": "What type of quantity has magnitude and direction?",
+      "a": [
+        "Vector",
+        "Vector quantity"
+      ]
+    },
+    {
+      "q": "What type of quantity has magnitude only?",
+      "a": [
+        "Scalar",
+        "Scalar quantity"
+      ]
+    },
+    {
+      "q": "What is the overall result of combining multiple vectors called?",
+      "a": [
+        "Resultant",
+        "Resultant vector"
+      ]
+    },
+    {
+      "q": "What is the SI unit of force?",
+      "a": [
+        "Newton",
+        "Newtons",
+        "N"
+      ]
+    },
+    {
+      "q": "What is the SI unit of acceleration?",
+      "a": [
+        "m/s²",
+        "m/s^2",
+        "ms⁻²",
+        "ms^-2",
+        "metres per second squared",
+        "meters per second squared"
+      ]
+    },
+    {
+      "q": "What is the rate of change of velocity called?",
+      "a": [
+        "Acceleration"
+      ]
+    },
+    {
+      "q": "What is the total path length travelled called?",
+      "a": [
+        "Distance"
+      ]
+    },
+    {
+      "q": "What is the straight-line change in position called?",
+      "a": [
+        "Displacement"
+      ]
+    },
+    {
+      "q": "What does the gradient of a position-time graph represent?",
+      "a": [
+        "Velocity"
+      ]
+    },
+    {
+      "q": "What does the gradient of a velocity-time graph represent?",
+      "a": [
+        "Acceleration"
+      ]
+    },
+    {
+      "q": "What does the area under a velocity-time graph represent?",
+      "a": [
+        "Displacement"
+      ]
+    },
+    {
+      "q": "What force causes objects to accelerate towards Earth?",
+      "a": [
+        "Gravity",
+        "Gravitational force"
+      ]
+    },
+    {
+      "q": "What is the energy of a moving object called?",
+      "a": [
+        "Kinetic",
+        "Kinetic energy"
+      ]
+    },
+    {
+      "q": "What is stored energy due to height called?",
+      "a": [
+        "Potential",
+        "Potential energy",
+        "Gravitational potential",
+        "Gravitational potential energy"
+      ]
+    },
+    {
+      "q": "What law states that energy cannot be created or destroyed?",
+      "a": [
+        "Conservation",
+        "Conservation of energy",
+        "Law of conservation of energy"
+      ]
+    },
+    {
+      "q": "What is the SI unit of energy?",
+      "a": [
+        "Joule",
+        "Joules",
+        "J"
+      ]
+    },
+    {
+      "q": "What is the transfer of energy when a force moves an object called?",
+      "a": [
+        "Work",
+        "Work done"
+      ]
+    },
+    {
+      "q": "What is the rate of doing work called?",
+      "a": [
+        "Power"
+      ]
+    },
+    {
+      "q": "What trigonometric ratio is opposite divided by hypotenuse?",
+      "a": [
+        "Sine",
+        "sin"
+      ]
+    },
+    {
+      "q": "What is the SI unit of power?",
+      "a": [
+        "Watt",
+        "Watts",
+        "W"
+      ]
+    }
+  ]
+}

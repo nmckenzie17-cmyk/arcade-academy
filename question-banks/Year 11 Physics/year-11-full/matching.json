@@ -1,0 +1,165 @@
+{
+  "name": "Year 11 Mechanics – Key Terms and Definitions",
+  "cards": [
+    {
+      "term": "Scalar",
+      "definition": "A quantity that has magnitude (size) only, with no direction."
+    },
+    {
+      "term": "Vector",
+      "definition": "A quantity that has both magnitude and direction."
+    },
+    {
+      "term": "Magnitude",
+      "definition": "The size or amount of a physical quantity."
+    },
+    {
+      "term": "Direction",
+      "definition": "The way in which a vector quantity acts or moves."
+    },
+    {
+      "term": "Resultant",
+      "definition": "The single vector that represents the combined effect of two or more vectors."
+    },
+    {
+      "term": "Distance",
+      "definition": "The total length of the path travelled by an object."
+    },
+    {
+      "term": "Displacement",
+      "definition": "The straight-line change in position from the starting point to the finishing point, including direction."
+    },
+    {
+      "term": "Speed",
+      "definition": "The distance travelled per unit of time."
+    },
+    {
+      "term": "Velocity",
+      "definition": "The rate of change of displacement; speed in a particular direction."
+    },
+    {
+      "term": "Acceleration",
+      "definition": "The rate at which velocity changes over time."
+    },
+    {
+      "term": "Force",
+      "definition": "A push or pull that can change an object's motion."
+    },
+    {
+      "term": "Gravity",
+      "definition": "The force that attracts objects towards one another. Near Earth, it causes objects to accelerate downwards."
+    },
+    {
+      "term": "Time",
+      "definition": "The duration over which an event or motion occurs."
+    },
+    {
+      "term": "Mass",
+      "definition": "The amount of matter in an object."
+    },
+    {
+      "term": "Position-time graph",
+      "definition": "A graph showing an object's position or displacement over time. Its gradient represents velocity."
+    },
+    {
+      "term": "Velocity-time graph",
+      "definition": "A graph showing how an object's velocity changes over time. Its gradient represents acceleration."
+    },
+    {
+      "term": "Gradient",
+      "definition": "The steepness of a graph, calculated as the change in the vertical value divided by the change in the horizontal value."
+    },
+    {
+      "term": "Area under a graph",
+      "definition": "The area between a graph and the horizontal axis. On a velocity-time graph, it represents displacement."
+    },
+    {
+      "term": "Initial velocity (u)",
+      "definition": "The velocity an object has at the beginning of a period of motion."
+    },
+    {
+      "term": "Final velocity (v)",
+      "definition": "The velocity an object has at the end of a period of motion."
+    },
+    {
+      "term": "Free fall",
+      "definition": "Motion where gravity is the only force considered to be acting on an object."
+    },
+    {
+      "term": "Kinetic energy (KE)",
+      "definition": "The energy an object has because it is moving."
+    },
+    {
+      "term": "Potential energy (PE)",
+      "definition": "Stored energy an object has because of its position or height."
+    },
+    {
+      "term": "Conservation of energy",
+      "definition": "The principle that energy cannot be created or destroyed, only transferred or transformed."
+    },
+    {
+      "term": "Work",
+      "definition": "Energy transferred when a force causes an object to move through a displacement."
+    },
+    {
+      "term": "Power",
+      "definition": "The rate at which work is done or energy is transferred."
+    },
+    {
+      "term": "Trigonometry",
+      "definition": "The use of relationships between angles and sides of triangles to calculate unknown values."
+    },
+    {
+      "term": "Sine",
+      "definition": "A trigonometric ratio calculated using opposite ÷ hypotenuse."
+    },
+    {
+      "term": "Cosine",
+      "definition": "A trigonometric ratio calculated using adjacent ÷ hypotenuse."
+    },
+    {
+      "term": "Tangent",
+      "definition": "A trigonometric ratio calculated using opposite ÷ adjacent."
+    },
+    {
+      "term": "v = d/t",
+      "definition": "Speed"
+    },
+    {
+      "term": "a = (v - u)/t",
+      "definition": "Acceleration"
+    },
+    {
+      "term": "v = u + at",
+      "definition": "Final velocity"
+    },
+    {
+      "term": "d = ut + ½at²",
+      "definition": "Displacement"
+    },
+    {
+      "term": "v² = u² + 2ad",
+      "definition": "Final velocity without needing time"
+    },
+    {
+      "term": "KE = ½mv²",
+      "definition": "Kinetic energy"
+    },
+    {
+      "term": "PE = mgh",
+      "definition": "Gravitational potential energy"
+    },
+    {
+      "term": "W = Fd",
+      "definition": "Work"
+    },
+    {
+      "term": "P = W/t",
+      "definition": "Power"
+    },
+    {
+      "term": "R = √(Rx² + Ry²)",
+      "definition": "Resultant vector magnitude"
+    }
+  ]
+}

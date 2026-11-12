@@ -1,0 +1,502 @@
+[
+  {
+    "q": "A student walks 18 m east, then 7 m east. What is their resultant displacement?",
+    "o": [
+      "11 m east",
+      "25 m east",
+      "25 m west",
+      "11 m west"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A student walks 42 m east, then 17 m west. What is their resultant displacement?",
+    "o": [
+      "59 m east",
+      "25 m east",
+      "25 m west",
+      "59 m west"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A cyclist travels at 15 km/h for 40 minutes. How far do they travel?",
+    "o": [
+      "10 km",
+      "12.5 km",
+      "15 km",
+      "25 km"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A runner covers 2,400 m in 8 minutes. What is their average speed in m/s?",
+    "o": [
+      "3 m/s",
+      "4 m/s",
+      "5 m/s",
+      "6 m/s"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A car travels at 72 km/h. What is this speed in m/s?",
+    "o": [
+      "18 m/s",
+      "20 m/s",
+      "25 m/s",
+      "72 m/s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A cyclist travels at 12 m/s. What is this speed in km/h?",
+    "o": [
+      "3.3 km/h",
+      "36 km/h",
+      "43.2 km/h",
+      "12 km/h"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A car increases its velocity from 4 m/s to 19 m/s in 5 seconds. What is its acceleration?",
+    "o": [
+      "2 m/s²",
+      "3 m/s²",
+      "5 m/s²",
+      "15 m/s²"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A vehicle slows from 25 m/s to 7 m/s over 6 seconds. What is its acceleration?",
+    "o": [
+      "+3 m/s²",
+      "−3 m/s²",
+      "−2 m/s²",
+      "−6 m/s²"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A student walks at 6.5 m/s for 12 seconds. How far do they travel?",
+    "o": [
+      "65 m",
+      "72 m",
+      "78 m",
+      "84 m"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A car travels 150 m in 10 seconds. Which formula should be used to calculate its average speed?",
+    "o": [
+      "v = d ÷ t",
+      "a = (v − u) ÷ t",
+      "d = ut + ½at²",
+      "KE = ½mv²"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A vehicle travels 240 m at an average speed of 12 m/s. Which calculation gives the time taken?",
+    "o": [
+      "240 × 12",
+      "240 ÷ 12",
+      "12 ÷ 240",
+      "240 + 12"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A cyclist's velocity changes from 3 m/s to 15 m/s in 6 seconds. Which formula should be used to calculate acceleration?",
+    "o": [
+      "a = (v − u) ÷ t",
+      "v = d ÷ t",
+      "d = vt",
+      "P = W ÷ t"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A position-time graph shows an object at 12 m at 2 s and 72 m at 7 s. What is its velocity?",
+    "o": [
+      "10 m/s",
+      "12 m/s",
+      "14 m/s",
+      "60 m/s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A velocity-time graph shows velocity increasing uniformly from 0 m/s to 10 m/s over 6 seconds. What distance is travelled?",
+    "o": [
+      "16 m",
+      "30 m",
+      "60 m",
+      "6 m"
+    ],
+    "a": 1
+  },
+  {
+    "q": "An object moves at a constant velocity of 8 m/s for 15 seconds. What is its displacement?",
+    "o": [
+      "23 m",
+      "120 m",
+      "7.5 m",
+      "8 m"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A velocity-time graph has a straight line rising from 4 m/s to 16 m/s over 3 seconds. What does its gradient represent, and what is its value?",
+    "o": [
+      "Distance; 4 m",
+      "Acceleration; 4 m/s²",
+      "Velocity; 12 m/s",
+      "Displacement; 20 m"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A velocity-time graph is a horizontal line at 6 m/s for 5 seconds. What is the displacement?",
+    "o": [
+      "1.2 m",
+      "11 m",
+      "30 m",
+      "36 m"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A velocity-time graph shows a constant velocity of 10 m/s for 4 seconds, followed by 0 m/s for 3 seconds. What is the total distance travelled?",
+    "o": [
+      "10 m",
+      "30 m",
+      "40 m",
+      "70 m"
+    ],
+    "a": 2
+  },
+  {
+    "q": "An object moves at 5 m/s for 4 seconds, then at −2 m/s for 3 seconds. What is its total displacement?",
+    "o": [
+      "14 m",
+      "20 m",
+      "26 m",
+      "−6 m"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A position-time graph changes from 10 m to 50 m over 8 seconds. Which calculation gives the velocity?",
+    "o": [
+      "(50 − 10) ÷ 8",
+      "(50 + 10) × 8",
+      "8 ÷ (50 − 10)",
+      "(50 − 10) × 8"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A car starts from rest and accelerates at 2.5 m/s² for 8 seconds. What is its final velocity?",
+    "o": [
+      "10 m/s",
+      "20 m/s",
+      "23 m/s",
+      "25 m/s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A skateboarder has an initial velocity of 4 m/s and accelerates at 1.5 m/s² for 6 seconds. How far do they travel?",
+    "o": [
+      "27 m",
+      "45 m",
+      "51 m",
+      "60 m"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A bike travels at 5 m/s and accelerates at 2 m/s² over 36 m. What is its final velocity?",
+    "o": [
+      "11 m/s",
+      "13 m/s",
+      "169 m/s",
+      "12 m/s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A car travelling at 24 m/s decelerates at 3 m/s² for 8 seconds. What is its final velocity?",
+    "o": [
+      "−24 m/s",
+      "0 m/s",
+      "8 m/s",
+      "24 m/s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A car accelerates from 4 m/s to 20 m/s over 96 m. Which equation is most suitable for finding its acceleration without knowing time?",
+    "o": [
+      "v = u + at",
+      "d = ut + ½at²",
+      "v² = u² + 2ad",
+      "v = d ÷ t"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A runner starts from rest and accelerates at 2 m/s² for 5 seconds. What displacement do they cover?",
+    "o": [
+      "10 m",
+      "25 m",
+      "50 m",
+      "100 m"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A car travels 60 m in 5 seconds, starting at 8 m/s. Which equation can be rearranged to calculate its acceleration?",
+    "o": [
+      "v = u + at",
+      "d = ut + ½at²",
+      "v² = u² + 2ad",
+      "KE = ½mv²"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A cyclist accelerates from 3 m/s to 15 m/s at 2 m/s². How long does this take?",
+    "o": [
+      "4 s",
+      "6 s",
+      "9 s",
+      "12 s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A ball is thrown vertically upwards at 19.6 m/s. Taking upwards as positive, what is its velocity after 1 second?",
+    "o": [
+      "19.6 m/s upward",
+      "9.8 m/s upward",
+      "9.8 m/s downward",
+      "0 m/s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A ball is dropped from rest. How far does it fall in 2.5 seconds? Use g = 9.8 m/s².",
+    "o": [
+      "12.3 m",
+      "24.5 m",
+      "30.6 m",
+      "49.0 m"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A ball is thrown upwards at 14.7 m/s. Which equation should be used to calculate the maximum height, where final velocity is 0 m/s?",
+    "o": [
+      "8.0 m",
+      "11.0 m",
+      "14.7 m",
+      "22.1 m"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A ball is thrown vertically upwards. At its highest point, which values are correct?",
+    "o": [
+      "Velocity = 0; acceleration = 0",
+      "Velocity = 0; acceleration = 9.8 m/s² downward",
+      "Velocity = 9.8 m/s; acceleration = 0",
+      "Velocity and acceleration are both upward"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A 4 kg object travels at 6 m/s. What is its kinetic energy?",
+    "o": [
+      "24 J",
+      "36 J",
+      "72 J",
+      "144 J"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A 1,200 kg car travels at 10 m/s. What is its kinetic energy?",
+    "o": [
+      "6,000 J",
+      "12,000 J",
+      "60,000 J",
+      "120,000 J"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A 3.5 kg object is lifted 8 m above the ground. What gravitational potential energy does it gain? Use g = 9.8 m/s².",
+    "o": [
+      "78.4 J",
+      "196 J",
+      "274.4 J",
+      "343 J"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A 500 kg roller coaster car descends 20 m. Assuming all gravitational potential energy becomes kinetic energy, how much kinetic energy does it gain? Use g = 9.8 m/s².",
+    "o": [
+      "9,800 J",
+      "49,000 J",
+      "98,000 J",
+      "196,000 J"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A system starts with 500 J of gravitational potential energy and 100 J of kinetic energy. Later it has 150 J of gravitational potential energy. How much kinetic energy does it then have, assuming no energy leaves the system?",
+    "o": [
+      "350 J",
+      "450 J",
+      "500 J",
+      "650 J"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A 2 kg object is moving at 5 m/s. Which formula should be used to calculate its kinetic energy?",
+    "o": [
+      "PE = mgh",
+      "KE = ½mv²",
+      "W = F × d",
+      "P = W ÷ t"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A 10 kg object is raised 3 m vertically. Which calculation gives the increase in gravitational potential energy?",
+    "o": [
+      "10 × 3",
+      "½ × 10 × 3²",
+      "10 × 9.8 × 3",
+      "10 × 9.8 ÷ 3"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A student pushes a box with a force of 35 N over 4 m in the same direction as the force. How much work is done?",
+    "o": [
+      "35 J",
+      "140 J",
+      "175 J",
+      "560 J"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A machine performs 1,800 J of work in 12 seconds. What is its power output?",
+    "o": [
+      "15 W",
+      "150 W",
+      "1,800 W",
+      "21,600 W"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A crane lifts a 200 kg load through 12 m in 6 seconds. What is its power output? Use g = 9.8 m/s².",
+    "o": [
+      "392 W",
+      "1,960 W",
+      "3,920 W",
+      "23,520 W"
+    ],
+    "a": 2
+  },
+  {
+    "q": "A force of 120 N moves an object 5 m in the same direction as the force. Which formula should be used to calculate the work done?",
+    "o": [
+      "W = F × d",
+      "P = W ÷ t",
+      "KE = ½mv²",
+      "PE = mgh"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A motor transfers 600 J of energy in 20 seconds. What is its power?",
+    "o": [
+      "12 W",
+      "30 W",
+      "120 W",
+      "580 W"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A student does 900 J of work using a constant power output of 150 W. How long does the task take?",
+    "o": [
+      "0.17 s",
+      "6 s",
+      "750 s",
+      "1,050 s"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A 60 N force does 300 J of work while moving an object in the same direction. How far does the object move?",
+    "o": [
+      "2 m",
+      "5 m",
+      "60 m",
+      "18,000 m"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A vector has a magnitude of 10 N at 30° above the horizontal. What is its horizontal component? Use Vx = V cos θ.",
+    "o": [
+      "5.0 N",
+      "8.7 N",
+      "10.0 N",
+      "17.3 N"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A vector has a magnitude of 10 m/s at 30° above the horizontal. What is its vertical component? Use Vy = V sin θ.",
+    "o": [
+      "5.0 m/s",
+      "8.7 m/s",
+      "10.0 m/s",
+      "17.3 m/s"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Two perpendicular vector components are 3 m east and 4 m north. What is the magnitude of the resultant?",
+    "o": [
+      "1 m",
+      "5 m",
+      "7 m",
+      "12 m"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A vector has components 6 m east and 8 m north. Which formula gives the angle above the east direction?",
+    "o": [
+      "sin⁻¹(6 ÷ 8)",
+      "cos⁻¹(8 ÷ 6)",
+      "tan⁻¹(8 ÷ 6)",
+      "tan⁻¹(6 ÷ 8)"
+    ],
+    "a": 2
+  }
+]

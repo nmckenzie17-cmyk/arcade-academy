@@ -1,0 +1,419 @@
+{
+  "subject": "Year 11 Complete",
+  "categories": [
+    {
+      "prompt": "Vectors and scalars",
+      "correct": [
+        "Magnitude and direction",
+        "A quantity with magnitude only",
+        "Displacement",
+        "A quantity with magnitude and direction"
+      ],
+      "distractors": [
+        "KE = ½mv²",
+        "Distance",
+        "v = u + at",
+        "Rate of doing work",
+        "R = √(Rₓ² + Rᵧ²)",
+        "Speed",
+        "Area under a velocity-time graph",
+        "P = W/t",
+        "Acceleration",
+        "PE = mgh",
+        "Gradient of a position-time graph",
+        "Temperature"
+      ]
+    },
+    {
+      "prompt": "Motion, speed, velocity and acceleration",
+      "correct": [
+        "v = d/t",
+        "The rate of change of velocity",
+        "Speed",
+        "Velocity"
+      ],
+      "distractors": [
+        "Joules",
+        "PE = mgh",
+        "a = (v - u)/t",
+        "The amount of matter in an object",
+        "P = W/t",
+        "d = ut + ½at²",
+        "Newtons",
+        "The total length of the path travelled",
+        "Watts",
+        "Gravity is always zero at the highest point",
+        "Sine = opposite ÷ hypotenuse",
+        "KE = ½mv²"
+      ]
+    },
+    {
+      "prompt": "Graphs of motion",
+      "correct": [
+        "Gradient of a position-time graph represents velocity",
+        "Area under a velocity-time graph represents displacement",
+        "Gradient of a velocity-time graph represents acceleration",
+        "A horizontal line on a velocity-time graph represents constant velocity"
+      ],
+      "distractors": [
+        "W = Fd",
+        "v = u + at",
+        "PE = mgh",
+        "P = W/t",
+        "Distance is measured in kilograms",
+        "a = (v - u)/t",
+        "The gradient of a position-time graph represents power",
+        "KE = ½mv²",
+        "Area under a velocity-time graph represents mass",
+        "v = d/t",
+        "The gradient of a velocity-time graph represents displacement",
+        "Force is measured in joules"
+      ]
+    },
+    {
+      "prompt": "Kinematic equations (including vertical motion)",
+      "correct": [
+        "v = u + at",
+        "d = ut + ½at²",
+        "Gravity near Earth's surface is approximately 9.8 m/s² downward",
+        "v² = u² + 2ad"
+      ],
+      "distractors": [
+        "P = W/t",
+        "KE = ½mv²",
+        "W = Fd",
+        "Momentum",
+        "PE = mgh",
+        "Acceleration is measured in watts",
+        "v = d/t",
+        "Gravity stops acting at the highest point",
+        "R = √(Rₓ² + Rᵧ²)",
+        "Power is the rate of doing work",
+        "a = (v - u)/t",
+        "The area under a velocity-time graph represents displacement"
+      ]
+    },
+    {
+      "prompt": "Energy and conservation of energy",
+      "correct": [
+        "KE = ½mv²",
+        "PE = mgh",
+        "Energy cannot be created or destroyed",
+        "Joules"
+      ],
+      "distractors": [
+        "v = u + at",
+        "Watts",
+        "Acceleration",
+        "W = Fd",
+        "Potential energy",
+        "P = W/t",
+        "v = d/t",
+        "The gradient of a velocity-time graph represents acceleration",
+        "Newtons",
+        "a = (v - u)/t",
+        "Magnitude and direction",
+        "Distance divided by time"
+      ]
+    },
+    {
+      "prompt": "Work and power",
+      "correct": [
+        "W = Fd",
+        "Work is measured in joules",
+        "P = W/t",
+        "Power is measured in watts"
+      ],
+      "distractors": [
+        "v = u + at",
+        "PE = mgh",
+        "KE = ½mv²",
+        "Displacement",
+        "Gravity is 9.8 m/s² downward",
+        "Energy cannot be created or destroyed",
+        "v = d/t",
+        "The gradient of a position-time graph",
+        "Mass multiplied by acceleration",
+        "Sine = opposite ÷ hypotenuse",
+        "The total path length travelled",
+        "v² = u² + 2ad"
+      ]
+    },
+    {
+      "prompt": "Metallic Structure",
+      "correct": [
+        "Delocalised electrons",
+        "Metal cations",
+        "Metallic bonding",
+        "Non-directional bonding"
+      ],
+      "distractors": [
+        "Ionic lattice",
+        "Covalent network",
+        "Lone pairs",
+        "Intermolecular forces",
+        "Anions",
+        "Dipole",
+        "Molecular solid",
+        "Directional bonding",
+        "Shared electron pair",
+        "Fixed ions",
+        "Hydrogen bonding",
+        "Covalent molecules"
+      ]
+    },
+    {
+      "prompt": "Ionic Solids",
+      "correct": [
+        "Cations",
+        "Anions",
+        "Ionic lattice",
+        "Electrostatic attraction"
+      ],
+      "distractors": [
+        "Delocalised electrons",
+        "Metal nuclei",
+        "Molecular lattice",
+        "Covalent network",
+        "Weak intermolecular forces",
+        "Shared electron pairs",
+        "Non-directional bonding",
+        "Lone pairs",
+        "Metallic bonding",
+        "Neutral molecules",
+        "Carbon backbone",
+        "Hydrogen bonding"
+      ]
+    },
+    {
+      "prompt": "Methane, CH₄",
+      "correct": [
+        "Tetrahedral",
+        "Four bonding regions",
+        "Zero lone pairs",
+        "109.5° bond angle"
+      ],
+      "distractors": [
+        "Trigonal pyramidal",
+        "Three bonding regions",
+        "One lone pair",
+        "Two lone pairs",
+        "Linear",
+        "Ionic lattice",
+        "Delocalised electrons",
+        "Four non-bonding regions",
+        "Intermolecular bonding",
+        "Metallic bonding",
+        "Three electron regions",
+        "Diprotic structure"
+      ]
+    },
+    {
+      "prompt": "Ammonia, NH₃",
+      "correct": [
+        "Trigonal pyramidal",
+        "Three bonding regions",
+        "One lone pair",
+        "Four regions of electron density"
+      ],
+      "distractors": [
+        "Tetrahedral shape",
+        "Four bonding regions",
+        "Zero lone pairs",
+        "Two lone pairs",
+        "Linear shape",
+        "Three electron regions",
+        "Delocalised electrons",
+        "Ionic bonding",
+        "Metallic lattice",
+        "Two bonding regions",
+        "Covalent network",
+        "Non-directional bonding"
+      ]
+    },
+    {
+      "prompt": "Fractional Distillation",
+      "correct": [
+        "Crude oil",
+        "Boiling point",
+        "Volatility",
+        "Fractions"
+      ],
+      "distractors": [
+        "Solubility",
+        "Precipitate",
+        "Activation energy",
+        "Neutralisation",
+        "Dissociation",
+        "Carbonate ions",
+        "Electrolysis",
+        "Polymerisation",
+        "Collision frequency",
+        "Delocalised electrons",
+        "Ionic lattice",
+        "Conjugate base"
+      ]
+    },
+    {
+      "prompt": "Addition Reactions of Alkenes",
+      "correct": [
+        "Carbon-carbon double bond",
+        "Unsaturated hydrocarbon",
+        "Major product",
+        "Markovnikov's Rule"
+      ],
+      "distractors": [
+        "Carbon-carbon single bond",
+        "Saturated hydrocarbon",
+        "Fractional distillation",
+        "Complete combustion",
+        "Carbon-carbon triple bond",
+        "Decomposition",
+        "Neutralisation",
+        "Precipitation",
+        "Ionic lattice",
+        "Delocalised electrons",
+        "Activation energy",
+        "Covalent network"
+      ]
+    },
+    {
+      "prompt": "Incomplete Combustion",
+      "correct": [
+        "Limited oxygen",
+        "Carbon monoxide",
+        "Carbon",
+        "Water"
+      ],
+      "distractors": [
+        "Plentiful oxygen",
+        "Carbon dioxide only",
+        "Hydrogen gas",
+        "Carbonic acid",
+        "Hydrochloric acid",
+        "Carbonate ions",
+        "Calcium hydroxide",
+        "Sodium chloride",
+        "Precipitate",
+        "Delocalised electrons",
+        "Conjugate base",
+        "Polymerisation"
+      ]
+    },
+    {
+      "prompt": "Precipitation Reactions",
+      "correct": [
+        "Aqueous reactants",
+        "Insoluble product",
+        "Solid precipitate",
+        "Ionic compounds"
+      ],
+      "distractors": [
+        "Gaseous precipitate",
+        "Covalent network",
+        "Delocalised electrons",
+        "Hydrocarbon fuel",
+        "Complete combustion",
+        "Strong acid",
+        "Weak acid",
+        "Carbon backbone",
+        "Fractional distillation",
+        "Addition reaction",
+        "Molecular geometry",
+        "Activation energy"
+      ]
+    },
+    {
+      "prompt": "Strong Acids",
+      "correct": [
+        "Full dissociation",
+        "H⁺ ions",
+        "One-direction reaction",
+        "Hydrochloric acid"
+      ],
+      "distractors": [
+        "Partial dissociation",
+        "Reversible equilibrium",
+        "Ethanoic acid",
+        "Delocalised electrons",
+        "Hydroxide lattice",
+        "Carbon-carbon double bond",
+        "Intermolecular forces",
+        "Precipitate",
+        "Fractional distillation",
+        "Polymerisation",
+        "Lone pair repulsion",
+        "Metallic bonding"
+      ]
+    },
+    {
+      "prompt": "Increasing Reaction Rate",
+      "correct": [
+        "Higher temperature",
+        "Greater concentration",
+        "Greater surface area",
+        "Catalyst"
+      ],
+      "distractors": [
+        "Lower concentration",
+        "Lower temperature",
+        "Reduced surface area",
+        "Higher activation energy",
+        "Fewer collisions",
+        "Lower particle frequency",
+        "Increased reaction time",
+        "Partial dissociation",
+        "Stronger lattice energy",
+        "Lower collision energy",
+        "Reduced particle exposure",
+        "Fewer successful collisions"
+      ]
+    },
+    {
+      "prompt": "Graphite",
+      "correct": [
+        "Layered structure",
+        "Hexagonal carbon rings",
+        "Delocalised electrons",
+        "Electrical conductor"
+      ],
+      "distractors": [
+        "Tetrahedral network",
+        "Electrical insulator",
+        "Ionic lattice",
+        "Metal cations",
+        "Mobile ions",
+        "Molecular solid",
+        "Diprotic structure",
+        "Carbon-carbon double bonds",
+        "Saturated hydrocarbon",
+        "Addition polymer",
+        "Trigonal pyramidal",
+        "Strong ionic bonds"
+      ]
+    },
+    {
+      "prompt": "Polymer Chemistry",
+      "correct": [
+        "Monomer",
+        "Repeating unit",
+        "Polymerisation",
+        "Long chain"
+      ],
+      "distractors": [
+        "Fraction",
+        "Precipitate",
+        "Ionic lattice",
+        "Delocalised electron",
+        "Conjugate base",
+        "Neutralisation",
+        "Fractional distillation",
+        "Combustion",
+        "Dissociation",
+        "Allotrope",
+        "Metallic bond",
+        "Carbonate ion"
+      ]
+    }
+  ]
+}
