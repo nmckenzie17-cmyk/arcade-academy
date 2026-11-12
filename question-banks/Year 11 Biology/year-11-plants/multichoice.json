@@ -1,0 +1,402 @@
+[
+  {
+    "q": "What is the smallest unit of life?",
+    "o": [
+      "Tissue",
+      "Cell",
+      "Organ",
+      "Organelle"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the main function of the nucleus?",
+    "o": [
+      "Stores water",
+      "Produces glucose",
+      "Controls the cell",
+      "Releases oxygen"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which structure gives plant cells support and shape?",
+    "o": [
+      "Cell wall",
+      "Cytoplasm",
+      "Cell membrane",
+      "Mitochondria"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is the main function of mitochondria?",
+    "o": [
+      "Store nutrients",
+      "Control cell division",
+      "Absorb sunlight",
+      "Release energy from glucose"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which organelle carries out photosynthesis?",
+    "o": [
+      "Vacuole",
+      "Chloroplast",
+      "Nucleus",
+      "Ribosome"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the function of the large vacuole in a plant cell?",
+    "o": [
+      "Stores water and helps keep the cell firm",
+      "Makes food using sunlight",
+      "Controls what enters the cell",
+      "Produces energy for growth"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What substance makes up most of the plant cell wall?",
+    "o": [
+      "Glucose",
+      "Protein",
+      "Cellulose",
+      "Chlorophyll"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which structure controls what enters and leaves a cell?",
+    "o": [
+      "Nucleus",
+      "Vacuole",
+      "Cell wall",
+      "Cell membrane"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What are stomata?",
+    "o": [
+      "Small openings in leaves",
+      "Tubes inside the roots",
+      "Cells that store glucose",
+      "Layers that protect the stem"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is the function of guard cells?",
+    "o": [
+      "Transport water",
+      "Make glucose",
+      "Open and close stomata",
+      "Absorb minerals"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What happens when guard cells absorb water?",
+    "o": [
+      "They become smaller",
+      "They swell and open the stomata",
+      "They stop photosynthesis",
+      "They release glucose"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is transpiration?",
+    "o": [
+      "Water entering the roots",
+      "Sugar moving through the stem",
+      "Water being stored in cells",
+      "Water evaporating from leaves"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which tissue transports water and minerals upwards through a plant?",
+    "o": [
+      "Phloem",
+      "Epidermis",
+      "Xylem",
+      "Mesophyll"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What does phloem transport?",
+    "o": [
+      "Sugars around the plant",
+      "Water into the roots",
+      "Oxygen into the leaves",
+      "Minerals from the soil"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Where does most photosynthesis take place inside a leaf?",
+    "o": [
+      "Epidermis",
+      "Palisade mesophyll",
+      "Spongy mesophyll",
+      "Cuticle"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the main function of the leaf cuticle?",
+    "o": [
+      "Absorb minerals",
+      "Produce glucose",
+      "Allow gas exchange",
+      "Reduce water loss"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is the main function of plant roots?",
+    "o": [
+      "Absorb water and minerals",
+      "Produce flowers",
+      "Release oxygen",
+      "Capture sunlight"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is the main function of the stem?",
+    "o": [
+      "Absorb sunlight",
+      "Produce seeds",
+      "Support the plant and transport materials",
+      "Absorb minerals from the air"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is the correct order of organisation in a plant?",
+    "o": [
+      "Organs → Cells → Tissues → Systems",
+      "Cells → Tissues → Organs → Systems",
+      "Tissues → Systems → Cells → Organs",
+      "Cells → Organs → Systems → Tissues"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What happens to a plant when its cells lose too much water?",
+    "o": [
+      "It grows taller",
+      "It produces more glucose",
+      "It develops more roots",
+      "It begins to wilt"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which type of plant has one first leaf when it germinates?",
+    "o": [
+      "Dicot",
+      "Evergreen",
+      "Monocot",
+      "Deciduous"
+    ],
+    "a": 2
+  },
+  {
+    "q": "How are vascular bundles arranged in a dicot stem?",
+    "o": [
+      "In a circle",
+      "Randomly throughout the stem",
+      "Only in the centre",
+      "Along the outside edge"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is passive transport?",
+    "o": [
+      "Movement that always uses ATP",
+      "Movement from low to high concentration",
+      "Movement that only happens in roots",
+      "Movement that does not require energy"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which direction do particles move during diffusion?",
+    "o": [
+      "Low to high concentration",
+      "High to low concentration",
+      "Only towards the roots",
+      "In random directions without spreading"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is osmosis?",
+    "o": [
+      "Water moving through a membrane",
+      "Sugar moving through the phloem",
+      "Minerals entering the roots",
+      "Energy moving between cells"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Why is active transport important for plant roots?",
+    "o": [
+      "It helps leaves absorb sunlight",
+      "It allows water to evaporate",
+      "It allows minerals to be absorbed when scarce",
+      "It releases oxygen into the soil"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Where does the energy for active transport come from?",
+    "o": [
+      "Sunlight directly",
+      "ATP",
+      "Carbon dioxide",
+      "Water"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What happens during transpiration pull?",
+    "o": [
+      "Sugar moves down the stem",
+      "Minerals move into the leaves",
+      "Water leaves through the roots",
+      "Evaporation helps pull water up the xylem"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What are the raw materials needed for photosynthesis?",
+    "o": [
+      "Oxygen and glucose",
+      "Minerals and oxygen",
+      "Water and carbon dioxide",
+      "Glucose and water"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What are the main products of photosynthesis?",
+    "o": [
+      "Glucose and oxygen",
+      "Water and minerals",
+      "Carbon dioxide and ATP",
+      "Nitrogen and glucose"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Where does photosynthesis mainly happen?",
+    "o": [
+      "Mitochondria",
+      "Nucleus",
+      "Vacuole",
+      "Chloroplasts"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is the main role of chlorophyll?",
+    "o": [
+      "Store water",
+      "Absorb light energy",
+      "Transport glucose",
+      "Release carbon dioxide"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the main purpose of cellular respiration?",
+    "o": [
+      "Make oxygen",
+      "Absorb minerals",
+      "Release energy from glucose",
+      "Capture sunlight"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Where does cellular respiration mainly occur?",
+    "o": [
+      "Mitochondria",
+      "Chloroplasts",
+      "Cell wall",
+      "Vacuole"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What does mitosis produce?",
+    "o": [
+      "Four different cells",
+      "Two identical daughter cells",
+      "Two cells with half the DNA",
+      "One larger cell"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Where does most plant cell division occur?",
+    "o": [
+      "Mature leaves",
+      "Flowers",
+      "Fruit",
+      "Meristems and root tips"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is phototropism?",
+    "o": [
+      "Growth in response to light",
+      "Growth in response to water",
+      "Growth in response to gravity",
+      "Growth in response to touch"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is the purpose of a thick leaf cuticle in dry environments?",
+    "o": [
+      "Increase sugar production",
+      "Absorb more minerals",
+      "Reduce water loss",
+      "Increase leaf size"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What happens when too much fertiliser enters a lake?",
+    "o": [
+      "Oxygen levels always increase",
+      "Algae can grow excessively and reduce oxygen",
+      "All plants stop absorbing water",
+      "The water becomes completely sterile"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is the purpose of repeating an experiment at least three times?",
+    "o": [
+      "Make the experiment longer",
+      "Change more variables",
+      "Increase the number of hypotheses",
+      "Improve the reliability of results"
+    ],
+    "a": 3
+  }
+]

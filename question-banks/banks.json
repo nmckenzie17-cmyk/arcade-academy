@@ -18,6 +18,11 @@
   "113pf": {
     "subject": "Year 11 Physics",
     "bank": "year-11-full"
+    },
+  "111pf": {
+    "subject": "Year 11 Biology",
+    "bank": "year-11-plants"
+    
   },
   "112cr": {
     "subject": "Year 11 Chemistry",

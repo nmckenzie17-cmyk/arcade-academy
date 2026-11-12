@@ -414,6 +414,121 @@
         "Metallic bond",
         "Carbonate ion"
       ]
+    },
+    {
+      "prompt": "Plant Cell Organelles",
+      "correct": [
+        "Contains chlorophyll.",
+        "Controls what enters and leaves the cell.",
+        "Produces ATP during cellular respiration.",
+        "Stores water inside the cell."
+      ],
+      "distractors": [
+        "Transports water from roots to leaves.",
+        "Allows gas exchange in leaves.",
+        "Transports sugars around the plant.",
+        "Controls the opening and closing of stomata.",
+        "A group of similar cells working together.",
+        "Absorbs minerals from the soil.",
+        "A waxy layer that reduces water loss.",
+        "Germination is when a seed begins to grow.",
+        "Seed dispersal moves seeds away from the parent plant.",
+        "Water moves through a partially permeable membrane.",
+        "Movement of particles from high to low concentration.",
+        "The stem supports the plant."
+      ]
+    },
+    {
+      "prompt": "Plant Tissues and Organs",
+      "correct": [
+        "Xylem transports water and minerals upwards.",
+        "Phloem transports sugars around the plant.",
+        "The root absorbs water and minerals.",
+        "The leaf is a major site of photosynthesis."
+      ],
+      "distractors": [
+        "Chlorophyll absorbs light energy.",
+        "Mitochondria release energy.",
+        "Osmosis moves water across a partially permeable membrane.",
+        "The nucleus contains DNA.",
+        "Diffusion moves particles from high to low concentration.",
+        "Guard cells control stomata.",
+        "ATP provides usable energy for cells.",
+        "Mitosis produces two identical daughter cells.",
+        "Germination is when a seed begins to grow.",
+        "Seed dispersal moves seeds away from the parent plant.",
+        "Evaporation changes liquid water into water vapour.",
+        "The loss of water vapour from leaves."
+      ]
+    },
+    {
+      "prompt": "Passive and Active Transport",
+      "correct": [
+        "Movement of particles from high to low concentration.",
+        "Water moves through a partially permeable membrane.",
+        "Does not require cellular energy.",
+        "Movement of substances against a concentration gradient requires energy."
+      ],
+      "distractors": [
+        "Produces glucose using sunlight.",
+        "Mitosis produces two identical daughter cells.",
+        "Gas exchange occurs through stomata.",
+        "Chloroplasts contain chlorophyll.",
+        "Evaporation changes liquid water into water vapour.",
+        "The loss of water vapour from leaves.",
+        "Germination is when a seed begins to grow.",
+        "Seed dispersal moves seeds away from the parent plant.",
+        "The stem supports the plant.",
+        "The leaf is a major site of photosynthesis.",
+        "The cuticle reduces water loss.",
+        "Meristems are regions of active cell division."
+      ]
+    },
+    {
+      "prompt": "Photosynthesis and Cellular Respiration",
+      "correct": [
+        "Uses carbon dioxide and water.",
+        "Takes place mainly in chloroplasts.",
+        "Releases usable energy from glucose.",
+        "Takes place in mitochondria."
+      ],
+      "distractors": [
+        "Involves the movement of sugars through phloem.",
+        "Controls the opening and closing of stomata.",
+        "Requires minerals from the soil.",
+        "Produces two identical daughter cells.",
+        "Transports water from roots to leaves.",
+        "Reduces water loss from leaves.",
+        "Germination is when a seed begins to grow.",
+        "Seed dispersal moves seeds away from the parent plant.",
+        "Osmosis moves water across a partially permeable membrane.",
+        "Diffusion moves particles from high to low concentration.",
+        "Meristems are regions of active cell division.",
+        "The stem supports the plant."
+      ]
+    },
+    {
+      "prompt": "Plant Growth and Reproduction",
+      "correct": [
+        "Mitosis produces two identical daughter cells.",
+        "Meristems contain actively dividing cells.",
+        "Germination is when a seed begins to grow.",
+        "Seed dispersal moves seeds away from the parent plant."
+      ],
+      "distractors": [
+        "Xylem transports water.",
+        "Chloroplasts carry out photosynthesis.",
+        "Osmosis moves water across a membrane.",
+        "Phloem transports sugars.",
+        "The cuticle reduces water loss.",
+        "Guard cells control stomata.",
+        "Mitochondria are involved in cellular respiration.",
+        "Diffusion moves particles from high to low concentration.",
+        "Contains chlorophyll.",
+        "Controls what enters and leaves the cell.",
+        "The loss of water vapour from leaves.",
+        "Requires energy from the cell."
+      ]
     }
   ]
 }

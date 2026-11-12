@@ -456,6 +456,378 @@
     {
       "term": "Natural Polymer",
       "definition": "A naturally occurring polymer, such as DNA, silk or collagen in the exam classification."
+    },
+    {
+      "term": "Cell",
+      "definition": "The basic building block of all living things."
+    },
+    {
+      "term": "Organelle",
+      "definition": "A small structure inside a cell that has a specific job."
+    },
+    {
+      "term": "Nucleus",
+      "definition": "The part of the cell that contains DNA and controls cell activities."
+    },
+    {
+      "term": "Cell membrane",
+      "definition": "A thin layer that controls what enters and leaves the cell."
+    },
+    {
+      "term": "Cell wall",
+      "definition": "A strong outer layer that supports and protects plant cells."
+    },
+    {
+      "term": "Cytoplasm",
+      "definition": "The jelly-like substance where many cell activities take place."
+    },
+    {
+      "term": "Vacuole",
+      "definition": "A storage space in a plant cell that holds water and other substances."
+    },
+    {
+      "term": "Chloroplast",
+      "definition": "An organelle where photosynthesis takes place."
+    },
+    {
+      "term": "Chlorophyll",
+      "definition": "The green pigment that absorbs light energy for photosynthesis."
+    },
+    {
+      "term": "Mitochondria",
+      "definition": "Organelles where cellular respiration releases usable energy."
+    },
+    {
+      "term": "Cellulose",
+      "definition": "A strong carbohydrate that makes up much of the plant cell wall."
+    },
+    {
+      "term": "DNA",
+      "definition": "The genetic information that provides instructions for cells."
+    },
+    {
+      "term": "Tissue",
+      "definition": "A group of similar cells working together to perform a function."
+    },
+    {
+      "term": "Organ",
+      "definition": "A structure made of different tissues working together."
+    },
+    {
+      "term": "Specialised cell",
+      "definition": "A cell adapted to perform a particular job."
+    },
+    {
+      "term": "Root",
+      "definition": "The plant organ that absorbs water and minerals and helps anchor the plant."
+    },
+    {
+      "term": "Stem",
+      "definition": "Supports the plant and transports water, minerals and sugars."
+    },
+    {
+      "term": "Leaf",
+      "definition": "The main organ where photosynthesis takes place."
+    },
+    {
+      "term": "Fruit",
+      "definition": "A structure that develops from a flower and helps protect and disperse seeds."
+    },
+    {
+      "term": "Seed",
+      "definition": "A structure containing a young plant that can grow into a new plant."
+    },
+    {
+      "term": "Xylem",
+      "definition": "Vascular tissue that transports water and minerals from the roots upwards."
+    },
+    {
+      "term": "Phloem",
+      "definition": "Vascular tissue that transports sugars around the plant."
+    },
+    {
+      "term": "Vascular tissue",
+      "definition": "Plant tissue responsible for transporting substances through the plant."
+    },
+    {
+      "term": "Mesophyll",
+      "definition": "The inner leaf tissue where most photosynthesis occurs."
+    },
+    {
+      "term": "Palisade mesophyll",
+      "definition": "Tightly packed leaf cells containing many chloroplasts."
+    },
+    {
+      "term": "Spongy mesophyll",
+      "definition": "Loosely packed leaf cells with air spaces that help gas exchange."
+    },
+    {
+      "term": "Epidermis",
+      "definition": "The outer protective layer of a leaf."
+    },
+    {
+      "term": "Cuticle",
+      "definition": "A thin, waxy layer that reduces water loss from the leaf."
+    },
+    {
+      "term": "Companion cells",
+      "definition": "Cells that support the function of phloem tissue."
+    },
+    {
+      "term": "Sieve plates",
+      "definition": "Perforated structures between phloem cells that allow sugars to move through."
+    },
+    {
+      "term": "Cambium",
+      "definition": "A layer of tissue between xylem and phloem in dicot plants."
+    },
+    {
+      "term": "Stele",
+      "definition": "The central part of a root or stem containing vascular tissues."
+    },
+    {
+      "term": "Stoma",
+      "definition": "A tiny opening, usually on the underside of a leaf, that allows gas exchange."
+    },
+    {
+      "term": "Stomata",
+      "definition": "The plural of stoma; the openings in leaves."
+    },
+    {
+      "term": "Guard cells",
+      "definition": "Specialised cells that control the opening and closing of stomata."
+    },
+    {
+      "term": "Gas exchange",
+      "definition": "The movement of gases into and out of a plant."
+    },
+    {
+      "term": "Transpiration",
+      "definition": "The loss of water vapour from a plant, mainly through its leaves."
+    },
+    {
+      "term": "Transpiration pull",
+      "definition": "The pulling force created when water evaporates from leaves, drawing more water upwards."
+    },
+    {
+      "term": "Evaporation",
+      "definition": "The process where liquid water changes into water vapour."
+    },
+    {
+      "term": "Diffusion",
+      "definition": "The movement of particles from an area of high concentration to an area of low concentration."
+    },
+    {
+      "term": "Cohesion",
+      "definition": "The attraction between water molecules that makes them stick together."
+    },
+    {
+      "term": "Adhesion",
+      "definition": "The attraction between water molecules and other surfaces, such as xylem walls."
+    },
+    {
+      "term": "Turgor pressure",
+      "definition": "The pressure of water inside a plant cell pushing against its cell wall."
+    },
+    {
+      "term": "Flaccid",
+      "definition": "When a plant cell has lost water and become less firm."
+    },
+    {
+      "term": "Wilt",
+      "definition": "When a plant becomes droopy due to a loss of water and reduced cell pressure."
+    },
+    {
+      "term": "Transport",
+      "definition": "The movement of substances from one part of a plant to another."
+    },
+    {
+      "term": "Passive transport",
+      "definition": "Movement of substances without the use of cellular energy."
+    },
+    {
+      "term": "Active transport",
+      "definition": "Movement of substances that requires energy from the cell."
+    },
+    {
+      "term": "Osmosis",
+      "definition": "The movement of water through a partially permeable membrane from a dilute solution towards a more concentrated solution."
+    },
+    {
+      "term": "Partially permeable membrane",
+      "definition": "A barrier that allows some substances through but blocks others."
+    },
+    {
+      "term": "Concentration",
+      "definition": "The amount of a substance in a particular volume or space."
+    },
+    {
+      "term": "Concentration gradient",
+      "definition": "A difference in concentration between two areas."
+    },
+    {
+      "term": "Solute",
+      "definition": "A substance that is dissolved in a liquid."
+    },
+    {
+      "term": "Solvent",
+      "definition": "The liquid that dissolves another substance."
+    },
+    {
+      "term": "Dilute solution",
+      "definition": "A solution containing a relatively small amount of dissolved substance."
+    },
+    {
+      "term": "Concentrated solution",
+      "definition": "A solution containing a relatively large amount of dissolved substance."
+    },
+    {
+      "term": "Source",
+      "definition": "The part of a plant where sugars are produced or released into the phloem."
+    },
+    {
+      "term": "Sink",
+      "definition": "The part of a plant where sugars are used or stored."
+    },
+    {
+      "term": "Pressure-flow",
+      "definition": "The movement of sugars through phloem due to differences in pressure."
+    },
+    {
+      "term": "Photosynthesis",
+      "definition": "The process where plants use light energy to make glucose from carbon dioxide and water."
+    },
+    {
+      "term": "Cellular respiration",
+      "definition": "The process where cells break down glucose to release usable energy."
+    },
+    {
+      "term": "Glucose",
+      "definition": "A simple sugar produced during photosynthesis and used in respiration."
+    },
+    {
+      "term": "Oxygen",
+      "definition": "A gas released during photosynthesis and used during aerobic respiration."
+    },
+    {
+      "term": "Carbon dioxide",
+      "definition": "A gas absorbed by plants and used during photosynthesis."
+    },
+    {
+      "term": "Autotroph",
+      "definition": "An organism that makes its own food."
+    },
+    {
+      "term": "Producer",
+      "definition": "An organism that produces its own food and provides energy for other organisms."
+    },
+    {
+      "term": "ATP",
+      "definition": "A molecule that provides usable energy for cell activities."
+    },
+    {
+      "term": "Chemical energy",
+      "definition": "Energy stored in chemical substances, such as glucose."
+    },
+    {
+      "term": "Raw materials",
+      "definition": "The substances needed for a process to take place."
+    },
+    {
+      "term": "Products",
+      "definition": "The substances made by a chemical process."
+    },
+    {
+      "term": "Chloroplast",
+      "definition": "The organelle where photosynthesis occurs."
+    },
+    {
+      "term": "Mitochondrion",
+      "definition": "An organelle where cellular respiration takes place."
+    },
+    {
+      "term": "Mitosis",
+      "definition": "Cell division that produces two genetically identical daughter cells."
+    },
+    {
+      "term": "Daughter cells",
+      "definition": "The two new cells produced through cell division."
+    },
+    {
+      "term": "Meristem",
+      "definition": "Plant tissue where cells actively divide and produce new growth."
+    },
+    {
+      "term": "Root tip",
+      "definition": "The growing end of a root where many cells divide."
+    },
+    {
+      "term": "Growth",
+      "definition": "An increase in the size of an organism through cell division and cell enlargement."
+    },
+    {
+      "term": "Repair",
+      "definition": "The replacement of damaged cells and tissues."
+    },
+    {
+      "term": "Germination",
+      "definition": "The process where a seed begins to grow into a new plant."
+    },
+    {
+      "term": "Life cycle",
+      "definition": "The stages an organism goes through from the beginning of its life until it reproduces."
+    },
+    {
+      "term": "Monocot",
+      "definition": "A flowering plant whose seed produces one first leaf during germination."
+    },
+    {
+      "term": "Dicot",
+      "definition": "A flowering plant whose seed produces two first leaves during germination."
+    },
+    {
+      "term": "Seed dispersal",
+      "definition": "The movement of seeds away from the parent plant."
+    },
+    {
+      "term": "Nutrient",
+      "definition": "A substance needed by a plant for healthy growth."
+    },
+    {
+      "term": "Fertiliser",
+      "definition": "A substance added to soil to provide nutrients for plants."
+    },
+    {
+      "term": "Mineral",
+      "definition": "A naturally occurring substance that plants absorb from the soil."
+    },
+    {
+      "term": "Adaptation",
+      "definition": "A feature that helps an organism survive in its environment."
+    },
+    {
+      "term": "Tropism",
+      "definition": "A plant's growth response towards or away from a stimulus."
+    },
+    {
+      "term": "Phototropism",
+      "definition": "A plant's growth response to light."
+    },
+    {
+      "term": "Gravitropism",
+      "definition": "A plant's growth response to gravity."
+    },
+    {
+      "term": "Water availability",
+      "definition": "The amount of water accessible to a plant."
+    },
+    {
+      "term": "Carbon dioxide availability",
+      "definition": "The amount of carbon dioxide available for photosynthesis."
+    },
+    {
+      "term": "Limiting factor",
+      "definition": "A factor that restricts the rate of a process, such as photosynthesis or growth."
     }
   ]
 }
