@@ -1298,5 +1298,405 @@
       "Improve the reliability of results"
     ],
     "a": 3
+  },
+  {
+    "q": "What is the main function of DNA?",
+    "o": [
+      "To produce energy for cells",
+      "To store genetic information",
+      "To transport oxygen around the body",
+      "To break down nutrients"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What shape is a DNA molecule?",
+    "o": [
+      "A single straight chain",
+      "A circular protein",
+      "A folded membrane",
+      "A double helix"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which of the following is NOT a nitrogenous base found in DNA?",
+    "o": [
+      "Uracil",
+      "Adenine",
+      "Cytosine",
+      "Guanine"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which bases pair together in DNA?",
+    "o": [
+      "A with C, and T with G",
+      "A with G, and C with T",
+      "A with T, and C with G",
+      "A with U, and C with G"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What are the three components of a DNA nucleotide?",
+    "o": [
+      "Sugar, phosphate and base",
+      "Protein, sugar and enzyme",
+      "Amino acid, phosphate and base",
+      "Lipid, sugar and protein"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is a gene?",
+    "o": [
+      "A complete chromosome",
+      "A section of DNA coding for a protein",
+      "A type of cell division",
+      "A group of identical cells"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Where are chromosomes mainly found in human cells?",
+    "o": [
+      "Cell membrane",
+      "Cytoplasm",
+      "Ribosomes",
+      "Nucleus"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is a locus?",
+    "o": [
+      "A type of allele",
+      "A section of protein",
+      "The position of a gene on a chromosome",
+      "A complete DNA molecule"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What happens during transcription?",
+    "o": [
+      "DNA is divided into two cells",
+      "A copy of a gene is made as mRNA",
+      "Amino acids form a chromosome",
+      "Two gametes combine"
+    ],
+    "a": 1
+  },
+  {
+    "q": "Where does translation take place?",
+    "o": [
+      "Nucleus",
+      "Cell membrane",
+      "Mitochondria",
+      "Ribosome in the cytoplasm"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What are alleles?",
+    "o": [
+      "Different versions of a gene",
+      "Identical copies of a chromosome",
+      "Different types of cells",
+      "Proteins that make up DNA"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What are homologous chromosomes?",
+    "o": [
+      "Two identical sister chromatids",
+      "Chromosomes from the same parent",
+      "A pair carrying the same types of genes",
+      "Chromosomes with completely different genes"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What does genotype describe?",
+    "o": [
+      "An organism's physical appearance",
+      "An organism's genetic makeup",
+      "An organism's environment",
+      "An organism's behaviour"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What is a phenotype?",
+    "o": [
+      "The location of a gene",
+      "The number of chromosomes",
+      "The DNA sequence",
+      "An observable characteristic"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Which genotype is homozygous recessive?",
+    "o": [
+      "bb",
+      "Bb",
+      "BB",
+      "BC"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which genotype is heterozygous?",
+    "o": [
+      "AA",
+      "aa",
+      "Aa",
+      "BB"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What happens when a dominant allele is present?",
+    "o": [
+      "It disappears during fertilisation",
+      "It can be expressed with one copy",
+      "It only appears with two copies",
+      "It always changes the DNA sequence"
+    ],
+    "a": 1
+  },
+  {
+    "q": "When is a recessive trait expressed?",
+    "o": [
+      "When one dominant allele is present",
+      "When three alleles are present",
+      "When the organism is heterozygous",
+      "When two recessive alleles are present"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Why do individuals within a population show genetic variation?",
+    "o": [
+      "They inherit different combinations of alleles",
+      "They all have identical DNA",
+      "They live in exactly the same environment",
+      "They have different numbers of body cells"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Himalayan rabbits develop black fur on their cooler extremities. What causes this?",
+    "o": [
+      "Their fur changes colour randomly",
+      "Their genes disappear in cold conditions",
+      "Their genes and temperature work together",
+      "Their parents only produce black fur"
+    ],
+    "a": 2
+  },
+  {
+    "q": "Which type of mutation can be passed on to offspring?",
+    "o": [
+      "A mutation in a skin cell",
+      "A mutation in a sex cell",
+      "A mutation in a muscle cell",
+      "A mutation in a liver cell"
+    ],
+    "a": 1
+  },
+  {
+    "q": "A beetle becomes brown after rolling in iron-rich clay, but its offspring are green. What caused the brown colour?",
+    "o": [
+      "A dominant allele",
+      "A mutation in a gamete",
+      "A change in its chromosome number",
+      "An environmental factor"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What are gametes?",
+    "o": [
+      "Reproductive cells such as sperm and eggs",
+      "Identical copies of body cells",
+      "Pairs of homologous chromosomes",
+      "Cells containing a full chromosome set"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What happens during fertilisation?",
+    "o": [
+      "Chromosomes are copied",
+      "Four new cells are produced",
+      "Sperm and egg join to form a zygote",
+      "Homologous chromosomes exchange sections"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is the main outcome of meiosis?",
+    "o": [
+      "Two identical body cells",
+      "Four cells with half the chromosomes",
+      "One cell with double the chromosomes",
+      "Four identical body cells"
+    ],
+    "a": 1
+  },
+  {
+    "q": "During which stage of meiosis does crossing over occur?",
+    "o": [
+      "Metaphase II",
+      "Anaphase II",
+      "Telophase I",
+      "Prophase I"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is independent assortment?",
+    "o": [
+      "Homologous chromosomes line up randomly",
+      "DNA copies itself twice",
+      "Sister chromatids join together",
+      "Two gametes combine randomly"
+    ],
+    "a": 0
+  },
+  {
+    "q": "What is the main purpose of mitosis?",
+    "o": [
+      "To produce sperm and egg cells",
+      "To create genetic variation",
+      "To produce genetically identical cells",
+      "To halve the chromosome number"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is one key difference between mitosis and meiosis?",
+    "o": [
+      "Both produce four cells",
+      "Meiosis produces gametes, while mitosis produces identical cells",
+      "Mitosis only occurs in reproductive organs",
+      "Meiosis produces identical cells"
+    ],
+    "a": 1
+  },
+  {
+    "q": "How many chromosomes are normally found in a human body cell?",
+    "o": [
+      "23",
+      "44",
+      "48",
+      "46"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Two heterozygous black rabbits (Bb) are crossed. Black fur is dominant. What is the probability of a white offspring?",
+    "o": [
+      "25%",
+      "50%",
+      "75%",
+      "100%"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A homozygous dominant plant (PP) is crossed with a homozygous recessive plant (pp). What percentage of offspring will show the dominant trait?",
+    "o": [
+      "25%",
+      "50%",
+      "100%",
+      "75%"
+    ],
+    "a": 2
+  },
+  {
+    "q": "What is the purpose of a test cross?",
+    "o": [
+      "To identify the phenotype of a recessive organism",
+      "To determine the unknown genotype of an organism showing a dominant trait",
+      "To count the chromosomes in a cell",
+      "To create a new allele"
+    ],
+    "a": 1
+  },
+  {
+    "q": "In a pedigree chart, what does a shaded symbol represent?",
+    "o": [
+      "An unknown individual",
+      "A carrier only",
+      "An individual who has died",
+      "An affected individual"
+    ],
+    "a": 3
+  },
+  {
+    "q": "Two unaffected parents have a child who shows a recessive condition. What must the parents' genotypes be?",
+    "o": [
+      "Both heterozygous",
+      "Both homozygous dominant",
+      "Both homozygous recessive",
+      "One dominant and one recessive only"
+    ],
+    "a": 0
+  },
+  {
+    "q": "Which pattern is most commonly associated with a dominant trait in a pedigree?",
+    "o": [
+      "It only affects males",
+      "It always skips generations",
+      "Affected individuals usually have an affected parent",
+      "Unaffected parents always produce affected children"
+    ],
+    "a": 2
+  },
+  {
+    "q": "In humans, which parent determines whether the offspring receives an X or Y chromosome?",
+    "o": [
+      "The mother",
+      "The father",
+      "Both parents always contribute a Y",
+      "Neither parent"
+    ],
+    "a": 1
+  },
+  {
+    "q": "What causes Down syndrome (Trisomy 21)?",
+    "o": [
+      "A missing chromosome 21",
+      "A mutation in a single gene",
+      "An extra X chromosome",
+      "Three copies of chromosome 21"
+    ],
+    "a": 3
+  },
+  {
+    "q": "What is a karyotype?",
+    "o": [
+      "An organised display of an individual's chromosomes",
+      "A diagram of a protein",
+      "A chart showing inherited traits",
+      "A model of DNA replication"
+    ],
+    "a": 0
+  },
+  {
+    "q": "A black male guinea pig is crossed with a white female guinea pig. Black (B) is dominant over white (b). They produce both black and white offspring. What must the male's genotype be?",
+    "o": [
+      "BB",
+      "bb",
+      "Bb",
+      "Bbb"
+    ],
+    "a": 2
   }
 ]

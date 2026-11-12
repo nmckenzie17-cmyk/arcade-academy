@@ -828,6 +828,222 @@
     {
       "term": "Limiting factor",
       "definition": "A factor that restricts the rate of a process, such as photosynthesis or growth."
+    },
+    {
+      "term": "DNA",
+      "definition": "The molecule that stores genetic information in living organisms."
+    },
+    {
+      "term": "Gene",
+      "definition": "A section of DNA that contains instructions for making a protein."
+    },
+    {
+      "term": "Chromosome",
+      "definition": "A long, organised structure of DNA wrapped around proteins called histones."
+    },
+    {
+      "term": "Nucleotide",
+      "definition": "The basic building block of DNA, made of a sugar, phosphate and nitrogenous base."
+    },
+    {
+      "term": "Double helix",
+      "definition": "The twisted-ladder shape of DNA."
+    },
+    {
+      "term": "Nitrogenous base",
+      "definition": "One of the four DNA bases: adenine, thymine, cytosine or guanine."
+    },
+    {
+      "term": "Adenine (A)",
+      "definition": "A DNA base that pairs with thymine."
+    },
+    {
+      "term": "Thymine (T)",
+      "definition": "A DNA base that pairs with adenine."
+    },
+    {
+      "term": "Cytosine (C)",
+      "definition": "A DNA base that pairs with guanine."
+    },
+    {
+      "term": "Guanine (G)",
+      "definition": "A DNA base that pairs with cytosine."
+    },
+    {
+      "term": "Base pairing",
+      "definition": "The matching of DNA bases: A with T, and C with G."
+    },
+    {
+      "term": "Histones",
+      "definition": "Proteins that DNA wraps around to help organise chromosomes."
+    },
+    {
+      "term": "Locus",
+      "definition": "The specific position of a gene on a chromosome."
+    },
+    {
+      "term": "Allele",
+      "definition": "An alternative version of a gene."
+    },
+    {
+      "term": "Genotype",
+      "definition": "The combination of alleles an organism has for a particular gene."
+    },
+    {
+      "term": "Phenotype",
+      "definition": "The observable characteristics of an organism."
+    },
+    {
+      "term": "Dominant allele",
+      "definition": "An allele that is expressed when at least one copy is present."
+    },
+    {
+      "term": "Recessive allele",
+      "definition": "An allele that is expressed only when two copies are present."
+    },
+    {
+      "term": "Homozygous",
+      "definition": "Having two identical alleles for a gene."
+    },
+    {
+      "term": "Heterozygous",
+      "definition": "Having two different alleles for a gene."
+    },
+    {
+      "term": "Homozygous dominant",
+      "definition": "Having two dominant alleles (e.g. BB)."
+    },
+    {
+      "term": "Homozygous recessive",
+      "definition": "Having two recessive alleles (e.g. bb)."
+    },
+    {
+      "term": "Heterozygous dominant",
+      "definition": "Having one dominant and one recessive allele (e.g. Bb)."
+    },
+    {
+      "term": "Homologous chromosomes",
+      "definition": "A matching pair of chromosomes, one inherited from each parent."
+    },
+    {
+      "term": "Gamete",
+      "definition": "A reproductive cell, such as a sperm or egg cell."
+    },
+    {
+      "term": "Haploid",
+      "definition": "A cell containing one set of chromosomes."
+    },
+    {
+      "term": "Diploid",
+      "definition": "A cell containing two sets of chromosomes."
+    },
+    {
+      "term": "Meiosis",
+      "definition": "Cell division that produces four genetically different haploid cells."
+    },
+    {
+      "term": "Mitosis",
+      "definition": "Cell division that produces two genetically identical cells."
+    },
+    {
+      "term": "Crossing over",
+      "definition": "The exchange of DNA between homologous chromosomes during Prophase I of meiosis."
+    },
+    {
+      "term": "Independent assortment",
+      "definition": "The random arrangement of homologous chromosome pairs during meiosis."
+    },
+    {
+      "term": "Fertilisation",
+      "definition": "The joining of two gametes to form a zygote."
+    },
+    {
+      "term": "Genetic variation",
+      "definition": "Differences in genetic information between individuals of the same species."
+    },
+    {
+      "term": "Mutation",
+      "definition": "A change in the DNA sequence."
+    },
+    {
+      "term": "Somatic mutation",
+      "definition": "A mutation that occurs in a body cell."
+    },
+    {
+      "term": "Gametic mutation",
+      "definition": "A mutation that occurs in a reproductive cell and may be passed to offspring."
+    },
+    {
+      "term": "Transcription",
+      "definition": "The process of copying genetic information from DNA into messenger RNA."
+    },
+    {
+      "term": "Translation",
+      "definition": "The process of using messenger RNA instructions to build a protein."
+    },
+    {
+      "term": "Protein",
+      "definition": "A molecule made from amino acids that performs many functions in an organism."
+    },
+    {
+      "term": "Pedigree chart",
+      "definition": "A diagram showing how a characteristic is inherited through generations of a family."
+    },
+    {
+      "term": "Punnett square",
+      "definition": "A diagram used to predict possible offspring genotypes from a genetic cross."
+    },
+    {
+      "term": "Test cross",
+      "definition": "A cross used to determine the genotype of an organism showing a dominant phenotype."
+    },
+    {
+      "term": "Carrier",
+      "definition": "An individual with one recessive allele who does not show the recessive characteristic."
+    },
+    {
+      "term": "Karyotype",
+      "definition": "An organised image of an individual's chromosomes."
+    },
+    {
+      "term": "Aneuploidy",
+      "definition": "A condition where a cell has an abnormal number of chromosomes."
+    },
+    {
+      "term": "Trisomy",
+      "definition": "Having three copies of a particular chromosome instead of two."
+    },
+    {
+      "term": "Down syndrome",
+      "definition": "A genetic condition caused by an extra copy of chromosome 21."
+    },
+    {
+      "term": "Klinefelter syndrome",
+      "definition": "A chromosome condition commonly involving XXY sex chromosomes."
+    },
+    {
+      "term": "Turner syndrome",
+      "definition": "A chromosome condition involving a single X chromosome (monosomy X)."
+    },
+    {
+      "term": "Patau syndrome",
+      "definition": "A genetic condition caused by an extra copy of chromosome 13."
+    },
+    {
+      "term": "Edwards syndrome",
+      "definition": "A genetic condition caused by an extra copy of chromosome 18."
+    },
+    {
+      "term": "Sex chromosomes",
+      "definition": "Chromosomes involved in determining biological sex; commonly XX or XY in humans."
+    },
+    {
+      "term": "Zygote",
+      "definition": "The first cell formed when two gametes join during fertilisation."
+    },
+    {
+      "term": "Gene pool",
+      "definition": "All the genes and alleles present in a population."
     }
   ]
 }

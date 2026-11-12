@@ -1171,6 +1171,363 @@
       "a": [
         "Limiting factor"
       ]
+    },
+    {
+      "q": "What term matches this definition: The molecule that stores genetic information in living organisms.",
+      "a": [
+        "DNA",
+        "Deoxyribonucleic acid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A section of DNA that contains instructions for making a protein.",
+      "a": [
+        "Gene"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A long, organised structure of DNA wrapped around proteins called histones.",
+      "a": [
+        "Chromosome"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The basic building block of DNA, made of a sugar, phosphate and nitrogenous base.",
+      "a": [
+        "Nucleotide"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The twisted-ladder shape of DNA.",
+      "a": [
+        "Double helix"
+      ]
+    },
+    {
+      "q": "What term matches this definition: One of the four DNA bases: adenine, thymine, cytosine or guanine.",
+      "a": [
+        "Nitrogenous base",
+        "Base"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A DNA base that pairs with thymine.",
+      "a": [
+        "Adenine (A)",
+        "Adenine",
+        "A"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A DNA base that pairs with adenine.",
+      "a": [
+        "Thymine (T)",
+        "Thymine",
+        "T"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A DNA base that pairs with guanine.",
+      "a": [
+        "Cytosine (C)",
+        "Cytosine",
+        "C"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A DNA base that pairs with cytosine.",
+      "a": [
+        "Guanine (G)",
+        "Guanine",
+        "G"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The matching of DNA bases: A with T, and C with G.",
+      "a": [
+        "Base pairing",
+        "Complementary base pairing"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Proteins that DNA wraps around to help organise chromosomes.",
+      "a": [
+        "Histones",
+        "Histone"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The specific position of a gene on a chromosome.",
+      "a": [
+        "Locus"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An alternative version of a gene.",
+      "a": [
+        "Allele"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The combination of alleles an organism has for a particular gene.",
+      "a": [
+        "Genotype"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The observable characteristics of an organism.",
+      "a": [
+        "Phenotype"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An allele that is expressed when at least one copy is present.",
+      "a": [
+        "Dominant allele",
+        "Dominant"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An allele that is expressed only when two copies are present.",
+      "a": [
+        "Recessive allele",
+        "Recessive"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Having two identical alleles for a gene.",
+      "a": [
+        "Homozygous"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Having two different alleles for a gene.",
+      "a": [
+        "Heterozygous"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Having two dominant alleles (e.g. BB).",
+      "a": [
+        "Homozygous dominant"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Having two recessive alleles (e.g. bb).",
+      "a": [
+        "Homozygous recessive"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Having one dominant and one recessive allele (e.g. Bb).",
+      "a": [
+        "Heterozygous dominant"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A matching pair of chromosomes, one inherited from each parent.",
+      "a": [
+        "Homologous chromosomes",
+        "Homologous chromosome",
+        "Homologous pair"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A reproductive cell, such as a sperm or egg cell.",
+      "a": [
+        "Gamete",
+        "Sex cell"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A cell containing one set of chromosomes.",
+      "a": [
+        "Haploid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A cell containing two sets of chromosomes.",
+      "a": [
+        "Diploid"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Cell division that produces four genetically different haploid cells.",
+      "a": [
+        "Meiosis"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Cell division that produces two genetically identical cells.",
+      "a": [
+        "Mitosis"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The exchange of DNA between homologous chromosomes during Prophase I of meiosis.",
+      "a": [
+        "Crossing over"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The random arrangement of homologous chromosome pairs during meiosis.",
+      "a": [
+        "Independent assortment"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The joining of two gametes to form a zygote.",
+      "a": [
+        "Fertilisation",
+        "Fertilization"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Differences in genetic information between individuals of the same species.",
+      "a": [
+        "Genetic variation",
+        "Variation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A change in the DNA sequence.",
+      "a": [
+        "Mutation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A mutation that occurs in a body cell.",
+      "a": [
+        "Somatic mutation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A mutation that occurs in a reproductive cell and may be passed to offspring.",
+      "a": [
+        "Gametic mutation",
+        "Germline mutation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The process of copying genetic information from DNA into messenger RNA.",
+      "a": [
+        "Transcription"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The process of using messenger RNA instructions to build a protein.",
+      "a": [
+        "Translation"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A molecule made from amino acids that performs many functions in an organism.",
+      "a": [
+        "Protein"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A diagram showing how a characteristic is inherited through generations of a family.",
+      "a": [
+        "Pedigree chart",
+        "Pedigree"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A diagram used to predict possible offspring genotypes from a genetic cross.",
+      "a": [
+        "Punnett square"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A cross used to determine the genotype of an organism showing a dominant phenotype.",
+      "a": [
+        "Test cross",
+        "Testcross"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An individual with one recessive allele who does not show the recessive characteristic.",
+      "a": [
+        "Carrier"
+      ]
+    },
+    {
+      "q": "What term matches this definition: An organised image of an individual's chromosomes.",
+      "a": [
+        "Karyotype"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A condition where a cell has an abnormal number of chromosomes.",
+      "a": [
+        "Aneuploidy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Having three copies of a particular chromosome instead of two.",
+      "a": [
+        "Trisomy"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A genetic condition caused by an extra copy of chromosome 21.",
+      "a": [
+        "Down syndrome",
+        "Down's syndrome",
+        "Trisomy 21"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A chromosome condition commonly involving XXY sex chromosomes.",
+      "a": [
+        "Klinefelter syndrome",
+        "Klinefelter's syndrome",
+        "XXY"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A chromosome condition involving a single X chromosome (monosomy X).",
+      "a": [
+        "Turner syndrome",
+        "Turner's syndrome",
+        "Monosomy X"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A genetic condition caused by an extra copy of chromosome 13.",
+      "a": [
+        "Patau syndrome",
+        "Patau's syndrome",
+        "Trisomy 13"
+      ]
+    },
+    {
+      "q": "What term matches this definition: A genetic condition caused by an extra copy of chromosome 18.",
+      "a": [
+        "Edwards syndrome",
+        "Edward's syndrome",
+        "Trisomy 18"
+      ]
+    },
+    {
+      "q": "What term matches this definition: Chromosomes involved in determining biological sex; commonly XX or XY in humans.",
+      "a": [
+        "Sex chromosomes",
+        "Sex chromosome"
+      ]
+    },
+    {
+      "q": "What term matches this definition: The first cell formed when two gametes join during fertilisation.",
+      "a": [
+        "Zygote"
+      ]
+    },
+    {
+      "q": "What term matches this definition: All the genes and alleles present in a population.",
+      "a": [
+        "Gene pool"
+      ]
     }
   ]
 }
